@@ -33,7 +33,7 @@ class User < ActiveRecord::Base
     "Authorization: Basic #{b64}"
   end
 
-  #def has_made_self_known_to_public?
-  #  return true
-  #end
+  def has_made_self_known_to_public?
+    return true
+  end
 end

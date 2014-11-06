@@ -2,6 +2,10 @@ class UsersController < ApplicationController
   authorize :show,:search,:user
   authorize :create,:public
 
+  def index
+    respond_with @promotion.users.find(:all,:include=>:contact)
+  end
+
   def show
     respond_with @promotion.users.find(params[:id])
   end

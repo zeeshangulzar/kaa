@@ -92,8 +92,6 @@ module HESPrivacy
             ok = requester.master?
           elsif requester.master?
             ok = true
-          #elsif requester == target_user
-          #  ok = true
           elsif rule_hash[:test] == :me
             ok = requester == target_user
           elsif rule_hash[:test] == :connections
