@@ -18,6 +18,7 @@ class User < ApplicationModel
   belongs_to :promotion
   
   has_many :userTiles, :dependent => :destroy
+  has_many :entries, :order => :recorded_on
 
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'

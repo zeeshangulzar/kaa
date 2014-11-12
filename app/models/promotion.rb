@@ -5,6 +5,7 @@ class Promotion < ApplicationModel
 
   belongs_to :organization
   has_many :users
+  has_many :activities
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -13,5 +14,4 @@ class Promotion < ApplicationModel
   def current_time
     ActiveSupport::TimeZone[time_zone].now()
   end
-
 end
