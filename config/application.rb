@@ -12,8 +12,14 @@ end
 
 module Go
   class Application < Rails::Application
-    #config.middleware.insert_before ActionDispatch::Static, HESSecurityMiddleware
     config.middleware.insert_after Rails::Rack::Logger, HESSecurityMiddleware
+    config.middleware.insert_before HESSecurityMiddleware, Rack::Cors do
+        allow do
+            origins '*'
+            resource '*', :headers => :any, :methods => [:get, :post, :put, :delete]
+        end
+    end
+    #config.middleware.insert_before ActionDispatch::Static, HESSecurityMiddleware
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -62,5 +68,5 @@ module Go
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
-  end
+end
 end

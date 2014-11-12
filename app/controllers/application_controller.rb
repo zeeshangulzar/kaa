@@ -4,6 +4,17 @@ class ApplicationController < ActionController::Base
   respond_to :json
 
   before_filter :set_user_and_promotion
+  before_filter :set_default_format_json
+
+  # Sets the default format to json unless a different format is request.
+  def set_default_format_json
+    if params[:format] && params[:format] != 'json'
+      head :bad_request
+    else
+      request.format = 'json' unless params[:format]
+    end
+  end
+
   def set_user_and_promotion
     # first set it to me and my promotion
     @user = HESSecurityMiddleware.current_user

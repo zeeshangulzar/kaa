@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
 
   def auth_basic_header
     b64 = Base64.encode64("#{self.id}:#{self.auth_key}").gsub("\n","")
-    "Authorization: Basic #{b64}"
+    "Basic #{b64}"
   end
 
   def has_made_self_known_to_public?
