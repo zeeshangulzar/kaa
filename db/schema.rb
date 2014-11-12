@@ -109,7 +109,7 @@ ActiveRecord::Schema.define(:version => 20110527181040) do
     t.integer  "map_id"
     t.string   "role",                  :limit => 50
     t.string   "password",              :limit => 50
-    t.string   "auth_key",              :limit => 50
+    t.string   "auth_key",              :limit => 255
     t.string   "sso_identifier",        :limit => 100
     t.boolean  "allows_email",                         :default => true
     t.datetime "last_login"
