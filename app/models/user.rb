@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   after_initialize :set_default_values, :if => 'new_record?'
 
   belongs_to :promotion
-  has_one :contact, :as => :contactable
+  has_one :contact
 
   before_create :set_parents
 

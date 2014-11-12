@@ -26,15 +26,14 @@ ActiveRecord::Schema.define(:version => 20110527181040) do
   end
 
   create_table "contacts", :force => true do |t|
-    t.integer  "contactable_id"
-    t.string   "contactable_type", :limit => 50
-    t.string   "first_name",       :limit => 100
-    t.string   "last_name",        :limit => 100
-    t.string   "email",            :limit => 100
-    t.string   "phone",            :limit => 30
-    t.string   "mobile_phone",     :limit => 11
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.integer  "user_id"
+    t.string   "first_name",   :limit => 100
+    t.string   "last_name",    :limit => 100
+    t.string   "email",        :limit => 100
+    t.string   "phone",        :limit => 30
+    t.string   "mobile_phone", :limit => 11
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
   end
 
   create_table "organizations", :force => true do |t|
@@ -54,6 +53,8 @@ ActiveRecord::Schema.define(:version => 20110527181040) do
     t.integer  "password_min_symbols",                 :default => 0
     t.integer  "password_max_attempts",                :default => 5
     t.string   "customized_path",                      :default => "default"
+    t.string   "contact_name",          :limit => 100
+    t.string   "contact_email",         :limit => 100
     t.datetime "created_at",                                                  :null => false
     t.datetime "updated_at",                                                  :null => false
   end
@@ -95,9 +96,11 @@ ActiveRecord::Schema.define(:version => 20110527181040) do
   end
 
   create_table "resellers", :force => true do |t|
-    t.string   "name",       :limit => 100
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
+    t.string   "name",          :limit => 100
+    t.string   "contact_name",  :limit => 100
+    t.string   "contact_email", :limit => 100
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
   end
 
   create_table "users", :force => true do |t|
@@ -109,7 +112,7 @@ ActiveRecord::Schema.define(:version => 20110527181040) do
     t.integer  "map_id"
     t.string   "role",                  :limit => 50
     t.string   "password",              :limit => 50
-    t.string   "auth_key",              :limit => 255
+    t.string   "auth_key"
     t.string   "sso_identifier",        :limit => 100
     t.boolean  "allows_email",                         :default => true
     t.datetime "last_login"

@@ -1,6 +1,6 @@
-reseller = Reseller.create :name=>"Health Enhancement Systems"
+reseller = Reseller.create :name=>"Health Enhancement Systems", :contact_name=>"HES ADMIN", :contact_email=>"admin@hesapps.com"
 
-organization = reseller.organizations.create :name=>"Health Enhancement Systems"
+organization = reseller.organizations.create :name=>"Health Enhancement Systems", :contact_name=>"HES ADMIN", :contact_email=>"admin@hesapps.com"
 
 promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www'
 

@@ -14,6 +14,8 @@ class CreateOrganizations < ActiveRecord::Migration
       t.integer     :password_min_letters, :password_min_numbers, :password_min_symbols, :default => 0
       t.integer     :password_max_attempts,         :default => 5
       t.string      :customized_path,               :default => 'default'
+      t.string      :contact_name,                  :limit => 100
+      t.string      :contact_email,                 :limit => 100
 
       t.timestamps
     end

@@ -1,11 +1,10 @@
 class Contact < ActiveRecord::Base
   attr_accessible *column_names
-  attr_privacy_path_to_user :contactable
   attr_privacy :first_name,:last_name,:phone,:mobile_phone,:email,:contactable_id,:updated_at,:created_at,:me  
   attr_privacy :first_name,:last_name,:connections
   attr_privacy :first_name,:last_name,:public_comment
 
-  belongs_to :contactable, :polymorphic => true
+  belongs_to :user
   has_one :address
 
   # Full name (if both first and last name are present)
