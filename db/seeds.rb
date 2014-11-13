@@ -7,17 +7,19 @@ promotion = organization.promotions.create :name=>"Health Enhancement Systems", 
 master = promotion.users.build
 master.role=User::Role[:master]
 master.password = 'test'
+master.email = 'admin@hesapps.com'
 master.save
-master_contact = master.create_contact :first_name => 'HES', :last_name => 'Admin', :email => 'admin@hesapps.com'
+master_profile = master.create_profile :first_name => 'HES', :last_name => 'Admin'
 
 user = promotion.users.build
 user.role = User::Role[:user]
 user.password = 'test'
+user.email = 'johns@hesonline.com'
 user.save
-user_contact = user.create_contact :first_name => 'John', :last_name => 'Stanfield', :email => 'johns@hesonline.com'
+user_profile = user.create_profile :first_name => 'John', :last_name => 'Stanfield'
 
 puts "to make testing easy, auth-basic headers are below"
 User.all.each do |user|
-  puts user.contact.email
+  puts user.email
   puts user.auth_basic_header 
 end

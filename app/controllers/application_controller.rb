@@ -41,7 +41,7 @@ class ApplicationController < ActionController::Base
       if info[:subdomain]
         promotion = Promotion.find_by_subdomain(info[:subdomain])
         if promotion && promotion.is_active
-          @promotion = promtion
+          @promotion = promotion
         end
       end
     end

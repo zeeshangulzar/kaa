@@ -7,9 +7,10 @@ promotion = Promotion.first
   user = promotion.users.build
   user.role = User::Role[:user]
   user.password = 'test'
+  user.email = "#{fn.downcase}.#{ln.downcase}@test.hesonline.com"
   user.save
   fn = FIRST_NAMES.shuffle.first
   ln = LAST_NAMES.shuffle.first
-  user_contact = user.create_contact :first_name => fn, :last_name => ln, :email => "#{fn.downcase}.#{ln.downcase}@test.hesonline.com"
-  puts "created #{user_contact.email}"
+  user_profile = user.create_profile :first_name => fn, :last_name => ln
+  puts "created #{user.email}"
 end

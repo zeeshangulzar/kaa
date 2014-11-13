@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   authorize :create,:public
 
   def index
-    respond_with @promotion.users.find(:all,:include=>:contact)
+    respond_with @promotion.users.find(:all,:include=>:profile)
   end
 
   def show
@@ -12,8 +12,14 @@ class UsersController < ApplicationController
 
   def search
     search_string = "%#{params[:search_string]}%"
-    conditions = ["contacts.email like ? or contacts.first_name like ? or contacts.last_name like ?",search_string, search_string, search_string]
-    users = @promotion.users.find(:all,:include=>:contact,:conditions=>conditions)
+    conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
+    users = @promotion.users.find(:all,:include=>:profile,:conditions=>conditions)
     respond_with users 
   end
+
+  def create
+    user = @promotion.users.create(params[:user])
+    user.build_profile(params[:profile]||{})
+  end
+
 end

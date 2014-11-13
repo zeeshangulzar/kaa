@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   after_initialize :set_default_values, :if => 'new_record?'
 
   belongs_to :promotion
-  has_one :contact
+  has_one :profile
 
   before_create :set_parents
 
@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
   end
 
   def as_json(options={})
-    super(options.merge(:include=>:contact))
+    super(options.merge(:include=>:profile))
   end
 
   def auth_basic_header
