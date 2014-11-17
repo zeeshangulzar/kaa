@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
 
   belongs_to :promotion
   has_one :profile
+  has_many :userTiles, :dependent => :destroy
 
   before_create :set_parents
 
