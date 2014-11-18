@@ -74,7 +74,15 @@ module HESPrivacy
       tgt = target
       ptu = path_to_user.is_a?(Array) ? path_to_user : [path_to_user]
       ptu.each do |path_item|
-        tgt = tgt.send(path_item)
+        begin
+          tgt = tgt.send(path_item)       
+        rescue Exception => ex
+          if ex.is_a?(NoMethodError)      
+            raise "#{tgt.class} does not have a method named #{path_item}.  Perhaps you need to specify attr_privacy_path_to_user or attr_privacy_no_path_to_user"
+          else
+            raise ex
+          end
+        end
       end
       tgt
     end

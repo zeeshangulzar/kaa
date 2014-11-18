@@ -15,6 +15,7 @@ class User < ApplicationModel
   
   belongs_to :promotion
   
+  has_many :userTiles, :dependent => :destroy
 
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
