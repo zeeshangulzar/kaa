@@ -1,4 +1,4 @@
-class Profile < ActiveRecord::Base
+class Profile < ApplicationModel
   attr_accessible *column_names
   attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at,:me
   attr_privacy :first_name,:last_name,:connections
@@ -44,7 +44,7 @@ class Profile < ActiveRecord::Base
   end
 
   def set_default_values
-      promotion = user.promotion
+      promotion = self.user.promotion
       self.registered_on = promotion.current_date
       self.started_on = self.class.get_next_start_date(promotion)
       self.goal = promotion.default_goal

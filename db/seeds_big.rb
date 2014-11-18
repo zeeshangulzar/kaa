@@ -8,6 +8,7 @@ promotion = Promotion.first
   user.role = User::Role[:user]
   user.password = 'test'
   user.email = "#{fn.downcase}.#{ln.downcase}@test.hesonline.com"
+  user.username = "#{fn.downcase}#{ln.downcase}"
   user.save
   fn = FIRST_NAMES.shuffle.first
   ln = LAST_NAMES.shuffle.first

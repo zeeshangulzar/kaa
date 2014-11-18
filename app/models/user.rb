@@ -1,17 +1,41 @@
-class User < ActiveRecord::Base
-  attr_protected :role, :auth_key, :password
+require 'bcrypt'
 
-  Role = {:user => "User", :master => "Master", :reseller => "Reseller", :coordinator => "Coordinator", :sub_promotion_coordinator => "Sub Promotion Coordinator", :location_coordinator => "Location Coordinator", :poster => "Poster"}
+class User < ApplicationModel
+  # attrs
+  attr_protected :role, :auth_key
+  attr_privacy :email, :public
 
-  after_initialize :set_default_values, :if => 'new_record?'
+  # validation
+  validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
+  validates_uniqueness_of :email, :scope => :promotion_id
 
-  belongs_to :promotion
+  # relationships
   has_one :profile
+  accepts_nested_attributes_for :profile
+  
+  belongs_to :promotion
+  
 
-  before_create :set_parents
+  # hooks
+  after_initialize :set_default_values, :if => 'new_record?'
+  before_validation :set_parents, :on => :create
 
+  # constants
+  Role = {
+    :user                       => "User",
+    :master                     => "Master",
+    :reseller                   => "Reseller",
+    :coordinator                => "Coordinator",
+    :sub_promotion_coordinator  => "Sub Promotion Coordinator",
+    :location_coordinator       => "Location Coordinator",
+    :poster                     => "Poster"
+  }
+
+  # includes
   include HESUserMixins
+  include BCrypt
 
+  # methods
   def set_default_values
     self.role ||= Role[:user]
     self.auth_key ||= SecureRandom.hex(40)
@@ -36,4 +60,9 @@ class User < ActiveRecord::Base
   def has_made_self_known_to_public?
     return true
   end
+
+  def password=(new_password)
+    write_attribute(:password, Password.create(new_password))
+  end
+
 end

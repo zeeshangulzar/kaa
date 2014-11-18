@@ -1,5 +1,7 @@
 GEM
-  remote: https://rubygems.org/
+  remote: http://dev:dev@gems.staging.hesapps.com/
+  remote: http://gems.github.com/
+  remote: http://rubygems.org/
   specs:
     actionmailer (3.2.19)
       actionpack (= 3.2.19)
@@ -29,8 +31,27 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
+    bcrypt-ruby (3.0.1)
     builder (3.0.4)
     erubis (2.7.0)
+    hes-api (1.0.10)
+      rails (~> 3)
+    hes-authorization (2.0.5)
+      rails (~> 3)
+    hes-custom_prompts (0.0.2)
+      hes-api
+      hes-authorization
+      hes-events
+      hes-udf (~> 2)
+      rails (~> 3)
+    hes-events (0.0.2)
+      rails (~> 3)
+    hes-flaggable (2.0.9)
+      hes-api
+      hes-authorization
+      rails (~> 3)
+    hes-udf (2.0.3)
+      rails (~> 3)
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
@@ -85,6 +106,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bcrypt-ruby (= 3.0.1)
+  hes-custom_prompts
+  hes-flaggable (= 2.0.9)
   json
   mysql2
   rack-cors

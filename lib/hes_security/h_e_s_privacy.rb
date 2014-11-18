@@ -83,33 +83,40 @@ module HESPrivacy
       init
       target_user = get_user_from_target(target)
       remaining_keys = WhitelistAttributes.dup
-      if (requester && target) || (requester && requester.master?)
+      if target || (requester && requester.master?)
         rules = @@hes_privacy_config[self][:rules]
         rules.each do |rule_hash|
           ok = false
           # pay close attention to the order of the first 3 conditions below!
-          if rule_hash[:test] == :master
-            ok = requester.master?
-          elsif requester.master?
+          if rule_hash[:test] == :public
             ok = true
-          elsif rule_hash[:test] == :me
-            ok = requester == target_user
-          elsif rule_hash[:test] == :connections
-            #user now has a method named ids_of_connections to the user model that executes a SQL query that returns the type and id of every friend, team member, etc.
-            if target_user
-              if target_user.respond_to?(:ids_of_connections)
-                ok = target_user.ids_of_connections.include?(requester.id)
-              else
-                Rails.logger.warn "HESPrivacy warning: :connections was specified but #{target_user.class.to_s} does not have a method named ids_of_connections"
+          end
+          if !requester.nil?
+            if rule_hash[:test] == :any_user
+              ok = !requester.nil?
+            elsif rule_hash[:test] == :master
+              ok = requester.master?
+            elsif requester.master?
+              ok = true
+            elsif rule_hash[:test] == :me
+              ok = requester == target_user
+            elsif rule_hash[:test] == :connections
+              #user now has a method named ids_of_connections to the user model that executes a SQL query that returns the type and id of every friend, team member, etc.
+              if target_user
+                if target_user.respond_to?(:ids_of_connections)
+                  ok = target_user.ids_of_connections.include?(requester.id)
+                else
+                  Rails.logger.warn "HESPrivacy warning: :connections was specified but #{target_user.class.to_s} does not have a method named ids_of_connections"
+                end
               end
-            end
-          elsif rule_hash[:test] == :public_comment
-            #user now has a method named has_made_self_known_to_public? to the user model that executes a SQL query that returns whether the user has likes or posts
-            if target_user
-              if target_user.respond_to?(:has_made_self_known_to_public?)
-                ok = (requester.poster? || target_user.promotion_id == requester.promotion_id) && target_user.has_made_self_known_to_public?
-              else
-                Rails.logger.warn "HESPrivacy warning: :public_comment was specified but #{target_user.class.to_s} does not have a method named has_made_self_known_to_public?"
+            elsif rule_hash[:test] == :public_comment
+              #user now has a method named has_made_self_known_to_public? to the user model that executes a SQL query that returns whether the user has likes or posts
+              if target_user
+                if target_user.respond_to?(:has_made_self_known_to_public?)
+                  ok = (requester.poster? || target_user.promotion_id == requester.promotion_id) && target_user.has_made_self_known_to_public?
+                else
+                  Rails.logger.warn "HESPrivacy warning: :public_comment was specified but #{target_user.class.to_s} does not have a method named has_made_self_known_to_public?"
+                end
               end
             end
           end

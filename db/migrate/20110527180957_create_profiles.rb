@@ -3,6 +3,7 @@ class CreateProfiles < ActiveRecord::Migration
     create_table :profiles do |t|
       t.integer   :user_id
       t.string    :gender,                            :limit => 1
+      t.integer   :goal
       t.string    :first_name, :last_name,            :limit => 100
       t.string    :phone,                             :limit => 30
       t.string    :mobile_phone,                      :limit => 11

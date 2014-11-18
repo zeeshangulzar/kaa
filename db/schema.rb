@@ -10,7 +10,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110527180957) do
+ActiveRecord::Schema.define(:version => 20141118165214) do
+
+  create_table "flag_defs", :force => true do |t|
+    t.string  "model",     :limit => 100
+    t.integer "position"
+    t.string  "flag_name", :limit => 100
+    t.text    "flag_type", :limit => 255
+    t.boolean "default",                  :default => false
+  end
+
+  add_index "flag_defs", ["model"], :name => "by_model"
 
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
@@ -35,9 +45,16 @@ ActiveRecord::Schema.define(:version => 20110527180957) do
     t.datetime "updated_at",                                                  :null => false
   end
 
+  create_table "profile_udfs", :force => true do |t|
+    t.integer "profile_id"
+  end
+
+  add_index "profile_udfs", ["profile_id"], :name => "by_profile_id"
+
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
     t.string   "gender",             :limit => 1
+    t.integer  "goal"
     t.string   "first_name",         :limit => 100
     t.string   "last_name",          :limit => 100
     t.string   "phone",              :limit => 30
@@ -55,8 +72,9 @@ ActiveRecord::Schema.define(:version => 20110527180957) do
     t.string   "employee_entity",    :limit => 50
     t.date     "started_on"
     t.date     "registered_on"
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+    t.integer  "flags_1",                           :default => 0
   end
 
   create_table "promotions", :force => true do |t|
@@ -102,6 +120,16 @@ ActiveRecord::Schema.define(:version => 20110527180957) do
     t.datetime "created_at",                   :null => false
     t.datetime "updated_at",                   :null => false
   end
+
+  create_table "udf_defs", :force => true do |t|
+    t.string  "owner_type",  :limit => 30
+    t.string  "parent_type", :limit => 30
+    t.integer "parent_id"
+    t.string  "data_type"
+    t.boolean "is_enabled",                :default => true
+  end
+
+  add_index "udf_defs", ["parent_type", "parent_id"], :name => "by_parent_type_parent_id"
 
   create_table "users", :force => true do |t|
     t.integer  "promotion_id"
