@@ -4,14 +4,14 @@
 promotion = Promotion.first
 
 1000.times do
+  fn = FIRST_NAMES.shuffle.first
+  ln = LAST_NAMES.shuffle.first
   user = promotion.users.build
   user.role = User::Role[:user]
   user.password = 'test'
   user.email = "#{fn.downcase}.#{ln.downcase}@test.hesonline.com"
   user.username = "#{fn.downcase}#{ln.downcase}"
   user.save
-  fn = FIRST_NAMES.shuffle.first
-  ln = LAST_NAMES.shuffle.first
   user_profile = user.create_profile :first_name => fn, :last_name => ln
   puts "created #{user.email}"
 end
