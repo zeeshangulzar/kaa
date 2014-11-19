@@ -6,6 +6,7 @@ class Profile < ApplicationModel
 
   belongs_to :user
 
+  include TrackChangedFields
   udfable
   
   flags :has_changed_password_at_least_once, :default => false

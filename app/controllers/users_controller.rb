@@ -1,11 +1,21 @@
 class UsersController < ApplicationController
-  authorize :search, :user
-  authorize :show, :create, :update, :public
+  authorize :search, :update, :user
+  authorize :create, :public
+  authorize :index, :coordinator
+  authorize :destroy, :master
 
   def index
     respond_with @promotion.users.find(:all,:include=>:profile)
   end
 
+  # Get a user
+  #
+  # @url [GET] /users/1
+  # @param [Integer] id The id of the user
+  # @return [User] User that matches the id
+  #
+  # [URL] /users/:id [GET]
+  #  [200 OK] Successfully retrieved User
   def show
     user = @promotion.users.find(params[:id]) rescue nil
     if !user
@@ -30,7 +40,7 @@ class UsersController < ApplicationController
     if !user
       render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
     elsif user.update_attributes(params[:user])
-      render :json => user.to_json
+      render :json => user
     elsif user.errors
       render :json => {:errors => user.errors.full_messages}, :status =>  422 and return
     else
@@ -43,7 +53,7 @@ class UsersController < ApplicationController
     if !user
       render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
     elsif @user.master? && user.destroy
-      render :json => user.to_json
+      render :json => user
     else
       render :json => {:errors => "You may not delete."}, :status =>  403 and return
     end
@@ -53,8 +63,9 @@ class UsersController < ApplicationController
   def search
     search_string = "%#{params[:search_string]}%"
     conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
-    users = @promotion.users.find(:all,:include=>:profile,:conditions=>conditions)
-    respond_with users
+    p = (@user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
+    users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
+    render :json => users and return
   end
 
 end

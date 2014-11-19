@@ -34,24 +34,6 @@ GEM
     bcrypt-ruby (3.0.1)
     builder (3.0.4)
     erubis (2.7.0)
-    hes-api (1.0.10)
-      rails (~> 3)
-    hes-authorization (2.0.5)
-      rails (~> 3)
-    hes-custom_prompts (0.0.2)
-      hes-api
-      hes-authorization
-      hes-events
-      hes-udf (~> 2)
-      rails (~> 3)
-    hes-events (0.0.2)
-      rails (~> 3)
-    hes-flaggable (2.0.9)
-      hes-api
-      hes-authorization
-      rails (~> 3)
-    hes-udf (2.0.3)
-      rails (~> 3)
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
@@ -107,8 +89,6 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
-  hes-custom_prompts
-  hes-flaggable (= 2.0.9)
   json
   mysql2
   rack-cors
