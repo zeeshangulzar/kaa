@@ -3,7 +3,9 @@ require 'bcrypt'
 class User < ApplicationModel
   # attrs
   attr_protected :role, :auth_key
+  attr_privacy_no_path_to_user
   attr_privacy :email, :public
+  attr_privacy :username, :me
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
