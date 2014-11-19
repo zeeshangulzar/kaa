@@ -6,6 +6,7 @@ class Promotion < ApplicationModel
   belongs_to :organization
   has_many :users
   has_many :activities
+  has_many :exercise_activities
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
 
   def current_date

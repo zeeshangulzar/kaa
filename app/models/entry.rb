@@ -9,7 +9,7 @@ class Entry < ActiveRecord::Base
   has_many :entry_activities
   accepts_nested_attributes_for :entry_activities
 
-  attr_accessible :recorded_on, :notes, :points, :daily_points, :challenge_points, :activity_points, :entry_activities_attributes
+  attr_accessible :recorded_on, :notes, :points, :daily_points, :challenge_points, :activity_points, :entry_activities_attributes, :exercise_steps, :exercise_minutes
   
   # Can not have the same recorded on date for one user
   validates_uniqueness_of :recorded_on, :scope => :user_id
@@ -41,6 +41,13 @@ class Entry < ActiveRecord::Base
     timed_activity_points = 0
 
     parent_hash = {}
+
+    #Calculate daily points
+    if !entry.exercise_steps.nil?
+
+    elsif entry.entry_exercise_minutes.count > 0
+
+
 
     # Calculate points earned for each entry activity
     self.entry_activities.each do |entry_activity|
