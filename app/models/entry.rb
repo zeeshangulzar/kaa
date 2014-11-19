@@ -1,6 +1,7 @@
 class Entry < ActiveRecord::Base
-  include ActiveModel::Validations
+  # include ActiveModel::Validations
   
+  attr_accessible *column_names
   # All entries are tied to a user
   belongs_to :user
   
@@ -36,20 +37,48 @@ class Entry < ActiveRecord::Base
     end
   end
 
+  def write_attribute_with_exercise(attr,val)
+    write_attribute_without_exercise(attr,val)
+    if [:exercise_minutes,:exercise_steps].include?(attr.is_a?(String) ? attr.to_sym : attr) && !self.user.nil?
+      calculate_daily_points
+      # set_is_recorded
+    end
+  end
+
+  alias_method_chain :write_attribute,:exercise
+
+  #Not quite sure the point of this... used to be is_logged
+  def set_is_recorded
+    write_attribute(:is_recorded, !exercise_minutes.to_i.zero?)
+    true
+  end
+
+  def calculate_daily_points
+    points = 0
+    value = 0
+    point_thresholds = []
+    if !self.exercise_minutes.nil?
+      point_thresholds = self.user.promotion.minutes_point_thresholds
+      value = self.exercise_minutes
+    elsif !self.exercise_steps.nil?
+      point_thresholds = self.user.promotion.steps_point_thresholds
+      value = self.exercise_steps
+    end
+
+    point_thresholds.each do |point_threshold|
+      if value >= point_threshold.min
+        points += point_threshold.value
+        break
+      end #if
+    end #do activity point threshold
+
+    self.daily_points = points
+  end #calculate_daily_points
+
   def calculate_points
-    daily_points = 0
+    calculate_daily_points
+
     timed_activity_points = 0
-
-    parent_hash = {}
-
-    #Calculate daily points
-    if !entry.exercise_steps.nil?
-
-    elsif entry.entry_exercise_minutes.count > 0
-
-
-
-    # Calculate points earned for each entry activity
     self.entry_activities.each do |entry_activity|
       activity = entry_activity.activity
 
@@ -64,36 +93,13 @@ class Entry < ActiveRecord::Base
               timed_activity_points += point_threshold.value
             end #if
           end #do timed point threshold
-
-        elsif !activity.parent_activity_id.nil? 
-          next
-          # parent_id = activity.parent_activity_id
-          # if parent_hash[parent_id].nil?
-          #   parent_hash[parent_id] = 0
-          # end
-          # parent_hash[parent_id] += value
-
-        elsif activity.child_activities.length > 0 
-
-        else 
-          activity.point_thresholds do |point_threshold|
-            if value >= point_threshold.min
-              daily_points += point_threshold.value
-              break
-            end #if
-          end #do activity point threshold
         end #elsif
       end #if
     end #do entry_activity
 
-    #Get Daily points
-    self.user.promotion.activities.find(:first, :conditions {:name => "Exercise Minute"})
-
     #TODO: Challenge Points Calculation
 
-    self.daily_points = daily_points
-    self.timed_activity_points = timed_activity_points
-    
+    self.timed_activity_points = timed_activity_points    
   end
 
 end
