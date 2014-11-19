@@ -168,7 +168,7 @@ module ManyToMany
         end 
         
         columns = klass_new.column_names
-        klass_new.send :attr_accessible, *column_names
+        klass_new.send :attr_accessible, *columns
 
         columns_privacy = columns.collect{|x|x.to_sym}
         columns_privacy << :public
