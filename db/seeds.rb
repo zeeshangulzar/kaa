@@ -21,6 +21,7 @@ ex_activity_swim = promotion.exercise_activities.create :name => "Swimming", :su
 activity_water = promotion.activities.create :name => "Drink Water", :content => "You need to drink water", :type_of_prompt => "counter", :cap_value => 8, :cap_message => "You can only record 8 glasses of water"
 
 timed_water_activity = activity_water.timed_activities.create :begin_date => Date.today, :end_date => (Date.today + 1)
+timed_water_activity.point_thresholds.create :value => 1, :min => 1
 
 master = promotion.users.build
 master.role=User::Role[:master]

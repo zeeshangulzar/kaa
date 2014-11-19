@@ -10,11 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(:version => 20141117182310) do
-=======
 ActiveRecord::Schema.define(:version => 20141119183123) do
->>>>>>> Make exercise activities for steps and minutes
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -69,16 +65,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
 
   add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
 
-  create_table "flag_defs", :force => true do |t|
-    t.string  "model",     :limit => 100
-    t.integer "position"
-    t.string  "flag_name", :limit => 100
-    t.text    "flag_type", :limit => 255
-    t.boolean "default",                  :default => false
-  end
-
-  add_index "flag_defs", ["model"], :name => "by_model"
-
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
     t.string   "name",                  :limit => 100
@@ -102,11 +88,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.datetime "updated_at",                                                  :null => false
   end
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
   create_table "point_thresholds", :force => true do |t|
     t.integer  "pointable_id"
     t.string   "pointable_type"
@@ -117,20 +98,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.datetime "updated_at",     :null => false
   end
 
->>>>>>> Make exercise activities for steps and minutes
-  create_table "profile_udfs", :force => true do |t|
-    t.integer "profile_id"
-  end
-
-  add_index "profile_udfs", ["profile_id"], :name => "by_profile_id"
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> Remove recording from activities, update models and migrations for logging
->>>>>>> Remove recording from activities, update models and migrations for logging
-=======
->>>>>>> Make exercise activities for steps and minutes
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
     t.string   "gender",             :limit => 1
@@ -152,34 +119,8 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.string   "employee_entity",    :limit => 50
     t.date     "started_on"
     t.date     "registered_on"
-<<<<<<< HEAD
-<<<<<<< HEAD
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
-=======
-<<<<<<< HEAD
-    t.datetime "created_at",                                       :null => false
-    t.datetime "updated_at",                                       :null => false
-    t.integer  "flags_1",                           :default => 0
-=======
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
-=======
-  create_table "point_thresholds", :force => true do |t|
-    t.integer  "activity_id"
-    t.integer  "timed_activity_id"
-    t.integer  "value"
-    t.integer  "min"
-    t.datetime "created_at",        :null => false
-    t.datetime "updated_at",        :null => false
->>>>>>> Remove recording from activities, update models and migrations for logging
->>>>>>> Remove recording from activities, update models and migrations for logging
->>>>>>> Remove recording from activities, update models and migrations for logging
-=======
-    t.datetime "created_at",                                       :null => false
-    t.datetime "updated_at",                                       :null => false
-    t.integer  "flags_1",                           :default => 0
->>>>>>> Make exercise activities for steps and minutes
   end
 
   create_table "promotions", :force => true do |t|
@@ -226,10 +167,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.datetime "updated_at",                   :null => false
   end
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Make exercise activities for steps and minutes
   create_table "tiles", :force => true do |t|
     t.integer  "activities_id"
     t.string   "title",         :limit => 50
@@ -239,10 +176,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.integer  "default_seq"
     t.datetime "created_at",                                      :null => false
     t.datetime "updated_at",                                      :null => false
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
   end
 
   create_table "timed_activities", :force => true do |t|
@@ -251,24 +184,6 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.date     "end_date"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
-  end
-
->>>>>>> Make exercise activities for steps and minutes
-  create_table "udf_defs", :force => true do |t|
-    t.string  "owner_type",  :limit => 30
-    t.string  "parent_type", :limit => 30
-    t.integer "parent_id"
-    t.string  "data_type"
-    t.boolean "is_enabled",                :default => true
->>>>>>> Remove recording from activities, update models and migrations for logging
-  end
-
-  create_table "user_tiles", :force => true do |t|
-    t.integer  "users_id"
-    t.integer  "tiles_id"
-    t.integer  "sequence"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
   end
 
   create_table "user_tiles", :force => true do |t|

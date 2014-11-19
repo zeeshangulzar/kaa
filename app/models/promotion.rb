@@ -16,4 +16,13 @@ class Promotion < ApplicationModel
   def current_time
     ActiveSupport::TimeZone[time_zone].now()
   end
+
+  def steps_point_thresholds
+    self.point_thresholds.find(:all, :conditions => {:rel => "STEPS"}, :order => 'min DESC')
+  end
+
+  def minutes_point_thresholds
+    self.point_thresholds.find(:all, :conditions => {:rel => "MINUTES"}, :order => 'min DESC')
+  end
+
 end
