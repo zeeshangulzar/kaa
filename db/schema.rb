@@ -62,12 +62,9 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
-    t.text     "content"
-    t.integer  "cap_value"
-    t.string   "cap_message",  :limit => 200
     t.text     "summary"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
   add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
@@ -111,12 +108,13 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
 <<<<<<< HEAD
 =======
   create_table "point_thresholds", :force => true do |t|
-    t.integer  "activity_id"
-    t.integer  "timed_activity_id"
+    t.integer  "pointable_id"
+    t.string   "pointable_type"
     t.integer  "value"
     t.integer  "min"
-    t.datetime "created_at",        :null => false
-    t.datetime "updated_at",        :null => false
+    t.text     "rel"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
 >>>>>>> Make exercise activities for steps and minutes

@@ -6,7 +6,7 @@ class Activity < ActiveRecord::Base
   belongs_to :promotion
 
   has_many :entries_activities
-  has_many :point_thresholds, :order => 'min DESC'
+  has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :timed_activities
   
   attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary
