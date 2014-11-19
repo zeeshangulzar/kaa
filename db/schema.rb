@@ -10,7 +10,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(:version => 20141117182310) do
+=======
+ActiveRecord::Schema.define(:version => 20141119183123) do
+>>>>>>> Make exercise activities for steps and minutes
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -34,6 +38,8 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.integer  "daily_points"
     t.integer  "challenge_points"
     t.integer  "timed_activity_points"
+    t.integer  "exercise_minutes"
+    t.integer  "exercise_steps"
     t.datetime "created_at",            :null => false
     t.datetime "updated_at",            :null => false
   end
@@ -52,6 +58,29 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
   add_index "entry_activities", ["activity_id"], :name => "index_entry_activities_on_activity_id"
   add_index "entry_activities", ["entry_id", "activity_id", "sequence"], :name => "index_entry_activities_on_entry_id_and_activity_id_and_sequence", :unique => true
   add_index "entry_activities", ["entry_id"], :name => "index_entry_activities_on_entry_id"
+
+  create_table "exercise_activities", :force => true do |t|
+    t.integer  "promotion_id"
+    t.string   "name"
+    t.text     "content"
+    t.integer  "cap_value"
+    t.string   "cap_message",  :limit => 200
+    t.text     "summary"
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+  end
+
+  add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
+
+  create_table "flag_defs", :force => true do |t|
+    t.string  "model",     :limit => 100
+    t.integer "position"
+    t.string  "flag_name", :limit => 100
+    t.text    "flag_type", :limit => 255
+    t.boolean "default",                  :default => false
+  end
+
+  add_index "flag_defs", ["model"], :name => "by_model"
 
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
@@ -77,18 +106,33 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+  create_table "point_thresholds", :force => true do |t|
+    t.integer  "activity_id"
+    t.integer  "timed_activity_id"
+    t.integer  "value"
+    t.integer  "min"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+  end
+
+>>>>>>> Make exercise activities for steps and minutes
   create_table "profile_udfs", :force => true do |t|
     t.integer "profile_id"
   end
 
   add_index "profile_udfs", ["profile_id"], :name => "by_profile_id"
 
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> Remove recording from activities, update models and migrations for logging
 >>>>>>> Remove recording from activities, update models and migrations for logging
+=======
+>>>>>>> Make exercise activities for steps and minutes
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
     t.string   "gender",             :limit => 1
@@ -111,6 +155,7 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.date     "started_on"
     t.date     "registered_on"
 <<<<<<< HEAD
+<<<<<<< HEAD
     t.datetime "created_at",                        :null => false
     t.datetime "updated_at",                        :null => false
 =======
@@ -132,6 +177,11 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
 >>>>>>> Remove recording from activities, update models and migrations for logging
 >>>>>>> Remove recording from activities, update models and migrations for logging
 >>>>>>> Remove recording from activities, update models and migrations for logging
+=======
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+    t.integer  "flags_1",                           :default => 0
+>>>>>>> Make exercise activities for steps and minutes
   end
 
   create_table "promotions", :force => true do |t|
@@ -179,6 +229,9 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
   end
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Make exercise activities for steps and minutes
   create_table "tiles", :force => true do |t|
     t.integer  "activities_id"
     t.string   "title",         :limit => 50
@@ -188,8 +241,21 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.integer  "default_seq"
     t.datetime "created_at",                                      :null => false
     t.datetime "updated_at",                                      :null => false
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+  end
+
+  create_table "timed_activities", :force => true do |t|
+    t.integer  "activity_id"
+    t.date     "begin_date"
+    t.date     "end_date"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+>>>>>>> Make exercise activities for steps and minutes
   create_table "udf_defs", :force => true do |t|
     t.string  "owner_type",  :limit => 30
     t.string  "parent_type", :limit => 30
@@ -207,16 +273,14 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.datetime "updated_at", :null => false
   end
 
-=======
-  create_table "timed_activities", :force => true do |t|
-    t.integer  "activity_id"
-    t.date     "begin_date"
-    t.date     "end_date"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+  create_table "user_tiles", :force => true do |t|
+    t.integer  "users_id"
+    t.integer  "tiles_id"
+    t.integer  "sequence"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
->>>>>>> Remove recording from activities, update models and migrations for logging
   create_table "users", :force => true do |t|
     t.integer  "promotion_id"
     t.integer  "location_id"
@@ -226,7 +290,7 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.integer  "map_id"
     t.string   "role",                  :limit => 50
     t.string   "username",              :limit => 50
-    t.string   "password",              :limit => 50
+    t.string   "password",              :limit => 64
     t.string   "auth_key"
     t.string   "sso_identifier",        :limit => 100
     t.boolean  "allows_email",                         :default => true

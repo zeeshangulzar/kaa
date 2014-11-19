@@ -1,7 +1,6 @@
 class PointThreshold < ActiveRecord::Base
 
-  belongs_to :activity
-  belongs_to :timed_activity
+  belongs_to :pointable, :polymorphic => true
 
   attr_accessible :min, :value
 
