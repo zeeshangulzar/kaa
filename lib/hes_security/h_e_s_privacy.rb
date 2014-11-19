@@ -32,6 +32,11 @@ module HESPrivacy
       @@hes_privacy_config[self] ||= {:path_to_user=>:user,:rules=>[]}
     end
 
+    def get_privacy_hash
+      init
+      @@hes_privacy_config[self]
+    end
+
     def inspect_privacy
       init
       @@hes_privacy_config.collect{|k,v|{k.to_s=>v}}.inspect

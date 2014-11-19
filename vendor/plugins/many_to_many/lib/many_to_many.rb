@@ -166,13 +166,30 @@ module ManyToMany
             define_method(:undelete) {self.is_deleted = false; self.save}
           end
         end 
-        
+
+        # make them all accessible        
         columns = klass_new.column_names
         klass_new.send :attr_accessible, *columns
 
-        columns_privacy = columns.collect{|x|x.to_sym}
-        columns_privacy << :public
-        klass_new.send :attr_privacy, *columns_privacy
+        # setup HESPrivacy
+        #   privacy settings are all columns only for :me
+        #   attr_privacy_path_to_user is built from the primary class's attr_privacy_path_to_user
+        #   but if the primary class specifies attr_privacy_no_path_to_user, then there are no privacy settings (e.g. only master can see the data)
+        #   you can always override this default behavior by dropping a file in lib/ or config/initializers/ such as
+        #        TheManyToManyClass.attr_privacy :some_field, :some_other_field, :public
+        path_to_user = primaryClassConst.get_privacy_hash[:path_to_user]
+        if path_to_user == HESPrivacy::NoPathToUser
+          klass_new.send :attr_privacy_no_path_to_user
+        else
+          columns_privacy = columns.collect{|x|x.to_sym}
+          columns_privacy << :me
+          klass_new.send :attr_privacy, *columns_privacy
+          path_item = self_referencing ? "parent_#{primaryClassConstString.underscore}".to_sym : primaryClassConstString.underscore.to_sym
+          new_path_to_user = [path_to_user].flatten.dup
+          new_path_to_user.unshift path_item
+          klass_new.send :attr_privacy_path_to_user, *new_path_to_user
+        end
+        puts "i guess path to user is:  #{path_to_user.inspect}"
 
         
         #puts "Created many-to-many relationship between #{primaryClassConstString} and #{secondaryClassConstString} named #{m2mConstString}"
