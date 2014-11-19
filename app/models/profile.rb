@@ -1,23 +1,34 @@
 class Profile < ApplicationModel
+  # attrs
   attr_accessible *column_names
   attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at,:me
   attr_privacy :first_name,:last_name,:connections
   attr_privacy :first_name,:last_name,:public_comment
 
+  # validation
+  validates_presence_of :first_name, :last_name
+
+  # relationships
   belongs_to :user
 
+  # includes
   include TrackChangedFields
   udfable
-  
+
+  # flags
   flags :has_changed_password_at_least_once, :default => false
-  
+
+  # hooks
   before_create :set_default_values
 
+  # constants
   GoalMin = 150
   GoalMax = 360
   Gender = [['-- Choose --', ''], ['Female','F'], ['Male','M'] ]
   DaysActivePerWeek = [['-- Choose --', ''], [0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7] ]
   MinutesPerDay = [['-- Choose --', ''], ['0 - 15', '0 - 15'], ['16 - 30', '16 - 30'], ['31 - 45','31 - 45'], ['46 - 60','46 - 60'], ['More than 60', 'More than 60'] ]
+
+  # methods
 
   # Full name (if both first and last name are present)
   def full_name
