@@ -39,6 +39,8 @@ module ManyToMany
       else
         raise ":primary or :class_name must be specified"
       end
+
+      args[:allow_duplicates]||=false
   
       raise ":fields must be an array" unless args[:fields].nil? || args[:fields].is_a?(Array)
       args[:fields]||=[]
@@ -98,6 +100,26 @@ module ManyToMany
         else
           #puts "#{m2mConstString} table named #{tableName} found...OK"
         end
+
+
+        # does a unique index need to be created or dropped?
+        unique_index_name = "#{tableName}_unique_index"
+        unique_index_exists = !connection.select_all("show indexes from #{tableName} where Key_name = '#{unique_index_name}'").size.zero?
+        if args[:allow_duplicates]
+          if unique_index_exists
+            # we want duplicates, and the unique index exists, so drop it (i.e. :allow_duplicates was not specified originally, but now is)
+            connection.remove_index tableName, :name => unique_index_name
+            puts "unique index on #{table_name} dropped...OK"
+          end
+        else
+          unless unique_index_exists
+            col1 = "#{self_referencing ? "parent_" : ""}#{primaryClassConstString.underscore}_id"
+            col2 = "#{self_referencing ? "child_" : ""}#{secondaryClassConstString.underscore}_id"
+            connection.add_index tableName, [col1,col2], :name => unique_index_name, :unique => true
+            puts "unique index on #{table_name} created...OK"
+          end
+        end
+
         
         # are any extra fields specified?  if so, make sure they exist in the table
         unless args[:fields].nil?
