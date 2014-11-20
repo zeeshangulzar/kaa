@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   authorize :destroy, :master
 
   def index
-    respond_with @promotion.users.find(:all,:include=>:profile)
+    return HESResponder(@promotion.users.find(:all,:include=>:profile))
   end
 
   # Get a user
@@ -20,43 +20,49 @@ class UsersController < ApplicationController
   def show
     user = @promotion.users.find(params[:id]) rescue nil
     if !user
-      render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
+      return HESResponder("User doesn't exist.", 'NOT_FOUND')
     end
-    render :json => user and return
+    return HESResponder(user)
   end
 
   def create
+    raise ActionController::ok.to_s
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
     user = @promotion.users.create(params[:user])
     if !user.valid?
-      render :json => {:errors => user.errors.full_messages}, :status =>  422 and return
+      return HESResponder(user.errors.full_messages, 'ERROR')
     else
-      render :json => user and return
+      return HESResponder(user)
     end
   end
   
   def update
     user = User.find(params[:id]) rescue nil
-    params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
     if !user
-      render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
-    elsif user.update_attributes(params[:user])
-      render :json => user
-    elsif user.errors
-      render :json => {:errors => user.errors.full_messages}, :status =>  422 and return
+      return HESResponder("User doesn't exist.", 'NOT_FOUND')
     else
-      render :json => {:errors => "Something went wrong, Jake."}, :status =>  422 and return
+      User.transaction do
+        profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
+        user.update_attributes(params[:user])
+        user.profile.update_attributes(profile_data)
+      end
+      errors = user.profile.errors || user.errors # the order here is important. profile will have specific errors.
+      if errors
+        return HESResponder(errors.full_messages, 'ERROR')
+      else
+        return HESResponder(user)
+      end
     end
   end
   
   def destroy
     user = User.find(params[:id]) rescue nil
     if !user
-      render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
+      return HESResponder("User doesn't exist.", 'NOT_FOUND')
     elsif @user.master? && user.destroy
-      render :json => user
+      return HESResponder(user)
     else
-      render :json => {:errors => "You may not delete."}, :status =>  403 and return
+      return HESResponder("You may not delete.", 'DENIED')
     end
   end
 
@@ -66,7 +72,7 @@ class UsersController < ApplicationController
     conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
     p = (@user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
     users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
-    render :json => users and return
+    return HESResponder(users)
   end
 
 
@@ -75,14 +81,14 @@ class UsersController < ApplicationController
     fs = ['email','username']
     f = params[:field]
     if !fs.include?(f)
-      render :json => {:errors => "Can't check this field."}, :status =>  422 and return
+      return HESResponder("Can't check this field.", 'ERROR')
     end
     f = f.to_sym
-    v = params[:funky_chicken]
+    v = params[:value]
     if @promotion.users.where(f=>v).count > 0
-      render :json => {:errors => f.to_s.titleize + " is not unique within promotion."}, :status =>  422 and return
+      return HESResponder(f.to_s.titleize + " is not unique within promotion.", 'ERROR')
     else
-      render :json => {:message => 'AOK'} and return
+      return HESResponder()
     end
   end
 

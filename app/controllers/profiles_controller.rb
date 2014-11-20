@@ -16,9 +16,9 @@ class ProfilesController < ApplicationController
   def show
     user = @promotion.users.find(params[:id]) rescue nil
     if !user
-      render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
+      return HESResponder("User doesn't exist.", 'NOT_FOUND')
     end
-    render :json => user.profile and return
+    return HESResponder(user.profile)
   end
 
   def create
@@ -28,13 +28,13 @@ class ProfilesController < ApplicationController
   def update
     user = User.find(params[:id]) rescue nil
     if !user
-      render :json => {:errors => ["User doesn't exist."]}, :status => 404 and return
+      return HESResponder("User doesn't exist.", 'NOT_FOUND')
     elsif user.profile.update_attributes(params[:profile])
-      render :json => user.to_json
+      return HESResponder(user.profile)
     elsif user.profile.errors
-      render :json => {:errors => user.profile.errors.full_messages}, :status =>  422 and return
+      return HESResponder(user.profile.errors.full_messages, 'ERROR')
     else
-      render :json => {:errors => "Something went wrong, Jake."}, :status =>  422 and return
+      return HESResponder("Something went wrong, Jake.", 'ERROR')
     end
   end
   
