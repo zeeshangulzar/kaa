@@ -6,6 +6,13 @@ class ApplicationController < ActionController::Base
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
 
+  HTTP_CODES = {
+    'OK'        => 200,
+    'DENIED'    => 403,
+    'NOT_FOUND' => 404,
+    'ERROR'     => 422
+  }
+
   # Sets the default format to json unless a different format is request.
   def set_default_format_json
     if params[:format] && params[:format] != 'json'
@@ -47,4 +54,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def HESResponder(body = 'AOK', status = 'OK')
+    response_body = nil
+    if status != 'OK'
+      response = {:errors => [body]}
+    else
+      response = {:message => body}
+    end
+    if !body.is_a? String
+      response = body
+    end
+    code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
+    render :json => response, :status => code and return
+  end
 end

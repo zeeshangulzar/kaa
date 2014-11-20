@@ -2,7 +2,7 @@ class PromotionsController < ApplicationController
   authorize :index, :show, :create, :update, :destroy, :public
 
   def index
-    respond_with Promotion.find(:all,:include=>:profile)
+    return HESResponder(Promotion.find(:all,:include=>:profile))
   end
 
   # Get a promotion
@@ -16,9 +16,9 @@ class PromotionsController < ApplicationController
   def show
     promotion = Promotion.find(params[:id]) rescue nil
     if !promotion
-      render :json => {:errors => ["Promotion doesn't exist."]}, :status => 404 and return
+      return HESResponder("Promotion doesn't exist.", 'NOT_FOUND')
     end
-    render :json => promotion and return
+    return HESResponder(promotion)
   end
 
   def create
