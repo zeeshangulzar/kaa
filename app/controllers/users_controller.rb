@@ -3,9 +3,22 @@ class UsersController < ApplicationController
   authorize :create, :public
   authorize :index, :coordinator
   authorize :destroy, :master
+  authorize :authenticate, :public
 
   def index
     respond_with @promotion.users.find(:all,:include=>:profile)
+  end
+
+  def authenticate
+    user = @promotion.users.find_by_email(params[:email])
+
+    if user && user.password == params[:password]
+      json = user.as_json
+      json[:auth_basic_header] = user.auth_basic_header
+      render :json => json
+    else
+      render :json => {:errors => ["Can't authenticate user."]}, :status => 401 and return
+    end
   end
 
   # Get a user
