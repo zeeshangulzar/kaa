@@ -29,7 +29,7 @@ class HESSecurityMiddleware
     if request.authorization
       user_id,auth_key = request.user_name_and_password(request)
       user = User.find(:first,:conditions=>{:id => user_id.to_i, :auth_key => auth_key}) rescue nil
-      @@authenticated_user = user 
+      self.class.set_current_user(user)
     end
     if @@authenticated_user
       Rails.logger.warn "    HES Security - authenticated user is: User##{@@authenticated_user.id}"
@@ -93,6 +93,10 @@ class HESSecurityMiddleware
   def self.current_user
     @@authenticated_user ||= nil
     @@authenticated_user
+  end
+
+  def self.set_current_user(user)
+    @@authenticated_user = user 
   end
 
   def self.disabled?

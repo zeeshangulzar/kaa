@@ -32,6 +32,11 @@ module HESPrivacy
       @@hes_privacy_config[self] ||= {:path_to_user=>:user,:rules=>[]}
     end
 
+    def get_privacy_hash
+      init
+      @@hes_privacy_config[self]
+    end
+
     def inspect_privacy
       init
       @@hes_privacy_config.collect{|k,v|{k.to_s=>v}}.inspect
@@ -89,7 +94,6 @@ module HESPrivacy
 
     def reduce_keys(requester,target)
       init
-      target_user = get_user_from_target(target)
       remaining_keys = WhitelistAttributes.dup
       if target || (requester && requester.master?)
         rules = @@hes_privacy_config[self][:rules]
@@ -100,6 +104,7 @@ module HESPrivacy
             ok = true
           end
           if !requester.nil?
+            target_user = get_user_from_target(target)
             if rule_hash[:test] == :any_user
               ok = !requester.nil?
             elsif rule_hash[:test] == :master

@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
+  authorize :create, :validate, :public
   authorize :search, :update, :user
-  authorize :create, :public
   authorize :index, :coordinator
   authorize :destroy, :master
   authorize :authenticate, :public
@@ -79,6 +79,23 @@ class UsersController < ApplicationController
     p = (@user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
     users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
     render :json => users and return
+  end
+
+
+  # this just checks for uniqueness at the moment
+  def validate
+    fs = ['email','username']
+    f = params[:field]
+    if !fs.include?(f)
+      render :json => {:errors => "Can't check this field."}, :status =>  422 and return
+    end
+    f = f.to_sym
+    v = params[:funky_chicken]
+    if @promotion.users.where(f=>v).count > 0
+      render :json => {:errors => f.to_s.titleize + " is not unique within promotion."}, :status =>  422 and return
+    else
+      render :json => {:message => 'AOK'} and return
+    end
   end
 
 end

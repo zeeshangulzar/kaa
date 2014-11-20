@@ -10,7 +10,60 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141117182310) do
+ActiveRecord::Schema.define(:version => 20141119183123) do
+
+  create_table "activities", :force => true do |t|
+    t.integer  "promotion_id"
+    t.string   "name"
+    t.text     "content"
+    t.string   "type_of_prompt"
+    t.integer  "cap_value"
+    t.string   "cap_message",      :limit => 200
+    t.string   "regex_validation", :limit => 20
+    t.text     "options"
+    t.text     "summary"
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
+  end
+
+  create_table "entries", :force => true do |t|
+    t.integer  "user_id"
+    t.boolean  "is_recorded"
+    t.date     "recorded_on"
+    t.text     "notes"
+    t.integer  "daily_points"
+    t.integer  "challenge_points"
+    t.integer  "timed_activity_points"
+    t.integer  "exercise_minutes"
+    t.integer  "exercise_steps"
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
+  end
+
+  add_index "entries", ["user_id"], :name => "index_entries_on_user_id"
+
+  create_table "entry_activities", :force => true do |t|
+    t.integer  "entry_id"
+    t.integer  "activity_id"
+    t.string   "value"
+    t.integer  "sequence",    :default => 0
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
+  end
+
+  add_index "entry_activities", ["activity_id"], :name => "index_entry_activities_on_activity_id"
+  add_index "entry_activities", ["entry_id", "activity_id", "sequence"], :name => "index_entry_activities_on_entry_id_and_activity_id_and_sequence", :unique => true
+  add_index "entry_activities", ["entry_id"], :name => "index_entry_activities_on_entry_id"
+
+  create_table "exercise_activities", :force => true do |t|
+    t.integer  "promotion_id"
+    t.string   "name"
+    t.text     "summary"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
 
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
@@ -33,6 +86,16 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.string   "contact_email",         :limit => 100
     t.datetime "created_at",                                                  :null => false
     t.datetime "updated_at",                                                  :null => false
+  end
+
+  create_table "point_thresholds", :force => true do |t|
+    t.integer  "pointable_id"
+    t.string   "pointable_type"
+    t.integer  "value"
+    t.integer  "min"
+    t.text     "rel"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "profiles", :force => true do |t|
@@ -113,6 +176,14 @@ ActiveRecord::Schema.define(:version => 20141117182310) do
     t.integer  "default_seq"
     t.datetime "created_at",                                      :null => false
     t.datetime "updated_at",                                      :null => false
+  end
+
+  create_table "timed_activities", :force => true do |t|
+    t.integer  "activity_id"
+    t.date     "begin_date"
+    t.date     "end_date"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
   create_table "user_tiles", :force => true do |t|
