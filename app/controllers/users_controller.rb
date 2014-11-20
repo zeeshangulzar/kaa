@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   authorize :create, :validate, :public
-  authorize :search, :update, :user
+  authorize :search, :show, :user
+  authorize :update, :me
   authorize :index, :coordinator
   authorize :destroy, :master
 
