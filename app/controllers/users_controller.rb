@@ -26,7 +26,6 @@ class UsersController < ApplicationController
   end
 
   def create
-    raise ActionController::ok.to_s
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
     user = @promotion.users.create(params[:user])
     if !user.valid?
