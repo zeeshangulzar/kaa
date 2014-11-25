@@ -1,5 +1,5 @@
 PATH
-  remote: /users/benmurphy/Programming/go/vendor/gems/hes-evaluations
+  remote: vendor/gems/hes-evaluations
   specs:
     hes-evaluations (0.1.0)
       hes-api
