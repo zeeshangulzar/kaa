@@ -1,3 +1,15 @@
+PATH
+  remote: /users/benmurphy/Programming/go/vendor/gems/hes-evaluations
+  specs:
+    hes-evaluations (0.1.0)
+      hes-api
+      hes-authorization
+      hes-custom_prompts
+      hes-flaggable (~> 2)
+      hes-notifier
+      hes-sequencer
+      rails (~> 3)
+
 GEM
   remote: http://dev:dev@gems.staging.hesapps.com/
   remote: http://gems.github.com/
@@ -34,6 +46,32 @@ GEM
     bcrypt-ruby (3.0.1)
     builder (3.0.4)
     erubis (2.7.0)
+    hes-api (1.0.10)
+      rails (~> 3)
+    hes-authorization (2.0.5)
+      rails (~> 3)
+    hes-custom_prompts (0.0.2)
+      hes-api
+      hes-authorization
+      hes-events
+      hes-udf (~> 2)
+      rails (~> 3)
+    hes-events (0.0.2)
+      rails (~> 3)
+    hes-flaggable (2.0.9)
+      hes-api
+      hes-authorization
+      rails (~> 3)
+    hes-many_to_many (0.0.3)
+    hes-notifier (1.0.6)
+      hes-api
+      hes-authorization
+      rails (~> 3)
+    hes-sequencer (0.0.1)
+      hes-many_to_many
+      rails (~> 3.2.11)
+    hes-udf (2.0.3)
+      rails (~> 3)
     hike (1.2.3)
     i18n (0.6.11)
     journey (1.0.4)
@@ -89,6 +127,12 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
+  hes-api
+  hes-authorization
+  hes-custom_prompts
+  hes-evaluations (= 0.1.0)!
+  hes-notifier
+  hes-sequencer
   json
   mysql2
   rack-cors

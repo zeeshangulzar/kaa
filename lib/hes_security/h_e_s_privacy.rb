@@ -50,6 +50,12 @@ module HESPrivacy
       #           a pointer to a helper function such as :me
       #           a lambda so the developer can hand-craft whatever is necessary
       test = args.pop
+      if args.include?(:all_attrs)
+        all = args.delete(:all_attrs)
+        all.each do |attr|
+          args.push attr
+        end
+      end
       @@hes_privacy_config[self][:rules] << {:attrs=>args,:test=>test}
     end
 

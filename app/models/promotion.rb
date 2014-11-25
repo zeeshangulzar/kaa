@@ -4,10 +4,16 @@ class Promotion < ApplicationModel
   attr_privacy :subdomain, :public
 
   belongs_to :organization
+
   has_many :users
   has_many :activities
   has_many :exercise_activities
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
+
+  has_evaluations
+
+  after_create :create_evaluations
+  after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -23,6 +29,22 @@ class Promotion < ApplicationModel
 
   def minutes_point_thresholds
     self.point_thresholds.find(:all, :conditions => {:rel => "MINUTES"}, :order => 'min DESC')
+  end
+
+  # Creates the initial assesement used at registration and the final assessment used at the program end
+  def create_evaluations
+      initial_evaluation = self.evaluation_definitions.create!(:name => "Initial Assessment", :days_from_start => 0)
+      program_end_evaluation = self.evaluation_definitions.create!(:name => "Program End Evaluation", :days_from_start => self.program_length - 1)
+
+      # initial_evaluation.update_attributes(:is_liked_least_displayed => false, :is_liked_most_displayed => false)
+  end
+
+  # Updates the last evaluation that is tied to the ends_on date
+  def update_evaluations
+    end_evaluation = self.evaluation_definitions.where(:days_from_start => self.program_length_was).first
+    end_evaluation.update_attributes(:days_from_start => self.program_length) unless end_evaluation.nil?
+
+    true
   end
 
 end

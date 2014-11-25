@@ -1,4 +1,4 @@
-class UDFDef < ActiveRecord::Base
+class UdfDef < ActiveRecord::Base
   include TrackChangedFields
 
   validates_presence_of :owner_type, :parent_type, :parent_id, :data_type

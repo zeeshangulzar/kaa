@@ -3,7 +3,7 @@ class UDF < ActiveRecord::Base
   set_table_name :schema_info  # this kludge is here just go get us out the gate, it will be set properly later on
   
   def udf_defs
-    UDFDef.find(:all,:conditions=>["owner_type = ?", self.parent.class.to_s])
+    UdfDef.find(:all,:conditions=>["owner_type = ?", self.parent.class.to_s])
   end
 
   def method_missing(name,*args)

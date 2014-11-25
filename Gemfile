@@ -13,22 +13,22 @@ gem 'json'
 gem 'bcrypt-ruby', '3.0.1'
 
 # HES Gems
+gem "hes-evaluations", '0.1.0', :path => "/users/benmurphy/Programming/go/vendor/gems/hes-evaluations"
 # gem "hes-flaggable", '2.0.9'
-# gem "hes-custom_prompts"
+gem "hes-custom_prompts"
 # gem "hes-core"
-# gem "hes-api"
+gem "hes-api"
 # gem "hes-subdomain-handler"
 # gem "hes-authentication"
-# gem "hes-authorization"
+gem "hes-authorization"
 # gem "hes-cloud-storage", '1.0.10'
-# gem "hes-sequencer"
+gem "hes-sequencer"
 # gem "hes-many_to_many", '0.0.3'
 # gem "hes-auth-key", :require => 'hes-auth-key'
 # gem "hes-timely", '0.0.7'
 # gem "hes-eligibilities"
-# gem "hes-evaluations"
 # gem "hes-locations"
-# gem "hes-notifier"
+gem "hes-notifier"
 # gem "hes-recording", '0.0.8'
 # gem "hes-competitions", '0.0.16'
 # gem "hes-commentable"
