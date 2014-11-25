@@ -9,8 +9,6 @@ class CreateProfiles < ActiveRecord::Migration
       t.string    :mobile_phone,                      :limit => 11
       t.string    :line1, :line2, :city, :state_province, :country, :postal_code, :limit => 150
       t.string    :time_zone
-      t.integer   :days_active_per_wk
-      t.string    :exercise_per_day,                  :limit => 50
       t.string    :employee_group, :employee_entity,  :limit => 50
       t.date      :started_on, :registered_on
       t.timestamps

@@ -25,12 +25,39 @@ class UsersController < ApplicationController
     return HESResponder(user)
   end
 
+
+
+  # Create a user
+  #
+  # @url [POST] /users
+  # @authorize Public
+  # TODO: document me!
   def create
+    return HESResponder('No user provided.', 'ERROR') if params[:user].nil?
+
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
+
+    if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
+      ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id])
+      if ed && ed.eval_definitionable_type == 'Promotion' && ed.eval_definitionable_id == @promotion.id
+        eval_params = params[:user][:evaluation]
+        params[:user].delete(:evaluation)
+      else
+        return HESResponder("Invalid evaluation definition.", 'ERROR')
+      end
+    else
+      eval_params = nil
+    end
+
     user = @promotion.users.create(params[:user])
+
     if !user.valid?
       return HESResponder(user.errors.full_messages, 'ERROR')
     else
+      if eval_params
+        eval_params[:user_id] = user.id
+        eval = ed.evaluations.create(eval_params)
+      end
       return HESResponder(user)
     end
   end

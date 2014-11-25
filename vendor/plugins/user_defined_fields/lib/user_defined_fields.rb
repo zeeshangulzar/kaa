@@ -18,7 +18,7 @@ module UserDefinedFields
   end
   
   def udf_defs
-    UDFDef.find(:all,:conditions=>["owner_type = ?", self.class.to_s])
+    UdfDef.find(:all,:conditions=>["owner_type = ?", self.class.to_s])
   end
   
   module ClassMethods
@@ -51,7 +51,7 @@ module UserDefinedFields
           t.column "field_name", :string
         end
         connection.add_index def_table_name, ["parent_type","parent_id"], :name => "by_parent_type_parent_id"
-        UDFDef.reset_column_information
+        UdfDef.reset_column_information
         puts "UDF definitions table created...OK"
       else
         #puts "UDF definitions table found...OK"

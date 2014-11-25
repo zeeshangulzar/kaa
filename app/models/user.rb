@@ -13,13 +13,14 @@ class User < ApplicationModel
 
   # relationships
   has_one :profile
-  accepts_nested_attributes_for :profile
-  
   belongs_to :promotion
-  
   has_many :userTiles, :dependent => :destroy
   has_many :entries, :order => :recorded_on
-
+  has_many :evaluations, :dependent => :destroy
+  
+  accepts_nested_attributes_for :profile, :evaluations
+  attr_accessor :include_evaluation_definitions
+  
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
   before_validation :set_parents, :on => :create
@@ -53,7 +54,14 @@ class User < ApplicationModel
   end
 
   def as_json(options={})
-    super(options.merge(:include=>:profile))
+    user_json = super(options.merge(:include=>:profile))
+
+    if self.include_evaluation_definitions || options[:include_evaluation_definitions]
+      _evaluations_definitions = self.evaluations.collect{|x| x.definition.id}
+      user_json["evaluation_definitions"] = _evaluations_definitions
+    end
+
+    user_json
   end
 
   def auth_basic_header
@@ -67,6 +75,17 @@ class User < ApplicationModel
 
   def password=(new_password)
     write_attribute(:password, Password.create(new_password))
+  end
+
+  # Gets the next evaluation definition for a user
+  # @return [EvaluationDefinition] evaluation definition that hasn't been completed
+  def get_next_evaluation_definition
+    return @next_eval_definition if @next_eval_definition
+
+    eval_definations = self.evaluations.collect{|x| x.definition}
+    @next_eval_definition = (promotion.evaluation_definitions - eval_definations).first
+
+    @next_eval_definition
   end
 
 end

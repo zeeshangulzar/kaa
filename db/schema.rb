@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141119183123) do
+ActiveRecord::Schema.define(:version => 20141125191044) do
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -25,6 +25,23 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.datetime "created_at",                      :null => false
     t.datetime "updated_at",                      :null => false
   end
+
+  create_table "custom_prompts", :force => true do |t|
+    t.integer  "custom_promptable_id"
+    t.string   "custom_promptable_type"
+    t.integer  "sequence"
+    t.string   "prompt",                 :limit => 500
+    t.string   "data_type",              :limit => 20
+    t.string   "type_of_prompt",         :limit => 20
+    t.string   "short_label",            :limit => 20
+    t.text     "options"
+    t.boolean  "is_active",                             :default => true
+    t.boolean  "is_required",                           :default => false
+    t.datetime "created_at",                                               :null => false
+    t.datetime "updated_at",                                               :null => false
+  end
+
+  add_index "custom_prompts", ["custom_promptable_type", "custom_promptable_id"], :name => "cp_index"
 
   create_table "entries", :force => true do |t|
     t.integer  "user_id"
@@ -54,6 +71,55 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
   add_index "entry_activities", ["activity_id"], :name => "index_entry_activities_on_activity_id"
   add_index "entry_activities", ["entry_id", "activity_id", "sequence"], :name => "index_entry_activities_on_entry_id_and_activity_id_and_sequence", :unique => true
   add_index "entry_activities", ["entry_id"], :name => "index_entry_activities_on_entry_id"
+
+  create_table "evaluation_definitions", :force => true do |t|
+    t.integer  "eval_definitionable_id"
+    t.string   "eval_definitionable_type"
+    t.string   "name"
+    t.integer  "days_from_start"
+    t.integer  "sequence"
+    t.text     "message"
+    t.text     "visible_questions"
+    t.integer  "flags_1",                  :default => 126
+    t.integer  "flags_2",                  :default => 134096128
+    t.datetime "created_at",                                      :null => false
+    t.datetime "updated_at",                                      :null => false
+  end
+
+  add_index "evaluation_definitions", ["eval_definitionable_id", "eval_definitionable_type"], :name => "eval_def_idx"
+
+  create_table "evaluation_udfs", :force => true do |t|
+    t.integer "evaluation_id"
+  end
+
+  add_index "evaluation_udfs", ["evaluation_id"], :name => "by_evaluation_id"
+
+  create_table "evaluations", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "evaluation_definition_id"
+    t.integer  "days_active_per_week"
+    t.integer  "fruit_servings"
+    t.integer  "vegetable_servings"
+    t.integer  "fruit_vegetable_servings"
+    t.integer  "whole_grains"
+    t.integer  "breakfast"
+    t.string   "stress",                   :limit => 9
+    t.string   "sleep_hours",              :limit => 11
+    t.string   "social",                   :limit => 9
+    t.integer  "water_glasses"
+    t.text     "liked_most",               :limit => 255
+    t.integer  "kindness"
+    t.string   "energy",                   :limit => 16
+    t.string   "overall_health",           :limit => 9
+    t.text     "liked_least",              :limit => 255
+    t.string   "exercise_per_day"
+    t.string   "perception"
+    t.datetime "created_at",                              :null => false
+    t.datetime "updated_at",                              :null => false
+  end
+
+  add_index "evaluations", ["evaluation_definition_id"], :name => "index_evaluations_on_evaluation_definition_id"
+  add_index "evaluations", ["user_id"], :name => "index_evaluations_on_user_id"
 
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -100,27 +166,25 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
 
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
-    t.string   "gender",             :limit => 1
+    t.string   "gender",          :limit => 1
     t.integer  "goal"
-    t.string   "first_name",         :limit => 100
-    t.string   "last_name",          :limit => 100
-    t.string   "phone",              :limit => 30
-    t.string   "mobile_phone",       :limit => 11
-    t.string   "line1",              :limit => 150
-    t.string   "line2",              :limit => 150
-    t.string   "city",               :limit => 150
-    t.string   "state_province",     :limit => 150
-    t.string   "country",            :limit => 150
-    t.string   "postal_code",        :limit => 150
+    t.string   "first_name",      :limit => 100
+    t.string   "last_name",       :limit => 100
+    t.string   "phone",           :limit => 30
+    t.string   "mobile_phone",    :limit => 11
+    t.string   "line1",           :limit => 150
+    t.string   "line2",           :limit => 150
+    t.string   "city",            :limit => 150
+    t.string   "state_province",  :limit => 150
+    t.string   "country",         :limit => 150
+    t.string   "postal_code",     :limit => 150
     t.string   "time_zone"
-    t.integer  "days_active_per_wk"
-    t.string   "exercise_per_day",   :limit => 50
-    t.string   "employee_group",     :limit => 50
-    t.string   "employee_entity",    :limit => 50
+    t.string   "employee_group",  :limit => 50
+    t.string   "employee_entity", :limit => 50
     t.date     "started_on"
     t.date     "registered_on"
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   create_table "promotions", :force => true do |t|
@@ -185,6 +249,16 @@ ActiveRecord::Schema.define(:version => 20141119183123) do
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
   end
+
+  create_table "udf_defs", :force => true do |t|
+    t.string  "owner_type",  :limit => 30
+    t.string  "parent_type", :limit => 30
+    t.integer "parent_id"
+    t.string  "data_type"
+    t.boolean "is_enabled",                :default => true
+  end
+
+  add_index "udf_defs", ["parent_type", "parent_id"], :name => "by_parent_type_parent_id"
 
   create_table "user_tiles", :force => true do |t|
     t.integer  "users_id"
