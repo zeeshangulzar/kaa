@@ -20,7 +20,7 @@ class UsersController < ApplicationController
   def show
     user = @promotion.users.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", 'NOT_FOUND')
+      return HESResponder("User doesn't exist.", "NOT_FOUND")
     end
     return HESResponder(user)
   end
@@ -33,7 +33,7 @@ class UsersController < ApplicationController
   # @authorize Public
   # TODO: document me!
   def create
-    return HESResponder('No user provided.', 'ERROR') if params[:user].nil?
+    return HESResponder("No user provided.", "ERROR") if params[:user].nil?
 
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
 
@@ -43,7 +43,7 @@ class UsersController < ApplicationController
         eval_params = params[:user][:evaluation]
         params[:user].delete(:evaluation)
       else
-        return HESResponder("Invalid evaluation definition.", 'ERROR')
+        return HESResponder("Invalid evaluation definition.", "ERROR")
       end
     else
       eval_params = nil
@@ -52,7 +52,7 @@ class UsersController < ApplicationController
     user = @promotion.users.create(params[:user])
 
     if !user.valid?
-      return HESResponder(user.errors.full_messages, 'ERROR')
+      return HESResponder(user.errors.full_messages, "ERROR")
     else
       if eval_params
         eval_params[:user_id] = user.id
@@ -65,8 +65,11 @@ class UsersController < ApplicationController
   def update
     user = User.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", 'NOT_FOUND')
+      return HESResponder("User doesn't exist.", "NOT_FOUND")
     else
+      if user != @user && !@user.master?
+        return HESReponder("You may not edit this user.", "DENIED")
+      end
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
         user.update_attributes(params[:user])
@@ -74,7 +77,7 @@ class UsersController < ApplicationController
       end
       errors = user.profile.errors || user.errors # the order here is important. profile will have specific errors.
       if errors
-        return HESResponder(errors.full_messages, 'ERROR')
+        return HESResponder(errors.full_messages, "ERROR")
       else
         return HESResponder(user)
       end
@@ -84,11 +87,11 @@ class UsersController < ApplicationController
   def destroy
     user = User.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", 'NOT_FOUND')
-    elsif @user.master? && user.destroy
+      return HESResponder("User doesn't exist.", "NOT_FOUND")
+    elsif user.destroy
       return HESResponder(user)
     else
-      return HESResponder("You may not delete.", 'DENIED')
+      return HESResponder("Error deleting.", "ERROR")
     end
   end
 
@@ -107,12 +110,12 @@ class UsersController < ApplicationController
     fs = ['email','username']
     f = params[:field]
     if !fs.include?(f)
-      return HESResponder("Can't check this field.", 'ERROR')
+      return HESResponder("Can't check this field.", "ERROR")
     end
     f = f.to_sym
     v = params[:value]
     if @promotion.users.where(f=>v).count > 0
-      return HESResponder(f.to_s.titleize + " is not unique within promotion.", 'ERROR')
+      return HESResponder(f.to_s.titleize + " is not unique within promotion.", "ERROR")
     else
       return HESResponder()
     end

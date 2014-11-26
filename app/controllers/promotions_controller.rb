@@ -1,8 +1,13 @@
 class PromotionsController < ApplicationController
-  authorize :index, :show, :create, :update, :destroy, :public
+  authorize :index, :show, :create, :update, :destroy, :master
+
+  authorize :show, :public
+  authorize :index, :poster
+  authorize :create, :update, :destroy, :master
 
   def index
-    return HESResponder(Promotion.find(:all,:include=>:profile))
+    promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : Promotion.all
+    return HESResponder(promotions)
   end
 
   # Get a promotion
@@ -16,21 +21,41 @@ class PromotionsController < ApplicationController
   def show
     promotion = Promotion.find(params[:id]) rescue nil
     if !promotion
-      return HESResponder("Promotion doesn't exist.", 'NOT_FOUND')
+      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
     end
     return HESResponder(promotion)
   end
 
   def create
-    # todo
+    promotion = Promotion.create(params[:promotion])
+    if !promotion.valid?
+      return HESResponder(promotion.errors.full_messages, "ERROR")
+    end
+    return HESResponder(promotion)
   end
   
   def update
-    # todo
+    promotion = Promotion.find(params[:id])
+    if !promotion
+      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
+    else
+      if !promotion.update_attributes(params[:promotion])
+        return HESResponder(promotion.errors.full_messages, "ERROR")
+      else
+        return HESResponder(promotion)
+      end
+    end
   end
   
   def destroy
-    # todo
+    promotion = Promotion.find(params[:id]) rescue nil
+    if !promotion
+      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
+    elsif promotion.destroy
+      return HESResponder(promotion)
+    else
+      return HESResponder("Error deleting.", "ERROR")
+    end
   end
 
 end

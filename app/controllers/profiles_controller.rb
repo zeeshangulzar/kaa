@@ -16,7 +16,7 @@ class ProfilesController < ApplicationController
   def show
     user = @promotion.users.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", 'NOT_FOUND')
+      return HESResponder("User doesn't exist.", "NOT_FOUND")
     end
     return HESResponder(user.profile)
   end
@@ -28,13 +28,13 @@ class ProfilesController < ApplicationController
   def update
     user = User.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", 'NOT_FOUND')
+      return HESResponder("User doesn't exist.", "NOT_FOUND")
     elsif user.profile.update_attributes(params[:profile])
       return HESResponder(user.profile)
     elsif user.profile.errors
-      return HESResponder(user.profile.errors.full_messages, 'ERROR')
+      return HESResponder(user.profile.errors.full_messages, "ERROR")
     else
-      return HESResponder("Something went wrong, Jake.", 'ERROR')
+      return HESResponder("Error updating profile.", "ERROR")
     end
   end
   
