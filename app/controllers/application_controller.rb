@@ -6,6 +6,16 @@ class ApplicationController < ActionController::Base
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
 
+  MeEquivalents = ['-', 'me']
+
+  def get_user_from_params_user_id
+    if MeEquivalents.include?(params[:id])
+      user = @user
+    else
+      user = @promotion.user.find(params[:id]) rescue nil
+    end
+  end
+
   # Sets the default format to json unless a different format is request.
   def set_default_format_json
     if params[:format] && params[:format] != 'json'
