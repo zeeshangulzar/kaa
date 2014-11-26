@@ -8,6 +8,7 @@ Go::Application.routes.draw do
   resources :users do
     collection do
       get 'search/:search_string', :to=>'users#search'
+      post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
   end

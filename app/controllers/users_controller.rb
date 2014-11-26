@@ -4,9 +4,24 @@ class UsersController < ApplicationController
   authorize :update, :me
   authorize :index, :coordinator
   authorize :destroy, :master
+  authorize :authenticate, :public
+  authorize :show, :user
 
   def index
     return HESResponder(@promotion.users.find(:all,:include=>:profile))
+  end
+
+  def authenticate
+    user = @promotion.users.find_by_email(params[:email])
+    HESSecurityMiddleware.set_current_user(user)
+
+    if user && user.password == params[:password]
+      json = user.as_json
+      json[:auth_basic_header] = user.auth_basic_header
+      render :json => json
+    else
+      render :json => {:errors => ["Email or password is incorrect."]}, :status => 401 and return
+    end
   end
 
   # Get a user
@@ -18,7 +33,7 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
-    user = @promotion.users.find(params[:id]) rescue nil
+    user = get_user_from_params_user_id
     if !user
       return HESResponder("User doesn't exist.", "NOT_FOUND")
     end

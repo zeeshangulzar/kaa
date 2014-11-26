@@ -278,6 +278,7 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
     t.string   "role",                  :limit => 50
     t.string   "username",              :limit => 50
     t.string   "password",              :limit => 64
+    t.string   "password_hash",         :limit => 64
     t.string   "auth_key"
     t.string   "sso_identifier",        :limit => 100
     t.boolean  "allows_email",                         :default => true
