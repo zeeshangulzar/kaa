@@ -4,6 +4,7 @@ Go::Application.routes.draw do
   match "/users/validate/:field" => "users#validate", :via => :post
   match "/users/:user_id/profile" => "profiles#show", :via => :get
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
+  match 'users/:user_id/entries' => 'entries#index', :via => :get
 
   resources :users do
     collection do

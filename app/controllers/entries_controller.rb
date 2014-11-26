@@ -18,7 +18,7 @@ class EntriesController < ApplicationController
   #   }]
   def index
     @entries = @user.entries.available.to_a
-    respond_with @entries
+    HESResponder(@entries)
   end
 
   # Gets a single entry for a team
