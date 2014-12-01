@@ -54,7 +54,7 @@ class UsersController < ApplicationController
 
     if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
       ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id])
-      if ed && ed.eval_definitionable_type == 'Promotion' && ed.eval_definitionable_id == @promotion.id
+      if ed && ed.promotion_id == @promotion.id
         eval_params = params[:user][:evaluation]
         params[:user].delete(:evaluation)
       else

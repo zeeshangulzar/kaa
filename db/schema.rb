@@ -73,20 +73,17 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
   add_index "entry_activities", ["entry_id"], :name => "index_entry_activities_on_entry_id"
 
   create_table "evaluation_definitions", :force => true do |t|
-    t.integer  "eval_definitionable_id"
-    t.string   "eval_definitionable_type"
+    t.integer  "promotion_id"
     t.string   "name"
     t.integer  "days_from_start"
     t.integer  "sequence"
     t.text     "message"
     t.text     "visible_questions"
-    t.integer  "flags_1",                  :default => 126
-    t.integer  "flags_2",                  :default => 134096128
-    t.datetime "created_at",                                      :null => false
-    t.datetime "updated_at",                                      :null => false
+    t.integer  "flags_1",           :default => 126
+    t.integer  "flags_2",           :default => 134096128
+    t.datetime "created_at",                               :null => false
+    t.datetime "updated_at",                               :null => false
   end
-
-  add_index "evaluation_definitions", ["eval_definitionable_id", "eval_definitionable_type"], :name => "eval_def_idx"
 
   create_table "evaluation_udfs", :force => true do |t|
     t.integer "evaluation_id"
