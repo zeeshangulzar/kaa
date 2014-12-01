@@ -15,7 +15,7 @@ class OrganizationsController < ApplicationController
   # @return [Array<Organization>] Array of organizations
   def index
     organizations = params[:reseller_id] ? Reseller.find(params[:reseller_id]).organizations : Organization.all
-    return HESResponder(organizations.to_json(:include => [:reseller, :promotions]))
+    return HESResponder(organizations)
   end
 
   # Get a organization

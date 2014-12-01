@@ -59,7 +59,6 @@ class Profile < ApplicationModel
       promotion = self.user.promotion
       self.registered_on = promotion.current_date
       self.started_on = self.class.get_next_start_date(promotion)
-      self.goal = promotion.default_goal
   end
   
 end

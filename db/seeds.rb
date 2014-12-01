@@ -56,7 +56,7 @@ user.role = User::Role[:user]
 user.password = 'test'
 user.email = 'johns@hesonline.com'
 user.username = 'johns'
-user.auth_key = 'changeme'
+user.auth_key = 'changeme2'
 if user.save
   user_profile = user.create_profile :first_name => 'John', :last_name => 'Stanfield', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
 

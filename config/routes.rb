@@ -18,6 +18,9 @@ Go::Application.routes.draw do
 
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
+    resources :activities, :only => [:index, :create, :show]
   end
+
+  resources :organizations
   
 end

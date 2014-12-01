@@ -167,7 +167,7 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
     t.string   "gender",          :limit => 1
-    t.integer  "goal"
+    t.integer  "daily_goal"
     t.string   "first_name",      :limit => 100
     t.string   "last_name",       :limit => 100
     t.string   "phone",           :limit => 30

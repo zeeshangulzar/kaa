@@ -16,8 +16,8 @@ class ActivitiesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    @activities = Activity.all
-    respond_with @activities
+    @activities = !@promotion.nil? ? @promotion.activities : Activity.all
+    return HESResponder(@activities)
   end
 
   # Gets a single activity

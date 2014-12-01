@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
     if MeEquivalents.include?(params[:id])
       user = @user
     else
-      user = @promotion.user.find(params[:id]) rescue nil
+      user = @promotion.users.find(params[:id]) rescue nil
     end
   end
 
