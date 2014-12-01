@@ -10,7 +10,7 @@ class Entry < ActiveRecord::Base
   has_many :entry_activities
   accepts_nested_attributes_for :entry_activities
 
-  attr_accessible :recorded_on, :notes, :points, :daily_points, :challenge_points, :activity_points, :entry_activities_attributes, :exercise_steps, :exercise_minutes
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_activity_points, :me
   
   # Can not have the same recorded on date for one user
   validates_uniqueness_of :recorded_on, :scope => :user_id

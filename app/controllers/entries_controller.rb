@@ -41,7 +41,7 @@ class EntriesController < ApplicationController
   #   }
   def show
     @entry = @user.entries.find(params[:id])
-    respond_with @entry
+    HESResponder(@entry)
   end
 
   # Creates a single entry for a team
@@ -69,7 +69,7 @@ class EntriesController < ApplicationController
     @entry = @user.entries.build(params[:entry])
     @entry.recorded_on = recorded_on
     @entry.save
-    respond_with(@entry)
+    HESResponder(@entry)
   end
 
   # Updates a single entry for a team
@@ -98,6 +98,6 @@ class EntriesController < ApplicationController
     @entry = @user.entries.find(params[:id])
     @entry.update_attributes(params[:entry])
 
-    respond_with(@entry)
+    HESResponder(@entry)
   end
 end
