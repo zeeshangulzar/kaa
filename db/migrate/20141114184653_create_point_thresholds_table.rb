@@ -5,6 +5,7 @@ class CreatePointThresholdsTable < ActiveRecord::Migration
       t.integer :value
       t.integer :min
       t.text :rel
+      t.text :color, :limit => 10 
 
       t.timestamps
     end   

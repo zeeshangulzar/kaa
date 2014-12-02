@@ -1,5 +1,5 @@
 class PromotionsController < ApplicationController
-  authorize :index, :show, :create, :update, :destroy, :master
+  authorize :index, :create, :update, :destroy, :master
 
   authorize :show, :public
   authorize :index, :poster
@@ -19,7 +19,8 @@ class PromotionsController < ApplicationController
   # [URL] /promotions/:id [GET]
   #  [200 OK] Successfully retrieved Promotion
   def show
-    promotion = Promotion.find(params[:id]) rescue nil
+    promotion = (params[:id] == 'current') ? @promotion : Promotion.find(params[:id]) rescue nil
+
     if !promotion
       return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
     end

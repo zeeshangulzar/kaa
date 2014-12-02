@@ -1,7 +1,7 @@
 class Profile < ApplicationModel
   # attrs
   attr_accessible *column_names
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at,:me
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :me
   attr_privacy :first_name,:last_name,:connections
   attr_privacy :first_name,:last_name,:public_comment
 

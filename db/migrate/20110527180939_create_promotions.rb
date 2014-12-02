@@ -3,7 +3,7 @@ class CreatePromotions < ActiveRecord::Migration
     create_table :promotions do |t|
       t.references  :organization, :map
       t.string      :name, :program_name,         :limit => 100
-      t.string      :subdomain, :pilot_password,  :limit => 30
+      t.string      :subdomain, :pilot_password, :theme, :limit => 30
       t.string      :logo_url
       t.integer     :max_participants, :program_length
       t.date        :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on

@@ -1,5 +1,4 @@
 class Entry < ActiveRecord::Base
-  # include ActiveModel::Validations
   
   attr_accessible *column_names
   # All entries are tied to a user
