@@ -1,4 +1,8 @@
 [submodule "vendor/gems/hes-evaluations"]
 	path = vendor/gems/hes-evaluations
 	url = git@git.hesapps.com:gems/hes-evaluations.git
-	branch = go-dev
+	branch = origin/go-dev
+[submodule "vendor/gems/hes-api"]
+	path = vendor/gems/hes-api
+	url = git@git.hesapps.com:gems/hes-api.git
+	branch = origin/go-dev

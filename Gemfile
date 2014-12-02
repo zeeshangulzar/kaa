@@ -17,7 +17,7 @@ gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"
 # gem "hes-flaggable", '2.0.9'
 gem "hes-custom_prompts"
 # gem "hes-core"
-gem "hes-api"
+gem "hes-api", '2.0.0', :path => "vendor/gems/hes-api"
 # gem "hes-subdomain-handler"
 # gem "hes-authentication"
 gem "hes-authorization"
