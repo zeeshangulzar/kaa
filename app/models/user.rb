@@ -1,6 +1,7 @@
 require 'bcrypt'
 
 class User < ApplicationModel
+
   # attrs
   attr_protected :role, :auth_key
   attr_privacy_no_path_to_user
@@ -12,13 +13,20 @@ class User < ApplicationModel
   validates_uniqueness_of :email, :scope => :promotion_id
 
   # relationships
-  has_one :profile
+  has_one :profile, :in_json => true
   belongs_to :promotion
   has_many :userTiles, :dependent => :destroy
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+
+  has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
+
+  has_many :challenges_sent, :class_name => "ChallengeSent"
+  has_many :challenges_received, :class_name => "ChallengeReceived"
+
+  has_many :groups, :foreign_key => "owner_id"
   
-  accepts_nested_attributes_for :profile, :evaluations
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges
   attr_accessor :include_evaluation_definitions
   
   # hooks
@@ -39,6 +47,9 @@ class User < ApplicationModel
   # includes
   include HESUserMixins
   include BCrypt
+
+  # modules
+  assigned_to_location
 
   # methods
   def set_default_values

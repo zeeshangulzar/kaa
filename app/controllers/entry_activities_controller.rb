@@ -26,9 +26,9 @@ class EntryActivitiesController < ApplicationController
   def index
     unless params[:entry_id].nil?
       @entry_activities = Entry.find(params[:entry_id]).entry_activities
-      respond_with @entry_activities
+      return HESResponder(@entry_activities)
     else
-      render :json => { :errors => ["Must pass entry id"] }, :status => :unprocessable_entity
+      return HESResponder("Must pass entry id", "ERROR")
     end
   end
 
@@ -60,7 +60,7 @@ class EntryActivitiesController < ApplicationController
   #   }
   def show
     @entry_activity = EntryRecordingActivity.find(params[:id])
-    respond_with @entry_activity
+    return HESResponder(@entry_activity)
   end
 
   # Creates a single entry_activity
@@ -99,12 +99,12 @@ class EntryActivitiesController < ApplicationController
         entry = @user.entries.find_or_create_by_logged_on(params[:logged_on])
         params[:entry_activity][:entry_id] = entry.id
       else
-        render :json => { :errors => ["Must pass logged on date for entry or entry id"] }, :status => :unprocessable_entity and return
+        return HESResponder("Must pass logged on date for entry or entry id", "ERROR")
       end
     end
     
     @entry_activity = EntryRecordingActivity.create(params[:entry_activity])
-    respond_with(@entry_activity)
+    return HESResponder(@entry_activity)
   end
 
   # Updates a single entry_activity
@@ -141,7 +141,7 @@ class EntryActivitiesController < ApplicationController
     @entry_activity = EntryRecordingActivity.find(params[:id])
     @entry_activity.update_attributes(params[:entry_activity])
 
-    respond_with(@entry_activity)
+    return HESResponder(@entry_activity)
   end
   
   # Deletes a single entry_activity
@@ -174,6 +174,6 @@ class EntryActivitiesController < ApplicationController
     @entry_activity = EntryRecordingActivity.find(params[:id])
     @entry_activity.destroy
 
-    respond_with(@entry_activity)
+    return HESResponder(@entry_activity)
   end
 end

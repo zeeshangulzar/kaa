@@ -1,4 +1,4 @@
-class TimedActivity < ActiveRecord::Base
+class TimedActivity < ApplicationModel
 
   belongs_to :activity
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'

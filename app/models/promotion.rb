@@ -13,6 +13,7 @@ class Promotion < ApplicationModel
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
 
   has_evaluations
+  has_locations
 
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }

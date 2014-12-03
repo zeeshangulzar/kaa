@@ -48,7 +48,7 @@ class OrganizationsController < ApplicationController
   def show
     organization = Organization.find(params[:id])
     if !organization
-      return HESResponder("Organization doesn't exist.", "NOT_FOUND")
+      return HESResponder("Organization", "NOT_FOUND")
     end
     return HESResponder(organization)
   end
@@ -138,7 +138,7 @@ class OrganizationsController < ApplicationController
   def update
     organization = Organization.find(params[:id])
     if !organization
-      return HESResponder("Organization doesn't exist.", "NOT_FOUND")
+      return HESResponder("Organization", "NOT_FOUND")
     else
       if !organization.update_attributes(params[:organization])
         return HESResponder(organization.errors.full_messages, "ERROR")
@@ -178,7 +178,7 @@ class OrganizationsController < ApplicationController
   def destroy
     organization = Organization.find(params[:id])
     if !organization
-      return HESResponder("Organization doesn't exist.", "NOT_FOUND")
+      return HESResponder("Organization", "NOT_FOUND")
     elsif organization.destroy
       return HESResponder(organization)
     else

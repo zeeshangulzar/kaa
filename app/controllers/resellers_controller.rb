@@ -46,7 +46,7 @@ class ResellersController < ApplicationController
   def show
     reseller = Reseller.find(params[:id])
     if !reseller
-      return HESResponder("Reseller doesn't exist.", "NOT_FOUND")
+      return HESResponder("Reseller", "NOT_FOUND")
     end
     return HESResponder(reseller)
   end
@@ -98,7 +98,7 @@ class ResellersController < ApplicationController
   def update
     reseller = Reseller.find(params[:id])
     if !reseller
-      return HESResponder("Reseller doesn't exist.", "NOT_FOUND")
+      return HESResponder("Reseller", "NOT_FOUND")
     else
       if !reseller.update_attributes(params[:reseller])
         return HESResponder(reseller.errors.full_messages, "ERROR")
@@ -128,7 +128,7 @@ class ResellersController < ApplicationController
   def destroy
     reseller = Reseller.find(params[:id])
     if !reseller
-      return HESResponder("Reseller doesn't exist.", "NOT_FOUND")
+      return HESResponder("Reseller", "NOT_FOUND")
     elsif reseller.destroy
       return HESResponder(reseller)
     else

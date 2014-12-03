@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141125191044) do
+ActiveRecord::Schema.define(:version => 20141202191736) do
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -24,6 +24,37 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
     t.text     "summary"
     t.datetime "created_at",                      :null => false
     t.datetime "updated_at",                      :null => false
+  end
+
+  create_table "challenges", :force => true do |t|
+    t.integer  "promotion_id"
+    t.text     "name"
+    t.text     "description"
+    t.integer  "created_by"
+    t.integer  "last_updated_by"
+    t.date     "visible_from"
+    t.date     "visible_to"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  create_table "challenges_received", :force => true do |t|
+    t.integer  "challenge_id"
+    t.integer  "user_id"
+    t.integer  "status"
+    t.date     "expires_on"
+    t.datetime "completed_on"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  create_table "challenges_sent", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "challenge_id"
+    t.integer  "to_user_id"
+    t.integer  "to_group_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
   create_table "custom_prompts", :force => true do |t|
@@ -128,6 +159,32 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
 
   add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
 
+  create_table "group_users", :force => true do |t|
+    t.integer  "group_id"
+    t.integer  "user_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "groups", :force => true do |t|
+    t.integer  "owner_id"
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "locations", :force => true do |t|
+    t.integer  "locationable_id"
+    t.string   "locationable_type",  :limit => 50
+    t.string   "name"
+    t.integer  "sequence"
+    t.integer  "root_location_id"
+    t.integer  "parent_location_id"
+    t.integer  "depth"
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
+  end
+
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
     t.string   "name",                  :limit => 100
@@ -157,8 +214,9 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
     t.integer  "value"
     t.integer  "min"
     t.text     "rel"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.text     "color",          :limit => 255
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
   end
 
   create_table "profiles", :force => true do |t|
@@ -191,6 +249,7 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
     t.string   "program_name",              :limit => 100
     t.string   "subdomain",                 :limit => 30
     t.string   "pilot_password",            :limit => 30
+    t.string   "theme",                     :limit => 30
     t.string   "logo_url"
     t.integer  "max_participants"
     t.integer  "program_length"
@@ -215,7 +274,8 @@ ActiveRecord::Schema.define(:version => 20141125191044) do
     t.decimal  "multiplier",                                :precision => 7, :scale => 5, :default => 1.0
     t.integer  "single_day_minute_limit",                                                 :default => 90
     t.integer  "single_day_step_limit",                                                   :default => 15000
-    t.string   "location_nested_labels",    :limit => 1000
+    t.integer  "locations_depth",                                                         :default => 1
+    t.string   "location_labels",           :limit => 1000,                               :default => "Location"
     t.datetime "created_at",                                                                                                        :null => false
     t.datetime "updated_at",                                                                                                        :null => false
   end

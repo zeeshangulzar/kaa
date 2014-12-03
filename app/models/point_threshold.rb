@@ -1,4 +1,4 @@
-class PointThreshold < ActiveRecord::Base
+class PointThreshold < ApplicationModel
 
   belongs_to :pointable, :polymorphic => true
   attr_privacy_no_path_to_user

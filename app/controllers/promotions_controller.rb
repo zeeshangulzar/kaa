@@ -22,7 +22,7 @@ class PromotionsController < ApplicationController
     promotion = (params[:id] == 'current') ? @promotion : Promotion.find(params[:id]) rescue nil
 
     if !promotion
-      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
+      return HESResponder("Promotion", "NOT_FOUND")
     end
     return HESResponder(promotion)
   end
@@ -38,7 +38,7 @@ class PromotionsController < ApplicationController
   def update
     promotion = Promotion.find(params[:id])
     if !promotion
-      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
+      return HESResponder("Promotion", "NOT_FOUND")
     else
       if !promotion.update_attributes(params[:promotion])
         return HESResponder(promotion.errors.full_messages, "ERROR")
@@ -51,7 +51,7 @@ class PromotionsController < ApplicationController
   def destroy
     promotion = Promotion.find(params[:id]) rescue nil
     if !promotion
-      return HESResponder("Promotion doesn't exist.", "NOT_FOUND")
+      return HESResponder("Promotion", "NOT_FOUND")
     elsif promotion.destroy
       return HESResponder(promotion)
     else

@@ -4,6 +4,9 @@ organization = reseller.organizations.create :name=>"Health Enhancement Systems"
 
 promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www', :is_active=>1, :program_length => 56, :starts_on => Date.today - 15
 
+# locations apparently don't work
+# location1 = promotion.locations.create :name => '712 Cambridge'
+
 activity_steps_point_1 = promotion.point_thresholds.create :value => 1, :min => 4000, :rel => "STEPS", :color => '#55a746'
 activity_steps_point_2 = promotion.point_thresholds.create :value => 2, :min => 6000, :rel => "STEPS", :color => '#ff7c01'
 activity_steps_point_3 = promotion.point_thresholds.create :value => 3, :min => 8000, :rel => "STEPS", :color => '#00a19b'
@@ -49,6 +52,8 @@ master.username = 'admin'
 master.auth_key = 'changeme'
 if master.save
   master_profile = master.create_profile :first_name => 'HES', :last_name => 'Admin'
+  mc = master.created_challenges.build(:promotion_id => master.promotion_id, :name => 'Walk Around The Building', :description => "Just walk around the building once. Then once more. Keep going, you can do it.")
+  mc.save!
 end
 
 user = promotion.users.build
@@ -59,11 +64,28 @@ user.username = 'johns'
 user.auth_key = 'changeme2'
 if user.save
   user_profile = user.create_profile :first_name => 'John', :last_name => 'Stanfield', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
-
   #Override the defaults and have this user start in the past... for seeding purposes
   user_profile.started_on = (Date.today - 7)
+  user_profile.save!
 end
-user_profile.save!
+
+user2 = promotion.users.build
+user2.role = User::Role[:user]
+user2.password = 'test'
+user2.email = 'bobb@hesonline.com'
+user2.username = 'bobb'
+user2.auth_key = 'changeme3'
+if user2.save
+  user2_profile = user2.create_profile :first_name => 'Bob', :last_name => 'Baldwin', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user2_profile.started_on = (Date.today - 7)
+  user2_profile.save!
+  user2_group = user2.groups.build(:name => "Frenemies")
+  user2_group.save!
+  user2_group_user = user2_group.group_users.create(:user_id => user.id)
+  user2_cs = user2.challenges_sent.build(:to_user_id => user.id, :to_group_id => user2_group.id, :challenge_id => mc.id)
+  user2_cs.save!
+end
 
 #Build up user entries
 

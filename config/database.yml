@@ -19,10 +19,10 @@ development:
   password:
   host: localhost
 
-# development:
-#   adapter: mysql2
-#   encoding: utf8
-#   database: go_development
-#   username: hesdev
-#   password: l0ngd@y
-#   host: 10.100.1.249
+development:
+   adapter: mysql2
+   encoding: utf8
+   database: go_development
+   username: hesdev
+   password: l0ngd@y
+   host: 10.100.1.249

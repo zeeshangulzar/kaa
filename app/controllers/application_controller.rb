@@ -67,14 +67,22 @@ class ApplicationController < ActionController::Base
   def HESResponder(body = 'AOK', status = 'OK')
     response_body = nil
     if status != 'OK'
+      # we have an error of some sort..
+      body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
       response = {:errors => [body]}
-    else
+    elsif body.is_a?(String)
+      # status is OK and body is a string..
       response = {:message => body}
-    end
-    if !body.is_a? String
+    else
+      if body.is_a?(Array)
+        # ActiveRecord collection
+      else
+        # Single ActiveRecord
+      end
       response = body
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
     render :json => response, :status => code and return
   end
+
 end

@@ -3,18 +3,18 @@ class TilesController < ApplicationController
   authorize :destroy, :master
 
   def index
-    respond_with Tile.all
+    return HESResponder(Tile.all)
   end
 
   def show
-    respond_with Tile.find(params[:id])
+    return HESResponder(Tile.find(params[:id]))
   end
 
   def create
-    respond_with Tile.create(params[:tile])
+    return HESResponder(Tile.create(params[:tile]))
   end
 
   def destroy
-  	respond_with Tile.destroy(params[:id])
+  	return HESResponder(Tile.destroy(params[:id]))
   end
 end

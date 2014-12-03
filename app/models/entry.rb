@@ -1,4 +1,4 @@
-class Entry < ActiveRecord::Base
+class Entry < ApplicationModel
   
   attr_accessible *column_names
   # All entries are tied to a user

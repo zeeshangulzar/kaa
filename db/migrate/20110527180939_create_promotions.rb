@@ -3,7 +3,7 @@ class CreatePromotions < ActiveRecord::Migration
     create_table :promotions do |t|
       t.references  :organization, :map
       t.string      :name, :program_name,         :limit => 100
-      t.string      :subdomain, :pilot_password, :theme, :limit => 30
+      t.string      :subdomain, :pilot_password,  :theme, :limit => 30
       t.string      :logo_url
       t.integer     :max_participants, :program_length
       t.date        :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on
@@ -22,7 +22,8 @@ class CreatePromotions < ActiveRecord::Migration
       t.decimal     :multiplier,                  :precision => 7, :scale => 5, :default => 1
       t.integer     :single_day_minute_limit,     :default => 90
       t.integer     :single_day_step_limit,       :default => 15000
-      t.string      :location_nested_labels,      :limit => 1000
+      t.integer     :locations_depth,             :default => 1
+      t.string      :location_labels,             :limit => 1000, :default => 'Location'
 
       t.timestamps
     end

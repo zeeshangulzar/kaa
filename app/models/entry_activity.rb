@@ -1,5 +1,5 @@
 # Many to many class that ties Entry and Recording Activity together
-class EntryActivity < ActiveRecord::Base
+class EntryActivity < ApplicationModel
   belongs_to :entry
   belongs_to :activity
   

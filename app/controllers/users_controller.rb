@@ -35,7 +35,7 @@ class UsersController < ApplicationController
   def show
     user = get_user_from_params_user_id
     if !user
-      return HESResponder("User doesn't exist.", "NOT_FOUND")
+      return HESResponder("User", "NOT_FOUND")
     end
     return HESResponder(user)
   end
@@ -80,7 +80,7 @@ class UsersController < ApplicationController
   def update
     user = User.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", "NOT_FOUND")
+      return HESResponder("User", "NOT_FOUND")
     else
       if user != @user && !@user.master?
         return HESReponder("You may not edit this user.", "DENIED")
@@ -102,7 +102,7 @@ class UsersController < ApplicationController
   def destroy
     user = User.find(params[:id]) rescue nil
     if !user
-      return HESResponder("User doesn't exist.", "NOT_FOUND")
+      return HESResponder("User", "NOT_FOUND")
     elsif user.destroy
       return HESResponder(user)
     else

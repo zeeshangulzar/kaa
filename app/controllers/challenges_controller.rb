@@ -1,6 +1,7 @@
-class EntriesController < ApplicationController
+class ChallengesController < ApplicationController
   
-  authorize :all, :user
+  authorize :index, :show, :any_user
+  authorize :create, :update, :destroy, :coordinator
   
   # Gets the list of entries for an team instance
   #
@@ -17,8 +18,7 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    @entries = @user.entries.available.to_a
-    return HESResponder(@entries)
+    return HESResponder(@promotion.challenges)
   end
 
   # Gets a single entry for a team
@@ -40,8 +40,14 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def show
-    @entry = @user.entries.find(params[:id])
-    return HESResponder(@entry)
+    challenge = Challenge.find(params[:id])
+    if !challenge
+      return HESResponder("Challenge", "NOT_FOUND")
+    elsif (challenge.promotion != @user.promotion || (challenge.location && challenge.location != @user.location))  && !@user.master?
+      return HESResponder("You may not view this challenge.", "DENIED")
+    else
+      return HESResponder(challenge)
+    end
   end
 
   # Creates a single entry for a team
@@ -65,11 +71,9 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    recorded_on = params[:entry].delete(:recorded_on) || params[:recorded_on]
-    @entry = @user.entries.build(params[:entry])
-    @entry.recorded_on = recorded_on
-    @entry.save
-    return HESResponder(@entry)
+    challenge = @promotion.challenges.build(params[:challenge])
+    challenge.save
+    return HESResponder(challenge)
   end
 
   # Updates a single entry for a team
@@ -95,8 +99,24 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def update
-    @entry = @user.entries.find(params[:id])
-    @entry.update_attributes(params[:entry])
-    return HESResponder(@entry)
+    challenge = Challenge.find(params[:id]) rescue nil
+    if !challenge
+      return HESResponder("Challenge", "NOT_FOUND")
+    else
+      if user != @user && !@user.master?
+        return HESReponder("You may not edit this user.", "DENIED")
+      end
+      User.transaction do
+        profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
+        user.update_attributes(params[:user])
+        user.profile.update_attributes(profile_data)
+      end
+      errors = user.profile.errors || user.errors # the order here is important. profile will have specific errors.
+      if errors
+        return HESResponder(errors.full_messages, "ERROR")
+      else
+        return HESResponder(user)
+      end
+    end
   end
 end

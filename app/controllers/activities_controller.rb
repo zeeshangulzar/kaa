@@ -43,7 +43,7 @@ class ActivitiesController < ApplicationController
   #   }
   def show
     @activity = Activity.find(params[:id])
-    respond_with @activity
+    return HESResponder(@activity)
   end
 
   # Creates a single activity
@@ -71,7 +71,7 @@ class ActivitiesController < ApplicationController
   #   }
   def create
     @activity = Activity.create(params[:_activity])
-    respond_with(@activity)
+    return HESResponder(@activity)
   end
 
   # Updates a single activity
@@ -103,7 +103,7 @@ class ActivitiesController < ApplicationController
     @activity = Activity.find(params[:id])
     @activity.update_attributes(params[:_activity])
 
-    respond_with(@activity)
+    return HESResponder(@activity)
   end
   
   # Deletes a single _activity
@@ -131,6 +131,6 @@ class ActivitiesController < ApplicationController
     @activity = Activity.find(params[:id])
     @activity.destroy
 
-    respond_with(@activity)
+    return HESResponder(@activity)
   end
 end

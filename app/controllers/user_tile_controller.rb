@@ -7,18 +7,18 @@ class UserTilesController < ApplicationController
     @user_tiles.each do |t|
       @tiles << Tile.find(t.tile_id)
     end
-    respond_with @tiles
+    return HESResponder(@tiles)
   end
 
   def show
-    respond_with UserTile.find(params[:id])
+    return HESResponder(UserTile.find(params[:id]))
   end
 
   def create
-    respond_with UserTile.create(params[:user_tile])
+    return HESResponder(UserTile.create(params[:user_tile]))
   end
 
   def destroy
-  	respond_with UserTile.destroy(params[:id])
+  	return HESResponder(UserTile.destroy(params[:id]))
   end
 end

@@ -22,5 +22,11 @@ Go::Application.routes.draw do
   end
 
   resources :organizations
+
+  # locations...
+  resources :locations
+  match '*locationable_type/*locationable_id/locations' => "locations#index", :via => :get
+  match '*locationable_type/*locationable_id/locations' => "locations#create", :via => :post
+  match '*locationable_type/*locationable_id/locations/upload' => "locations#upload", :via => :post
   
 end
