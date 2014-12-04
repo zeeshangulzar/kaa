@@ -29,4 +29,6 @@ Go::Application.routes.draw do
   match '*locationable_type/*locationable_id/locations' => "locations#create", :via => :post
   match '*locationable_type/*locationable_id/locations/upload' => "locations#upload", :via => :post
   
+  resources :entries
+  
 end
