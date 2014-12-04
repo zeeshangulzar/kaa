@@ -14,5 +14,8 @@
 /log/*.log
 /tmp
 
+# ignore uploaded files
+/public/tmp/uploaded_files/*
+
 # Ignore netbeans
 /nbproject/*
