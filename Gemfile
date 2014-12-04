@@ -5,6 +5,7 @@ source 'http://rubygems.org/'
 gem 'rails', '3.2.19'
 
 gem 'mysql2'
+gem 'rmagick', '~> 2.13'
 
 gem 'rack-cors', :require => 'rack/cors'
 
