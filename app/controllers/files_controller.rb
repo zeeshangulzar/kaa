@@ -96,6 +96,19 @@ class FilesController < ApplicationController
     img_path = Dir["#{DIRNAME}/#{params[:image].split('/').last}"].first
     img = Magick::Image.read(img_path).first
     img = img.crop(params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h]) unless params[:crop].empty?
+
+    circle = Magick::Image.new params[:crop][:w], params[:crop][:h]
+    gc = Magick::Draw.new
+    gc.fill 'black'
+    gc.circle params[:crop][:w]/2, params[:crop][:w]/2, params[:crop][:w]/2, 1
+    gc.draw circle
+
+    mask = circle.blur_image(0,1).negate
+
+    mask.matte = false
+    img.matte = true
+    img.composite!(mask, Magick::CenterGravity, Magick::CopyOpacityCompositeOp)
+
     name = img_path.split('/').last
     new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s)
     img_path = img_path.gsub(name, new_name)

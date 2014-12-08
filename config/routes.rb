@@ -8,6 +8,7 @@ Go::Application.routes.draw do
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
   match 'users/:user_id/entries' => 'entries#index', :via => :get
   match "/files/upload" => "files#upload", :via => :post
+  match "/files/crop" => "files#crop", :via => :put
 
   resources :users do
     collection do
