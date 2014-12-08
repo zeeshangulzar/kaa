@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141202191736) do
+ActiveRecord::Schema.define(:version => 20141208202506) do
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -160,6 +160,33 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
 
   add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
 
+  create_table "flag_defs", :force => true do |t|
+    t.string  "model",     :limit => 100
+    t.integer "position"
+    t.string  "flag_name", :limit => 100
+    t.text    "flag_type", :limit => 255
+    t.boolean "default",                  :default => false
+  end
+
+  add_index "flag_defs", ["model"], :name => "by_model"
+
+  create_table "friendships", :force => true do |t|
+    t.integer  "friendee_id"
+    t.string   "friendee_type"
+    t.integer  "friender_id"
+    t.string   "friender_type"
+    t.string   "status",        :limit => 1, :default => "P"
+    t.string   "friend_email"
+    t.integer  "sender_id"
+    t.string   "sender_type"
+    t.datetime "created_at",                                  :null => false
+    t.datetime "updated_at",                                  :null => false
+  end
+
+  add_index "friendships", ["friendee_type", "friendee_id"], :name => "friendee_idx"
+  add_index "friendships", ["friender_type", "friender_id"], :name => "friender_idx"
+  add_index "friendships", ["sender_type", "sender_id"], :name => "friendship_sender_idx"
+
   create_table "group_users", :force => true do |t|
     t.integer  "group_id"
     t.integer  "user_id"
@@ -238,8 +265,10 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
     t.string   "entity"
     t.date     "started_on"
     t.date     "registered_on"
-    t.datetime "created_at",                    :null => false
-    t.datetime "updated_at",                    :null => false
+    t.datetime "created_at",                                   :null => false
+    t.datetime "updated_at",                                   :null => false
+    t.integer  "flags_1",        :limit => 8,   :default => 0
+    t.string   "image"
   end
 
   create_table "promotions", :force => true do |t|
@@ -278,6 +307,46 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
     t.datetime "created_at",                                                                                                        :null => false
     t.datetime "updated_at",                                                                                                        :null => false
   end
+
+  create_table "rel_entries_exercises_activities", :force => true do |t|
+    t.integer  "entry_id"
+    t.integer  "exercise_activity_id"
+    t.integer  "value"
+    t.date     "created_on"
+    t.datetime "created_at"
+    t.date     "updated_on"
+    t.datetime "updated_at"
+  end
+
+  add_index "rel_entries_exercises_activities", ["entry_id", "exercise_activity_id"], :name => "rel_entries_exercises_activities_unique_index", :unique => true
+  add_index "rel_entries_exercises_activities", ["entry_id"], :name => "by_entry_id"
+  add_index "rel_entries_exercises_activities", ["exercise_activity_id"], :name => "by_exercise_activity_id"
+
+  create_table "rel_evaluations_definitions_customs_prompts", :force => true do |t|
+    t.integer  "evaluation_definition_id"
+    t.integer  "custom_prompt_id"
+    t.date     "created_on"
+    t.datetime "created_at"
+    t.date     "updated_on"
+    t.datetime "updated_at"
+  end
+
+  add_index "rel_evaluations_definitions_customs_prompts", ["custom_prompt_id"], :name => "by_custom_prompt_id"
+  add_index "rel_evaluations_definitions_customs_prompts", ["evaluation_definition_id", "custom_prompt_id"], :name => "rel_evaluations_definitions_customs_prompts_unique_index", :unique => true
+  add_index "rel_evaluations_definitions_customs_prompts", ["evaluation_definition_id"], :name => "by_evaluation_definition_id"
+
+  create_table "rel_users_locations", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "location_id"
+    t.date     "created_on"
+    t.datetime "created_at"
+    t.date     "updated_on"
+    t.datetime "updated_at"
+  end
+
+  add_index "rel_users_locations", ["location_id"], :name => "by_location_id"
+  add_index "rel_users_locations", ["user_id", "location_id"], :name => "rel_users_locations_unique_index", :unique => true
+  add_index "rel_users_locations", ["user_id"], :name => "by_user_id"
 
   create_table "resellers", :force => true do |t|
     t.string   "name",          :limit => 100
