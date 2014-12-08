@@ -1,15 +1,17 @@
 class Entry < ApplicationModel
-  
-  attr_accessible *column_names
+
+  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_activities
   # All entries are tied to a user
   belongs_to :user
-  
+
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]]
 
-  has_many :entry_activities
-  accepts_nested_attributes_for :entry_activities
+  has_many :entry_activities, :in_json => true
+  accepts_nested_attributes_for :entry_activities, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_activity_points, :updated_at, :me
+  attr_accessible :entry_activities, :entry_exercise_activities
+
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_activity_points, :updated_at, :entry_exercise_activities, :entry_activities, :me
   
   # Can not have the same recorded on date for one user
   validates_uniqueness_of :recorded_on, :scope => :user_id
@@ -48,7 +50,7 @@ class Entry < ApplicationModel
 
   #Not quite sure the point of this... used to be is_logged
   def set_is_recorded
-    write_attribute(:is_recorded, !exercise_minutes.to_i.zero?)
+    write_attribute(:is_recorded, !exercise_minutes.to_i.zero? || !exercise_steps.to_i.zero?)
     true
   end
 

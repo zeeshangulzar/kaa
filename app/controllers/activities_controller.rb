@@ -1,5 +1,6 @@
 class ActivitiesController < ApplicationController
   authorize :all, :master
+  authorize :index, :user
   
   # Gets the list of activities
   #

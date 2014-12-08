@@ -85,4 +85,13 @@ class ApplicationController < ActionController::Base
     render :json => response, :status => code and return
   end
 
+  # Takes incoming param (expected to be a hash) and removes anything that cannot be
+  # written in accordance with the incoming model Object. Then returns the scrubbed hash
+  def scrub(param, model)
+    allowed_attrs = model.accessible_attributes.to_a
+    posted_attrs = param.stringify_keys.keys
+    attrs_to_update = allowed_attrs & posted_attrs
+    param.delete_if{|k,v|!attrs_to_update.include?(k)}
+  end
+
 end
