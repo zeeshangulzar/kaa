@@ -69,7 +69,8 @@ class ApplicationController < ActionController::Base
     if status != 'OK'
       # we have an error of some sort..
       body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
-      response = {:errors => [body]}
+      body = [body] if !body.is_a?(Array)
+      response = {:errors => body}
     elsif body.is_a?(String)
       # status is OK and body is a string..
       response = {:message => body}

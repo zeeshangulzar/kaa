@@ -69,7 +69,9 @@ class ResellersController < ApplicationController
   #    "url": "/resellers/1"
   #   }
   def create
-    reseller = Reseller.create(params[:reseller])
+    Reseller.transaction do
+      reseller = Reseller.create(params[:reseller])
+    end
     if !reseller.valid?
       return HESResponder(reseller.errors.full_messages, "ERROR")
     else
@@ -100,7 +102,10 @@ class ResellersController < ApplicationController
     if !reseller
       return HESResponder("Reseller", "NOT_FOUND")
     else
-      if !reseller.update_attributes(params[:reseller])
+      Reseller.transaction do
+        reseller.update_attributes(params[:reseller])
+      end
+      if !reseller.valid?
         return HESResponder(reseller.errors.full_messages, "ERROR")
       else
         return HESResponder(reseller)

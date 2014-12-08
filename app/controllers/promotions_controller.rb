@@ -28,7 +28,9 @@ class PromotionsController < ApplicationController
   end
 
   def create
-    promotion = Promotion.create(params[:promotion])
+    Promotion.transaction do
+      promotion = Promotion.create(params[:promotion])
+    end
     if !promotion.valid?
       return HESResponder(promotion.errors.full_messages, "ERROR")
     end
@@ -40,7 +42,10 @@ class PromotionsController < ApplicationController
     if !promotion
       return HESResponder("Promotion", "NOT_FOUND")
     else
-      if !promotion.update_attributes(params[:promotion])
+      Promotion.transaction do
+        promotion.update_attributes(params[:promotion])
+      end
+      if !promotion.valid?
         return HESResponder(promotion.errors.full_messages, "ERROR")
       else
         return HESResponder(promotion)

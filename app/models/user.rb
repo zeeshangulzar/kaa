@@ -15,9 +15,11 @@ class User < ApplicationModel
   # relationships
   has_one :profile, :in_json => true
   belongs_to :promotion
+  belongs_to :location
   has_many :userTiles, :dependent => :destroy
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
@@ -47,9 +49,6 @@ class User < ApplicationModel
   # includes
   include HESUserMixins
   include BCrypt
-
-  # modules
-  assigned_to_location
 
   # methods
   def set_default_values

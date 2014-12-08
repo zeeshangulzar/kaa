@@ -71,7 +71,9 @@ class ActivitiesController < ApplicationController
   #    "regex_validation": "^(\d){1,5}$"
   #   }
   def create
-    @activity = Activity.create(params[:_activity])
+    Activity.transaction do
+      @activity = Activity.create(params[:_activity])
+    end
     return HESResponder(@activity)
   end
 
@@ -102,8 +104,9 @@ class ActivitiesController < ApplicationController
   #   }
   def update
     @activity = Activity.find(params[:id])
-    @activity.update_attributes(params[:_activity])
-
+    Activity.transaction do
+      @activity.update_attributes(params[:_activity])
+    end
     return HESResponder(@activity)
   end
   
@@ -130,8 +133,9 @@ class ActivitiesController < ApplicationController
   #   }
   def destroy
     @activity = Activity.find(params[:id])
-    @activity.destroy
-
+    Activity.transaction do
+      @activity.destroy
+    end
     return HESResponder(@activity)
   end
 end

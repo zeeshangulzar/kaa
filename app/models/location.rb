@@ -1,41 +1,9 @@
 # Location active record class for keeping track of locations assigned to another model
 class Location < ApplicationModel
 
-  attr_privacy :locationable_id, :locationable_type, :name, :sequence, :root_location_id, :parent_location_id, :any_user
-  attr_accessible  :locationable_id, :locationable_type, :name, :sequence, :root_location_id, :parent_location_id
+  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :any_user
+  attr_accessible  :promotion_id, :name, :sequence, :root_location_id, :parent_location_id
 
-  @@owner_models = []
-  # Returns the models that have has_many associations with location
-  #
-  # @return [Array<ActiveRecord>]
-  def self.owner_models
-    @@owner_models
-  end
-
-  # Sets the owner models
-  #
-  # @param [Array<ActiveRecord>] owner_model that will own the locations
-  def self.owner_models=(owner_model)
-    @@owner_models = owner_model
-  end
-
-  @@assigned_models = []
-  # Returns the models that have many_to_many associations with location
-  #
-  # @return [Array<ActiveRecord>]
-  def self.assigned_models
-    @@assigned_models
-  end
-
-  # Sets the assigned models
-  #
-  # @param [Array<ActiveRecord>] assigned_model that will be owned by a location
-  def self.assigned_models=(assigned_model)
-    @@assigned_models = assigned_model
-  end
-
-  # Polymorphic model that holds all the locations
-  belongs_to :locationable, :polymorphic => true
 
   # The parent location that the location belongs to, will be nil for root location
   belongs_to :parent_location, :class_name => 'Location'
@@ -62,16 +30,18 @@ class Location < ApplicationModel
   scope :level, lambda { |depth_level| where(:depth => depth_level)}
 
   # Cannot save a location with the same name assigned to the same parent or at the top level
-  validates_uniqueness_of :name, :scope => [:parent_location_id, :locationable_id, :locationable_type]
+  validates_uniqueness_of :name, :scope => [:parent_location_id]
 
   # Set the root location and depth before saving
   before_save :set_root_location_and_depth
 
   # Update the depth on the locationable object
-  after_save :update_depth_on_locationable
+  # TODO: make this work maybe..
+  # after_save :update_depth_on_locationable
 
   # Set locationable type and id before saving
-  before_save :set_locationable_for_nested
+  # TODO: make this work maybe..
+  # before_save :set_locationable_for_nested
 
   # Don't destroy is instances are assigned to location
   before_destroy :make_sure_is_empty

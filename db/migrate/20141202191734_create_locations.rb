@@ -1,8 +1,7 @@
 class CreateLocations < ActiveRecord::Migration
   def change
     create_table :locations do |t|
-      t.integer   :locationable_id
-      t.string    :locationable_type,      :limit => 50
+      t.integer   :promotion_id
       t.string    :name
       t.integer   :sequence
       t.integer   :root_location_id

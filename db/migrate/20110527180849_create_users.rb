@@ -12,6 +12,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string      :altid,                                           :limit => 50
       t.string      :email,                                           :limit => 100
       t.datetime    :last_login
+      t.integer     :location_id
       t.timestamps
     end
   end
