@@ -73,12 +73,12 @@ class EntriesController < ApplicationController
 
       #create exercise activites
       ex_activities.each do |hash|
-        @entry.entry_exercise_activities.build(scrub(hash, EntryExerciseActivity))
+        @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
       end
 
       #TODO: Test entry activities
-      activities do |hash|
-        @entry.entry_activities.build(scrub(hash, EntryActvitity))
+      activities.each do |hash|
+        @entry.entry_activities.create(scrub(hash, EntryActvitity))
       end
 
       @entry.save!
@@ -108,35 +108,52 @@ class EntriesController < ApplicationController
   #    "recorded_on": "2012-11-21"
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #    "entry_activities" : [{}]
-  #    "entry_exercise_activites" : [{}]
+  #    "entry_exercise_activities" : [{}]
   #   }
   def update
     @entry = @user.entries.find(params[:id])
     Entry.transaction do
-      params[:entry].delete(:entry_exercise_activities).each do |hash|
-        if hash[:id]
-          #update
-          eea = @entry.entry_exercise_activities.find(hash[:id])
-          eea.update_attributes(scrub(hash, EntryExerciseActivity))
+      entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
+      if !entry_ex_activities.nil?
+        
+        ids = entry_ex_activities.nil? ? [] : entry_ex_activities.map{|x| x[:id]}
+        remove_activities = @entry.entry_exercise_activities.reject{|x| ids.include? x.id}
 
-        else
-          #create
-          @entry.entry_exercise_activities.build(scrub(hash, EntryExerciseActivity))
+        remove_activities.each do |act|
+          # Remove from array and delete from db
+           @entry.entry_exercise_activities.delete(act).first.destroy
+        end
+
+        entry_ex_activities.each do |entry_ex_act|
+          if entry_ex_act[:id]
+            eea = @entry.entry_exercise_activities.detect{|x|x.id==entry_ex_act[:id].to_i}
+            eea.update_attributes(scrub(entry_ex_act, EntryExerciseActivity))
+          else
+            @entry.entry_exercise_activities.create(scrub(entry_ex_act, EntryExerciseActivity))
+          end
         end
       end
 
-       params[:entry].delete(:entry_activities).each do |hash|
-        if hash[:id]
-          #update
-          eea = @entry.entry_activities.find(hash[:id])
-          eea.update_attributes(scrub(hash, EntryActivity))
+      entry_activities = params[:entry].delete(:entry_activities)
+      if !entry_activities.nil?
+        ids = entry_activities.nil? ? [] : entry_activities.map{|x| x.id}
+        remove_activities = @entry.entry_activities.reject{|x| ids.include? x.id}
 
-        else
-          #create
-          @entry.entry_activities.build(scrub(hash, EntryActivity))
+        remove_activities.each do |act|
+          @entry.entry_activities.delete(act).first.destroy
         end
-      end
 
+         entry_activities.each do |entry_act|
+          if entry_act[:id]
+            ea = @entry.entry_activities.detect{|x|x.id==entry_act[:id].to_i}
+            ea.update_attributes(scrub(entry_act, EntryActivity))
+          else
+            @entry.entry_activities.create(scrub(entry_act, EntryActivity))
+          end
+        end
+      end 
+
+      @entry.save!
       @entry.update_attributes(scrub(params[:entry], Entry))
     end 
     return HESResponder(@entry)

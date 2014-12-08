@@ -4,7 +4,7 @@ class Entry < ApplicationModel
   # All entries are tied to a user
   belongs_to :user
 
-  many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]]
+  many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
 
   has_many :entry_activities, :in_json => true
   accepts_nested_attributes_for :entry_activities, :entry_exercise_activities
