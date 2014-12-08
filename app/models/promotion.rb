@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme,:public
 
-  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :activities, :any_user
+  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :activities, :exercise_activities, :any_user
 
   belongs_to :organization
 
@@ -12,8 +12,9 @@ class Promotion < ApplicationModel
   has_many :exercise_activities
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
 
+  has_many :locations
+
   has_evaluations
-  has_locations
 
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }

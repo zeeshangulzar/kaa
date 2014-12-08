@@ -16,7 +16,10 @@ Go::Application.routes.draw do
       post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
+    resources :groups
   end
+
+  resources :groups
 
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]

@@ -1,23 +1,10 @@
 # Controller for handling all location type requests
 class LocationsController < ApplicationController
-  # Get the locationable model before each request
-  before_filter :get_locationable, :only => [:index, :create, :upload]
+
   respond_to :json
   
   authorize :index, :show, :public
   authorize :update, :create, :destroy, :upload, :master
-
-  # Get the locationable model or render an error
-  #
-  # @param [String] locationable type that has locations
-  # @param [Integer] locationable id of the instance with the locations
-  def get_locationable
-    unless params[:locationable_type].nil?
-      @locationable = params[:locationable_type].singularize.camelcase.constantize.find(params[:locationable_id])
-    else
-      return HESResponder("Must pass locationable type and id", "ERROR")
-    end
-  end
 
   # Gets the list of locations for a locationable instance
   #
@@ -42,7 +29,7 @@ class LocationsController < ApplicationController
   #     "url": "http://api.hesapps.com/locations/1"
   #   }]
   def index
-    @locations = @locationable.locations.top.includes(:locations).to_a
+    @locations = @promotion.locations.top.includes(:locations).to_a
     return HESResponder(@locations)
   end
 
@@ -104,7 +91,9 @@ class LocationsController < ApplicationController
   #     "url": "http://api.hesapps.com/locations/1"
   #   }
   def create
-    @location = @locationable.locations.create(params[:location])
+    Location.transaction do
+      @location = @promotion.locations.create(params[:location])
+    end
     return HESResponder(@location)
   end
 
@@ -139,7 +128,9 @@ class LocationsController < ApplicationController
   #   }
   def update
     @location = Location.find(params[:id])
-    @location.update_attributes(params[:location])
+    Location.transaction do
+      @location.update_attributes(params[:location])
+    end
     return HESResponder(@location)
   end
 
@@ -199,7 +190,7 @@ class LocationsController < ApplicationController
   #     "url": "http://api.hesapps.com/locations/1"
   #   }]
   def upload
-    Location.upload_list(@locationable, params[:promotion_location][:list])
+    Location.upload_list(@promotion, params[:promotion_location][:list])
     @locations = @locationable.locations
     return HESResponder(@locations)
   end

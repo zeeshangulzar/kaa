@@ -91,7 +91,9 @@ class OrganizationsController < ApplicationController
   #    "url": "http://api.roundtriptohealth.com/organizations/1"
   #   }
   def create
-    organization = @reseller ? @reseller.organizations.create(params[:organization]) : Organization.create(params[:organization])
+    Organization.transction do
+      organization = @reseller ? @reseller.organizations.create(params[:organization]) : Organization.create(params[:organization])
+    end
     if !organization.valid?
       return HESResponder(organization.errors.full_messages, "ERROR")
     end
@@ -140,7 +142,10 @@ class OrganizationsController < ApplicationController
     if !organization
       return HESResponder("Organization", "NOT_FOUND")
     else
-      if !organization.update_attributes(params[:organization])
+      Organization.transaction do
+        organization.update_attributes(params[:organization])
+      end
+      if !organization.valid?
         return HESResponder(organization.errors.full_messages, "ERROR")
       else
         return HESResponder(organization)

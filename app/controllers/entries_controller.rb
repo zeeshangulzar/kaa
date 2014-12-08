@@ -1,5 +1,5 @@
 class EntriesController < ApplicationController
-  
+
   authorize :all, :user
   
   # Gets the list of entries for an team instance
@@ -44,7 +44,7 @@ class EntriesController < ApplicationController
     return HESResponder(@entry)
   end
 
-  # Creates a single entry for a team
+  # Creates a single entry
   #
   # @example
   #  #POST /entries/1
@@ -65,14 +65,28 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    recorded_on = params[:entry].delete(:recorded_on) || params[:recorded_on]
-    @entry = @user.entries.build(params[:entry])
-    @entry.recorded_on = recorded_on
-    @entry.save
+    Entry.transaction do
+      ex_activities = params[:entry].delete(:entry_exercise_activities) || []
+      activities = params[:entry].delete(:entry_activities) || []
+      @entry = @user.entries.build(params[:entry])
+      @entry.save!
+
+      #create exercise activites
+      ex_activities.each do |hash|
+        @entry.entry_exercise_activities.build(scrub(hash, EntryExerciseActivity))
+      end
+
+      #TODO: Test entry activities
+      activities do |hash|
+        @entry.entry_activities.build(scrub(hash, EntryActvitity))
+      end
+
+      @entry.save!
+    end
     return HESResponder(@entry)
   end
 
-  # Updates a single entry for a team
+  # Updates a single entry
   #
   # @example
   #  #PUT /entries/1
@@ -90,13 +104,41 @@ class EntriesController < ApplicationController
   #   {
   #    "user_id": 1,
   #    "exercise_minutes": 45,
-  #    "is_logged": true
+  #    "is_recorded": true
   #    "recorded_on": "2012-11-21"
   #    "notes": "Eliptical machine while reading Fitness magazine"
+  #    "entry_activities" : [{}]
+  #    "entry_exercise_activites" : [{}]
   #   }
   def update
     @entry = @user.entries.find(params[:id])
-    @entry.update_attributes(params[:entry])
+    Entry.transaction do
+      params[:entry].delete(:entry_exercise_activities).each do |hash|
+        if hash[:id]
+          #update
+          eea = @entry.entry_exercise_activities.find(hash[:id])
+          eea.update_attributes(scrub(hash, EntryExerciseActivity))
+
+        else
+          #create
+          @entry.entry_exercise_activities.build(scrub(hash, EntryExerciseActivity))
+        end
+      end
+
+       params[:entry].delete(:entry_activities).each do |hash|
+        if hash[:id]
+          #update
+          eea = @entry.entry_activities.find(hash[:id])
+          eea.update_attributes(scrub(hash, EntryActivity))
+
+        else
+          #create
+          @entry.entry_activities.build(scrub(hash, EntryActivity))
+        end
+      end
+
+      @entry.update_attributes(scrub(params[:entry], Entry))
+    end 
     return HESResponder(@entry)
   end
 end

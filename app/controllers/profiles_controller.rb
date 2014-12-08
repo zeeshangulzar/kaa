@@ -29,7 +29,11 @@ class ProfilesController < ApplicationController
     user = User.find(params[:id]) rescue nil
     if !user
       return HESResponder("User", "NOT_FOUND")
-    elsif user.profile.update_attributes(params[:profile])
+    end
+    Profile.transaction do
+      user.profile.update_attributes(params[:profile])
+    end
+    if user.profile.valid?
       return HESResponder(user.profile)
     elsif user.profile.errors
       return HESResponder(user.profile.errors.full_messages, "ERROR")

@@ -69,7 +69,8 @@ class ApplicationController < ActionController::Base
     if status != 'OK'
       # we have an error of some sort..
       body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
-      response = {:errors => [body]}
+      body = [body] if !body.is_a?(Array)
+      response = {:errors => body}
     elsif body.is_a?(String)
       # status is OK and body is a string..
       response = {:message => body}
@@ -83,6 +84,15 @@ class ApplicationController < ActionController::Base
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
     render :json => response, :status => code and return
+  end
+
+  # Takes incoming param (expected to be a hash) and removes anything that cannot be
+  # written in accordance with the incoming model Object. Then returns the scrubbed hash
+  def scrub(param, model)
+    allowed_attrs = model.accessible_attributes.to_a
+    posted_attrs = param.stringify_keys.keys
+    attrs_to_update = allowed_attrs & posted_attrs
+    param.delete_if{|k,v|!attrs_to_update.include?(k)}
   end
 
 end

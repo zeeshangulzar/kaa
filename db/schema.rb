@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
 
   create_table "challenges", :force => true do |t|
     t.integer  "promotion_id"
+    t.integer  "location_id"
     t.text     "name"
     t.text     "description"
     t.integer  "created_by"
@@ -174,15 +175,14 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
   end
 
   create_table "locations", :force => true do |t|
-    t.integer  "locationable_id"
-    t.string   "locationable_type",  :limit => 50
+    t.integer  "promotion_id"
     t.string   "name"
     t.integer  "sequence"
     t.integer  "root_location_id"
     t.integer  "parent_location_id"
     t.integer  "depth"
-    t.datetime "created_at",                       :null => false
-    t.datetime "updated_at",                       :null => false
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
   end
 
   create_table "organizations", :force => true do |t|
@@ -221,25 +221,25 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
 
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
-    t.string   "gender",          :limit => 1
+    t.string   "gender",         :limit => 1
     t.integer  "daily_goal"
-    t.string   "first_name",      :limit => 100
-    t.string   "last_name",       :limit => 100
-    t.string   "phone",           :limit => 30
-    t.string   "mobile_phone",    :limit => 11
-    t.string   "line1",           :limit => 150
-    t.string   "line2",           :limit => 150
-    t.string   "city",            :limit => 150
-    t.string   "state_province",  :limit => 150
-    t.string   "country",         :limit => 150
-    t.string   "postal_code",     :limit => 150
+    t.string   "first_name",     :limit => 100
+    t.string   "last_name",      :limit => 100
+    t.string   "phone",          :limit => 30
+    t.string   "mobile_phone",   :limit => 11
+    t.string   "line1",          :limit => 150
+    t.string   "line2",          :limit => 150
+    t.string   "city",           :limit => 150
+    t.string   "state_province", :limit => 150
+    t.string   "country",        :limit => 150
+    t.string   "postal_code",    :limit => 150
     t.string   "time_zone"
-    t.string   "employee_group",  :limit => 50
-    t.string   "employee_entity", :limit => 50
+    t.string   "group"
+    t.string   "entity"
     t.date     "started_on"
     t.date     "registered_on"
-    t.datetime "created_at",                     :null => false
-    t.datetime "updated_at",                     :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
   end
 
   create_table "promotions", :force => true do |t|
@@ -274,7 +274,6 @@ ActiveRecord::Schema.define(:version => 20141202191736) do
     t.decimal  "multiplier",                                :precision => 7, :scale => 5, :default => 1.0
     t.integer  "single_day_minute_limit",                                                 :default => 90
     t.integer  "single_day_step_limit",                                                   :default => 15000
-    t.integer  "locations_depth",                                                         :default => 1
     t.string   "location_labels",           :limit => 1000,                               :default => "Location"
     t.datetime "created_at",                                                                                                        :null => false
     t.datetime "updated_at",                                                                                                        :null => false

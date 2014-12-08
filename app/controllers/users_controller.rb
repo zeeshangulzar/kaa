@@ -5,7 +5,6 @@ class UsersController < ApplicationController
   authorize :index, :coordinator
   authorize :destroy, :master
   authorize :authenticate, :public
-  authorize :show, :user
 
   def index
     return HESResponder(@promotion.users.find(:all,:include=>:profile))
@@ -103,7 +102,7 @@ class UsersController < ApplicationController
     user = User.find(params[:id]) rescue nil
     if !user
       return HESResponder("User", "NOT_FOUND")
-    elsif user.destroy
+    elsif @user.master? && user.destroy
       return HESResponder(user)
     else
       return HESResponder("Error deleting.", "ERROR")

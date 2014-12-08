@@ -22,7 +22,6 @@ class CreatePromotions < ActiveRecord::Migration
       t.decimal     :multiplier,                  :precision => 7, :scale => 5, :default => 1
       t.integer     :single_day_minute_limit,     :default => 90
       t.integer     :single_day_step_limit,       :default => 15000
-      t.integer     :locations_depth,             :default => 1
       t.string      :location_labels,             :limit => 1000, :default => 'Location'
 
       t.timestamps
