@@ -8,9 +8,16 @@ class ChallengeReceived < ApplicationModel
   belongs_to :challenge
 
   STATUSES = {
-    'NEW'       => 0,
-    'ACCEPTED'  => 1,
-    'DECLINED'  => 2
+    :pending   => 0,
+    :accepted  => 1,
+    :declined  => 2
   }
+
+  before_create :set_defaults
+
+  def set_defaults
+    self.status ||= STATUSES[:pending]
+    self.expires_on ||= self.challenge.promotion.current_date + 7
+  end
 
 end

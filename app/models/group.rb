@@ -1,6 +1,6 @@
 class Group < ApplicationModel
   attr_privacy :name, :me
-  attr_privacy_no_path_to_user
+  attr_privacy_path_to_user :owner
 
   attr_accessible :owner_id, :name, :group_users_attributes
 

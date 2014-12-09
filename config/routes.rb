@@ -16,24 +16,37 @@ Go::Application.routes.draw do
       post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
-    resources :groups
+    resources :groups, :challenges_sent, :challenges_received
   end
 
-  resources :groups
+  resources :challenges, :organizations, :group_users
+
+  resources :challenges_sent
+  resources :challenges_received
+
+  resources :groups do
+    resources :group_users, :only => [:index, :show]
+  end
 
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
+    resources :challenges, :only => [:index, :show]
   end
-
-  resources :organizations
 
   # locations...
   resources :locations
   match '*locationable_type/*locationable_id/locations' => "locations#index", :via => :get
   match '*locationable_type/*locationable_id/locations' => "locations#create", :via => :post
   match '*locationable_type/*locationable_id/locations/upload' => "locations#upload", :via => :post
-  
+
+  # friendships...
+  resources :friendships
+  match '*friendable_type/*friendable_id/friendships' => 'friendships#index', :via => :get
+  match '*friendable_type/*friendable_id/friendships' => 'friendships#show', :via => :get
+  match '*friendable_type/*friendable_id/friendships/*friendship_id' => 'friendships#show', :via => :get
+  match '*friendable_type/*friendable_id/friendships' => 'friendships#create', :via => :post
+
   resources :entries
   
 end

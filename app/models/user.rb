@@ -2,6 +2,8 @@ require 'bcrypt'
 
 class User < ApplicationModel
 
+  has_friendships
+
   # attrs
   attr_protected :role, :auth_key
   attr_privacy_no_path_to_user

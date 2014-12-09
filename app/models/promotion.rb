@@ -1,9 +1,9 @@
 class Promotion < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme,:public
+  attr_privacy :subdomain, :customized_files, :theme, :public
 
-  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :activities, :exercise_activities, :any_user
+  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :activities, :exercise_activities, :challenges, :user
 
   belongs_to :organization
 
@@ -11,6 +11,8 @@ class Promotion < ApplicationModel
   has_many :activities
   has_many :exercise_activities
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
+
+  has_many :challenges
 
   has_many :locations
 

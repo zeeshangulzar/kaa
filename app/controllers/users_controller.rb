@@ -82,7 +82,7 @@ class UsersController < ApplicationController
       return HESResponder("User", "NOT_FOUND")
     else
       if user != @user && !@user.master?
-        return HESReponder("You may not edit this user.", "DENIED")
+        return HESResponder("You may not edit this user.", "DENIED")
       end
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []

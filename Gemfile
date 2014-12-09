@@ -49,7 +49,7 @@ gem "hes-notifier"
 # gem "hes-image-edger"
 # gem "hes-tour-bus", '0.0.16'
 # gem "hes-reactor"
-# gem "hes-friendships"
+# gem "hes-friendships", '0.1.0', :path => "vendor/gems/hes-friendships"
 # gem "hes-stats"
 # gem "hes-mail"
 # gem "hes-events"

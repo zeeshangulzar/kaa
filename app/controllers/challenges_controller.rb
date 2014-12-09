@@ -32,7 +32,7 @@ class ChallengesController < ApplicationController
       return HESResponder("Challenge", "NOT_FOUND")
     else
       if !@user.location_coordinator?
-        return HESReponder("You may not edit this challenge.", "DENIED")
+        return HESResponder("You may not edit this challenge.", "DENIED")
       end
       Challenge.transaction do
         challenge.update_attributes(params[:challenge])

@@ -4,8 +4,8 @@ class GroupsController < ApplicationController
   def index
     user = User.find(params[:user_id]) rescue nil
     user = user.nil? ? @user : user
-    if user != @user && !@user.master?
-      return HESReponder("You may not view user's groups.", "DENIED")
+    if user.id != @user.id && !@user.master?
+      return HESResponder("You may not view user's groups.", "DENIED")
     else
       return HESResponder(user.groups)
     end
@@ -24,7 +24,7 @@ class GroupsController < ApplicationController
     if !group
       return HESResponder("Group", "NOT_FOUND")
     elsif group.owner.id != @user.id && !@user.master?
-      return HESReponder("You may not view this group.", "DENIED")
+      return HESResponder("You may not view this group.", "DENIED")
     else
       return HESResponder(group)
     end
@@ -61,9 +61,9 @@ class GroupsController < ApplicationController
       return HESResponder("Group", "NOT_FOUND")
     else
       if group.owner != @user && !@user.master?
-        return HESReponder("You may not edit this group.", "DENIED")
+        return HESResponder("You may not edit this group.", "DENIED")
       end
-      params[:group].delete(:users) if !params[:group][:users].nil?
+      params[:group].delete(:users) if !params[:group].nil? && !params[:group][:users].nil?
       Group.transaction do
         group.update_attributes(params[:group])
       end
