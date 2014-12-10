@@ -1,7 +1,8 @@
 # Location active record class for keeping track of locations assigned to another model
 class Location < ApplicationModel
 
-  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :any_user
+  attr_privacy_no_path_to_user
+  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :public
   attr_accessible  :promotion_id, :name, :sequence, :root_location_id, :parent_location_id
 
 
