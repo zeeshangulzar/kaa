@@ -25,7 +25,7 @@ class ChallengeSent < ApplicationModel
   end
 
   def to_user_is_friend
-    if !self.user.friends.include?(self.challenged_user)
+    if !self.user || !self.user.friends.include?(self.challenged_user)
       self.errors.add(:base, "You can only challenge your friends.")
       return false
     end
@@ -36,12 +36,20 @@ class ChallengeSent < ApplicationModel
   def create_challenge_received
     receiver = User.find(self.to_user_id)
     challenge = Challenge.find(self.challenge_id)
-    rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUSES[:pending], :expires_on => receiver.promotion.current_date + 7)
-    rcc.challenge = challenge
-    if !rcc.valid?
-      self.errors.add(:base, rcc.errors.full_messages)
+    expires_on = receiver.promotion.current_date + 7
+    existing = receiver.active_challenges.detect{|c| c.challenge_id == self.challenge_id}
+    if existing
+      # update the expiration date of the challenge if it's in receiver's queue (he hasn't accepted it yet)
+      existing.update_attribute(:expires_on => expires_on) if !existing.accepted?
     else
-      rcc.save!
+      # receiver doesn't have this challenge yet
+      rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUSES[:pending], :expires_on => expires_on)
+      rcc.challenge = challenge
+      if !rcc.valid?
+        self.errors.add(:base, rcc.errors.full_messages)
+      else
+        rcc.save!
+      end
     end
   end
 

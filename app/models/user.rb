@@ -105,4 +105,29 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
+  # challenges received
+  # tried to put this on ChallengeReceived but can't get promotion.current_date there
+  # I'm guessing the technical limitation is challenges_received could be in different promotions
+  def challenge_queue
+    c = []
+    if !self.challenges_received.empty?
+      statuses = [ChallengeReceived::STATUS[:new], ChallengeReceived::STATUS[:pending]]
+      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND expires_on >= ?', statuses, self.promotion.current_date)
+    end
+    return c
+  end
+
+  # challenges received
+  # tried to put this on ChallengeReceived but can't get promotion.current_date there
+  # I'm guessing the technical limitation is challenges_received could be in different promotions
+  def active_challenges
+    c = []
+    if !self.challenges_received.empty?
+      statuses = [ChallengeReceived::STATUS[:new], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
+      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND expires_on >= ?', statuses, self.promotion.current_date)
+    end
+    return c
+  end
+
+
 end
