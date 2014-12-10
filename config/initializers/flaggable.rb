@@ -1,4 +1,4 @@
 # Include hook code here
-require 'flaggable'
+require 'flaggable/flaggable'
 
 ActiveRecord::Base.send(:include,Flaggable)
