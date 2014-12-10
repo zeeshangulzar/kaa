@@ -48,5 +48,15 @@ Go::Application.routes.draw do
   match '*friendable_type/*friendable_id/friendships' => 'friendships#create', :via => :post
 
   resources :entries
+
+  resources :evaluation_definitions do
+		resources :evaluations, :only => [:index, :create]
+	end
+
+	match 'promotions/:promotion_id/evaluation_definitions' => 'evaluation_definitions#index', :via => :get
+	match 'promotions/:promotion_id/evaluation_definitions' => 'evaluation_definitions#create', :via => :post
+
+	resources :evaluations
+	match 'promotions/:promotion_id/evaluations' => 'evaluations#index', :via => :get
   
 end

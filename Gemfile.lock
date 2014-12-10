@@ -1,15 +1,3 @@
-PATH
-  remote: vendor/gems/hes-evaluations
-  specs:
-    hes-evaluations (0.1.0)
-      hes-api
-      hes-authorization
-      hes-custom_prompts
-      hes-flaggable (~> 2)
-      hes-notifier
-      hes-sequencer
-      rails (~> 3)
-
 GEM
   remote: http://dev:dev@gems.staging.hesapps.com/
   remote: http://gems.github.com/
@@ -57,10 +45,6 @@ GEM
       hes-udf (~> 2)
       rails (~> 3)
     hes-events (0.0.2)
-      rails (~> 3)
-    hes-flaggable (2.0.9)
-      hes-api
-      hes-authorization
       rails (~> 3)
     hes-many_to_many (0.0.3)
     hes-notifier (1.0.6)
@@ -130,7 +114,6 @@ DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
   hes-authorization
   hes-custom_prompts
-  hes-evaluations (= 0.1.0)!
   hes-notifier
   hes-sequencer
   json

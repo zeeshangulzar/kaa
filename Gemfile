@@ -14,7 +14,7 @@ gem 'json'
 gem 'bcrypt-ruby', '3.0.1'
 
 # HES Gems
-gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"
+# gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"
 # gem "hes-flaggable", '2.0.9'
 gem "hes-custom_prompts"
 # gem "hes-core"

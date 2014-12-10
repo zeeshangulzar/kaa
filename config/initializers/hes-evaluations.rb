@@ -1,3 +1,9 @@
+require "hes-evaluations/engine"
+
+# Evaluations module that contains the ability for any model to create evaluation definitions and have users complete evaluations generated from the definitions
+module HesEvaluations
+end
+
 include HesEvaluations
 
 # Common Answer Groups
