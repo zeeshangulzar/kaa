@@ -1,10 +1,4 @@
 PATH
-  remote: vendor/gems/hes-api
-  specs:
-    hes-api (2.0.0)
-      rails (~> 3)
-
-PATH
   remote: vendor/gems/hes-evaluations
   specs:
     hes-evaluations (0.1.0)
@@ -52,6 +46,8 @@ GEM
     bcrypt-ruby (3.0.1)
     builder (3.0.4)
     erubis (2.7.0)
+    hes-api (1.0.10)
+      rails (~> 3)
     hes-authorization (2.0.5)
       rails (~> 3)
     hes-custom_prompts (0.0.2)
@@ -132,7 +128,6 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
-  hes-api (= 2.0.0)!
   hes-authorization
   hes-custom_prompts
   hes-evaluations (= 0.1.0)!
