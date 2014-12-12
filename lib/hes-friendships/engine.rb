@@ -1,5 +1,5 @@
 require 'hes-authorization'
-require 'hes-api'
+#require 'hes-api'
 require File.dirname(__FILE__) + '/has_friends'
 
 # Friendships module

@@ -17,7 +17,7 @@ class ChallengeSent < ApplicationModel
   validate :to_user_is_friend
 
   def unique_challenge_received
-    challenge_received = ChallengeReceived.where(:challenge_id => self.challenge_id, :user_id => self.to_user_id).where("expires_on > ? AND status IN (?)", Date.today, [ChallengeReceived::STATUSES[:pending], ChallengeReceived::STATUSES[:accepted]]).first
+    challenge_received = ChallengeReceived.where(:challenge_id => self.challenge_id, :user_id => self.to_user_id).where("expires_on > ? AND status IN (?)", Date.today, [ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]).first
     if challenge_received
       self.errors.add(:base, "You've already challenged this person.")
       return false
@@ -36,14 +36,17 @@ class ChallengeSent < ApplicationModel
   def create_challenge_received
     receiver = User.find(self.to_user_id)
     challenge = Challenge.find(self.challenge_id)
-    expires_on = receiver.promotion.current_date + 7
+    #expires_on = receiver.promotion.current_date + 7
     existing = receiver.active_challenges.detect{|c| c.challenge_id == self.challenge_id}
     if existing
       # update the expiration date of the challenge if it's in receiver's queue (he hasn't accepted it yet)
-      existing.update_attribute(:expires_on => expires_on) if !existing.accepted?
+      #existing.update_attribute(:expires_on => expires_on) if !existing.accepted?
+      # NOTE: not expiring new challenges now, they only expire once they've been accepted
     else
       # receiver doesn't have this challenge yet
-      rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUSES[:pending], :expires_on => expires_on)
+      #rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:pending], :expires_on => expires_on)
+      # NOTE: not expiring new challenges now, they only expire once they've been accepted
+      rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:pending])
       rcc.challenge = challenge
       if !rcc.valid?
         self.errors.add(:base, rcc.errors.full_messages)

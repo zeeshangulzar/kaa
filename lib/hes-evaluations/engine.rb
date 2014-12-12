@@ -1,5 +1,5 @@
 require "hes-authorization"
-require "hes-api"
+#require "hes-api"
 # require "hes-flaggable"
 require "hes-notifier"
 require "hes-custom_prompts"

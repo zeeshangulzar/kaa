@@ -12,7 +12,7 @@ module HESApi
   # Engine for setting up HESCustomizer
   class Engine < Rails::Engine
 
-    initializer "hes-api" do |app|
+    #initializer "hes-api" do |app|
       ActiveRecord::Base.send :include, UrlAttr
       ActiveRecord::Base.send :include, IncludeInJSON
       ActiveRecord::Base.send :include, AccessibleAttributes
@@ -22,7 +22,7 @@ module HESApi
       ActionController::Base.send :include, RespondWithUrl
       ActionController::Base.send :extend, GetParent
       ActionController::Base.responder = HESApiResponder # Custom responder but inherits from ActionController::Responder with only one method overridden
-    end
+    #end
 
   end
 end
