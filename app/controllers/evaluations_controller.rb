@@ -67,7 +67,7 @@ class EvaluationsController < ApplicationController
     if !@evaluation
       return HESResponder("Evaluation doesn't exist.", "NOT_FOUND")
     end
-    if @evaluation.user != @user && !@user.master?
+    if @evaluation.user != @current_user && !@current_user.master?
       return HESResponder("Access denied to evaluation.", "DENIED")
     end
     return HESResponder(@evaluations)

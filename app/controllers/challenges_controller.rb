@@ -11,7 +11,7 @@ class ChallengesController < ApplicationController
     challenge = Challenge.find(params[:id])
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif (challenge.promotion != @user.promotion || (challenge.location && challenge.location != @user.location))  && !@user.master?
+    elsif (challenge.promotion != @current_user.promotion || (challenge.location && challenge.location != @current_user.location))  && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
     else
       return HESResponder(challenge)
@@ -31,7 +31,7 @@ class ChallengesController < ApplicationController
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
     else
-      if !@user.location_coordinator?
+      if !@current_user.location_coordinator?
         return HESResponder("You may not edit this challenge.", "DENIED")
       end
       Challenge.transaction do
@@ -49,7 +49,7 @@ class ChallengesController < ApplicationController
     challenge = Challenge.find(params[:id]) rescue nil
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif @user.location_coordinator? && challenge.destroy
+    elsif @current_user.location_coordinator? && challenge.destroy
       return HESResponder(challenge)
     else
       return HESResponder("Error deleting.", "ERROR")

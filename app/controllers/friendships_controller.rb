@@ -50,7 +50,7 @@ class FriendshipsController < ApplicationController
   #    }
   #   ]
   def index
-    if @friendable.id != @user.id && !@user.master?
+    if @friendable.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't see this user's friendships.", "DENIED")
     end
     return HESResponder(@friendable.friendships)
@@ -89,7 +89,7 @@ class FriendshipsController < ApplicationController
     if !@friendship
       return HESResponder("Friendship", "NOT_FOUND")
     else
-      if [@friendship.friender_id, @friendship.friendee_id].include?(@user.id) || @user.master?
+      if [@friendship.friender_id, @friendship.friendee_id].include?(@current_user.id) || @current_user.master?
         return HESResponder(@friendship)
       else
         return HESResponder("You may not view this friendship.", "DENIED")
@@ -126,7 +126,7 @@ class FriendshipsController < ApplicationController
   #    }
   #   }
   def create
-    if @friendable.id != @user.id && !@user.master?
+    if @friendable.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't alter other users' friendships.", "DENIED")
     end
     Friendship.transaction do
@@ -175,8 +175,8 @@ class FriendshipsController < ApplicationController
     # don't want them changing the user ids..
     [:friender_id, :friendee_id].each { |k| params[:friendship].delete(k) rescue nil }
 
-    if [@friendship.friender.id, @friendship.friendee.id].include?(@user.id) || @user.master?
-      if !params[:friendship].nil? && !params[:friendship][:status].nil? && params[:friendship][:status] == Friendship::STATUS[:accepted] && !@user.master? && @user.id == @friendship.sender.id
+    if [@friendship.friender.id, @friendship.friendee.id].include?(@current_user.id) || @current_user.master?
+      if !params[:friendship].nil? && !params[:friendship][:status].nil? && params[:friendship][:status] == Friendship::STATUS[:accepted] && !@current_user.master? && @current_user.id == @friendship.sender.id
         return HESResponder("Can't accept your own invite.", "ERROR")
       end
       Friendship.transaction do
@@ -220,7 +220,7 @@ class FriendshipsController < ApplicationController
     if !@friendship
       return HESResponder("Friendship", "NOT_FOUND")
     end
-    if @friendship.friender.id == @user.id || @user.master? || (@friendship.friendee && @friendship.friendee.id == @user.id)
+    if @friendship.friender.id == @current_user.id || @current_user.master? || (@friendship.friendee && @friendship.friendee.id == @current_user.id)
       Friendship.transaction do
         @friendship.destroy
       end

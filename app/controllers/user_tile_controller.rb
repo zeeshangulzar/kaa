@@ -3,7 +3,7 @@ class UserTilesController < ApplicationController
 
   def index
     @tiles = []
-    @user_tiles = UserTile.find_all_by_user_id(params[:user_id]).order_by(:sequence)
+    @user_tiles = UserTile.find_all_by_user_id(@user.id).order_by(:sequence)
     @user_tiles.each do |t|
       @tiles << Tile.find(t.tile_id)
     end

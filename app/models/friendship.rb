@@ -31,7 +31,7 @@ class Friendship < ApplicationModel
   # @return [ActiveRecord::Relation] scoped to the status
   # @example
   #  Friendship.pending
-  #  @user.friendships.accepted
+  #  @target_user.friendships.accepted
   STATUS.each_pair do |key, value|
     self.send(:scope, key, where(:status => value))
   end
@@ -40,7 +40,7 @@ class Friendship < ApplicationModel
   # @return [Boolean] true if status is matching, false otherwise
   # @example
   #  @friendship.accepted?
-  #  @user.friendships.first.pending?
+  #  @target_user.friendships.first.pending?
   STATUS.each_pair do |key, value|
     self.send(:define_method, "#{key}?", Proc.new { self.status == value })
   end

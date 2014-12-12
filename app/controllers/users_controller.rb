@@ -17,9 +17,9 @@ class UsersController < ApplicationController
     if user && user.password == params[:password]
       json = user.as_json
       json[:auth_basic_header] = user.auth_basic_header
-      render :json => json
+      return HESResponder(json)
     else
-      render :json => {:errors => ["Email or password is incorrect."]}, :status => 401 and return
+      return HESResponder("Email or password is incorrect.", 401)
     end
   end
 
@@ -32,11 +32,7 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
-    user = get_user_from_params_user_id
-    if !user
-      return HESResponder("User", "NOT_FOUND")
-    end
-    return HESResponder(user)
+    return HESResponder(@target_user)
   end
 
 
@@ -77,35 +73,29 @@ class UsersController < ApplicationController
   end
   
   def update
-    user = User.find(params[:id]) rescue nil
-    if !user
-      return HESResponder("User", "NOT_FOUND")
+    if @target_user.id != @current_user.id && !@current_user.master?
+      return HESResponder("You may not edit this user.", "DENIED")
     else
-      if user != @user && !@user.master?
-        return HESResponder("You may not edit this user.", "DENIED")
-      end
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
-        user.update_attributes(params[:user])
-        user.profile.update_attributes(profile_data)
+        @target_user.update_attributes(params[:user])
+        @target_user.profile.update_attributes(profile_data)
       end
       errors = user.profile.errors || user.errors # the order here is important. profile will have specific errors.
       if errors
         return HESResponder(errors.full_messages, "ERROR")
       else
-        return HESResponder(user)
+        return HESResponder(@target_user)
       end
     end
   end
   
   def destroy
-    user = User.find(params[:id]) rescue nil
-    if !user
-      return HESResponder("User", "NOT_FOUND")
-    elsif @user.master? && user.destroy
-      return HESResponder(user)
-    else
-      return HESResponder("Error deleting.", "ERROR")
+    if @current_user.master? && @current_user.id != @target_user.id
+      User.transaction do
+        @target_user.destroy
+      end
+      return HESResponder(@target_user)
     end
   end
 
@@ -113,7 +103,7 @@ class UsersController < ApplicationController
   def search
     search_string = "%#{params[:search_string]}%"
     conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
-    p = (@user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
+    p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
     users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
     return HESResponder(users)
   end

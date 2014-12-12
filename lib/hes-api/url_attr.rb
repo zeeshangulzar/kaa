@@ -8,7 +8,7 @@ module HESApi
     def self.included(base)
       base.send(:attr_accessor, :url)
 
-      #base.send(:alias_method_chain, :serializable_hash, :url)
+      base.send(:alias_method_chain, :serializable_hash, :url)
 
       class << base
         attr_accessor :custom_url

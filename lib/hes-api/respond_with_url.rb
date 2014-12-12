@@ -7,7 +7,7 @@ module HESApi
     # When a controller has this module included a method chain is set up to extend respond_with
     # @param [ActionController::Base] base to extend
     def self.included(base)
-      #base.send(:alias_method_chain, :respond_with, :url)
+      base.send(:alias_method_chain, :respond_with, :url)
     end
 
     # Chains the respond_with method in a controller so the URL attribute can be set on a model.
@@ -34,8 +34,8 @@ module HESApi
     # @param [ActiveRecord] resource that will have url added
     # @param [Hash] options that override the default URL
     # @example
-    #  add_url(@user)
-    #  add_url(@user, :url => "/my_profile")
+    #  add_url(@target_user)
+    #  add_url(@target_user, :url => "/my_profile")
     def add_url(resource, options = {})
       return unless resource.class.respond_to?(:associations_in_json) && resource.class.respond_to?(:custom_url)
 

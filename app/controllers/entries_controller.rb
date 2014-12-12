@@ -17,7 +17,7 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    @entries = @user.entries.available.to_a
+    @entries = @target_user.entries.available.to_a
     return HESResponder(@entries)
   end
 
@@ -40,7 +40,7 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def show
-    @entry = @user.entries.find(params[:id])
+    @entry = @target_user.entries.find(params[:id])
     return HESResponder(@entry)
   end
 
@@ -68,7 +68,7 @@ class EntriesController < ApplicationController
     Entry.transaction do
       ex_activities = params[:entry].delete(:entry_exercise_activities) || []
       activities = params[:entry].delete(:entry_activities) || []
-      @entry = @user.entries.build(params[:entry])
+      @entry = @target_user.entries.build(params[:entry])
       @entry.save!
 
       #create exercise activites
@@ -111,7 +111,7 @@ class EntriesController < ApplicationController
   #    "entry_exercise_activities" : [{}]
   #   }
   def update
-    @entry = @user.entries.find(params[:id])
+    @entry = @target_user.entries.find(params[:id])
     Entry.transaction do
       entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
       if !entry_ex_activities.nil?

@@ -16,11 +16,15 @@ class ApplicationController < ActionController::Base
   MeEquivalents = ['-', 'me']
 
   def get_user_from_params_user_id
-    if MeEquivalents.include?(params[:id])
-      user = @user
-    else
-      user = @promotion.users.find(params[:id]) rescue nil
+    user = @current_user
+    id_to_check = (controller_name == "users") ? params[:id] : params[:user_id]
+    if !id_to_check.nil? && !MeEquivalents.include?(id_to_check)
+      user = User.find(id_to_check) rescue nil
+      if !user
+        return HESResponder("User", "NOT_FOUND")
+      end
     end
+    return user
   end
 
   # Sets the default format to json unless a different format is request.
@@ -34,18 +38,19 @@ class ApplicationController < ActionController::Base
 
   def set_user_and_promotion
     # first set it to me and my promotion
-    @user = HESSecurityMiddleware.current_user
-    if @user
-      @promotion = @user.promotion
-
+    @current_user = HESSecurityMiddleware.current_user
+    @target_user = self.get_user_from_params_user_id
+    if @current_user
+      # TODO: should this be driving off @current_user, @target_user, or both?
+      @promotion = @current_user.promotion
       if params[:promotion_id]
         can_change_promotion = false
         other_promotion = Promotion.find(params[:promotion_id])
-        if @user.master? || @user.poster?
+        if @current_user.master? || @current_user.poster?
           can_change_promotion = true
-        elsif @user.reseller? && other_promotion.organization.reseller_id == @user.promotion.organization.reseller_id
+        elsif @current_user.reseller? && other_promotion.organization.reseller_id == @current_user.promotion.organization.reseller_id
           can_change_promotion = true
-        elsif @user.coordinator? && other_promotion.organization_id == @user.promotion.organization_id
+        elsif @current_user.coordinator? && other_promotion.organization_id == @current_user.promotion.organization_id
           can_change_promotion = true
         end
         if can_change_promotion

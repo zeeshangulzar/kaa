@@ -44,8 +44,8 @@ module HesFriendships
       # @param [User, String] user_or_email of user if exists, otherwise just use email address
       # @return [Friendship] instance of your friendship with other user, status will be 'requested'
       # @example
-      #  @user.request_friend(another_user)
-      #  @user.request_friend("developer@hesonline.com")
+      #  @target_user.request_friend(another_user)
+      #  @target_user.request_friend("developer@hesonline.com")
       # @todo Try to find user if string is passed in. Not sure if good idea because will have to know structure of database for this to work.
       def request_friend(user_or_email)
         unless user_or_email.is_a?(String)

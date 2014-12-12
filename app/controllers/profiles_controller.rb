@@ -14,11 +14,7 @@ class ProfilesController < ApplicationController
   # [URL] /users/:id/profile [GET]
   #  [200 OK] Successfully retrieved Profile
   def show
-    user = @promotion.users.find(params[:id]) rescue nil
-    if !user
-      return HESResponder("User", "NOT_FOUND")
-    end
-    return HESResponder(user.profile)
+    return HESResponder(@target_user.profile)
   end
 
   def create
@@ -26,17 +22,16 @@ class ProfilesController < ApplicationController
   end
   
   def update
-    user = User.find(params[:id]) rescue nil
-    if !user
-      return HESResponder("User", "NOT_FOUND")
+    if @target_user.id != @current_user.id && !@current_user.master?
+      return HESResponder("You may not edit others' profiles.", "DENINED")
     end
     Profile.transaction do
-      user.profile.update_attributes(params[:profile])
+      @target_user.profile.update_attributes(params[:profile])
     end
-    if user.profile.valid?
-      return HESResponder(user.profile)
-    elsif user.profile.errors
-      return HESResponder(user.profile.errors.full_messages, "ERROR")
+    if @target_user.profile.valid?
+      return HESResponder(@target_user.profile)
+    elsif @target_user.profile.errors
+      return HESResponder(@target_user.profile.errors.full_messages, "ERROR")
     else
       return HESResponder("Error updating profile.", "ERROR")
     end

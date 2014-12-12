@@ -2,9 +2,7 @@ class GroupsController < ApplicationController
   authorize :all, :user
 
   def index
-    user = User.find(params[:user_id]) rescue nil
-    user = user.nil? ? @user : user
-    if user.id != @user.id && !@user.master?
+    if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not view user's groups.", "DENIED")
     else
       return HESResponder(user.groups)
@@ -23,7 +21,7 @@ class GroupsController < ApplicationController
     group = Group.find(params[:id]) rescue nil
     if !group
       return HESResponder("Group", "NOT_FOUND")
-    elsif group.owner.id != @user.id && !@user.master?
+    elsif group.owner.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not view this group.", "DENIED")
     else
       return HESResponder(group)
@@ -39,7 +37,7 @@ class GroupsController < ApplicationController
       return HESResponder('Must include group with at least 1 user.', "ERROR")
     end
     users = params[:group].delete(:users)
-    group = @user.groups.build(params[:group])
+    group = @current_user.groups.build(params[:group]) # TODO: can you post for other people, master?
     if !group.valid?
       return HESResponder(group.errors.full_messages, "ERROR")
     end
@@ -60,7 +58,7 @@ class GroupsController < ApplicationController
     if !group
       return HESResponder("Group", "NOT_FOUND")
     else
-      if group.owner != @user && !@user.master?
+      if group.owner.id != @current_user.id && !@current_user.master?
         return HESResponder("You may not edit this group.", "DENIED")
       end
       params[:group].delete(:users) if !params[:group].nil? && !params[:group][:users].nil?
@@ -79,7 +77,7 @@ class GroupsController < ApplicationController
     group = Group.find(params[:id]) rescue nil
     if !group
       return HESResponder("Group", "NOT_FOUND")
-    elsif (group.owner == @user || @user.master?) && user.destroy
+    elsif (group.owner.id == @current_user.id || @current_user.master?) && user.destroy
       return HESResponder(group)
     else
       return HESResponder("Error deleting.", "ERROR")

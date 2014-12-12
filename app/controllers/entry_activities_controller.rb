@@ -96,7 +96,7 @@ class EntryActivitiesController < ApplicationController
     # Lets us lazy create entries by just passing the date the entry is supposed to be logged
     if params[:entry_activity][:entry_id].nil?
       if params[:logged_on]
-        entry = @user.entries.find_or_create_by_logged_on(params[:logged_on])
+        entry = @target_user.entries.find_or_create_by_logged_on(params[:logged_on])
         params[:entry_activity][:entry_id] = entry.id
       else
         return HESResponder("Must pass logged on date for entry or entry id", "ERROR")

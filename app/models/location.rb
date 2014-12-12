@@ -2,7 +2,7 @@
 class Location < ApplicationModel
 
   attr_privacy_no_path_to_user
-  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :public
+  attr_privacy :name, :sequence, :root_location_id, :parent_location_id, :public
   attr_accessible  :promotion_id, :name, :sequence, :root_location_id, :parent_location_id
 
 
