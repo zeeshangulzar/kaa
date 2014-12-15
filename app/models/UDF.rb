@@ -1,4 +1,4 @@
-class UDF < ActiveRecord::Base
+class UDF < ApplicationModel
   
   set_table_name :schema_info  # this kludge is here just go get us out the gate, it will be set properly later on
   

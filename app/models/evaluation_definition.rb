@@ -1,5 +1,5 @@
 # Models a evaluation definition that is used to create an evaluation
-class EvaluationDefinition < ActiveRecord::Base
+class EvaluationDefinition < ApplicationModel
   attr_accessible :name, :days_from_start, :message, :visible_questions
 
   belongs_to :promotion

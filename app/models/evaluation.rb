@@ -1,5 +1,5 @@
 # Models evaluations that a user completes with a set of default questions and the ability to add dynamic questions (custom prompts)
-class Evaluation < ActiveRecord::Base
+class Evaluation < ApplicationModel
   attr_privacy :user_id, :evaluation_definition_id, :days_active_per_week, :fruit_servings, :vegetable_servings, :fruit_vegetable_servings, :whole_grains, :breakfast, :stress, :social, :liked_most, :kindness, :energy, :liked_least, :created_at, :updated_at, :water_glasses, :sleep_hours, :overall_health, :exercise_per_day, :perception, :me
   # Make all question answer fields accessible
   EvaluationQuestion.all.each do |question|

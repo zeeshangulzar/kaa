@@ -1,3 +1,3 @@
-class FlagDef <  ActiveRecord::Base
+class FlagDef <  ApplicationModel
   attr_accessible *column_names
 end

@@ -1,5 +1,5 @@
 # A model that handles notifications, including creating single notifications and groups of them, as well as deleting groups and marking them as viewed.
-class Notification < ActiveRecord::Base
+class Notification < ApplicationModel
   belongs_to :notificationable, :polymorphic => true 
   belongs_to :user
   belongs_to :from_user, :class_name => 'User'

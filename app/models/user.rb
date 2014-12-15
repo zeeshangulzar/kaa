@@ -22,6 +22,8 @@ class User < ApplicationModel
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
 
+  has_notifications
+
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 

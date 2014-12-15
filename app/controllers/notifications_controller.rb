@@ -49,10 +49,7 @@ class NotificationsController < ApplicationController
 	#    }]
 	def get_past_notifications
 		@past_notifications = Notification.find_all_by_key_group_by_created_at(@promotion)
-
-		respond_to do |format|
-			format.json { render :json => @past_notifications}
-		end
+		return HESResponder(@past_notifications)
 	end
 
 	# Gets a list of notifications for a user.
@@ -84,10 +81,9 @@ class NotificationsController < ApplicationController
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }]
 	def index
-		notification_owner = @notificationable || @user
+		notification_owner = @notificationable || @current_user
 		@notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
-
-		respond_with @notifications
+		return HESResponder(@notifications)
 	end
 
 	# Gets a single notification for a user.
@@ -119,7 +115,7 @@ class NotificationsController < ApplicationController
 	#    }
 	def show
 		@notification ||= Notification.find(params[:id])
-		respond_with @notification
+		return HESResponder(@notification)
 	end
 
 	# Creates a single notification for a user or many users in a promotion.
@@ -153,7 +149,7 @@ class NotificationsController < ApplicationController
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }
 	def create
-		from_user = params[:notification][:from_user] != '0' ? @user : nil
+		from_user = params[:notification][:from_user] != '0' ? @current_user : nil
 
 		users = @promotion.users
 
@@ -161,9 +157,7 @@ class NotificationsController < ApplicationController
 
 		$redis.publish("newCoordinatorNotification", {:notification => @notification.as_json, :promotion_id => @promotion.id}.to_json)
 
-		respond_to do |format|
-		  format.json { render :json => @notification}
-		end
+		return HESResponder(@notification)
 	end
 
   	# Updates a one or many notifications for a user
@@ -204,15 +198,16 @@ class NotificationsController < ApplicationController
 		if params[:id]
 			@notification ||= Notification.find(params[:id])
 			@notification.update_attributes(params[:notification])
-			respond_with @notification
+			return HESResponder(@notification)
 		elsif params[:ids]
 			@notifications = Notification.where(:id => params[:ids])
 			@notifications.each do |notification|
 				notification.update_attributes(params[:notification])
 			end
-		  	respond_with @notifications, :location => "/notifications?ids=#{@notifications.collect(&:id).join(',')}"
+		  	#respond_with @notifications, :location => "/notifications?ids=#{@notifications.collect(&:id).join(',')}"
+        return HESResponder(@notifications)
 		else
-		  	render :json => {:error => "Must pass an id or a group of ids"}, :status => 500
+		  	return HESResponder("Must pass an id or a group of ids", "ERROR")
 		end
 	end
 
@@ -248,6 +243,6 @@ class NotificationsController < ApplicationController
 	def destroy
 		@notification = Notification.find(params[:id])
 		Notification.delete_group(@notification.notificationable, @notification.created_at)
-		respond_with @notification
+		return HESResponder(@notification)
 	end
 end

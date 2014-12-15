@@ -15,7 +15,7 @@ class CustomPromptsController < ApplicationController
     unless params[:custom_promptable_id].nil? || params[:custom_promptable_type].nil?
       @custom_promptable = params[:custom_promptable_type].singularize.camelcase.constantize.find(params[:custom_promptable_id])
     else
-      render :json => { :errors => ["Must pass custom_promptable id"] }, :status => :unprocessable_entity
+      return HESResponder("Must pass custom_promptable id", "ERROR")
     end
   end
 
@@ -45,7 +45,7 @@ class CustomPromptsController < ApplicationController
   #    }]
   def index
     @custom_prompts = @custom_promptable.custom_prompts
-    respond_with @custom_prompts
+    return HESResponder(@custom_prompts)
   end
 
   # Gets a single custom_prompt for a user
@@ -74,7 +74,7 @@ class CustomPromptsController < ApplicationController
   #    }
   def show
     @custom_prompt = CustomPrompt.find(params[:id])
-    respond_with @custom_prompt
+    return HESResponder(@custom_prompt)
   end
 
   # Creates a single custom_prompt for a user
@@ -111,7 +111,7 @@ class CustomPromptsController < ApplicationController
   #    }
   def create
     @custom_prompt = @custom_promptable.custom_prompts.create(params[:custom_prompt])
-    respond_with @custom_prompt
+    return HESResponder(@custom_prompt)
   end
 
   # Creates a single custom_prompt for a user
@@ -148,7 +148,7 @@ class CustomPromptsController < ApplicationController
   def update
     @custom_prompt = CustomPrompt.find(params[:id])
     @custom_prompt.update_attributes(params[:custom_prompt])
-    respond_with @custom_prompt
+    return HESResponder(@custom_prompt)
   end
 
   # Deletes a single custom_prompt from a user
@@ -178,6 +178,6 @@ class CustomPromptsController < ApplicationController
   def destroy
   	@custom_prompt = CustomPrompt.find(params[:id])
   	@custom_prompt.destroy
-  	respond_with @custom_prompt
+  	return HESResponder(@custom_prompt)
   end
 end

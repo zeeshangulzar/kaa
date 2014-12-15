@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141208202506) do
+ActiveRecord::Schema.define(:version => 20141215075200) do
 
   create_table "activities", :force => true do |t|
     t.integer  "promotion_id"
@@ -150,6 +150,12 @@ ActiveRecord::Schema.define(:version => 20141208202506) do
   add_index "evaluations", ["evaluation_definition_id"], :name => "index_evaluations_on_evaluation_definition_id"
   add_index "evaluations", ["user_id"], :name => "index_evaluations_on_user_id"
 
+  create_table "evaluations_udfs", :force => true do |t|
+    t.integer "evaluation_id"
+  end
+
+  add_index "evaluations_udfs", ["evaluation_id"], :name => "by_evaluation_id"
+
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
@@ -212,6 +218,24 @@ ActiveRecord::Schema.define(:version => 20141208202506) do
     t.datetime "updated_at",         :null => false
   end
 
+  create_table "notifications", :force => true do |t|
+    t.integer  "user_id"
+    t.boolean  "viewed",                               :default => false
+    t.text     "message"
+    t.string   "key",                   :limit => 25
+    t.string   "title",                 :limit => 100
+    t.integer  "notificationable_id"
+    t.string   "notificationable_type", :limit => 50
+    t.integer  "from_user_id"
+    t.integer  "hidden",                :limit => 1,   :default => 0
+    t.datetime "created_at",                                              :null => false
+    t.datetime "updated_at",                                              :null => false
+  end
+
+  add_index "notifications", ["from_user_id"], :name => "index_notifications_on_from_user_id"
+  add_index "notifications", ["notificationable_id", "notificationable_type"], :name => "notifications_index"
+  add_index "notifications", ["user_id"], :name => "index_notifications_on_user_id"
+
   create_table "organizations", :force => true do |t|
     t.integer  "reseller_id"
     t.string   "name",                  :limit => 100
@@ -271,6 +295,12 @@ ActiveRecord::Schema.define(:version => 20141208202506) do
     t.string   "image"
   end
 
+  create_table "profiles_udfs", :force => true do |t|
+    t.integer "profile_id"
+  end
+
+  add_index "profiles_udfs", ["profile_id"], :name => "by_profile_id"
+
   create_table "promotions", :force => true do |t|
     t.integer  "organization_id"
     t.integer  "map_id"
@@ -318,7 +348,6 @@ ActiveRecord::Schema.define(:version => 20141208202506) do
     t.datetime "updated_at"
   end
 
-  add_index "rel_entries_exercises_activities", ["entry_id", "exercise_activity_id"], :name => "rel_entries_exercises_activities_unique_index", :unique => true
   add_index "rel_entries_exercises_activities", ["entry_id"], :name => "by_entry_id"
   add_index "rel_entries_exercises_activities", ["exercise_activity_id"], :name => "by_exercise_activity_id"
 
@@ -381,6 +410,7 @@ ActiveRecord::Schema.define(:version => 20141208202506) do
     t.integer "parent_id"
     t.string  "data_type"
     t.boolean "is_enabled",                :default => true
+    t.string  "field_name"
   end
 
   add_index "udf_defs", ["parent_type", "parent_id"], :name => "by_parent_type_parent_id"
