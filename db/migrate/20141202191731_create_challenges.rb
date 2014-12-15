@@ -5,6 +5,7 @@ class CreateChallenges < ActiveRecord::Migration
       t.integer :location_id
       t.text    :name
       t.text    :description
+      t.string  :type, :default => 'peer'
       t.integer :created_by
       t.integer :last_updated_by
       t.date    :visible_from

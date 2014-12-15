@@ -31,12 +31,13 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer  "location_id"
     t.text     "name"
     t.text     "description"
+    t.string   "type",            :default => "peer"
     t.integer  "created_by"
     t.integer  "last_updated_by"
     t.date     "visible_from"
     t.date     "visible_to"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
   end
 
   create_table "challenges_received", :force => true do |t|
@@ -150,12 +151,6 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
   add_index "evaluations", ["evaluation_definition_id"], :name => "index_evaluations_on_evaluation_definition_id"
   add_index "evaluations", ["user_id"], :name => "index_evaluations_on_user_id"
 
-  create_table "evaluations_udfs", :force => true do |t|
-    t.integer "evaluation_id"
-  end
-
-  add_index "evaluations_udfs", ["evaluation_id"], :name => "by_evaluation_id"
-
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
@@ -165,16 +160,6 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
   end
 
   add_index "exercise_activities", ["promotion_id"], :name => "index_exercise_activities_on_promotion_id"
-
-  create_table "flag_defs", :force => true do |t|
-    t.string  "model",     :limit => 100
-    t.integer "position"
-    t.string  "flag_name", :limit => 100
-    t.text    "flag_type", :limit => 255
-    t.boolean "default",                  :default => false
-  end
-
-  add_index "flag_defs", ["model"], :name => "by_model"
 
   create_table "friendships", :force => true do |t|
     t.integer  "friendee_id"
@@ -289,17 +274,10 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.string   "entity"
     t.date     "started_on"
     t.date     "registered_on"
-    t.datetime "created_at",                                   :null => false
-    t.datetime "updated_at",                                   :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
     t.string   "image"
-    t.integer  "flags_1",        :limit => 8,   :default => 0
   end
-
-  create_table "profiles_udfs", :force => true do |t|
-    t.integer "profile_id"
-  end
-
-  add_index "profiles_udfs", ["profile_id"], :name => "by_profile_id"
 
   create_table "promotions", :force => true do |t|
     t.integer  "organization_id"
@@ -337,32 +315,6 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "created_at",                                                                                                        :null => false
     t.datetime "updated_at",                                                                                                        :null => false
   end
-
-  create_table "rel_entries_exercises_activities", :force => true do |t|
-    t.integer  "entry_id"
-    t.integer  "exercise_activity_id"
-    t.integer  "value"
-    t.date     "created_on"
-    t.datetime "created_at"
-    t.date     "updated_on"
-    t.datetime "updated_at"
-  end
-
-  add_index "rel_entries_exercises_activities", ["entry_id"], :name => "by_entry_id"
-  add_index "rel_entries_exercises_activities", ["exercise_activity_id"], :name => "by_exercise_activity_id"
-
-  create_table "rel_evaluations_definitions_customs_prompts", :force => true do |t|
-    t.integer  "evaluation_definition_id"
-    t.integer  "custom_prompt_id"
-    t.date     "created_on"
-    t.datetime "created_at"
-    t.date     "updated_on"
-    t.datetime "updated_at"
-  end
-
-  add_index "rel_evaluations_definitions_customs_prompts", ["custom_prompt_id"], :name => "by_custom_prompt_id"
-  add_index "rel_evaluations_definitions_customs_prompts", ["evaluation_definition_id", "custom_prompt_id"], :name => "rel_evaluations_definitions_customs_prompts_unique_index", :unique => true
-  add_index "rel_evaluations_definitions_customs_prompts", ["evaluation_definition_id"], :name => "by_evaluation_definition_id"
 
   create_table "resellers", :force => true do |t|
     t.string   "name",          :limit => 100
@@ -406,7 +358,6 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer "parent_id"
     t.string  "data_type"
     t.boolean "is_enabled",                :default => true
-    t.string  "field_name"
   end
 
   add_index "udf_defs", ["parent_type", "parent_id"], :name => "by_parent_type_parent_id"

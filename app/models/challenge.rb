@@ -1,5 +1,6 @@
 class Challenge < ApplicationModel
-  attr_privacy :promotion_id, :name, :description, :any_user
+  self.inheritance_column = 'column_that_is_not_type'
+  attr_privacy :promotion_id, :name, :description, :type, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
   
@@ -9,5 +10,18 @@ class Challenge < ApplicationModel
 
   has_many :challenges_sent, :class_name => "ChallengeSent"
   has_many :challenges_received, :class_name => "ChallengeReceived"
+  
+  TYPE = {
+    :peer     => 'peer',
+    :regional => 'regional'
+  }
+
+  TYPE.each_pair do |key, value|
+    self.send(:scope, key, where(:type => value))
+  end
+
+  TYPE.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.type == value })
+  end
 
 end

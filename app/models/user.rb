@@ -116,7 +116,7 @@ class User < ApplicationModel
     c = []
     if !self.challenges_received.empty?
       statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date)
+      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date).order("status ASC")
     end
     return c
   end
@@ -127,8 +127,8 @@ class User < ApplicationModel
   def active_challenges
     c = []
     if !self.challenges_received.empty?
-      statuses = [ChallengeReceived::STATUS[:new], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND expires_on >= ?', statuses, self.promotion.current_date)
+      statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
+      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date)
     end
     return c
   end

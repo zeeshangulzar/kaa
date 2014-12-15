@@ -4,7 +4,16 @@ class ChallengesController < ApplicationController
   authorize :create, :update, :destroy, :coordinator
   
   def index
-    return HESResponder(@promotion.challenges)
+    c = @promotion.challenges.peer
+    if params[:type]
+      if Challenge::TYPE.stringify_keys.keys.include?(params[:type])
+        # ?type=[peer,regional,etc.]
+        c = @promotion.challenges.send(params[:type])
+      else
+        return HESResponder("No such status.", "ERROR")
+      end
+    end
+    return HESResponder(c)
   end
 
   def show
