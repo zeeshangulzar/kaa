@@ -20,7 +20,6 @@ class PromotionsController < ApplicationController
   #  [200 OK] Successfully retrieved Promotion
   def show
     promotion = (params[:id] == 'current') ? @promotion : Promotion.find(params[:id]) rescue nil
-
     if !promotion
       return HESResponder("Promotion", "NOT_FOUND")
     end

@@ -17,7 +17,11 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    @entries = @target_user.entries.available.to_a
+    if @current_user.id == @target_user.id || @current_user.master?
+      @entries = (!@target_user.entries.empty? && !@target_user.entries.available.empty?) ? @target_user.entries.available : []
+    else
+      return HESResponder("You may not view other users' entries.", "DENIED")
+    end
     return HESResponder(@entries)
   end
 
@@ -40,8 +44,13 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def show
-    @entry = @target_user.entries.find(params[:id])
-    return HESResponder(@entry)
+    @entry = Entry.find(params[:id]) rescue nil
+    return HESResponder("Entry", "NOT_FOUND") if !@entry
+    if @entry.user.id == @current_user.id || @current_user.master?
+      return HESResponder(@entry)
+    else
+      return HESResponder("You may not view other users' entries.", "DENIED")
+    end
   end
 
   # Creates a single entry
@@ -112,6 +121,9 @@ class EntriesController < ApplicationController
   #   }
   def update
     @entry = @target_user.entries.find(params[:id])
+    if @entry.user.id != @current_user.id && !@current_user.master?
+      return HESResponder("You may not edit this entry.", "DENIED")
+    end
     Entry.transaction do
       entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
       if !entry_ex_activities.nil?

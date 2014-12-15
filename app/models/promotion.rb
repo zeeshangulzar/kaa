@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :public
 
-  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :user
+  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :any_user
 
   belongs_to :organization
 
