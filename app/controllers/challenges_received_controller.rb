@@ -39,9 +39,18 @@ class ChallengesReceivedController < ApplicationController
   end
 
   def create
-    challenge = @promotion.challenges.build(params[:challenge])
-    challenge.save
-    return HESResponder(challenge)
+    if params[:challenge_received] && params[:challenge_received][:status] && [ChallengeReceived::STATUS[:accepted], ChallengeReceived::STATUS[:completed]].include?(params[:challenge_received][:status]) && @current_user.challenges_received.accepted.size >= 4
+      return HESResponder("Can't accept anymore challenges.", "ERROR")
+    end
+    challenge_received = @current_user.challenges_received.build(params[:challenge_received])
+    if !challenge_received.valid?
+      return HESResponder(challenge_received.errors.full_messages, "ERROR")
+    else
+      ChallengeReceived.transaction do
+        challenge_received.save!
+      end
+      return HESResponder(challenge_received)
+    end
   end
 
   def update
@@ -51,6 +60,9 @@ class ChallengesReceivedController < ApplicationController
     else
       if @current_user.id != challenge_received.user.id && !@current_user.master?
         return HESResponder("You may not edit this challenge.", "DENIED")
+      end
+      if params[:challenge_received] && params[:challenge_received][:status] && [ChallengeReceived::STATUS[:accepted], ChallengeReceived::STATUS[:completed]].include?(params[:challenge_received][:status]) && @current_user.challenges_received.accepted.size >= 4
+        return HESResponder("Can't accept anymore challenges.", "ERROR")
       end
       ChallengeReceived.transaction do
         challenge_received.update_attributes(params[:challenge_received])

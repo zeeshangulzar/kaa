@@ -59,16 +59,21 @@ class UsersController < ApplicationController
       eval_params = nil
     end
 
-    user = @promotion.users.create(params[:user])
+    User.transaction do
+      user = @promotion.users.create(params[:user])
 
-    if !user.valid?
-      return HESResponder(user.errors.full_messages, "ERROR")
-    else
-      if eval_params
-        eval_params[:user_id] = user.id
-        eval = ed.evaluations.create(eval_params)
+      if !user.valid?
+        return HESResponder(user.errors.full_messages, "ERROR")
+      else
+        if eval_params
+          eval_params[:user_id] = user.id
+          eval = ed.evaluations.build(eval_params)
+          if eval.valid?
+            eval.save!
+          end
+        end
+        return HESResponder(user)
       end
-      return HESResponder(user)
     end
   end
   

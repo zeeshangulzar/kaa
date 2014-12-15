@@ -2,8 +2,8 @@ class ChallengeReceived < ApplicationModel
   self.table_name = "challenges_received"
 
   attr_privacy_path_to_user :user
-  attr_accessible :challenge_id, :user_id, :status, :expires_on, :completed_on, :created_at, :updated_at, :challenge, :user
-  attr_privacy :challenge_id, :user_id, :status, :expires_on, :completed_on, :created_at, :updated_at, :me
+  attr_accessible :challenge_id, :user_id, :status, :expires_on, :completed_on, :created_at, :updated_at, :challenge, :notes, :user
+  attr_privacy :challenge_id, :user_id, :status, :expires_on, :completed_on, :created_at, :updated_at, :notes, :me
   
   belongs_to :user
   belongs_to :challenge, :in_json => true

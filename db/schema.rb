@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer  "status"
     t.date     "expires_on"
     t.datetime "completed_on"
+    t.text     "notes"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end

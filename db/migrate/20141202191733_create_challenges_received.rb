@@ -6,6 +6,7 @@ class CreateChallengesReceived < ActiveRecord::Migration
       t.integer   :status
       t.date      :expires_on
       t.datetime  :completed_on
+      t.text      :notes
       t.timestamps
     end
   end

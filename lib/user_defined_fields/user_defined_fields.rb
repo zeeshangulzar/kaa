@@ -1,7 +1,8 @@
 # UserDefinedFields
 module UserDefinedFields
 
-  def UserDefinedFields.init
+  # commenting these out to make sure it executes..
+  #def UserDefinedFields.init
     # this will find the name of udfable classes, and cause creation of the UDF class
     # otherwise, you might get a constant not found error when you refer to it
     ActiveRecord::Base.connection.tables.select{|t| t.downcase.include?("_udfs")}.each do |t|
@@ -9,8 +10,8 @@ module UserDefinedFields
       #puts "Found udfable class: #{table}"
       table.constantize rescue nil
     end
-    return true
-  end
+    #return true
+  #end
  
   # causes the find method to be overridden safely
   def self.included(base)
