@@ -20,6 +20,7 @@ class ChallengeReceived < ApplicationModel
   }
 
   before_create :set_defaults
+  before_update :set_expiration_if_accepted
 
   def set_defaults
     self.status ||= STATUS[:unseen]
@@ -43,6 +44,12 @@ class ChallengeReceived < ApplicationModel
     cr_json = super(options)
     cr_json["challengers"] = self.challengers
     cr_json
+  end
+
+  def set_expiration_if_accepted
+    if self.read_attribute(:expires_on).nil? && self.accepted?
+      self.expires_on = self.user.promotion.current_date + 7
+    end
   end
 
 end

@@ -1,7 +1,7 @@
 class ChallengeSent < ApplicationModel
   self.table_name = "challenges_sent"
   attr_privacy_path_to_user :user
-  attr_accessible *column_names
+  attr_accessible :user_id, :challenge_id, :to_user_id, :to_group_id, :created_at, :updated_at
   attr_privacy :user, :challenge, :challenged_user, :challenged_group, :me
   
   belongs_to :user

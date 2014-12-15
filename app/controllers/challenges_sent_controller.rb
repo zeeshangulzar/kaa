@@ -11,11 +11,9 @@ class ChallengesSentController < ApplicationController
 
   def show
     challenge_sent = ChallengeSent.find(params[:id])
-    challenge = challenge_sent.challenge
-    receivers = challenge_sent.receivers
-    if !challenge
+    if !challenge_sent
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif (challenge_sent.user.id != @current_user.id) && (!@current_user.coordinator? || !@current_user.master?)
+    elsif (challenge_sent.user.id != @current_user.id) && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
     else
       return HESResponder(challenge_sent)
@@ -23,20 +21,39 @@ class ChallengesSentController < ApplicationController
   end
 
   def create
-    challenge_sent = ChallengeSent.new(params[:challenge_sent])
+    challenge_sent = @current_user.challenges_sent.build(params[:challenge_sent])
     if !challenge_sent.valid?
       return HESResponder(challenge_sent.errors.full_messages, "ERROR")
     else
       if challenge_sent.user.id != @current_user.id && !@current_user.master?
         return HESResponder("Warning: Attempting impersonation. Activity logged.", "ERROR")
       end
-      ChallengeSent.transaction do
-        challenge_sent.save!
+      if challenge_sent.challenged_group
+        # challenge_sent is a group of users, create challenges_sent for each user in group
+        css = []
+        ChallengeSent.transaction do
+          # TODO: should these all be in a single tx?
+          challenge_sent.challenged_group.users.each do |u|
+            cs = @current_user.challenges_sent.build(params[:challenge_sent])
+            cs.to_user_id = u.id
+            if !cs.valid?
+              return HESResponder(cs.errors.full_messages, "ERROR") if !cs.errors.empty?
+            else
+              cs.save!
+              css.push(cs)
+            end
+          end
+        end
+        return HESResponder(css)
+      else
+        ChallengeSent.transaction do
+          challenge_sent.save!
+        end
+        if !challenge_sent.errors.empty?
+          return HESResponder(challenge_sent.errors.full_messages, "ERROR")
+        end
+        return HESResponder(challenge_sent)
       end
-      if !challenge_sent.errors.empty?
-        return HESResponder(challenge_sent.errors.full_messages, "ERROR")
-      end
-      return HESResponder(challenge_sent)
     end
   end
 

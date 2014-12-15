@@ -5,7 +5,7 @@ class GroupsController < ApplicationController
     if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not view user's groups.", "DENIED")
     else
-      return HESResponder(user.groups)
+      return HESResponder(@target_user.groups)
     end
   end
 

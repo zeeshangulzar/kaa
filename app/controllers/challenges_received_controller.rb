@@ -13,7 +13,7 @@ class ChallengesReceivedController < ApplicationController
           when 'queue'
           else
             if ChallengeReceived::STATUS.stringify_keys.keys.include?(params[:status])
-              # ?status=[new,accepted,etc.]
+              # ?status=[unseen,accepted,etc.]
               c = @target_user.challenges_received.send(params[:status])
             elsif params[:status].is_i? && ChallengeReceived::STATUS.values.include?(params[:status].to_i)
               # ?status=[0,1,2,3,4]
@@ -28,15 +28,13 @@ class ChallengesReceivedController < ApplicationController
   end
 
   def show
-    challenge_sent = ChallengeSent.find(params[:id])
-    challenge = challenge_sent.challenge
-    receivers = challenge_sent.receivers
-    if !challenge
+    challenge_received = ChallengeReceived.find(params[:id])
+    if !challenge_received
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif (challenge_sent.user != @current_user) && (!@current_user.coordinator? || !@current_user.master?)
+    elsif (challenge_received.user.id != @current_user.id) && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
     else
-      return HESResponder(challenge_sent)
+      return HESResponder(challenge_received)
     end
   end
 
@@ -47,7 +45,22 @@ class ChallengesReceivedController < ApplicationController
   end
 
   def update
-    # TODO: make me
+    challenge_received = ChallengeReceived.find(params[:id]) rescue nil
+    if !challenge_received
+      return HESResponder("Challenge", "NOT_FOUND")
+    else
+      if @current_user.id != challenge_received.user.id && !@current_user.master?
+        return HESResponder("You may not edit this challenge.", "DENIED")
+      end
+      ChallengeReceived.transaction do
+        challenge_received.update_attributes(params[:challenge_received])
+      end
+      if !challenge_received.valid?
+        return HESResponder(challenge_received.errors.full_messages, "ERROR")
+      else
+        return HESResponder(challenge_received)
+      end
+    end
   end
 
   def destroy
