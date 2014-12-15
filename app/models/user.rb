@@ -30,6 +30,8 @@ class User < ApplicationModel
   has_many :challenges_sent, :class_name => "ChallengeSent"
   has_many :challenges_received, :class_name => "ChallengeReceived"
 
+  has_many :suggested_challenges
+
   has_many :groups, :foreign_key => "owner_id"
   
   accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent

@@ -16,13 +16,10 @@ Go::Application.routes.draw do
       post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
-    resources :groups, :challenges_sent, :challenges_received
+    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges
   end
 
-  resources :challenges, :organizations, :group_users
-
-  resources :challenges_sent
-  resources :challenges_received
+  resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
 
   resources :groups do
     resources :group_users, :only => [:index, :show]
@@ -32,6 +29,7 @@ Go::Application.routes.draw do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
     resources :challenges, :only => [:index, :show]
+    resources :suggested_challenges, :only => [:index, :show]
   end
 
   # locations...

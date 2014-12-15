@@ -13,6 +13,7 @@ class Promotion < ApplicationModel
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
 
   has_many :challenges
+  has_many :suggested_challenges
 
   has_many :locations
 
