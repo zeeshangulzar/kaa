@@ -1,9 +1,9 @@
-# Many to many class that ties Entry and Recording Activity together
-class EntryActivity < ApplicationModel
+# Many to many class that ties Entry and Behavior together
+class EntryBehavior < ApplicationModel
   belongs_to :entry
-  belongs_to :activity
+  belongs_to :behavior
   
-  attr_accessible :value, :entry_id, :activity_id
+  attr_accessible :value, :entry_id, :behavior_id
 
   before_save :clear_value_if_empty
 

@@ -1,13 +1,13 @@
-class Activity < ApplicationModel
+class Behavior < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
   attr_privacy :name, :public
 
   belongs_to :promotion
 
-  has_many :entries_activities
+  has_many :entries_behaviors
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
-  has_many :timed_activities
+  has_many :timed_behaviors
   
   attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary
   
@@ -16,7 +16,7 @@ class Activity < ApplicationModel
 
   validates_uniqueness_of :name, :scope => :type_of_prompt
   
-  # The types of prompts that are allowed for activities
+  # The types of prompts that are allowed for behaviors
   PROMPT_TYPES = {:textbox => 'textbox', :checkbox => 'checkbox'}
   PROMPT_TYPES.each_pair do |k, v|
     # Define constants for prompt types
@@ -47,8 +47,8 @@ class Activity < ApplicationModel
     REGEX_VALIDATIONS[read_attribute(:regex_validation).to_sym] rescue nil
   end
 
-  def active_timed_activity
-    self.timed_activities.select {|ta| ta.begin_date <= self.promotion.current_date && (ta.end_date.nil? || ta.end_date >= self.promotion.current_date)}.first
+  def active_timed_behavior
+    self.timed_behaviors.select {|ta| ta.begin_date <= self.promotion.current_date && (ta.end_date.nil? || ta.end_date >= self.promotion.current_date)}.first
   end
 
   # Array of options
@@ -64,7 +64,7 @@ class Activity < ApplicationModel
   
   # Overrides as_json so that regular expression validation hash is included instead of just name
   # @param [Hash] options for as_json
-  # @return [Hash] json format of Activity
+  # @return [Hash] json format of Behavior
   def as_json(options = {})
     _json = super
     _json['regex_validation'] = self.regex_validation.as_json unless self.read_attribute(:regex_validation).nil?

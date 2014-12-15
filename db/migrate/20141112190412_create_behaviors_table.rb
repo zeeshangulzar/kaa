@@ -1,6 +1,6 @@
-class CreateActivitiesTable < ActiveRecord::Migration
+class CreateBehaviorsTable < ActiveRecord::Migration
   def change
-    create_table :activities do |t|
+    create_table :behaviors do |t|
       t.references :promotion
       t.string   :name
       t.text     :content

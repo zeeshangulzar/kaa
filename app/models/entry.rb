@@ -1,17 +1,17 @@
 class Entry < ApplicationModel
 
-  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_activities
+  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors
   # All entries are tied to a user
   belongs_to :user
 
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
 
-  has_many :entry_activities, :in_json => true
-  accepts_nested_attributes_for :entry_activities, :entry_exercise_activities
+  has_many :entry_behaviors, :in_json => true
+  accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities
 
-  attr_accessible :entry_activities, :entry_exercise_activities
+  attr_accessible :entry_behaviors, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_activity_points, :updated_at, :entry_exercise_activities, :entry_activities, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :me
   
   # Can not have the same recorded on date for one user
   validates_uniqueness_of :recorded_on, :scope => :user_id
@@ -79,28 +79,28 @@ class Entry < ApplicationModel
   def calculate_points
     calculate_daily_points
 
-    timed_activity_points = 0
-    self.entry_activities.each do |entry_activity|
-      activity = entry_activity.activity
+    timed_behavior_points = 0
+    self.entry_behaviors.each do |entry_behavior|
+      behavior = entry_behavior.behavior
 
-      if entry_activity.value
-        value = entry_activity.value.to_i
-        value = activity.cap_value && value >= activity.cap_value ?  activity.cap_value : value
+      if entry_behavior.value
+        value = entry_behavior.value.to_i
+        value = behavior.cap_value && value >= behavior.cap_value ?  behavior.cap_value : value
 
-        #Timed activities override activity
-        if activity.active_timed_activity
-          activity.active_timed_activity.point_thresholds do |point_threshold|
+        #Timed behaviors override behavior
+        if behavior.active_timed_behavior
+          behavior.active_timed_behavior.point_thresholds do |point_threshold|
             if value >= point_threshold.min
-              timed_activity_points += point_threshold.value
+              timed_behavior_points += point_threshold.value
             end #if
           end #do timed point threshold
         end #elsif
       end #if
-    end #do entry_activity
+    end #do entry_behavior
 
     #TODO: Challenge Points Calculation
 
-    self.timed_activity_points = timed_activity_points    
+    self.timed_behavior_points = timed_behavior_points
   end
 
 end

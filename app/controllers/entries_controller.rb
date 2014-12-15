@@ -67,7 +67,7 @@ class EntriesController < ApplicationController
   def create
     Entry.transaction do
       ex_activities = params[:entry].delete(:entry_exercise_activities) || []
-      activities = params[:entry].delete(:entry_activities) || []
+      behaviors = params[:entry].delete(:entry_behaviors) || []
       @entry = @target_user.entries.build(params[:entry])
       @entry.save!
 
@@ -77,8 +77,8 @@ class EntriesController < ApplicationController
       end
 
       #TODO: Test entry activities
-      activities.each do |hash|
-        @entry.entry_activities.create(scrub(hash, EntryActvitity))
+      behaviors.each do |hash|
+        @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
       end
 
       @entry.save!
@@ -134,21 +134,21 @@ class EntriesController < ApplicationController
         end
       end
 
-      entry_activities = params[:entry].delete(:entry_activities)
-      if !entry_activities.nil?
-        ids = entry_activities.nil? ? [] : entry_activities.map{|x| x.id}
-        remove_activities = @entry.entry_activities.reject{|x| ids.include? x.id}
+      entry_behaviors = params[:entry].delete(:entry_behaviors)
+      if !entry_behaviors.nil?
+        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x.id}
+        remove_behaviors = @entry.entry_behaviors.reject{|x| ids.include? x.id}
 
-        remove_activities.each do |act|
-          @entry.entry_activities.delete(act).first.destroy
+        remove_behaviors.each do |act|
+          @entry.entry_behaviors.delete(act).first.destroy
         end
 
-         entry_activities.each do |entry_act|
-          if entry_act[:id]
-            ea = @entry.entry_activities.detect{|x|x.id==entry_act[:id].to_i}
-            ea.update_attributes(scrub(entry_act, EntryActivity))
+         entry_behaviors.each do |entry_behavior|
+          if entry_behavior[:id]
+            eb = @entry.entry_behaviors.detect{|x|x.id==entry_behavior[:id].to_i}
+            eb.update_attributes(scrub(entry_behavior, EntryBehavior))
           else
-            @entry.entry_activities.create(scrub(entry_act, EntryActivity))
+            @entry.entry_behaviors.create(scrub(entry_behavior, EntryBehavior))
           end
         end
       end 

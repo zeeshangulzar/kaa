@@ -27,21 +27,21 @@ ex_activity_walking.save!
 ex_activity_swim = promotion.exercise_activities.create :name => "Swimming", :summary => "Moving through water while floating"
 ex_activity_swim.save!
 
-activity_water = promotion.activities.create :name => "Drink Water", :content => "You need to drink water", :type_of_prompt => "counter", :cap_value => 8, :cap_message => "You can only record 8 glasses of water"
-activity_water.save!
+behavior_water = promotion.behaviors.create :name => "Drink Water", :content => "You need to drink water", :type_of_prompt => "counter", :cap_value => 8, :cap_message => "You can only record 8 glasses of water"
+behavior_water.save!
 
-activity_veggies = promotion.activities.create :name => "Eat Veggies", :content => "Gots to have those veggies", :type_of_prompt => "counter", :cap_value => 5, :cap_message => "You can only record 5 veggie servings a day"
-activity_veggies.save!
+behavior_veggies = promotion.behaviors.create :name => "Eat Veggies", :content => "Gots to have those veggies", :type_of_prompt => "counter", :cap_value => 5, :cap_message => "You can only record 5 veggie servings a day"
+behavior_veggies.save!
 
 
-timed_water_activity = activity_water.timed_activities.create :begin_date => Date.today - 2, :end_date => (Date.today + 20)
-timed_water_activity.point_thresholds.create :value => 1, :min => 1
-timed_water_activity.save!
+timed_water_behavior = behavior_water.timed_behaviors.create :begin_date => Date.today - 2, :end_date => (Date.today + 20)
+timed_water_behavior.point_thresholds.create :value => 1, :min => 1
+timed_water_behavior.save!
 
-timed_water_activity_2 = activity_water.timed_activities.create :begin_date => Date.today + 32, :end_date => (Date.today + 50)
-timed_water_activity_2.point_thresholds.create :value => 1, :min => 4
-timed_water_activity_2.point_thresholds.create :value => 2, :min => 8
-timed_water_activity_2.save!
+timed_water_behavior_2 = behavior_water.timed_behaviors.create :begin_date => Date.today + 32, :end_date => (Date.today + 50)
+timed_water_behavior_2.point_thresholds.create :value => 1, :min => 4
+timed_water_behavior_2.point_thresholds.create :value => 2, :min => 8
+timed_water_behavior_2.save!
 
 master = promotion.users.build
 master.role=User::Role[:master]
@@ -87,6 +87,8 @@ if user2.save
   user2_group = user2.groups.build(:name => "Frenemies")
   user2_group.save!
   user2_group_user = user2_group.group_users.create(:user_id => user.id)
+  # bob needs a friend...
+  user2.friendships.create(:friendee_id => user.id, :status => Friendship::STATUS[:accepted])
   # bob's challenging his friend john (who's not really his friend yet) to a friendly game of walk around the building.
   user2_cs = user2.challenges_sent.build(:to_user_id => user.id, :to_group_id => user2_group.id, :challenge_id => mc.id)
   user2_cs.save!
@@ -96,7 +98,7 @@ end
 
 entry_1 = user.entries.build(:recorded_on => user.profile.started_on, :exercise_steps => 10302, :exercise_minutes => nil)
 entry_1.save!
-entry_1.entry_activities.build(:activity_id => activity_water.id, :value => 1)
+entry_1.entry_behaviors.build(:behavior_id => behavior_water.id, :value => 1)
 entry_1.save_exercise_activity(ex_activity_biking, :value => 28)
 entry_1.exercise_minutes = 28
 entry_1.save!

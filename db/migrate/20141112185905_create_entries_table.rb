@@ -7,7 +7,7 @@ class CreateEntriesTable < ActiveRecord::Migration
       t.text :notes
       t.integer :daily_points
       t.integer :challenge_points
-      t.integer :timed_activity_points
+      t.integer :timed_behavior_points
       t.integer :exercise_minutes
       t.integer :exercise_steps
       

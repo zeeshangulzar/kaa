@@ -32,7 +32,7 @@ class User < ApplicationModel
 
   has_many :groups, :foreign_key => "owner_id"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent
   attr_accessor :include_evaluation_definitions
   
   # hooks

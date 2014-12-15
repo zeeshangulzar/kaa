@@ -46,7 +46,7 @@ class ChallengeSent < ApplicationModel
       # receiver doesn't have this challenge yet
       #rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:pending], :expires_on => expires_on)
       # NOTE: not expiring new challenges now, they only expire once they've been accepted
-      rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:pending])
+      rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:unseen])
       rcc.challenge = challenge
       if !rcc.valid?
         self.errors.add(:base, rcc.errors.full_messages)
