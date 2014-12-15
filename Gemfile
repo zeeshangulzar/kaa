@@ -16,7 +16,7 @@ gem 'bcrypt-ruby', '3.0.1'
 # HES Gems
 # gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"
 # gem "hes-flaggable", '2.0.9'
-gem "hes-custom_prompts"
+# gem "hes-custom_prompts", '0.0.2', :path => "vendor/gems/hes-custom_prompts"
 # gem "hes-core"
 # gem "hes-api", '2.0.0', :path => "vendor/gems/hes-api"
 # gem "hes-subdomain-handler"
@@ -29,7 +29,7 @@ gem "hes-sequencer"
 # gem "hes-timely", '0.0.7'
 # gem "hes-eligibilities"
 # gem "hes-locations"
-gem "hes-notifier"
+# gem "hes-notifier", '1.0.6', :path => "vendor/gems/hes-notifier"
 # gem "hes-recording", '0.0.8'
 # gem "hes-competitions", '0.0.16'
 # gem "hes-commentable"
@@ -52,7 +52,7 @@ gem "hes-notifier"
 # gem "hes-friendships", '0.1.0', :path => "vendor/gems/hes-friendships"
 # gem "hes-stats"
 # gem "hes-mail"
-# gem "hes-events"
+gem "hes-events"
 # gem "hes-postcard", '0.0.7'
 # gem "xml-email-delivery", '0.0.3'
 # gem "hes-reports-yaml", '0.0.6'

@@ -58,5 +58,16 @@ Go::Application.routes.draw do
 
 	resources :evaluations
 	match 'promotions/:promotion_id/evaluations' => 'evaluations#index', :via => :get
+
+  resources :custom_prompts
+  match '*custom_promptable_type/*custom_promptable_id/custom_prompts' => 'custom_prompts#index', :via => :get
+  match '*custom_promptable_type/*custom_promptable_id/custom_prompts' => 'custom_prompts#create', :via => :post
+
+  match '/notifications/get_past_notifications' => 'notifications#get_past_notifications', :via => :get
+  resources :notifications
+  match "/notifications" => "notifications#update", :via => :put
+  match '*notificationable_type/*notificationable_id/notifications' => 'notifications#index', :via => :get
+  match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
+  match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
   
 end
