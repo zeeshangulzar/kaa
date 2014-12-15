@@ -1,12 +1,12 @@
 class Challenge < ApplicationModel
   self.inheritance_column = 'column_that_is_not_type'
-  attr_privacy :promotion_id, :name, :description, :type, :any_user
+  attr_privacy :promotion_id, :name, :description, :type, :location_id, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
   
   belongs_to :promotion
   belongs_to :creator, :class_name => "User", :foreign_key => "created_by"
-  belongs_to :location
+  belongs_to :location, :in_json => true
 
   has_many :challenges_sent, :class_name => "ChallengeSent"
   has_many :challenges_received, :class_name => "ChallengeReceived"
