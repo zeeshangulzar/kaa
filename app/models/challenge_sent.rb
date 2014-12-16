@@ -80,6 +80,7 @@ class ChallengeSent < ApplicationModel
 #    end
   end
 
+  after_create :entry_calculate_points
   after_update :entry_calculate_points
 
   def entry_calculate_points

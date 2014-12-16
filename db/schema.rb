@@ -283,11 +283,11 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
   create_table "promotions", :force => true do |t|
     t.integer  "organization_id"
     t.integer  "map_id"
-    t.string   "name",                      :limit => 100
-    t.string   "program_name",              :limit => 100
-    t.string   "subdomain",                 :limit => 30
-    t.string   "pilot_password",            :limit => 30
-    t.string   "theme",                     :limit => 30
+    t.string   "name",                        :limit => 100
+    t.string   "program_name",                :limit => 100
+    t.string   "subdomain",                   :limit => 30
+    t.string   "pilot_password",              :limit => 30
+    t.string   "theme",                       :limit => 30
     t.string   "logo_url"
     t.integer  "max_participants"
     t.integer  "program_length"
@@ -296,25 +296,29 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.date     "registration_starts_on"
     t.date     "registration_ends_on"
     t.date     "late_registration_ends_on"
-    t.boolean  "is_active",                                                               :default => false
-    t.boolean  "is_archived",                                                             :default => false
-    t.boolean  "is_registration_frozen",                                                  :default => true
-    t.integer  "participation_x",                                                         :default => 1
-    t.integer  "participation_y",                                                         :default => 7
-    t.integer  "minimum_minutes_low",                                                     :default => 30
-    t.integer  "minimum_minutes_medium",                                                  :default => 45
-    t.integer  "minimum_minutes_high",                                                    :default => 60
-    t.integer  "minimum_steps_low",                                                       :default => 6000
-    t.integer  "minimum_steps_medium",                                                    :default => 8000
-    t.integer  "minimum_steps_high",                                                      :default => 10000
-    t.integer  "default_goal",                                                            :default => 20
-    t.string   "time_zone",                                                               :default => "Eastern Time (US & Canada)"
-    t.decimal  "multiplier",                                :precision => 7, :scale => 5, :default => 1.0
-    t.integer  "single_day_minute_limit",                                                 :default => 90
-    t.integer  "single_day_step_limit",                                                   :default => 15000
-    t.string   "location_labels",           :limit => 1000,                               :default => "Location"
-    t.datetime "created_at",                                                                                                        :null => false
-    t.datetime "updated_at",                                                                                                        :null => false
+    t.boolean  "is_active",                                                                 :default => false
+    t.boolean  "is_archived",                                                               :default => false
+    t.boolean  "is_registration_frozen",                                                    :default => true
+    t.integer  "participation_x",                                                           :default => 1
+    t.integer  "participation_y",                                                           :default => 7
+    t.integer  "minimum_minutes_low",                                                       :default => 30
+    t.integer  "minimum_minutes_medium",                                                    :default => 45
+    t.integer  "minimum_minutes_high",                                                      :default => 60
+    t.integer  "minimum_steps_low",                                                         :default => 6000
+    t.integer  "minimum_steps_medium",                                                      :default => 8000
+    t.integer  "minimum_steps_high",                                                        :default => 10000
+    t.integer  "default_goal",                                                              :default => 20
+    t.string   "time_zone",                                                                 :default => "Eastern Time (US & Canada)"
+    t.decimal  "multiplier",                                  :precision => 7, :scale => 5, :default => 1.0
+    t.integer  "single_day_minute_limit",                                                   :default => 90
+    t.integer  "single_day_step_limit",                                                     :default => 15000
+    t.string   "location_labels",             :limit => 1000,                               :default => "Location"
+    t.integer  "challenges_sent_points",                                                    :default => 1
+    t.integer  "challenges_completed_points",                                               :default => 1
+    t.integer  "max_challenges_sent",                                                       :default => 4
+    t.integer  "max_challenges_completed",                                                  :default => 4
+    t.datetime "created_at",                                                                                                          :null => false
+    t.datetime "updated_at",                                                                                                          :null => false
   end
 
   create_table "resellers", :force => true do |t|
