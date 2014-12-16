@@ -8,7 +8,7 @@ class GroupUsersController < ApplicationController
     elsif group.owner.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not view this group.", "DENIED")
     else
-      return HESResponder(user.groups)
+      return HESResponder(group.group_users)
     end
   end
 
@@ -40,7 +40,7 @@ class GroupUsersController < ApplicationController
     if !group.owner.friends.include?(user)
       return HESResponder("You are not friends with user.", "DENIED")
     end
-    group_user = group.users.build(:user_id => user.id)
+    group_user = group.group_users.build(:user_id => user.id)
     GroupUser.transaction do
       group_user.save!
     end

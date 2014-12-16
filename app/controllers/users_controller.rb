@@ -48,7 +48,7 @@ class UsersController < ApplicationController
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
 
     if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
-      ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id])
+      ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id]) rescue nil
       if ed && ed.promotion_id == @promotion.id
         eval_params = params[:user][:evaluation]
         params[:user].delete(:evaluation)

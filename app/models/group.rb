@@ -1,8 +1,8 @@
 class Group < ApplicationModel
-  attr_privacy :name, :me
+  attr_privacy :name, :users, :me
   attr_privacy_path_to_user :owner
 
-  attr_accessible :owner_id, :name, :group_users_attributes
+  attr_accessible :owner_id, :name, :group_users_attributes, :users_attributes
 
   belongs_to :owner, :class_name => "User", :foreign_key => "owner_id"
 

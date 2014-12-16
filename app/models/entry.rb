@@ -99,6 +99,24 @@ class Entry < ApplicationModel
     end #do entry_behavior
 
     #TODO: Challenge Points Calculation
+    # TODO: this is broken, it's not taking into account challenges sent and completed during the rest of the week..
+    # if we already have 4 of either, don't give them any points
+    challenge_points = 0
+    completed_challenges = self.user.challenges_received.find_by_completed_on(self.recorded_on) rescue []
+    if completed_challenges.nil?
+      completed_challenge_points = 0
+    else
+      completed_challenge_points = (completed_challenges.size > 4) ? 4 : completed_challenges.size
+    end
+    sent_challenges = self.user.challenges_sent.where("DATE(created_at) = ?", self.recorded_on) rescue []
+    if sent_challenges.nil?
+      sent_challenge_points = 0
+    else
+      sent_challenge_points = (sent_challenges.size > 4) ? 4 : sent_challenges.size
+    end
+
+    self.challenge_points = completed_challenge_points + sent_challenge_points
+    # end challenge calculations
 
     self.timed_behavior_points = timed_behavior_points
   end

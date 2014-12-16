@@ -21,6 +21,8 @@ class ChallengeReceived < ApplicationModel
 
   before_create :set_defaults
   before_update :set_expiration_if_accepted
+  before_update :set_completed_on_if_completed
+  after_update :entry_calculate_points
 
   def set_defaults
     self.status ||= STATUS[:unseen]
@@ -36,7 +38,7 @@ class ChallengeReceived < ApplicationModel
 
   def challengers
     # self.created_at - 5, because of the potential for delay between ChallengeSent, which triggers ChallengeReceived to be created
-    user_ids = ChallengeSent.where("to_user_id = ? AND challenge_id = ? AND challenges_sent.created_at >= ?", self.user_id, self.challenge.id, self.created_at - 5).collect{|cs|cs.user_id}
+    user_ids = ChallengeSent.where("challenge_id = ? AND challenges_sent.created_at >= ? AND (to_user_id = ? OR to_group_id IN (SELECT group_id FROM group_users WHERE user_id = ? AND created_at < ?))", self.challenge.id, self.created_at - 5, self.user.id, self.user.id, self.created_at).collect{|cs|cs.user_id}
     return User.where("id IN (?)", user_ids)
   end
 
@@ -47,9 +49,23 @@ class ChallengeReceived < ApplicationModel
   end
 
   def set_expiration_if_accepted
-    if self.read_attribute(:expires_on).nil? && self.accepted?
+    if self.expires_on.nil? && self.accepted?
       self.expires_on = self.user.promotion.current_date + 7
     end
+  end
+
+  def set_completed_on_if_completed
+    if self.completed? && self.status_was != STATUS[:completed]
+      self.completed_on = self.challenge.promotion.current_date
+    end
+  end
+
+  def entry_calculate_points
+    e = self.user.entries.find_by_recorded_on(self.user.promotion.current_date)
+    if !e
+      e = self.user.entries.create(:recorded_on => self.user.promotion.current_date)
+    end
+    e.calculate_points
   end
 
 end

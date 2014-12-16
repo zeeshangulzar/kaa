@@ -53,8 +53,16 @@ master.location = location1
 if master.save
   master_profile = master.create_profile :first_name => 'HES', :last_name => 'Admin'
   # mc = master's challenge
-  mc = master.created_challenges.build(:promotion_id => master.promotion_id, :name => 'Walk Around The Building', :description => "Just walk around the building once. Then once more. Keep going, you can do it.", :location_id => location1.id)
-  mc.save!
+  mc = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Walk Around The Building', :description => "Just walk around the building once. Then once more. Keep going, you can do it.", :location_id => location1.id)
+
+  mc2 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Eat Some Fruit', :description => "Fruit is tasty. Make a fruit smoothie. Or a salad. Fruit.", :location_id => location1.id)
+
+  mc3 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Take Your Dog For A Walk', :description => "He'd really appreciate it if he could get some exercise and not be so depressed. You're depressing him.", :location_id => location1.id)
+
+  mc4 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Take Grandma For A Walk', :description => "She'd really appreciate it if you called her once in awhile.", :location_id => location1.id)
+
+  mc5 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Go Vegetarian For A Day', :description => "Numerous studies have shown people who eat primarily plant-based proteins have smaller brains than their carnivorous counterparts.", :location_id => location1.id)
+
 end
 
 user = promotion.users.build
@@ -89,10 +97,95 @@ if user2.save
   user2_group_user = user2_group.group_users.create(:user_id => user.id)
   # bob needs a friend...
   user2.friendships.create(:friendee_id => user.id, :status => Friendship::STATUS[:accepted])
-  # bob's challenging his friend john (who's not really his friend yet) to a friendly game of walk around the building.
-  user2_cs = user2.challenges_sent.build(:to_user_id => user.id, :to_group_id => user2_group.id, :challenge_id => mc.id)
-  user2_cs.save!
 end
+
+user3 = promotion.users.build
+user3.role = User::Role[:user]
+user3.password = 'test'
+user3.email = 'jakes@hesonline.com'
+user3.username = 'jakes'
+user3.auth_key = 'changeme4'
+user3.location = location1
+if user3.save
+  user3_profile = user3.create_profile :first_name => 'Jake', :last_name => 'Smith', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user3_profile.started_on = (Date.today - 7)
+  user3_profile.save!
+  user3_group_user = user2_group.group_users.create(:user_id => user3.id)
+  # bob needs a friend...
+  user3.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
+end
+
+user4 = promotion.users.build
+user4.role = User::Role[:user]
+user4.password = 'test'
+user4.email = 'drewp@hesonline.com'
+user4.username = 'drewp'
+user4.auth_key = 'changeme5'
+user4.location = location1
+if user4.save
+  user4_profile = user4.create_profile :first_name => 'Drew', :last_name => 'Papworth', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user4_profile.started_on = (Date.today - 7)
+  user4_profile.save!
+  user4_group_user = user2_group.group_users.create(:user_id => user4.id)
+  # bob needs a friend...
+  user4.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
+end
+
+user5 = promotion.users.build
+user5.role = User::Role[:user]
+user5.password = 'test'
+user5.email = 'richardw@hesonline.com'
+user5.username = 'richardw'
+user5.auth_key = 'changeme6'
+user5.location = location1
+if user5.save
+  user5_profile = user5.create_profile :first_name => 'Richard', :last_name => 'Wardin', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user5_profile.started_on = (Date.today - 7)
+  user5_profile.save!
+  user5_group_user = user2_group.group_users.create(:user_id => user5.id)
+  # bob needs a friend...
+  user5.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
+end
+
+user6 = promotion.users.build
+user6.role = User::Role[:user]
+user6.password = 'test'
+user6.email = 'miker@hesonline.com'
+user6.username = 'miker'
+user6.auth_key = 'changeme7'
+user6.location = location1
+if user6.save
+  user6_profile = user6.create_profile :first_name => 'Mike', :last_name => 'Robertson', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user6_profile.started_on = (Date.today - 7)
+  user6_profile.save!
+  user6_group_user = user2_group.group_users.create(:user_id => user6.id)
+  # bob needs a friend...
+  user6.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
+end
+
+user7 = promotion.users.build
+user7.role = User::Role[:user]
+user7.password = 'test'
+user7.email = 'brianl@hesonline.com'
+user7.username = 'brianl'
+user7.auth_key = 'changeme8'
+user7.location = location1
+if user7.save
+  user7_profile = user7.create_profile :first_name => 'Brian', :last_name => 'Ludwig', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  #Override the defaults and have this user start in the past... for seeding purposes
+  user7_profile.started_on = (Date.today - 7)
+  user7_profile.save!
+  user7_group_user = user2_group.group_users.create(:user_id => user7.id)
+  # bob needs a friend...
+  user7.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
+end
+
+user2_cs = user2.challenges_sent.build(:to_group_id => user2_group.id, :challenge_id => mc.id)
+user2_cs.save!
 
 #Build up user entries
 
