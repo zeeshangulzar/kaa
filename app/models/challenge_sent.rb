@@ -88,7 +88,7 @@ class ChallengeSent < ApplicationModel
     if !e
       e = self.user.entries.create(:recorded_on => self.user.promotion.current_date)
     end
-    e.calculate_points
+    e.save!
   end
 
 end

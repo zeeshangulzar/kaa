@@ -105,9 +105,9 @@ class Entry < ApplicationModel
     # sent challenges not including today
     challenges_sent_this_week = self.user.challenges_sent.where("DATE(created_at) <> ? AND DATE(created_at) >= ? AND DATE(created_at) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
     # how many challenges sent can count towards points based on what's already been sent this week?
-    max_sent_countable = challenges_sent_this_week.nil? ? self.user.promotion.max_challenges_sent : [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
+    max_sent_countable = challenges_sent_this_week.empty? ? self.user.promotion.max_challenges_sent : [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
     # today's sent challenges
-    challenges_sent_today = self.user.challenges_sent.where("DATE(created_at) = ?", self.recorded_on) rescue []
+    challenges_sent_today = !self.user.challenges_sent.empty? ? self.user.challenges_sent.where("DATE(created_at) = ?", self.recorded_on) : nil
     challenges_sent_countable = 0
     if !challenges_sent_today.nil? && !challenges_sent_today.empty?
       challenges_sent_countable = (challenges_sent_today.size > max_sent_countable) ? max_sent_countable : challenges_sent_today.size
@@ -117,9 +117,9 @@ class Entry < ApplicationModel
     # completed challenges not including today
     challenges_completed_this_week = self.user.challenges_received.where("DATE(completed_on) <> ? AND DATE(completed_on) >= ? AND DATE(completed_on) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
     # how many challenges completed can count towards points based on what's already been done this week?
-    max_completed_countable = challenges_completed_this_week.nil? ? self.user.promotion.max_challenges_completed : [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
+    max_completed_countable = challenges_completed_this_week.empty? ? self.user.promotion.max_challenges_completed : [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
     # today's completed challenges
-    challenges_completed_today = self.user.challenges_received.find_by_completed_on(self.recorded_on) rescue []
+    challenges_completed_today = self.user.challenges_received.find_by_completed_on(self.recorded_on) rescue nil
     challenges_completed_countable = 0
     if !challenges_completed_today.nil? && !challenges_completed_today.empty?
       challenges_completed_countable = (challenges_completed_today.size > max_completed_countable) ? max_completed_countable : challenges_completed_today.size
