@@ -8,7 +8,7 @@ class User < ApplicationModel
   attr_protected :role, :auth_key
   attr_privacy_no_path_to_user
   attr_privacy :email, :public
-  attr_privacy :username, :me
+  attr_privacy :username, :tiles, :me
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
@@ -18,7 +18,6 @@ class User < ApplicationModel
   has_one :profile, :in_json => true
   belongs_to :promotion
   belongs_to :location
-  has_many :userTiles, :dependent => :destroy
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
 

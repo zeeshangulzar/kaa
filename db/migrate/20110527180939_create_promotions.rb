@@ -27,6 +27,8 @@ class CreatePromotions < ActiveRecord::Migration
       t.integer     :challenges_completed_points, :default => 1
       t.integer     :max_challenges_sent,         :default => 4
       t.integer     :max_challenges_completed,    :default => 4
+      t.text        :static_tiles
+      t.text        :dynamic_tiles
       t.timestamps
     end
   end

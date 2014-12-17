@@ -13,6 +13,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string      :email,                                           :limit => 100
       t.datetime    :last_login
       t.integer     :location_id
+      t.text        :tiles
       t.timestamps
     end
   end
