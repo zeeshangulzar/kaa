@@ -8,9 +8,6 @@ class ChallengeReceived < ApplicationModel
   belongs_to :user
   belongs_to :challenge, :in_json => true
 
-  # has_many :challenges_sent, :class_name => "ChallengeSent", :foreign_key => nil, :source => :user, :conditions => proc { "challenges_sent.to_user_id = challenges_received.user_id AND challenges_sent.challenge_id = challenges_received.challenge_id AND challenges_sent.created_at >= challenges_received.created_at" }
-  # has_many :challengers, :class_name => "User", :through => :challenges_sent, :source => :user
-
   STATUS = {
     :unseen    => 0,
     :pending   => 1,
@@ -66,7 +63,7 @@ class ChallengeReceived < ApplicationModel
     if !e
       e = self.user.entries.create(:recorded_on => self.user.promotion.current_date)
     end
-    e.save!
+    e.save! # fires Entry::calculate_points
   end
 
 end
