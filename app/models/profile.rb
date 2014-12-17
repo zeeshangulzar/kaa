@@ -2,8 +2,8 @@ class Profile < ApplicationModel
   # attrs
   attr_accessible *column_names
   attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :me
-  attr_privacy :first_name,:last_name,:connections
-  attr_privacy :first_name,:last_name,:public_comment
+  attr_privacy :first_name,:last_name,:image,:connections
+  attr_privacy :first_name,:last_name,:image,:public_comment
   attr_privacy_path_to_user :user
 
   # validation
