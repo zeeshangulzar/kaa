@@ -1,8 +1,13 @@
+
+startDt = Date.new(2014, 11, 1)
+
 reseller = Reseller.create :name=>"Health Enhancement Systems", :contact_name=>"HES ADMIN", :contact_email=>"admin@hesapps.com"
 
 organization = reseller.organizations.create :name=>"Health Enhancement Systems", :contact_name=>"HES ADMIN", :contact_email=>"admin@hesapps.com"
 
-promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www', :is_active=>1, :program_length => 56, :starts_on => Date.today - 15
+promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www', :is_active=>1, :program_length => 56, :starts_on => startDt, 
+  :static_tiles => "['weeklyActivity', 'logActivity', 'challengeSm', 'eventsSm', 'regionResource']",
+  :dynamic_tiles => "['wall','dailyTip','recipes','longTermGoal']"
 
 location1 = promotion.locations.create :name => '712 Cambridge'
 
@@ -34,11 +39,11 @@ behavior_veggies = promotion.behaviors.create :name => "Eat Veggies", :content =
 behavior_veggies.save!
 
 
-timed_water_behavior = behavior_water.timed_behaviors.create :begin_date => Date.today - 2, :end_date => (Date.today + 20)
+timed_water_behavior = behavior_water.timed_behaviors.create :begin_date => startDt + 14, :end_date => (startDt + 21)
 timed_water_behavior.point_thresholds.create :value => 1, :min => 1
 timed_water_behavior.save!
 
-timed_water_behavior_2 = behavior_water.timed_behaviors.create :begin_date => Date.today + 32, :end_date => (Date.today + 50)
+timed_water_behavior_2 = behavior_water.timed_behaviors.create :begin_date => startDt + 32, :end_date => (startDt + 50)
 timed_water_behavior_2.point_thresholds.create :value => 1, :min => 4
 timed_water_behavior_2.point_thresholds.create :value => 2, :min => 8
 timed_water_behavior_2.save!
@@ -73,9 +78,9 @@ user.username = 'johns'
 user.auth_key = 'changeme2'
 user.location = location1
 if user.save
-  user_profile = user.create_profile :first_name => 'John', :last_name => 'Stanfield', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user_profile = user.create_profile :first_name => 'John', :last_name => 'Stanfield', :started_on => (startDt + 7), :registered_on => (startDt + 7)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user_profile.started_on = (Date.today - 7)
+  user_profile.started_on = (startDt + 7)
   user_profile.save!
 end
 
@@ -87,9 +92,9 @@ user2.username = 'bobb'
 user2.auth_key = 'changeme3'
 user2.location = location1
 if user2.save
-  user2_profile = user2.create_profile :first_name => 'Bob', :last_name => 'Baldwin', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user2_profile = user2.create_profile :first_name => 'Bob', :last_name => 'Baldwin', :started_on => (startDt), :registered_on => (startDt)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user2_profile.started_on = (Date.today - 7)
+  user2_profile.started_on = (startDt)
   user2_profile.save!
   # oh look, bob's creating a group for his friends. too bad friends isn't built yet..
   user2_group = user2.groups.build(:name => "Frenemies")
@@ -107,9 +112,9 @@ user3.username = 'jakes'
 user3.auth_key = 'changeme4'
 user3.location = location1
 if user3.save
-  user3_profile = user3.create_profile :first_name => 'Jake', :last_name => 'Smith', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user3_profile = user3.create_profile :first_name => 'Jake', :last_name => 'Smith', :started_on => (startDt + 7), :registered_on => (startDt + 7)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user3_profile.started_on = (Date.today - 7)
+  user3_profile.started_on = (startDt + 7)
   user3_profile.save!
   user3_group_user = user2_group.group_users.create(:user_id => user3.id)
   # bob needs a friend...
@@ -124,9 +129,9 @@ user4.username = 'drewp'
 user4.auth_key = 'changeme5'
 user4.location = location1
 if user4.save
-  user4_profile = user4.create_profile :first_name => 'Drew', :last_name => 'Papworth', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user4_profile = user4.create_profile :first_name => 'Drew', :last_name => 'Papworth', :started_on => (startDt + 14), :registered_on => (startDt + 14)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user4_profile.started_on = (Date.today - 7)
+  user4_profile.started_on = (startDt + 7)
   user4_profile.save!
   user4_group_user = user2_group.group_users.create(:user_id => user4.id)
   # bob needs a friend...
@@ -141,9 +146,9 @@ user5.username = 'richardw'
 user5.auth_key = 'changeme6'
 user5.location = location1
 if user5.save
-  user5_profile = user5.create_profile :first_name => 'Richard', :last_name => 'Wardin', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user5_profile = user5.create_profile :first_name => 'Richard', :last_name => 'Wardin', :started_on => (startDt + 7), :registered_on => (startDt + 7)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user5_profile.started_on = (Date.today - 7)
+  user5_profile.started_on = (startDt + 7)
   user5_profile.save!
   user5_group_user = user2_group.group_users.create(:user_id => user5.id)
   # bob needs a friend...
@@ -158,9 +163,9 @@ user6.username = 'miker'
 user6.auth_key = 'changeme7'
 user6.location = location1
 if user6.save
-  user6_profile = user6.create_profile :first_name => 'Mike', :last_name => 'Robertson', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user6_profile = user6.create_profile :first_name => 'Mike', :last_name => 'Robertson', :started_on => (startDt + 7), :registered_on => (startDt + 7)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user6_profile.started_on = (Date.today - 7)
+  user6_profile.started_on = (startDt + 7)
   user6_profile.save!
   user6_group_user = user2_group.group_users.create(:user_id => user6.id)
   # bob needs a friend...
@@ -175,9 +180,9 @@ user7.username = 'brianl'
 user7.auth_key = 'changeme8'
 user7.location = location1
 if user7.save
-  user7_profile = user7.create_profile :first_name => 'Brian', :last_name => 'Ludwig', :started_on => (Date.today - 7), :registered_on => (Date.today - 7)
+  user7_profile = user7.create_profile :first_name => 'Brian', :last_name => 'Ludwig', :started_on => (startDt + 7), :registered_on => (startDt + 7)
   #Override the defaults and have this user start in the past... for seeding purposes
-  user7_profile.started_on = (Date.today - 7)
+  user7_profile.started_on = (startDt + 7)
   user7_profile.save!
   user7_group_user = user2_group.group_users.create(:user_id => user7.id)
   # bob needs a friend...

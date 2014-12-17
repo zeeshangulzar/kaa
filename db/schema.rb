@@ -317,6 +317,8 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer  "challenges_completed_points",                                               :default => 1
     t.integer  "max_challenges_sent",                                                       :default => 4
     t.integer  "max_challenges_completed",                                                  :default => 4
+    t.text     "static_tiles"
+    t.text     "dynamic_tiles"
     t.datetime "created_at",                                                                                                          :null => false
     t.datetime "updated_at",                                                                                                          :null => false
   end
@@ -392,6 +394,7 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.string   "altid",                 :limit => 50
     t.string   "email",                 :limit => 100
     t.datetime "last_login"
+    t.text     "tiles"
     t.datetime "created_at",                                             :null => false
     t.datetime "updated_at",                                             :null => false
   end
