@@ -67,5 +67,17 @@ Go::Application.routes.draw do
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#index', :via => :get
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
   match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
+
+  resources :likes
+  match '*likeable_type/*likeable_id/likes' => 'likes#index', :via => :get
+  match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
+  match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
   
+  match '/flagged_posts' => 'posts#flagged_posts', :via => :get
+	match '*wallable_type/*wallable_id/popular_posts' => 'posts#popular_posts', :via => :get
+	resources :posts
+	match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
+	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
+	resources :wall_expert_posts
+
 end

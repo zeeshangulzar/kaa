@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141215135200) do
+ActiveRecord::Schema.define(:version => 20141217151620) do
 
   create_table "behaviors", :force => true do |t|
     t.integer  "promotion_id"
@@ -193,15 +193,27 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "likes", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "likeable_id"
+    t.string   "likeable_type", :limit => 50
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+  end
+
+  add_index "likes", ["likeable_type", "likeable_id"], :name => "likeable_idx"
+  add_index "likes", ["user_id"], :name => "index_likes_on_user_id"
+
   create_table "locations", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
-    t.integer  "sequence"
-    t.integer  "root_location_id"
+    t.integer  "sequence",           :default => 0
     t.integer  "parent_location_id"
-    t.integer  "depth"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
+    t.integer  "root_location_id"
+    t.text     "content"
+    t.integer  "has_content"
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -255,6 +267,29 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "created_at",                    :null => false
     t.datetime "updated_at",                    :null => false
   end
+
+  create_table "posts", :force => true do |t|
+    t.integer  "parent_post_id"
+    t.integer  "root_post_id"
+    t.integer  "user_id"
+    t.integer  "depth",          :default => 0
+    t.text     "content"
+    t.integer  "postable_id"
+    t.string   "postable_type"
+    t.integer  "wallable_id"
+    t.string   "wallable_type"
+    t.boolean  "is_flagged",     :default => false
+    t.boolean  "is_deleted",     :default => false
+    t.text     "photo"
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
+  end
+
+  add_index "posts", ["parent_post_id"], :name => "index_posts_on_parent_post_id"
+  add_index "posts", ["postable_type", "postable_id"], :name => "postable_idx"
+  add_index "posts", ["root_post_id"], :name => "index_posts_on_root_post_id"
+  add_index "posts", ["user_id"], :name => "index_posts_on_user_id"
+  add_index "posts", ["wallable_type", "wallable_id"], :name => "wallable_idx"
 
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"

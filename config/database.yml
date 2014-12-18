@@ -9,20 +9,20 @@
 # And be sure to use new-style password hashing:
 #   http://dev.mysql.com/doc/refman/5.0/en/old-client.html
 
-#development:
-#  adapter: mysql2
-#  encoding: utf8
-#  reconnect: false
-#  database: go
-#  pool: 5
-#  username: root
-#  password:
-#  host: localhost
-
 development:
-   adapter: mysql2
-   encoding: utf8
-   database: go_development
-   username: hesdev
-   password: l0ngd@y
-   host: 10.100.1.249
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: go
+  username: hesdev
+  password: hesdev
+  host: localhost
+  socket: /Applications/MAMP/tmp/mysql/mysql.sock
+
+#development:
+#   adapter: mysql2
+#   encoding: utf8
+#   database: go_development
+#   username: hesdev
+#   password: l0ngd@y
+#   host: 10.100.1.249

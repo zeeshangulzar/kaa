@@ -23,6 +23,9 @@ class User < ApplicationModel
 
   has_notifications
 
+  can_post
+  can_like
+
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 

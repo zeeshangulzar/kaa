@@ -29,8 +29,8 @@ class LocationsController < ApplicationController
   #     "url": "http://api.hesapps.com/locations/1"
   #   }]
   def index
-    @locations = @promotion.locations.top.includes(:locations).to_a
-    return HESResponder(@locations)
+    locations = @promotion.nested_locations
+    return HESResponder(locations)
   end
 
   # Gets a single location from a locationable instance
