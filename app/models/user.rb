@@ -9,6 +9,7 @@ class User < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :email, :public
   attr_privacy :username, :tiles, :me
+  attr_accessible :username, :tiles
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
