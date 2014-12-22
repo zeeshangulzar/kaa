@@ -1,5 +1,6 @@
 class ChallengesReceivedController < ApplicationController
   authorize :all, :user
+  wrap_parameters :challenge_received
 
   def index
     if @target_user.id != @current_user.id && !@current_user.master?
