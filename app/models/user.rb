@@ -9,7 +9,7 @@ class User < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :email, :public
   attr_privacy :username, :tiles, :me
-  attr_accessible :username, :tiles
+  attr_accessible :username, :tiles, :email, :username, :altid
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
@@ -32,6 +32,14 @@ class User < ApplicationModel
 
   has_many :challenges_sent, :class_name => "ChallengeSent"
   has_many :challenges_received, :class_name => "ChallengeReceived"
+
+  has_many :expired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on < '#{self.promotion.current_date}'" }
+
+  active_challenge_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
+  has_many :active_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{active_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{self.promotion.current_date}')" }
+
+  challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
+  has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{self.promotion.current_date}')" }
 
   has_many :suggested_challenges
 
@@ -111,30 +119,5 @@ class User < ApplicationModel
 
     @next_eval_definition
   end
-
-  # challenges received
-  # tried to put this on ChallengeReceived but can't get promotion.current_date there
-  # I'm guessing the technical limitation is challenges_received could be in different promotions
-  def challenge_queue
-    c = []
-    if !self.challenges_received.empty?
-      statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date).order("status ASC")
-    end
-    return c
-  end
-
-  # challenges received
-  # tried to put this on ChallengeReceived but can't get promotion.current_date there
-  # I'm guessing the technical limitation is challenges_received could be in different promotions
-  def active_challenges
-    c = []
-    if !self.challenges_received.empty?
-      statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date)
-    end
-    return c
-  end
-
 
 end

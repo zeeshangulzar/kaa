@@ -34,6 +34,10 @@ class ChallengeReceived < ApplicationModel
     self.send(:define_method, "#{key}?", Proc.new { self.status == value })
   end
 
+  def expired?
+    return (self.expires_on < self.promotion.current_date)
+  end
+
   def challengers
     # self.created_at - 5, because of the potential for delay between ChallengeSent, which triggers ChallengeReceived to be created
     user_ids = ChallengeSent.where("challenge_id = ? AND challenges_sent.created_at >= ? AND (to_user_id = ? OR to_group_id IN (SELECT group_id FROM group_users WHERE user_id = ? AND created_at < ?))", self.challenge.id, self.created_at - 5, self.user.id, self.user.id, self.created_at).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
