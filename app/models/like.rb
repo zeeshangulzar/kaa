@@ -1,5 +1,5 @@
 # Like active record class for keeping track of likes that users have
-class Like < ActiveRecord::Base
+class Like < ApplicationModel
   belongs_to :likeable, :polymorphic => true, :in_json => true
   belongs_to :user, :in_json => true
 

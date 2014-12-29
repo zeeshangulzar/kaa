@@ -1,4 +1,4 @@
-class Location < ActiveRecord::Base
+class Location < ApplicationModel
   belongs_to :promotion
   belongs_to :parent_location, :class_name=>'Location'
   has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'sequence', :in_json => true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141217151620) do
+ActiveRecord::Schema.define(:version => 20141222192948) do
 
   create_table "behaviors", :force => true do |t|
     t.integer  "promotion_id"
@@ -59,6 +59,21 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end
+
+  create_table "comments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "commentable_id"
+    t.string   "commentable_type", :limit => 50
+    t.string   "content",          :limit => 420
+    t.boolean  "is_flagged",                      :default => false
+    t.boolean  "is_deleted",                      :default => false
+    t.datetime "last_modified_at"
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+  end
+
+  add_index "comments", ["commentable_type", "commentable_id"], :name => "commentable_idx"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "custom_prompts", :force => true do |t|
     t.integer  "custom_promptable_id"
@@ -422,6 +437,7 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.integer  "status"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+    t.string   "name"
   end
 
   create_table "tiles", :force => true do |t|

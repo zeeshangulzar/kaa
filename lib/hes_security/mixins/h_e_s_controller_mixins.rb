@@ -43,7 +43,7 @@ module HESControllerMixins
   #        :coordinator # Access for the organizational level
   #          :user # Standard user level access
   def self.ri?(rule,role)
-    role = role.to_s.downcase.to_sym
+    role = role.to_s.parameterize.underscore.to_sym
     if rule == :master
       [ :master ].include?(role)
     elsif rule == :poster
@@ -52,11 +52,14 @@ module HESControllerMixins
       [ :reseller, :master ].include?(role)
     elsif rule == :coordinator
       [ :coordinator, :reseller, :master ].include?(role)
+    elsif rule == :sub_promotion_coordinator
+      [ :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
+    elsif rule == :location_coordinator
+      [ :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     elsif rule == :user
-			#RW: For some reason, it's :"sub promotion coordinator" instead of :sub_promotion_coordinator
-      [ :user, :poster, :coordinator, :reseller, :master, :"sub promotion coordinator" ].include?(role)
+      [ :user, :poster, :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     elsif rule == :public
-      [ :public, :user, :poster, :coordinator, :reseller, :master, :"sub promotion coordinator" ].include?(role)
+      [ :public, :user, :poster, :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     else
       false
     end

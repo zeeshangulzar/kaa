@@ -45,7 +45,7 @@ class PostsController < ApplicationController
     unless params[:wallable_id].nil? || params[:wallable_type].nil?
       @wallable = params[:wallable_type].singularize.camelcase.constantize.find(params[:wallable_id])
     else
-      render :json => { :errors => ["Must pass wallable id and wallable_type"] }, :status => :unprocessable_entity
+      return HESResponder("Must pass wallable id and wallable_type", "ERROR")
     end
   end
 
@@ -99,7 +99,7 @@ class PostsController < ApplicationController
   #   }
   def index
     if params[:user_id].nil?
-      @posts =
+      @posts = 
       if params[:max_id].nil? && params[:since_id].nil?
         @wallable.posts.top.limit(Post::PAGESIZE)
       elsif params[:max_id]
@@ -109,7 +109,9 @@ class PostsController < ApplicationController
       end
 
       @paged_posts = {
-        :posts => @posts.to_a.each{|x| add_url(x, :is_collection => true)},
+        :posts => @posts.to_a.each{|x| 
+          # add_url(x, :is_collection => true)
+        },
         :page => params[:page] || 1,
         :post_count => @wallable.posts.top.count,
         :reply_count => @wallable.posts.reply.count
@@ -127,12 +129,10 @@ class PostsController < ApplicationController
         end
       end
 
-      respond_to do |format|
-        format.json { render :json => @paged_posts }
-      end
+      return HESResponder(@paged_posts)
     else
       @posts = @wallable.posts.top.where(:user_id => params[:user_id])
-      respond_with @posts
+      return HESResponder(@posts)
     end
   end
 
@@ -182,9 +182,7 @@ class PostsController < ApplicationController
     @popular_posts = @wallable.posts.top.sort_by {|post| ((post.replies.size * HesPosts.reply_weight) + post.likes.size * HesPosts.like_weight) * post.days_old_weight}.reverse
     @popular_posts = @popular_posts[0..19]
 
-    respond_to do |format|
-      format.json { render :json => @popular_posts }
-    end
+    return HESResponder(@popular_posts)
   end
 
   # Gets the list of flagged posts for a wallable instance
@@ -227,9 +225,10 @@ class PostsController < ApplicationController
   def flagged_posts
     @flagged_posts = Post.where(:is_flagged => true)
 
-    respond_to do |format|
-      format.json { render :json => @flagged_posts, :include => [:wallable, :user] }
-    end
+    #respond_to do |format|
+    #  format.json { render :json => @flagged_posts, :include => [:wallable, :user] }
+    #end
+    return HESResponder(@flagged_posts)
   end
 
   # Gets a single post for a wallable
@@ -271,8 +270,11 @@ class PostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def show
-    @post = Post.find(params[:id])
-    respond_with @post
+    @post = Post.find(params[:id]) rescue nil
+    if !@post
+      return HESResponder("Post", "NOT_FOUND")
+    end
+    return HESResponder(@post)
   end
 
   # Creates a single post for a wallable
@@ -321,13 +323,13 @@ class PostsController < ApplicationController
   def create
 
     @post = (@wallable || @postable).posts.build
-    @post.user_id = @user.id
-
+    @post.user_id = @current_user.id
     @post.update_attributes(params[:post])
-
+    if !@post.valid?
+      return HESResponder(@post.errors.full_messages, "ERROR")
+    end
     @post.reload
-
-    respond_with(@post)
+    return HESResponder(@post)
   end
 
   # Updates a single post for a wallable
@@ -371,15 +373,16 @@ class PostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def update
-    @post = Post.find(params[:id])
-
-    if @post.user_id != @user.id
+    @post = Post.find(params[:id]) rescue nil
+    return HESResponder("Post", "NOT_FOUND") if !@post
+    if @post.user_id != @current_user.id
       params[:post] = {:is_flagged => params[:post][:is_flagged]}
     end
-
     @post.update_attributes(params[:post])
-
-    respond_with(@post)
+    if !@post.valid?
+      return HESResponder(@post.errors.full_messages, "ERROR")
+    end
+    return HESResponder(@post)
   end
 
   # Deletes a single post from a wallable
@@ -425,6 +428,6 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
     @post.destroy
 
-    respond_with @post
+    return HESResponder(@post)
   end
 end
