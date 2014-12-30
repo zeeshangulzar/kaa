@@ -52,7 +52,7 @@ class ChallengeReceived < ApplicationModel
 
   def set_expiration_if_accepted
     if self.expires_on.nil? && self.accepted?
-      self.expires_on = self.user.promotion.current_date + 7
+      self.expires_on = self.user.promotion.current_time + (86400 * 7)
     end
   end
 
