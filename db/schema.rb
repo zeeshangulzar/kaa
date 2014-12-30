@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141217151620) do
+ActiveRecord::Schema.define(:version => 20141230132855) do
 
   create_table "behaviors", :force => true do |t|
     t.integer  "promotion_id"
@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.integer  "challenge_id"
     t.integer  "user_id"
     t.integer  "status"
-    t.date     "expires_on"
+    t.datetime "expires_on"
     t.datetime "completed_on"
     t.text     "notes"
     t.datetime "created_at",   :null => false
@@ -59,6 +59,21 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end
+
+  create_table "comments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "commentable_id"
+    t.string   "commentable_type", :limit => 50
+    t.string   "content",          :limit => 420
+    t.boolean  "is_flagged",                      :default => false
+    t.boolean  "is_deleted",                      :default => false
+    t.datetime "last_modified_at"
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+  end
+
+  add_index "comments", ["commentable_type", "commentable_id"], :name => "commentable_idx"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "custom_prompts", :force => true do |t|
     t.integer  "custom_promptable_id"
@@ -158,6 +173,25 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
 
   add_index "evaluations_udfs", ["evaluation_id"], :name => "by_evaluation_id"
 
+  create_table "events", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "type",              :limit => 1
+    t.string   "place",             :limit => 200
+    t.boolean  "can_others_invite",                :default => false
+    t.datetime "start"
+    t.datetime "end"
+    t.boolean  "all_day",                          :default => false
+    t.string   "name",              :limit => 200
+    t.text     "description"
+    t.string   "privacy",           :limit => 1
+    t.string   "photo"
+    t.integer  "location_id"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
+  end
+
+  add_index "events", ["user_id"], :name => "index_events_on_user_id"
+
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
@@ -208,6 +242,19 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "invites", :force => true do |t|
+    t.integer  "event_id"
+    t.integer  "invited_user_id"
+    t.integer  "inviter_user_id"
+    t.integer  "status"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "invites", ["event_id"], :name => "index_invites_on_event_id"
+  add_index "invites", ["invited_user_id"], :name => "index_invites_on_invited_user_id"
+  add_index "invites", ["inviter_user_id"], :name => "index_invites_on_inviter_user_id"
 
   create_table "likes", :force => true do |t|
     t.integer  "user_id"
@@ -422,6 +469,7 @@ ActiveRecord::Schema.define(:version => 20141217151620) do
     t.integer  "status"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+    t.string   "name"
   end
 
   create_table "tiles", :force => true do |t|

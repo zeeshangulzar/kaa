@@ -35,7 +35,7 @@ class ChallengeReceived < ApplicationModel
   end
 
   def expired?
-    return (self.expires_on < self.promotion.current_date)
+    return (self.expires_on < self.challenge.promotion.current_date)
   end
 
   def challengers
