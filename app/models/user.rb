@@ -21,6 +21,7 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+  has_many :events
 
   has_notifications
 
@@ -48,7 +49,7 @@ class User < ApplicationModel
 
   has_many :groups, :foreign_key => "owner_id"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events
   attr_accessor :include_evaluation_definitions
   
   # hooks
