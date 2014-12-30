@@ -19,7 +19,7 @@ class ChallengeSent < ApplicationModel
     return true if self.to_user_id.nil?
     challenge_received = ChallengeReceived.where(:challenge_id => self.challenge_id, :user_id => self.to_user_id).where("(expires_on IS NULL OR expires_on >= ?) AND status IN (?)", Time.now.utc.to_s(:db), [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]).first
     if challenge_received
-      self.errors.add(:base, "You've already challenged this person.")
+      self.errors.add(:base, "You've already challenged this person to this.")
       return false
     end
   end
