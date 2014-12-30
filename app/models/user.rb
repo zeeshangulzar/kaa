@@ -30,7 +30,7 @@ class User < ApplicationModel
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
-  has_many :challenges_sent, :class_name => "ChallengeSent"
+  has_many :challenges_sent, :class_name => "ChallengeSent", :order => "created_at DESC"
   has_many :challenges_received, :class_name => "ChallengeReceived"
 
   expired_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
