@@ -61,7 +61,8 @@ class HESSecurityMiddleware
     route_hash = Rails.application.routes.recognize_path(path,env) rescue {}
     controller = route_hash[:controller]
     action = route_hash[:action]
-    Rails.logger.warn "    HES Security - user is attempting to access controller:#{controller||'unknown'} action:#{action||'unknown'} via #{request.url}"
+    source = ENV['HTTP_X_HES_SUPPORTED_CLIENT'] || 'unknown'
+    Rails.logger.warn "    HES Security - user is attempting to access controller:#{controller||'unknown'} action:#{action||'unknown'} from the #{source} app via #{request.url}"
 
     if controller && action
       controller_classified = "#{controller.classify.pluralize}Controller"

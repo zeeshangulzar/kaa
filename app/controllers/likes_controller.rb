@@ -52,8 +52,8 @@ class LikesController < ApplicationController
   #     "url": "http://api.hesapps.com/likes/1"
   #   }]
   def index
-    @likes = @likeable ? @likeable.likes : params[:likeable_type] ? @user.likes.where(:likeable_type => params[:likeable_type]) : @user.likes
-    respond_with @likes
+    @likes = @likeable ? @likeable.likes : params[:likeable_type] ? @current_user.likes.where(:likeable_type => params[:likeable_type]) : @current_user.likes
+    return HESResponder(@likes)
   end
 
   # Gets a single like for a user
@@ -79,7 +79,7 @@ class LikesController < ApplicationController
   #   }
   def show
     @like = Like.find(params[:id])
-    respond_with @like
+    return HESResponder(@like)
   end
 
   # Creates a single like for a user
@@ -105,11 +105,11 @@ class LikesController < ApplicationController
   #     "url": "http://api.hesapps.com/likes/1"
   #   }
   def create
-    @like = @user.likes.build
+    @like = @current_user.likes.build
     @like.likeable_id = @likeable.id
     @like.likeable_type = @likeable.class.to_s
     @like.save
-    respond_with @like
+    return HESResponder(@like)
   end
 
   # Deletes a single like from a user
@@ -137,6 +137,6 @@ class LikesController < ApplicationController
   def destroy
     @like = params[:id].nil? ? @likeable.likes.where(:user_id => get_user.id).first : Like.find(params[:id])
     @like.destroy
-    respond_with @like
+    return HESResponder(@like)
   end
 end

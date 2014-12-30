@@ -80,4 +80,15 @@ Go::Application.routes.draw do
 	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
 	resources :wall_expert_posts
 
+  # hes-recipes
+  resources :recipes, :only => [:index, :show]
+  match "/recipes/daily" => "recipes#show", :daily => true
+  match "/recipes/first" => "recipes#show", :first => true
+  match "/recipes/last" => "recipes#show", :last => true
+
+  # hes-commentable
+  resources :comments
+  match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
+  match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
+
 end

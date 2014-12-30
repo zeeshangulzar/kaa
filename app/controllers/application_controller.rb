@@ -100,4 +100,8 @@ class ApplicationController < ActionController::Base
     param.delete_if{|k,v|!attrs_to_update.include?(k)}
   end
 
+  def get_user
+    return @current_user
+  end
+
 end

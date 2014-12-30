@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141230132855) do
+ActiveRecord::Schema.define(:version => 20141222192948) do
 
   create_table "behaviors", :force => true do |t|
     t.integer  "promotion_id"

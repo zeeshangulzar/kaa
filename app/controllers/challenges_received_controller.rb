@@ -6,14 +6,18 @@ class ChallengesReceivedController < ApplicationController
     if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't view other peoples challenges.", "DENIED")
     else
-      c = @target_user.challenge_queue
+      c = @target_user.challenge_queue # see user.rb
       if params[:status]
         case params[:status]
           when 'all'
             c = @target_user.challenges_received
           when 'queue'
           when 'expired', '5'
+            # expired should only be accepted and expired, see user.rb
             c = @target_user.expired_challenges
+          when 'accepted', '2'
+            # we don't want expired accepted, see user.rb
+            c = @target_user.unexpired_challenges.accepted
           else
             if ChallengeReceived::STATUS.stringify_keys.keys.include?(params[:status])
               # ?status=[unseen,accepted,etc.]

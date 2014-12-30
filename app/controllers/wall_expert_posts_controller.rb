@@ -42,8 +42,8 @@ class WallExpertPostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }]
   def index
-    @posts = @user.promotion.posts.order("created_at DESC")
-    respond_with @posts
+    @posts = @current_user.promotion.posts.order("created_at DESC")
+    return HESResponder(@posts)
   end
 
   # Creates posts in all active promotions
@@ -89,20 +89,20 @@ class WallExpertPostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def create
-    @post = @user.promotion.posts.build(params[:wall_expert_post])
-    @post.user = @user
+    @post = @current_user.promotion.posts.build(params[:wall_expert_post])
+    @post.user = @current_user
     @post.save
 
-    Promotion.where(:is_active => true).where("`promotions`.id != #{@user.promotion.id}").each do |promotion|
+    Promotion.where(:is_active => true).where("`promotions`.id != #{@current_user.promotion.id}").each do |promotion|
       post = promotion.posts.build(params[:wall_expert_post])
-      post.user = @user
+      post.user = @current_user
       if post.postable == nil
         post.postable = @post
       end
       post.save
     end
 
-    respond_with @post
+    return HESResponder(@post)
   end
 
   # Gets a single wall expert post
@@ -144,8 +144,8 @@ class WallExpertPostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def show
-    @post = @user.promotion.posts.find(params[:id])
-    respond_with @post
+    @post = @current_user.promotion.posts.find(params[:id])
+    return HESResponder(@post)
   end
 
   # Updates a single wall expert post
@@ -190,7 +190,7 @@ class WallExpertPostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def update
-    @post = @user.promotion.posts.find(params[:id])
+    @post = @current_user.promotion.posts.find(params[:id])
 
     @post.update_attributes(params[:wall_expert_post])
 
@@ -198,7 +198,7 @@ class WallExpertPostsController < ApplicationController
       post.update_attributes(params[:wall_expert_post]) unless post.nil?
     end
 
-    respond_with(@post)
+    return HESResponder(@post)
   end
 
   # Deletes a single wall expert post
@@ -240,7 +240,7 @@ class WallExpertPostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def destroy
-    @post = @user.promotion.posts.find(params[:id])
+    @post = @current_user.promotion.posts.find(params[:id])
 
     @post.posts.each do |post|
       post.destroy unless post.nil?
@@ -248,6 +248,6 @@ class WallExpertPostsController < ApplicationController
 
     @post.destroy
 
-    respond_with @post
+    return HESResponder(@post)
   end
 end
