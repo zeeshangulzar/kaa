@@ -124,4 +124,44 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
+  def subscribed_events
+    sql = "
+# my events
+select
+events.*, users.username, profiles.* from events
+left join invites on invites.event_id = events.id AND (invites.invited_user_id = #{self.id})
+join users on events.user_id = users.id
+join profiles on profiles.user_id = users.id
+where
+(
+  events.user_id = #{self.id}
+)
+OR
+# my friends events with privacy = all_friends
+(
+  (
+    events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
+    OR
+    events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+  )
+  AND events.user_id <> #{self.id}
+  AND events.privacy = 'F'
+)
+OR
+# events i'm invited to
+(
+  invites.invited_user_id = #{self.id}
+)
+OR
+# coordinator events in my area
+(
+  events.event_type = 'C'
+  AND events.privacy = 'L'
+  AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+)
+    "
+    rows = ActiveRecord::Base.connection.select_all(sql)
+    return rows
+  end
+
 end

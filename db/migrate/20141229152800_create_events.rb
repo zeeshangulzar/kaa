@@ -4,7 +4,7 @@ class CreateEvents < ActiveRecord::Migration
   def change
     create_table :events do |t|
       t.references  :user
-      t.string      :type, :limit => 1
+      t.string      :event_type, :limit => 1
       t.string      :place, :limit => 200
       t.boolean     :can_others_invite, :default => false
       t.datetime    :start

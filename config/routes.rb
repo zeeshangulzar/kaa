@@ -16,7 +16,7 @@ Go::Application.routes.draw do
       post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
-    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges
+    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
   end
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
@@ -90,5 +90,10 @@ Go::Application.routes.draw do
   resources :comments
   match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
   match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
+
+  resources :events do
+    resources :invites, :only => [:index, :show]
+  end
+  resources :invites
 
 end

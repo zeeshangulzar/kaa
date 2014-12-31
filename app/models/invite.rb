@@ -12,7 +12,7 @@ class Invite < ApplicationModel
   }
 
   belongs_to :event
-  has_one :inviter, :class_name => "User", :foreign_key => :inviter_user_id
-  has_one :user, :class_name => "User", :foreign_key => :invited_user_id
+  belongs_to :inviter, :class_name => "User", :foreign_key => "inviter_user_id"
+  belongs_to :user, :class_name => "User", :foreign_key => "invited_user_id"
 
 end
