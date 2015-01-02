@@ -9,7 +9,12 @@ class Friendship < ApplicationModel
   attr_writer :url
   
   # Constant for keeping statuses only one character in database
-  STATUS = { :pending => 'P', :requested => 'R', :accepted => 'A', :declined => 'D'}
+  STATUS = {
+    :pending => 'P',
+    :requested => 'R',
+    :accepted => 'A',
+    :declined => 'D'
+  }
 
   # belongs_to :user, :in_json => true 
   # belongs_to :friend, :class_name => 'User', :in_json => true

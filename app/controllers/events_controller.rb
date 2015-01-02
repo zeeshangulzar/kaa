@@ -20,12 +20,20 @@ class EventsController < ApplicationController
   end
 
   def create
+    invites = params[:event][:invites].nil? ? [] : params[:event].delete(:invites)
     event = @current_user.events.build(params[:event])
     if !event.valid?
       return HESResponder(event.errors.full_messages, "ERROR")
     end
     Event.transaction do
       event.save!
+      invites.each do |invite|
+        i = event.invites.build(:invited_user_id => invite[:invited_user_id], :inviter_user_id => @current_user.id)
+        if !i.valid?
+          return HESResponder(i.errors.full_messages, "ERROR")
+        end
+        i.save!
+      end
     end
     return HESResponder(event)
   end

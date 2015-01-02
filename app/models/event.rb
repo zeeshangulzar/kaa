@@ -2,9 +2,9 @@ class Event < ApplicationModel
 
   attr_privacy_no_path_to_user
   attr_privacy :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :any_user
-  attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo
+  attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :invites
   
-  has_many :invites
+  has_many :invites, :in_json => true
   accepts_nested_attributes_for :invites
 
   belongs_to :location, :in_json => true
@@ -30,6 +30,13 @@ class Event < ApplicationModel
     self.event_type ||= Event::TYPE[:user]
     self.privacy ||= Event::PRIVACY[:owner]
   end
-  
+
+  def start
+    read_attribute(:start).to_i
+  end
+
+  def end
+    read_attribute(:end).to_i
+  end
 
 end

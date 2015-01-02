@@ -124,15 +124,19 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
+  # TODO: this is inefficient.. the sql is ok, but the Event.find_by_sql() and resulting ActiveRecord crap will likely be a huge performance hit down the road
+  # need to figure out a way to populate/simulate ActiveRecord objects through this query, including the necessary associations and pagination (invites especially)
   def subscribed_events
     sql = "
 # my events
-select
-events.*, users.username, profiles.* from events
-left join invites on invites.event_id = events.id AND (invites.invited_user_id = #{self.id})
-join users on events.user_id = users.id
-join profiles on profiles.user_id = users.id
-where
+SELECT
+events.*, COUNT(DISTINCT all_invites.id) AS total_invites
+FROM events
+LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
+LEFT JOIN invites all_invites ON all_invites.event_id = events.id
+JOIN users on events.user_id = users.id
+JOIN profiles on profiles.user_id = users.id
+WHERE
 (
   events.user_id = #{self.id}
 )
@@ -150,7 +154,7 @@ OR
 OR
 # events i'm invited to
 (
-  invites.invited_user_id = #{self.id}
+  my_invite.invited_user_id = #{self.id}
 )
 OR
 # coordinator events in my area
@@ -159,8 +163,12 @@ OR
   AND events.privacy = 'L'
   AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
 )
+GROUP BY events.id
+ORDER BY events.start ASC
     "
-    rows = ActiveRecord::Base.connection.select_all(sql)
+    @result = Event.find_by_sql(sql)
+    return @result
+    #rows = ActiveRecord::Base.connection.select_all(sql)
     return rows
   end
 

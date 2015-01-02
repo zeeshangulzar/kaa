@@ -44,10 +44,11 @@ class GroupsController < ApplicationController
     Group.transaction do
       group.save!
       users.each do |user|
-        u = group.users.build(:user_id => user[:id])
+        u = group.group_users.build(:user_id => user[:id])
         if !u.valid?
           return HESResponder(u.errors.full_messages, "ERROR")
         end
+        u.save!
       end
     end
     return HESResponder(group)
@@ -77,7 +78,7 @@ class GroupsController < ApplicationController
     group = Group.find(params[:id]) rescue nil
     if !group
       return HESResponder("Group", "NOT_FOUND")
-    elsif (group.owner.id == @current_user.id || @current_user.master?) && user.destroy
+    elsif (group.owner.id == @current_user.id || @current_user.master?) && group.destroy
       return HESResponder(group)
     else
       return HESResponder("Error deleting.", "ERROR")
