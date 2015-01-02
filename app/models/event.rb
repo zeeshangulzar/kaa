@@ -25,10 +25,21 @@ class Event < ApplicationModel
   validates_presence_of :name, :description, :start, :end
 
   before_create :set_default_values
+  before_create :fix_timestamps
+  before_update :fix_timestamps
 
   def set_default_values
     self.event_type ||= Event::TYPE[:user]
     self.privacy ||= Event::PRIVACY[:owner]
+  end
+
+  def fix_timestamps
+    if self.start.is_a?(Integer)
+      self.start = Time.at(self.start).to_datetime
+    end
+    if self.end.is_a?(Integer)
+      self.end = Time.at(self.end).to_datetime
+    end
   end
 
   def start
