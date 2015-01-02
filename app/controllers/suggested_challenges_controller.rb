@@ -1,6 +1,7 @@
 class SuggestedChallengesController < ApplicationController
+  authorize :index, :show, :create, :user
+  authorize :update, :destroy, :location_coordinator
   
-  authorize :index, :show, :create, :update, :destroy, :user
   
   def index
     if params[:promotion_id]

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141215135200) do
+ActiveRecord::Schema.define(:version => 20141230132855) do
 
   create_table "behaviors", :force => true do |t|
     t.integer  "promotion_id"
@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer  "challenge_id"
     t.integer  "user_id"
     t.integer  "status"
-    t.date     "expires_on"
+    t.datetime "expires_on"
     t.datetime "completed_on"
     t.text     "notes"
     t.datetime "created_at",   :null => false
@@ -59,6 +59,21 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end
+
+  create_table "comments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "commentable_id"
+    t.string   "commentable_type", :limit => 50
+    t.string   "content",          :limit => 420
+    t.boolean  "is_flagged",                      :default => false
+    t.boolean  "is_deleted",                      :default => false
+    t.datetime "last_modified_at"
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+  end
+
+  add_index "comments", ["commentable_type", "commentable_id"], :name => "commentable_idx"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "custom_prompts", :force => true do |t|
     t.integer  "custom_promptable_id"
@@ -152,6 +167,25 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
   add_index "evaluations", ["evaluation_definition_id"], :name => "index_evaluations_on_evaluation_definition_id"
   add_index "evaluations", ["user_id"], :name => "index_evaluations_on_user_id"
 
+  create_table "events", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "event_type",        :limit => 1
+    t.string   "place",             :limit => 200
+    t.boolean  "can_others_invite",                :default => false
+    t.datetime "start"
+    t.datetime "end"
+    t.boolean  "all_day",                          :default => false
+    t.string   "name",              :limit => 200
+    t.text     "description"
+    t.string   "privacy",           :limit => 1
+    t.string   "photo"
+    t.integer  "location_id"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
+  end
+
+  add_index "events", ["user_id"], :name => "index_events_on_user_id"
+
   create_table "exercise_activities", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
@@ -193,15 +227,40 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "invites", :force => true do |t|
+    t.integer  "event_id"
+    t.integer  "invited_user_id"
+    t.integer  "inviter_user_id"
+    t.integer  "status"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "invites", ["event_id"], :name => "index_invites_on_event_id"
+  add_index "invites", ["invited_user_id"], :name => "index_invites_on_invited_user_id"
+  add_index "invites", ["inviter_user_id"], :name => "index_invites_on_inviter_user_id"
+
+  create_table "likes", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "likeable_id"
+    t.string   "likeable_type", :limit => 50
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+  end
+
+  add_index "likes", ["likeable_type", "likeable_id"], :name => "likeable_idx"
+  add_index "likes", ["user_id"], :name => "index_likes_on_user_id"
+
   create_table "locations", :force => true do |t|
     t.integer  "promotion_id"
     t.string   "name"
-    t.integer  "sequence"
-    t.integer  "root_location_id"
+    t.integer  "sequence",           :default => 0
     t.integer  "parent_location_id"
-    t.integer  "depth"
-    t.datetime "created_at",         :null => false
-    t.datetime "updated_at",         :null => false
+    t.integer  "root_location_id"
+    t.text     "content"
+    t.integer  "has_content"
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -255,6 +314,29 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "created_at",                    :null => false
     t.datetime "updated_at",                    :null => false
   end
+
+  create_table "posts", :force => true do |t|
+    t.integer  "parent_post_id"
+    t.integer  "root_post_id"
+    t.integer  "user_id"
+    t.integer  "depth",          :default => 0
+    t.text     "content"
+    t.integer  "postable_id"
+    t.string   "postable_type"
+    t.integer  "wallable_id"
+    t.string   "wallable_type"
+    t.boolean  "is_flagged",     :default => false
+    t.boolean  "is_deleted",     :default => false
+    t.text     "photo"
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
+  end
+
+  add_index "posts", ["parent_post_id"], :name => "index_posts_on_parent_post_id"
+  add_index "posts", ["postable_type", "postable_id"], :name => "postable_idx"
+  add_index "posts", ["root_post_id"], :name => "index_posts_on_root_post_id"
+  add_index "posts", ["user_id"], :name => "index_posts_on_user_id"
+  add_index "posts", ["wallable_type", "wallable_id"], :name => "wallable_idx"
 
   create_table "profiles", :force => true do |t|
     t.integer  "user_id"
@@ -338,6 +420,7 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.integer  "status"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+    t.string   "name"
   end
 
   create_table "tiles", :force => true do |t|
@@ -377,26 +460,7 @@ ActiveRecord::Schema.define(:version => 20141215135200) do
     t.datetime "updated_at", :null => false
   end
 
-  create_table "users", :force => true do |t|
-    t.integer  "promotion_id"
-    t.integer  "location_id"
-    t.integer  "top_level_location_id"
-    t.integer  "organization_id"
-    t.integer  "reseller_id"
-    t.integer  "map_id"
-    t.string   "role",                  :limit => 50
-    t.string   "username",              :limit => 50
-    t.string   "password",              :limit => 64
-    t.string   "password_hash",         :limit => 64
-    t.string   "auth_key"
-    t.string   "sso_identifier",        :limit => 100
-    t.boolean  "allows_email",                         :default => true
-    t.string   "altid",                 :limit => 50
-    t.string   "email",                 :limit => 100
-    t.datetime "last_login"
-    t.text     "tiles"
-    t.datetime "created_at",                                             :null => false
-    t.datetime "updated_at",                                             :null => false
-  end
+# Could not dump table "users" because of following ActiveRecord::StatementInvalid
+#   Mysql2::Error: Table 'go_development.users' doesn't exist: SHOW KEYS FROM `users`
 
 end

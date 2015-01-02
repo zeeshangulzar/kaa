@@ -16,7 +16,7 @@ Go::Application.routes.draw do
       post 'authenticate', :to => 'users#authenticate'
     end
     resources :profiles, :only => [:update]
-    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges
+    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
   end
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
@@ -67,5 +67,33 @@ Go::Application.routes.draw do
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#index', :via => :get
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
   match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
+
+  resources :likes
+  match '*likeable_type/*likeable_id/likes' => 'likes#index', :via => :get
+  match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
+  match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
   
+  match '/flagged_posts' => 'posts#flagged_posts', :via => :get
+	match '*wallable_type/*wallable_id/popular_posts' => 'posts#popular_posts', :via => :get
+	resources :posts
+	match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
+	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
+	resources :wall_expert_posts
+
+  # hes-recipes
+  resources :recipes, :only => [:index, :show]
+  match "/recipes/daily" => "recipes#show", :daily => true
+  match "/recipes/first" => "recipes#show", :first => true
+  match "/recipes/last" => "recipes#show", :last => true
+
+  # hes-commentable
+  resources :comments
+  match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
+  match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
+
+  resources :events do
+    resources :invites, :only => [:index, :show]
+  end
+  resources :invites
+
 end

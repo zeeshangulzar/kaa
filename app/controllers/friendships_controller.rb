@@ -19,6 +19,8 @@ class FriendshipsController < ApplicationController
     elsif params[:id]
       @friendable = Friendship.find(params[:id]) rescue nil
       return HESResponder("Friendship", "NOT_FOUND") if !@friendable
+    elsif @current_user.user?
+      @friendable = @current_user
     else
       return HESResponder("Must pass friendable_id and friendable_type", "ERROR")
     end
@@ -53,7 +55,25 @@ class FriendshipsController < ApplicationController
     if @friendable.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't see this user's friendships.", "DENIED")
     end
-    return HESResponder(@friendable.friendships)
+    if params[:status]
+      case params[:status]
+        when 'all'
+          f = @friendable.friendships
+        else
+          if Friendship::STATUS.stringify_keys.keys.include?(params[:status])
+            # ?status=[pending,accepted,etc.]
+            f = @friendable.friendships.send(params[:status])
+          elsif Friendship::STATUS.values.include?(params[:status])
+            # ?status=[P,R,A,D]
+            f = @friendable.friendships.send(Friendship::STATUS.index(params[:status]).to_s)
+          else
+            return HESResponder("No such status.", "ERROR")
+          end
+      end
+    else
+      f = @friendable..friendships
+    end
+    return HESResponder(f)
   end
 
   # Gets a single friendship for a user

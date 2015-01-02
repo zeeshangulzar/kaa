@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   authorize :create, :validate, :public
   authorize :search, :show, :user
-  authorize :update, :me
+  authorize :update, :user
   authorize :index, :coordinator
   authorize :destroy, :master
   authorize :authenticate, :public
@@ -84,10 +84,10 @@ class UsersController < ApplicationController
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
         @target_user.update_attributes(params[:user])
-        @target_user.profile.update_attributes(profile_data)
+        @target_user.profile.update_attributes(profile_data) if !profile_data.empty?
       end
-      errors = user.profile.errors || user.errors # the order here is important. profile will have specific errors.
-      if errors
+      if !@target_user.valid?
+        errors = !@target_user.profile.errors.empty? ? @target_user.profile.errors : @target_user.errors # the order here is important. profile will have specific errors.
         return HESResponder(errors.full_messages, "ERROR")
       else
         return HESResponder(@target_user)

@@ -22,7 +22,7 @@ gem 'bcrypt-ruby', '3.0.1'
 # gem "hes-subdomain-handler"
 # gem "hes-authentication"
 gem "hes-authorization"
-# gem "hes-cloud-storage", '1.0.10'
+gem "hes-cloud-storage", '1.0.10'
 gem "hes-sequencer"
 # gem "hes-many_to_many", '0.0.3'
 # gem "hes-auth-key", :require => 'hes-auth-key'
@@ -33,8 +33,8 @@ gem "hes-sequencer"
 # gem "hes-recording", '0.0.8'
 # gem "hes-competitions", '0.0.16'
 # gem "hes-commentable"
-# gem "hes-likeable"
-# gem "hes-posts", '0.0.9'
+# gem "hes-likeable", '1.0.7', :path => 'vendor/gems/hes-likeable'
+#gem "hes-posts", '0.0.9', :path => "vendor/gems/hes-posts"
 # gem "hes-customizer"
 # gem "hes-content"
 # gem "hes-central", '0.0.6'

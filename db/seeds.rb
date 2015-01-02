@@ -5,7 +5,7 @@ reseller = Reseller.create :name=>"Health Enhancement Systems", :contact_name=>"
 
 organization = reseller.organizations.create :name=>"Health Enhancement Systems", :contact_name=>"HES ADMIN", :contact_email=>"admin@hesapps.com"
 
-promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www', :is_active=>1, :program_length => 56, :starts_on => startDt, 
+promotion = organization.promotions.create :name=>"Health Enhancement Systems", :subdomain=>'www', :is_active=>1, :program_length => 364, :starts_on => startDt, 
   :static_tiles => '["weeklyActivity", "logActivity", "challengeSm", "eventsSm", "regionResource"]',
   :dynamic_tiles => '["wall","dailyTip","recipes","longTermGoal"]'
 

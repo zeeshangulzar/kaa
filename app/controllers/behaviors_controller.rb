@@ -1,4 +1,4 @@
-class ActivitiesController < ApplicationController
+class BehaviorsController < ApplicationController
   authorize :all, :master
   authorize :index, :user
   

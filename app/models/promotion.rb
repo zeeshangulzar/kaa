@@ -15,8 +15,9 @@ class Promotion < ApplicationModel
   has_many :challenges
   has_many :suggested_challenges
 
-  has_many :locations
+  has_many :locations, :order => "parent_location_id, sequence", :dependent => :destroy
 
+  has_wall
   has_evaluations
 
   after_create :create_evaluations
@@ -79,6 +80,29 @@ class Promotion < ApplicationModel
       end
     end
     paths
+  end
+  
+
+  def nested_locations
+    nested = []
+    self.locations.each do |location|
+      if location.top?
+        location = self.get_kids(location)
+        nested.push(location)
+      end
+    end
+    return nested
+  end
+
+  def get_kids(location, parents = [])
+    location[:parents] = parents.dup
+    parents.push(location.id)
+    location.children.each do |child|
+      location[:locations] = [] if location[:locations].nil?
+      child = self.get_kids(child, parents.dup)
+      location[:locations].push(child)
+    end
+    return location
   end
 
 end

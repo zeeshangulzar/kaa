@@ -14,10 +14,10 @@
 #  encoding: utf8
 #  reconnect: false
 #  database: go
-#  pool: 5
-#  username: root
-#  password:
+#  username: hesdev
+#  password: hesdev
 #  host: localhost
+#  socket: /Applications/MAMP/tmp/mysql/mysql.sock
 
 development:
    adapter: mysql2

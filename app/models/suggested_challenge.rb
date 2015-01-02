@@ -1,5 +1,5 @@
 class SuggestedChallenge < ApplicationModel
-  attr_privacy :promotion_id, :description, :user_id, :status, :any_user
+  attr_privacy :promotion_id, :description, :user_id, :status, :name, :any_user
   attr_privacy_path_to_user :user
   attr_accessible *column_names
   
@@ -10,8 +10,7 @@ class SuggestedChallenge < ApplicationModel
     :unseen    => 0,
     :pending   => 1,
     :accepted  => 2,
-    :completed => 3,
-    :declined  => 4
+    :declined  => 3
   }
 
   before_create :set_defaults

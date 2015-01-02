@@ -9,6 +9,7 @@ class User < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :email, :public
   attr_privacy :username, :tiles, :me
+  attr_accessible :username, :tiles, :email, :username, :altid
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
@@ -20,20 +21,35 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+  has_many :events
 
   has_notifications
+
+  can_post
+  can_like
 
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
-  has_many :challenges_sent, :class_name => "ChallengeSent"
+  has_many :challenges_sent, :class_name => "ChallengeSent", :order => "created_at DESC"
   has_many :challenges_received, :class_name => "ChallengeReceived"
+
+  expired_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
+  has_many :expired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on < '#{Time.now.utc.to_s(:db)}' AND status = #{expired_challenge_statuses.join(",")}" }
+
+  has_many :unexpired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}'" }
+
+  active_challenge_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
+  has_many :active_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{active_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+
+  challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
+  has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
 
   has_many :suggested_challenges
 
   has_many :groups, :foreign_key => "owner_id"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events
   attr_accessor :include_evaluation_definitions
   
   # hooks
@@ -108,29 +124,52 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
-  # challenges received
-  # tried to put this on ChallengeReceived but can't get promotion.current_date there
-  # I'm guessing the technical limitation is challenges_received could be in different promotions
-  def challenge_queue
-    c = []
-    if !self.challenges_received.empty?
-      statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date).order("status ASC")
-    end
-    return c
+  # TODO: this is inefficient.. the sql is ok, but the Event.find_by_sql() and resulting ActiveRecord crap will likely be a huge performance hit down the road
+  # need to figure out a way to populate/simulate ActiveRecord objects through this query, including the necessary associations and pagination (invites especially)
+  def subscribed_events
+    sql = "
+# my events
+SELECT
+events.*, COUNT(DISTINCT all_invites.id) AS total_invites
+FROM events
+LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
+LEFT JOIN invites all_invites ON all_invites.event_id = events.id
+JOIN users on events.user_id = users.id
+JOIN profiles on profiles.user_id = users.id
+WHERE
+(
+  events.user_id = #{self.id}
+)
+OR
+# my friends events with privacy = all_friends
+(
+  (
+    events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
+    OR
+    events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+  )
+  AND events.user_id <> #{self.id}
+  AND events.privacy = 'F'
+)
+OR
+# events i'm invited to
+(
+  my_invite.invited_user_id = #{self.id}
+)
+OR
+# coordinator events in my area
+(
+  events.event_type = 'C'
+  AND events.privacy = 'L'
+  AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+)
+GROUP BY events.id
+ORDER BY events.start ASC
+    "
+    @result = Event.find_by_sql(sql)
+    return @result
+    #rows = ActiveRecord::Base.connection.select_all(sql)
+    return rows
   end
-
-  # challenges received
-  # tried to put this on ChallengeReceived but can't get promotion.current_date there
-  # I'm guessing the technical limitation is challenges_received could be in different promotions
-  def active_challenges
-    c = []
-    if !self.challenges_received.empty?
-      statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
-      c = self.challenges_received.where('status IN (?) AND completed_on IS NULL AND (expires_on IS NULL OR expires_on >= ?)', statuses, self.promotion.current_date)
-    end
-    return c
-  end
-
 
 end
