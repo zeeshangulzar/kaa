@@ -71,7 +71,7 @@ class FriendshipsController < ApplicationController
           end
       end
     else
-      f = @friendable..friendships
+      f = @friendable.friendships
     end
     return HESResponder(f)
   end
