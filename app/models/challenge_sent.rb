@@ -15,10 +15,13 @@ class ChallengeSent < ApplicationModel
   validate :unique_challenge_received
   validate :to_user_or_group
 
-  def unique_challenge_received
+  def unique_challenge_received    
+    user = User.find(self.user_id)
     return true if self.to_user_id.nil?
     challenge_received = ChallengeReceived.where(:challenge_id => self.challenge_id, :user_id => self.to_user_id).where("(expires_on IS NULL OR expires_on >= ?) AND status IN (?)", Time.now.utc.to_s(:db), [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]).first
-    if challenge_received
+    if challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
+      # below is an incomplete but different way of getting sent challenge
+      # cs = ChallengeSent.where(:challenge_id => self.challenge_id, :user_id => self.user_id).where("(to_user_id = #{self.to_user_id} OR to_group_id IN (#{user.groups_with_user(self.to_user_id).collect{|x|x.id}.join(',')})").where("created_at >= '?'", Time.now.utc.to_s(:db), challenge_received.created_at).first
       self.errors.add(:base, "You've already challenged this person to this.")
       return false
     end

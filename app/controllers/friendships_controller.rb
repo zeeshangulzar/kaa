@@ -61,10 +61,10 @@ class FriendshipsController < ApplicationController
           f = @friendable.friendships
         else
           if Friendship::STATUS.stringify_keys.keys.include?(params[:status])
-            # ?status=[pending,accepted,etc.]
+            # ?status=[pending, accepted, etc.]
             f = @friendable.friendships.send(params[:status])
           elsif Friendship::STATUS.values.include?(params[:status])
-            # ?status=[P,R,A,D]
+            # ?status=[P, R, A, D]
             f = @friendable.friendships.send(Friendship::STATUS.index(params[:status]).to_s)
           else
             return HESResponder("No such status.", "ERROR")

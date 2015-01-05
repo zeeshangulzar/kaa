@@ -124,61 +124,55 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
-  # events associations
+  # TODO: not really using this but it may be nice to have sooo decide whether to keep..
+  def groups_with_user(user_id)
+    sql = "
+SELECT
+groups.*
+FROM groups
+JOIN group_users ON groups.id = group_users.group_id
+WHERE
+groups.owner_id = #{self.id}
+AND
+group_users.user_id = #{friend_id}
+    "
+    @result = Group.find_by_sql(sql)
+    return @result
+  end
+
   has_many :invites, :foreign_key => "invited_user_id"  
-  has_many :maybe_events, :source => :event, :through => :invites, :conditions => proc { "invites.status = '#{Invite::STATUS[:maybe]}'" }
-  has_many :declined_events, :source => :event, :through => :invites, :conditions => proc { "invites.status = '#{Invite::STATUS[:no]}'" }
 
   # events associations that are too complex for Rails..
   # TODO: this is inefficient.. the sql is ok, but the Event.find_by_sql() and resulting ActiveRecord crap will likely be a huge performance hit down the road
   # need to figure out a way to populate/simulate ActiveRecord objects through this query, including the necessary associations and pagination (invites especially)
-  def subscribed_events
-    sql = "
-SELECT
-events.*, COUNT(DISTINCT all_invites.id) AS total_invites
-FROM events
-LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
-LEFT JOIN invites all_invites ON all_invites.event_id = events.id
-JOIN users on events.user_id = users.id
-JOIN profiles on profiles.user_id = users.id
-WHERE
-# my events
-(
-  events.user_id = #{self.id}
-)
-OR
-# my friends events with privacy = all_friends
-(
-  (
-    events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-    OR
-    events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
-  )
-  AND events.user_id <> #{self.id}
-  AND events.privacy = 'F'
-)
-OR
-# events i'm invited to
-(
-  my_invite.invited_user_id = #{self.id}
-)
-OR
-# coordinator events in my area
-(
-  events.event_type = 'C'
-  AND events.privacy = 'L'
-  AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
-)
-GROUP BY events.id
-ORDER BY events.start ASC
-    "
-    @result = Event.find_by_sql(sql)
-    return @result
-    #rows = ActiveRecord::Base.connection.select_all(sql)
-    return rows
+  def subscribed_events(options = {})
+    return self.events(options.merge({:type=>'subscribed'}))
+  end
+  
+  def unresponded_events(options = {})
+    return self.events(options.merge({:type=>'unresponded'}))
   end
 
-  def attending_events
+  def maybe_events(options = {})
+    return self.events(options.merge({:type=>'maybe'}))
+  end
+
+  def attending_events(options = {})
+    return self.events(options.merge({:type=>'attending'}))
+  end
+
+  def declined_events(options = {})
+    return self.events(options.merge({:type=>'declined'}))
+  end
+
+
+  def events(options = {})
+    options = {
+      :type  => options[:type].nil? ? 'subscribed' : options[:type],
+      :start => !options[:start].nil? ? options[:start].is_a?(String) ? options[:start] : options[:start].utc.to_s(:db) : nil,
+      :end   => !options[:end].nil? ? options[:end].is_a?(String) ? options[:end] : options[:end].utc.to_s(:db) : nil,
+      :id    => options[:id].nil? ? nil : options[:id]
+    }
     sql = "
 SELECT
 events.*, COUNT(DISTINCT all_invites.id) AS total_invites
@@ -188,33 +182,135 @@ LEFT JOIN invites all_invites ON all_invites.event_id = events.id
 JOIN users on events.user_id = users.id
 JOIN profiles on profiles.user_id = users.id
 WHERE
-# my events
 (
-  events.user_id = #{self.id}
-)
-OR
-# my friends events with privacy = all_friends
-(
+    "
+    case options[:type]
+    when 'unresponded'
+      sql += "
+  # UNRESPONDED
+  # my friends events with privacy = all_friends
   (
-    events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-    OR
-    events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+    (
+      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
+      OR
+      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+    )
+    AND events.user_id <> #{self.id}
+    AND events.privacy = 'F'
+    # invite doesn't exist or is unresponded
+    AND (
+      my_invite.status IS NULL
+      OR
+      my_invite.status = #{Invite::STATUS[:unresponded]}
+    )
   )
-  AND events.user_id <> #{self.id}
-  AND events.privacy = 'F'
+  OR
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{self.id}
+    AND my_invite.status = #{Invite::STATUS[:unresponded]}
+  )
+  OR
+  # coordinator events in my area
+  (
+    events.event_type = 'C'
+    AND events.privacy = 'L'
+    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+    # invite doesn't exist or is unresponded
+    AND (
+      my_invite.status IS NULL
+      OR
+      my_invite.status = #{Invite::STATUS[:unresponded]}
+    )
+  )
+      "
+      when 'maybe'
+        sql += "
+  # MAYBE
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{self.id}
+    AND my_invite.status = #{Invite::STATUS[:maybe]}
+  )
+        "
+      when 'attending'
+        sql += "
+  # ATTENDING
+  # my events
+  (
+    events.user_id = #{self.id}
+  )
+  OR
+  # my friends events with privacy = all_friends
+  (
+    (
+      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
+      OR
+      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+    )
+    AND events.user_id <> #{self.id}
+    AND events.privacy = 'F'
+  )
+  OR
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{self.id}
+  )
+  OR
+  # coordinator events in my area
+  (
+    events.event_type = 'C'
+    AND events.privacy = 'L'
+    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+  )
+        "
+      when 'declined'
+        sql += "
+  # DECLINED
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{self.id}
+    AND my_invite.status = #{Invite::STATUS[:declined]}
+  )
+        "
+    else
+      # default subscribed
+      sql += "
+  # SUBSCRIBED
+  # my events
+  (
+    events.user_id = #{self.id}
+  )
+  OR
+  # my friends events with privacy = all_friends
+  (
+    (
+      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
+      OR
+      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
+    )
+    AND events.user_id <> #{self.id}
+    AND events.privacy = 'F'
+  )
+  OR
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{self.id}
+  )
+  OR
+  # coordinator events in my area
+  (
+    events.event_type = 'C'
+    AND events.privacy = 'L'
+    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+  )
+      "
+    end
+    sql += "
 )
-OR
-# events i'm invited to
-(
-  my_invite.invited_user_id = #{self.id}
-)
-OR
-# coordinator events in my area
-(
-  events.event_type = 'C'
-  AND events.privacy = 'L'
-  AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
-)
+#{"AND events.start >= '" + options[:start] + "'" if !options[:start].nil?}
+#{"AND events.end >= '" + options[:end] + "'" if !options[:end].nil?}
+#{"AND events.id = " + options[:id] if !options[:id].nil?}
 GROUP BY events.id
 ORDER BY events.start ASC
     "
@@ -222,56 +318,5 @@ ORDER BY events.start ASC
     return @result
   end
 
-  def unresponded_events
-    sql = "
-SELECT
-events.*, COUNT(DISTINCT all_invites.id) AS total_invites
-FROM events
-LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
-LEFT JOIN invites all_invites ON all_invites.event_id = events.id
-JOIN users on events.user_id = users.id
-JOIN profiles on profiles.user_id = users.id
-WHERE
-# my friends events with privacy = all_friends
-(
-  (
-    events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-    OR
-    events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
-  )
-  AND events.user_id <> #{self.id}
-  AND events.privacy = 'F'
-  # invite doesn't exist or is unresponded
-  AND (
-    my_invite.status IS NULL
-    OR
-    my_invite.status = #{Invite::STATUS[:unresponded]}
-  )
-)
-OR
-# events i'm invited to
-(
-  my_invite.invited_user_id = #{self.id}
-  AND my_invite.status = #{Invite::STATUS[:unresponded]}
-)
-OR
-# coordinator events in my area
-(
-  events.event_type = 'C'
-  AND events.privacy = 'L'
-  AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
-  # invite doesn't exist or is unresponded
-  AND (
-    my_invite.status IS NULL
-    OR
-    my_invite.status = #{Invite::STATUS[:unresponded]}
-  )
-)
-GROUP BY events.id
-ORDER BY events.start ASC
-    "
-    @result = Event.find_by_sql(sql)
-    return @result
-  end
 
 end

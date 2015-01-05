@@ -21,6 +21,7 @@ Go::Application.routes.draw do
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
 
+  match 'groups/*group_id/users' => 'group_users#index', :via => :get
   resources :groups do
     resources :group_users, :only => [:index, :show]
   end

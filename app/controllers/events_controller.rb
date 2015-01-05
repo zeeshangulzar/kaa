@@ -3,20 +3,24 @@ class EventsController < ApplicationController
   authorize :all, :user
   
   def index
-    # TODO: this is definitely still broken, but getting better...
+    options = {
+      :start => params[:start].nil? ? @promotion.current_time.beginning_of_month : params[:start].is_i? ? Time.at(params[:start].to_i).to_datetime : params[:start].to_datetime,
+      :end => params[:end].nil? ? @promotion.current_time.end_of_month : params[:end].is_i? ? Time.at(params[:end.to_i]).to_datetime : params[:end].to_datetime
+    }
     if !params[:status].nil?
       if Invite::STATUS.stringify_keys.keys.include?(params[:status])
-        # ?status=[unresponded,maybe,yes,no]
-        e = @target_user.send(params[:status] + "_events")
+        # ?status=[unresponded, maybe, attending, declined]
+        e = @target_user.send(params[:status] + "_events", options)
       elsif params[:status].is_i? && Invite::STATUS.values.include?(params[:status].to_i)
-        # ?status=[0,1,2,3]
-        e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events")
+        # ?status=[0, 1, 2, 3]
+        e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events", options)
       else
         return HESResponder("No such status.", "ERROR")
       end
-      return HESResponder(e)
+    else
+      e = @target_user.subscribed_events(options)
     end
-    return HESResponder(@target_user.subscribed_events)
+    return HESResponder(e)
   end
 
   def show
@@ -52,6 +56,9 @@ class EventsController < ApplicationController
   def update
     event = Event.find(params[:id]) rescue nil
     return HESResponder("Event", "NOT_FOUND") if !event
+    if !params[:event].nil? && !params[:event][:invites].nil?
+      params[:event].delete(:invites)
+    end
     Event.transaction do
       event.update_attributes(params[:event])
       if !event.valid?
