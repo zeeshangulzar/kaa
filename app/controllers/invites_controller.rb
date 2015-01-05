@@ -26,38 +26,6 @@ class InvitesController < ApplicationController
       return HESResponder("Event", "NOT_FOUND")
     end
     return HESResponder(event.invites)
-
-    
-
-    if @target_user.id != @current_user.id && !@current_user.master?
-      return HESResponder("You can't view other peoples challenges.", "DENIED")
-    else
-      c = @target_user.challenge_queue # see user.rb
-      if params[:status]
-        case params[:status]
-          when 'all'
-            c = @target_user.challenges_received
-          when 'queue'
-          when 'expired', '5'
-            # expired should only be accepted and expired, see user.rb
-            c = @target_user.expired_challenges
-          when 'accepted', '2'
-            # we don't want expired accepted, see user.rb
-            c = @target_user.unexpired_challenges.accepted
-          else
-            if ChallengeReceived::STATUS.stringify_keys.keys.include?(params[:status])
-              # ?status=[unseen,accepted,etc.]
-              c = @target_user.challenges_received.send(params[:status])
-            elsif params[:status].is_i? && ChallengeReceived::STATUS.values.include?(params[:status].to_i)
-              # ?status=[0,1,2,3,4]
-              c = @target_user.challenges_received.send(ChallengeReceived::STATUS.index(params[:status].to_i).to_s)
-            else
-              return HESResponder("No such status.", "ERROR")
-            end
-        end
-      end
-      return HESResponder(c)
-    end
   end
 
   # Gets a single entry for a team
@@ -83,10 +51,6 @@ class InvitesController < ApplicationController
     return HESResponder("Invite", "NOT_FOUND") if !invite
     # TODO: privacy stuff here
     return HESResponder(invite)
-    if event.user.id == @current_user.id || @current_user.master?
-      return HESResponder(@entry)
-    else
-      return HESResponder("You may not view other users' entries.", "DENIED")
     end
   end
 
@@ -111,15 +75,44 @@ class InvitesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
+    # TODO: error when user has already been invited
     event = Event.find(params[:invite][:event_id]) rescue nil
     if !event
       return HESResponder("Event", "NOT_FOUND")
     end
     Invite.transaction do
-      invite = event.invites.build(params[:invite])
-      invite.save!
+      if params[:invite][:invited_user_id].nil? && !params[:invite][:invited_group_id].nil?
+        group = Group.find(params[:invite][:invited_group_id]) rescue nil
+        if !group.nil? && group.owner.id == @current_user.id
+          invites = []
+          group.users.each do |user|
+            # TODO: not here though..
+            # need to make sure when group users are referenced for various actions, such as here, that the group users are also still friends with @current_user
+            # since they could be unfriended and still in the group, as of now..
+            if @current_user.friends.include?(user)
+              i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
+              if !i.valid?
+                return HESResponder(i.errors.full_messages, "ERROR")
+              end
+              i.save!
+              invites.push(i)
+              # do we need an error message if they aren't in the group anymore? shouldn't... should be taken care of soon as the unfriending occurs
+              # there's actually a validation check on invite..
+            end
+          end
+          return HESResponder(invites)
+        else
+          return HESResponder("Group",  "NOT_FOUND")
+        end
+      else
+        i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => @current_user.id)
+        if !i.valid?
+          return HESResponder(i.errors.full_messages, "ERROR")
+        end
+        i.save!
+        return HESResponder(i)
+      end
     end
-    return HESResponder(invite)
   end
 
   # Updates a single entry

@@ -5,6 +5,7 @@ class CreateInvites < ActiveRecord::Migration
     create_table :invites do |t|
       t.integer     :event_id
       t.integer     :invited_user_id
+      t.integer     :invited_group_id
       t.integer     :inviter_user_id
       t.integer     :status
       t.timestamps

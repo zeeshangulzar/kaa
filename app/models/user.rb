@@ -145,28 +145,31 @@ group_users.user_id = #{friend_id}
   # events associations that are too complex for Rails..
   # TODO: this is inefficient.. the sql is ok, but the Event.find_by_sql() and resulting ActiveRecord crap will likely be a huge performance hit down the road
   # need to figure out a way to populate/simulate ActiveRecord objects through this query, including the necessary associations and pagination (invites especially)
+
+  has_many :events
+
   def subscribed_events(options = {})
-    return self.events(options.merge({:type=>'subscribed'}))
+    return self.events_query(options.merge({:type=>'subscribed'}))
   end
   
   def unresponded_events(options = {})
-    return self.events(options.merge({:type=>'unresponded'}))
+    return self.events_query(options.merge({:type=>'unresponded'}))
   end
 
   def maybe_events(options = {})
-    return self.events(options.merge({:type=>'maybe'}))
+    return self.events_query(options.merge({:type=>'maybe'}))
   end
 
   def attending_events(options = {})
-    return self.events(options.merge({:type=>'attending'}))
+    return self.events_query(options.merge({:type=>'attending'}))
   end
 
   def declined_events(options = {})
-    return self.events(options.merge({:type=>'declined'}))
+    return self.events_query(options.merge({:type=>'declined'}))
   end
 
 
-  def events(options = {})
+  def events_query(options = {})
     options = {
       :type  => options[:type].nil? ? 'subscribed' : options[:type],
       :start => !options[:start].nil? ? options[:start].is_a?(String) ? options[:start] : options[:start].utc.to_s(:db) : nil,
@@ -185,8 +188,8 @@ WHERE
 (
     "
     case options[:type]
-    when 'unresponded'
-      sql += "
+      when 'unresponded'
+        sql += "
   # UNRESPONDED
   # my friends events with privacy = all_friends
   (
@@ -223,7 +226,7 @@ WHERE
       my_invite.status = #{Invite::STATUS[:unresponded]}
     )
   )
-      "
+        "
       when 'maybe'
         sql += "
   # MAYBE
@@ -273,8 +276,7 @@ WHERE
     AND my_invite.status = #{Invite::STATUS[:declined]}
   )
         "
-    else
-      # default subscribed
+    when "subscribed"
       sql += "
   # SUBSCRIBED
   # my events
@@ -305,6 +307,9 @@ WHERE
     AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
   )
       "
+    else
+      # default events
+      return Event.find_by_sql("SELECT * FROM events WHERE events.user_id = #{self.id}")
     end
     sql += "
 )

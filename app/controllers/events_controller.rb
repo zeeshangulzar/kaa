@@ -43,11 +43,33 @@ class EventsController < ApplicationController
     Event.transaction do
       event.save!
       invites.each do |invite|
-        i = event.invites.build(:invited_user_id => invite[:invited_user_id], :inviter_user_id => @current_user.id)
-        if !i.valid?
-          return HESResponder(i.errors.full_messages, "ERROR")
+        if invite[:invited_user_id].nil? && !invite[:invited_group_id].nil?
+          group = Group.find(invite[:invited_group_id]) rescue nil
+          if !group.nil? && group.owner.id == @current_user.id
+            group.users.each do |user|
+              # TODO: not here though..
+              # need to make sure when group users are referenced for various actions, such as here, that the group users are also still friends with @current_user
+              # since they could be unfriended and still in the group, as of now..
+              if @current_user.friends.include?(user)
+                i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
+                  if !i.valid?
+                    return HESResponder(i.errors.full_messages, "ERROR")
+                  end
+                  i.save!
+                # do we need an error message if they aren't in the group anymore? shouldn't... should be taken care of soon as the unfriending occurs
+                # there's actually a validation check on invite..
+              end
+            end
+          else
+            return HESResponder("Group",  "NOT_FOUND")
+          end
+        else
+          i = event.invites.build(:invited_user_id => invite[:invited_user_id], :inviter_user_id => @current_user.id)
+          if !i.valid?
+            return HESResponder(i.errors.full_messages, "ERROR")
+          end
+          i.save!
         end
-        i.save!
       end
     end
     return HESResponder(event)
