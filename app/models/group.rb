@@ -7,11 +7,10 @@ class Group < ApplicationModel
   belongs_to :owner, :class_name => "User", :foreign_key => "owner_id"
 
   has_many :group_users
-  has_many :users, :through => :group_users, :in_json => true
+  has_many :users, :through => :group_users
   accepts_nested_attributes_for :group_users, :users
 
   validates_presence_of :name
-
 
   # Overrides serializable_hash so that only questions that are turned on are returned
   #def serializable_hash(options = {})

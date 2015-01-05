@@ -7,8 +7,8 @@ class Invite < ApplicationModel
   STATUS = {
     :unresponded  => 0,
     :maybe        => 1,
-    :yes          => 2,
-    :no           => 3
+    :attending    => 2,
+    :declined     => 3
   }
   
   belongs_to :event
@@ -19,6 +19,15 @@ class Invite < ApplicationModel
 
   def set_default_values
     self.status ||= Invite::STATUS[:unresponded]
+  end
+
+  validate :we_are_friends
+  def we_are_friends
+    if self.inviter.user? && !self.inviter.friends.include?(self.user)
+      errors.add(:base, "You can only invite your friends to events.")
+      return false
+    end
+    return true
   end
 
 end

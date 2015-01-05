@@ -4,6 +4,18 @@ class EventsController < ApplicationController
   
   def index
     # TODO: this is definitely still broken, but getting better...
+    if !params[:status].nil?
+      if Invite::STATUS.stringify_keys.keys.include?(params[:status])
+        # ?status=[unresponded,maybe,yes,no]
+        e = @target_user.send(params[:status] + "_events")
+      elsif params[:status].is_i? && Invite::STATUS.values.include?(params[:status].to_i)
+        # ?status=[0,1,2,3]
+        e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events")
+      else
+        return HESResponder("No such status.", "ERROR")
+      end
+      return HESResponder(e)
+    end
     return HESResponder(@target_user.subscribed_events)
   end
 
@@ -11,8 +23,7 @@ class EventsController < ApplicationController
     event = Event.find(params[:id]) rescue nil
     return HESResponder("Event", "NOT_FOUND") if !event
     # TODO: privacy stuff here, probably quite similar to User::subscribed_events
-    return HESResponder(event)
-    if event.user.id == @current_user.id || @current_user.master?
+    if event.is_user_subscribed?(@current_user) || @current_user.master?
       return HESResponder(event)
     else
       return HESResponder("You may not view other users' events.", "DENIED")

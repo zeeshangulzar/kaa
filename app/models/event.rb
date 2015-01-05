@@ -50,4 +50,56 @@ class Event < ApplicationModel
     read_attribute(:end).to_i
   end
 
+  # very similar to User::subscribed_events, just switching some ids and adding a condition
+  # TODO: possibly consolidate the two?
+  def is_user_subscribed?(user)
+    user = user.class == User ? user : User.find(user) rescue nil
+    return false if user.nil?
+    sql = "
+SELECT
+COUNT(events.id) AS count
+FROM events
+LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{user.id})
+JOIN users on events.user_id = users.id
+JOIN profiles on profiles.user_id = users.id
+WHERE
+(
+  # my events
+  (
+    events.user_id = #{user.id}
+  )
+  OR
+  # my friends events with privacy = all_friends
+  (
+    (
+      events.user_id in (select friendee_id from friendships where (friender_id = #{user.id}) AND friendships.status = 'A')
+      OR
+      events.user_id in (select friender_id from friendships where (friendee_id = #{user.id}) AND friendships.status = 'A')
+    )
+    AND events.user_id <> #{user.id}
+    AND events.privacy = 'F'
+  )
+  OR
+  # events i'm invited to
+  (
+    my_invite.invited_user_id = #{user.id}
+  )
+  OR
+  # coordinator events in my area
+  (
+    events.event_type = 'C'
+    AND events.privacy = 'L'
+    AND (events.location_id IS NULL OR events.location_id = #{user.location_id})
+  )
+)
+AND
+(
+  events.id = #{self.id}
+)
+    "
+    count = Event.count_by_sql(sql)
+    return count > 0
+  end
+
+
 end
