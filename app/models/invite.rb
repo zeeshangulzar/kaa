@@ -1,8 +1,8 @@
 class Invite < ApplicationModel
 
   attr_privacy_no_path_to_user
-  attr_privacy :invited_user_id, :inviter_user_id, :status, :any_user
-  attr_accessible :event_id, :invited_user_id, :inviter_user_id, :status
+  attr_privacy :invited_user_id, :invited_group_id, :inviter_user_id, :status, :any_user
+  attr_accessible :event_id, :invited_user_id, :invited_group_id, :inviter_user_id, :status
 
   STATUS = {
     :unresponded  => 0,
