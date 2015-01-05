@@ -171,10 +171,11 @@ group_users.user_id = #{friend_id}
 
   def events_query(options = {})
     options = {
-      :type  => options[:type].nil? ? 'subscribed' : options[:type],
-      :start => !options[:start].nil? ? options[:start].is_a?(String) ? options[:start] : options[:start].utc.to_s(:db) : nil,
-      :end   => !options[:end].nil? ? options[:end].is_a?(String) ? options[:end] : options[:end].utc.to_s(:db) : nil,
-      :id    => options[:id].nil? ? nil : options[:id]
+      :type   => options[:type] ||= 'subscribed',
+      :start  => !options[:start].nil? ? options[:start].is_a?(String) ? options[:start] : options[:start].utc.to_s(:db) : nil,
+      :end    => !options[:end].nil? ? options[:end].is_a?(String) ? options[:end] : options[:end].utc.to_s(:db) : nil,
+      :id     => options[:id] ||= nil,
+      :return => options[:return] ||= 'array'
     }
     sql = "
 SELECT
@@ -315,11 +316,17 @@ WHERE
 )
 #{"AND events.start >= '" + options[:start] + "'" if !options[:start].nil?}
 #{"AND events.end <= '" + options[:end] + "'" if !options[:end].nil?}
-#{"AND events.id = " + options[:id] if !options[:id].nil?}
+#{"AND events.id = " + options[:id].to_s if !options[:id].nil?}
 GROUP BY events.id
 ORDER BY events.start ASC
     "
-    @result = Event.find_by_sql(sql)
+    case options[:return]
+      when 'count'
+        @result = Event.count_by_sql(sql)
+    else
+      # default/"array"
+      @result = Event.find_by_sql(sql)
+    end
     return @result
   end
 
