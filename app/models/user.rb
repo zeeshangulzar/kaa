@@ -314,7 +314,7 @@ WHERE
     sql += "
 )
 #{"AND events.start >= '" + options[:start] + "'" if !options[:start].nil?}
-#{"AND events.end >= '" + options[:end] + "'" if !options[:end].nil?}
+#{"AND events.end <= '" + options[:end] + "'" if !options[:end].nil?}
 #{"AND events.id = " + options[:id] if !options[:id].nil?}
 GROUP BY events.id
 ORDER BY events.start ASC
