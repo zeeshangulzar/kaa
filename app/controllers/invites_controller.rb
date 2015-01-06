@@ -51,7 +51,6 @@ class InvitesController < ApplicationController
     return HESResponder("Invite", "NOT_FOUND") if !invite
     # TODO: privacy stuff here
     return HESResponder(invite)
-    end
   end
 
   # Creates a single entry
@@ -105,7 +104,11 @@ class InvitesController < ApplicationController
           return HESResponder("Group",  "NOT_FOUND")
         end
       else
-        i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => @current_user.id)
+        if event.privacy == Event::PRIVACY[:all_friends] || event.privacy == Event::PRIVACY[:location] || @current_user.id == event.user_id 
+          i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => event.user_id)
+        else
+          return HESResponder("User not allowed to create invite for event", "ERROR")
+        end
         if !i.valid?
           return HESResponder(i.errors.full_messages, "ERROR")
         end
