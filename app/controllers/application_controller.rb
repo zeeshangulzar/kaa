@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     'ERROR'     => 422
   }
 
-  PAGE_SIZE = 2
+  PAGE_SIZE = 5
   
   MeEquivalents = ['-', 'me']
 
