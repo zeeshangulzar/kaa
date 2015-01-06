@@ -29,7 +29,14 @@ class LocationsController < ApplicationController
   #     "url": "http://api.hesapps.com/locations/1"
   #   }]
   def index
-    locations = @promotion.nested_locations
+    if !params[:location_id].nil?
+      location = Location.find(params[:location_id]) rescue nil
+      return HESResponder("Location", "NOT_FOUND") if !location
+      locations = location.locations
+    else
+      locations = @promotion.nested_locations
+    end
+
     return HESResponder(locations)
   end
 

@@ -50,8 +50,6 @@ class Event < ApplicationModel
     read_attribute(:end).to_i
   end
 
-  # very similar to User::subscribed_events, just switching some ids and adding a condition
-  # TODO: possibly consolidate the two?
   def is_user_subscribed?(user)
     user = user.class == User ? user : User.find(user) rescue nil
     return false if user.nil?

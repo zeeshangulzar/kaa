@@ -34,10 +34,10 @@ Go::Application.routes.draw do
   end
 
   # locations...
-  resources :locations
-  match '*locationable_type/*locationable_id/locations' => "locations#index", :via => :get
-  match '*locationable_type/*locationable_id/locations' => "locations#create", :via => :post
-  match '*locationable_type/*locationable_id/locations/upload' => "locations#upload", :via => :post
+  resources :locations do
+    resources :locations, :only => [:index, :show]
+  end
+  
 
   # friendships...
   resources :friendships

@@ -142,6 +142,8 @@ class InvitesController < ApplicationController
   #    "entry_activities" : [{}]
   #    "entry_exercise_activities" : [{}]
   #   }
+
+  # TODO: do this...
   def update
     @entry = @target_user.entries.find(params[:id])
     if @entry.user.id != @current_user.id && !@current_user.master?

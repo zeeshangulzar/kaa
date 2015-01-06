@@ -93,4 +93,5 @@ class Location < ApplicationModel
   def children
     return Location.where(:parent_location_id => self.id)
   end
+
 end
