@@ -8,6 +8,7 @@ class User < ApplicationModel
   attr_protected :role, :auth_key
   attr_privacy_no_path_to_user
   attr_privacy :email, :public
+  attr_privacy :location, :any_user
   attr_privacy :username, :tiles, :me
   attr_accessible :username, :tiles, :email, :username, :altid
 
