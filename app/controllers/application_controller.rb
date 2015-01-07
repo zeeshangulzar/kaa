@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     'ERROR'     => 422
   }
 
-  PAGE_SIZE = 5
+  PAGE_SIZE = 20
   
   MeEquivalents = ['-', 'me']
 
@@ -92,8 +92,11 @@ class ApplicationController < ActionController::Base
 
   def HESResponder2(body = 'AOK', status = 'OK', messages = nil)
     offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
+    page_size = !params[:page_size].nil? && params[:page_size].is_i? ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
+
     data = nil
-    record_count = 0
+    total_records = 0
+
     if status != 'OK'
       # we have an error of some sort..
       body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
@@ -116,29 +119,35 @@ class ApplicationController < ActionController::Base
         end
       end
 
-      record_count = body.respond_to?('size') ? body.size : 1
-      data = body.respond_to?('size') ? body.slice(offset, ApplicationController::PAGE_SIZE) : [body]
+      data = body.respond_to?('size') ? body.slice(offset, page_size) : [body]
+
+      total_records = body.respond_to?('size') ? body.size : 1
+      total_pages = (total_records.to_f / page_size.to_f).ceil
+      current_page = (offset.to_f / page_size.to_f).ceil + 1
 
       response = {
         root => {
           :data => data,
           :meta => {
-            :messages => messages,
+            :messages       => messages,
+            :page_size      => page_size,
+            :page           => current_page,
+            :total_pages    => total_pages,
+            :total_records  => total_records,
             :links   => {
-              :count    => record_count,
               :current  => request.fullpath
             }
           }
         }
       }
 
-      if record_count > ApplicationController::PAGE_SIZE
+      if total_records > page_size
         if offset > 0
-          prev_offset = (offset - ApplicationController::PAGE_SIZE) <= 0 ? nil : offset - ApplicationController::PAGE_SIZE
+          prev_offset = (offset - page_size) <= 0 ? nil : offset - page_size
           response[root][:meta][:links][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => prev_offset})
         end
-        if (offset + ApplicationController::PAGE_SIZE) < record_count
-          next_offset = offset + ApplicationController::PAGE_SIZE
+        if (offset + page_size) < total_records
+          next_offset = offset + page_size
           response[root][:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
         end
       end

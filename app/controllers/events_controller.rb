@@ -15,22 +15,22 @@ class EventsController < ApplicationController
         # ?status=[0, 1, 2, 3]
         e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events", options)
       else
-        return HESResponder("No such status.", "ERROR")
+        return HESResponder2("No such status.", "ERROR")
       end
     else
       e = @target_user.subscribed_events(options)
     end
-    return HESResponder(e)
+    return HESResponder2(e)
   end
 
   def show
     event = Event.find(params[:id]) rescue nil
-    return HESResponder("Event", "NOT_FOUND") if !event
+    return HESResponder2("Event", "NOT_FOUND") if !event
     # TODO: privacy stuff here, probably quite similar to User::subscribed_events
     if event.is_user_subscribed?(@current_user) || @current_user.master?
-      return HESResponder(event)
+      return HESResponder2(event)
     else
-      return HESResponder("You may not view other users' events.", "DENIED")
+      return HESResponder2("You may not view other users' events.", "DENIED")
     end
   end
 
@@ -38,7 +38,7 @@ class EventsController < ApplicationController
     invites = params[:event][:invites].nil? ? [] : params[:event].delete(:invites)
     event = @current_user.events.build(params[:event])
     if !event.valid?
-      return HESResponder(event.errors.full_messages, "ERROR")
+      return HESResponder2(event.errors.full_messages, "ERROR")
     end
     Event.transaction do
       event.save!
@@ -53,7 +53,7 @@ class EventsController < ApplicationController
               if @current_user.friends.include?(user)
                 i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
                   if !i.valid?
-                    return HESResponder(i.errors.full_messages, "ERROR")
+                    return HESResponder2(i.errors.full_messages, "ERROR")
                   end
                   i.save!
                 # do we need an error message if they aren't in the group anymore? shouldn't... should be taken care of soon as the unfriending occurs
@@ -61,44 +61,44 @@ class EventsController < ApplicationController
               end
             end
           else
-            return HESResponder("Group",  "NOT_FOUND")
+            return HESResponder2("Group",  "NOT_FOUND")
           end
         else
           i = event.invites.build(:invited_user_id => invite[:invited_user_id], :inviter_user_id => @current_user.id)
           if !i.valid?
-            return HESResponder(i.errors.full_messages, "ERROR")
+            return HESResponder2(i.errors.full_messages, "ERROR")
           end
           i.save!
         end
       end
     end
-    return HESResponder(event)
+    return HESResponder2(event)
   end
 
   def update
     event = Event.find(params[:id]) rescue nil
-    return HESResponder("Event", "NOT_FOUND") if !event
+    return HESResponder2("Event", "NOT_FOUND") if !event
     if !params[:event].nil? && !params[:event][:invites].nil?
       params[:event].delete(:invites)
     end
     Event.transaction do
       event.update_attributes(params[:event])
       if !event.valid?
-        return HESResponder(event.errors.full_messages, "ERROR")
+        return HESResponder2(event.errors.full_messages, "ERROR")
       end
       event.save!
     end
-    return HESResponder(event)
+    return HESResponder2(event)
   end
 
   def destroy
     event = Event.find(params[:id]) rescue nil
     if !event
-      return HESResponder("Event", "NOT_FOUND")
+      return HESResponder2("Event", "NOT_FOUND")
     elsif (event.user_id == @current_user.id || @current_user.master?) && event.destroy
-      return HESResponder(event)
+      return HESResponder2(event)
     else
-      return HESResponder("Error deleting.", "ERROR")
+      return HESResponder2("Error deleting.", "ERROR")
     end
   end
 
