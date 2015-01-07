@@ -178,9 +178,8 @@ group_users.user_id = #{friend_id}
       :id     => options[:id] ||= nil,
       :return => options[:return] ||= 'array'
     }
+    # select statement is at the end of this function..
     sql = "
-SELECT
-events.*, COUNT(DISTINCT all_invites.id) AS total_invites
 FROM events
 LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
 LEFT JOIN invites all_invites ON all_invites.event_id = events.id
@@ -323,9 +322,17 @@ ORDER BY events.start ASC
     "
     case options[:return]
       when 'count'
+      sql = "
+SELECT
+COUNT(DISTINCT(events.id)) AS total_events
+" + sql
         @result = Event.count_by_sql(sql)
     else
       # default/"array"
+      sql = "
+SELECT
+events.*, COUNT(DISTINCT all_invites.id) AS total_invites
+" + sql
       @result = Event.find_by_sql(sql)
     end
     return @result

@@ -15,6 +15,14 @@ class Invite < ApplicationModel
   belongs_to :inviter, :class_name => "User", :foreign_key => "inviter_user_id"
   belongs_to :user, :class_name => "User", :foreign_key => "invited_user_id", :in_json => true
 
+  STATUS.each_pair do |key, value|
+    self.send(:scope, key, where(:status => value))
+  end
+
+  STATUS.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.status == value })
+  end
+
   before_create :set_default_values
 
   def set_default_values

@@ -8,6 +8,8 @@ class Location < ApplicationModel
   attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :depth, :created_at, :updated_at, :locations, :public
   attr_privacy_no_path_to_user
 
+  has_many :users, :conditions => proc { "users.location_id = #{self.id} OR users.location_id IN (SELECT id FROM locations WHERE parent_location_id = #{self.id})" }
+
   flags :has_content
 
   def depth

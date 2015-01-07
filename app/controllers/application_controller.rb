@@ -157,6 +157,8 @@ class ApplicationController < ActionController::Base
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
 
     render :json => response, :status => code and return
+
+    #render :json => MultiJson.dump(response) and return
   end
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be
