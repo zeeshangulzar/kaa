@@ -18,14 +18,14 @@ class InvitesController < ApplicationController
   #   }]
   def index
     if !params[:event_id]
-      return HESResponder("Must pass an event.", "ERROR")
+      return HESResponder2("Must pass an event.", "ERROR")
     end
     # TODO: privacy needed here..
     event = Event.find(params[:event_id]) rescue nil
     if !event
-      return HESResponder("Event", "NOT_FOUND")
+      return HESResponder2("Event", "NOT_FOUND")
     end
-    return HESResponder(event.invites)
+    return HESResponder2(event.invites)
   end
 
   # Gets a single entry for a team
@@ -48,9 +48,9 @@ class InvitesController < ApplicationController
   #   }
   def show
     invite = Invite.find(params[:id]) rescue nil
-    return HESResponder("Invite", "NOT_FOUND") if !invite
+    return HESResponder2("Invite", "NOT_FOUND") if !invite
     # TODO: privacy stuff here
-    return HESResponder(invite)
+    return HESResponder2(invite)
   end
 
   # Creates a single entry
@@ -77,7 +77,7 @@ class InvitesController < ApplicationController
     # TODO: error when user has already been invited
     event = Event.find(params[:invite][:event_id]) rescue nil
     if !event
-      return HESResponder("Event", "NOT_FOUND")
+      return HESResponder2("Event", "NOT_FOUND")
     end
     Invite.transaction do
       if params[:invite][:invited_user_id].nil? && !params[:invite][:invited_group_id].nil?
@@ -91,7 +91,7 @@ class InvitesController < ApplicationController
             if @current_user.friends.include?(user)
               i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
               if !i.valid?
-                return HESResponder(i.errors.full_messages, "ERROR")
+                return HESResponder2(i.errors.full_messages, "ERROR")
               end
               i.save!
               invites.push(i)
@@ -99,100 +99,41 @@ class InvitesController < ApplicationController
               # there's actually a validation check on invite..
             end
           end
-          return HESResponder(invites)
+          return HESResponder2(invites)
         else
-          return HESResponder("Group",  "NOT_FOUND")
+          return HESResponder2("Group",  "NOT_FOUND")
         end
       else
         if event.privacy == Event::PRIVACY[:all_friends] || event.privacy == Event::PRIVACY[:location] || @current_user.id == event.user_id 
           i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => event.user_id)
         else
-          return HESResponder("User not allowed to create invite for event", "ERROR")
+          return HESResponder2("User not allowed to create invite for event", "ERROR")
         end
         if !i.valid?
-          return HESResponder(i.errors.full_messages, "ERROR")
+          return HESResponder2(i.errors.full_messages, "ERROR")
         end
         i.save!
-        return HESResponder(i)
       end
     end
+    return HESResponder2(i)
   end
-
-  # Updates a single entry
-  #
-  # @example
-  #  #PUT /entries/1
-  #  {
-  #    exercise_minutes: 45,
-  #    notes: "Eliptical machine while reading Fitness magazine"
-  #  }
-  #
-  # @param [Integer] id of the entry
-  # @return [Entry] that was just updated
-  #
-  # [URL] /entries [PUT]
-  #  [202 ACCEPTED] Successfully updated Entry object
-  #   # Example response
-  #   {
-  #    "user_id": 1,
-  #    "exercise_minutes": 45,
-  #    "is_recorded": true
-  #    "recorded_on": "2012-11-21"
-  #    "notes": "Eliptical machine while reading Fitness magazine"
-  #    "entry_activities" : [{}]
-  #    "entry_exercise_activities" : [{}]
-  #   }
-
-  # TODO: do this...
+  
   def update
-    @entry = @target_user.entries.find(params[:id])
-    if @entry.user.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not edit this entry.", "DENIED")
+    invite = Invite.find(params[:id]) rescue nil
+    if !invite
+      return HESResponder2("Invite", "NOT_FOUND")
     end
-    Entry.transaction do
-      entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
-      if !entry_ex_activities.nil?
-        
-        ids = entry_ex_activities.nil? ? [] : entry_ex_activities.map{|x| x[:id]}
-        remove_activities = @entry.entry_exercise_activities.reject{|x| ids.include? x.id}
 
-        remove_activities.each do |act|
-          # Remove from array and delete from db
-           @entry.entry_exercise_activities.delete(act).first.destroy
-        end
+    params[:invite] = params[:invite].delete_if{|k,v|k != 'status'}
 
-        entry_ex_activities.each do |entry_ex_act|
-          if entry_ex_act[:id]
-            eea = @entry.entry_exercise_activities.detect{|x|x.id==entry_ex_act[:id].to_i}
-            eea.update_attributes(scrub(entry_ex_act, EntryExerciseActivity))
-          else
-            @entry.entry_exercise_activities.create(scrub(entry_ex_act, EntryExerciseActivity))
-          end
-        end
+    Invite.transaction do
+      invite.update_attributes(params[:invite])
+      if !invite.valid?
+        return HESResponder2(invite.errors.full_messages, "ERROR")
       end
-
-      entry_behaviors = params[:entry].delete(:entry_behaviors)
-      if !entry_behaviors.nil?
-        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x.id}
-        remove_behaviors = @entry.entry_behaviors.reject{|x| ids.include? x.id}
-
-        remove_behaviors.each do |act|
-          @entry.entry_behaviors.delete(act).first.destroy
-        end
-
-         entry_behaviors.each do |entry_behavior|
-          if entry_behavior[:id]
-            eb = @entry.entry_behaviors.detect{|x|x.id==entry_behavior[:id].to_i}
-            eb.update_attributes(scrub(entry_behavior, EntryBehavior))
-          else
-            @entry.entry_behaviors.create(scrub(entry_behavior, EntryBehavior))
-          end
-        end
-      end 
-
-      @entry.save!
-      @entry.update_attributes(scrub(params[:entry], Entry))
-    end 
-    return HESResponder(@entry)
+      invite.save!
+    end
+    return HESResponder2(invite)
   end
+
 end

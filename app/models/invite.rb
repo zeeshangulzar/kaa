@@ -30,4 +30,19 @@ class Invite < ApplicationModel
     return true
   end
 
+  validate :status_valid
+  def status_valid
+    if !Invite::STATUS.values.include?(self.status.to_i)
+      errors.add(:base, "Invalid status")
+      return false
+    end
+    return true
+  end
+
+  # TODO: temporary..
+  def as_json(options = nil)
+    return AM_as_json(options)
+  end
+
+
 end
