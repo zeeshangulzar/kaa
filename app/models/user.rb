@@ -29,6 +29,7 @@ class User < ApplicationModel
   can_post
   can_like
 
+  has_many :messages, :class_name => "ChatMessage", :conditions => proc { "(user_id = #{self.id} OR friend_id = #{self.id})" }
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
