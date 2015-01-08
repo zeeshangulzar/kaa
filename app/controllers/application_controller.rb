@@ -109,12 +109,12 @@ class ApplicationController < ActionController::Base
       # get the class.table_name for the root node name
       if body.is_a?(Array) || body.is_a?(Hash)
         # ActiveRecord collection
-        if !body.first.nil? && !body.first.class.nil? && !body.first.class.table_name.nil?
+        if !body.first.nil? && !body.first.class.nil? && !body.first.class.respond_to?('table_name')
           root = body.first.class.table_name.to_s
         end
       else
         # Single ActiveRecord
-        if !body.class.nil? && !body.class.table_name.nil?
+        if !body.class.nil? && body.class.respond_to?('table_name')
           root = body.class.table_name.to_s
         end
       end
