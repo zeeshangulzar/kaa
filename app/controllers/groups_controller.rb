@@ -5,6 +5,17 @@ class GroupsController < ApplicationController
     if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not view user's groups.", "DENIED")
     else
+      # TODO: make ?exclude=users,etc. work...
+#      if !params[:exclude].nil?
+#        exclusions = params[:exclude].split(',')
+#        exclusions.each do |exclusion|
+#          ex_sym = exclusion.to_sym
+#          if Group.reflect_on_all_associations().detect{|assoc| assoc.name == ex_sym}
+#            Group.attr_privacy ex_sym, :hidden
+#            #Group.associations_in_json.delete(ex_sym)
+#          end
+#        end
+#      end
       return HESResponder(@target_user.groups)
     end
   end

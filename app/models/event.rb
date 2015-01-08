@@ -25,10 +25,21 @@ class Event < ApplicationModel
   validates_presence_of :name, :description, :start, :end
 
   before_create :set_default_values
+  before_create :fix_timestamps
+  before_update :fix_timestamps
 
   def set_default_values
     self.event_type ||= Event::TYPE[:user]
     self.privacy ||= Event::PRIVACY[:owner]
+  end
+
+  def fix_timestamps
+    if self.start.is_a?(Integer)
+      self.start = Time.at(self.start).to_datetime
+    end
+    if self.end.is_a?(Integer)
+      self.end = Time.at(self.end).to_datetime
+    end
   end
 
   def start
@@ -37,6 +48,46 @@ class Event < ApplicationModel
 
   def end
     read_attribute(:end).to_i
+  end
+
+  def is_user_subscribed?(user)
+    user = user.class == User ? user : User.find(user) rescue nil
+    return false if user.nil?
+    count = user.events_query({:type => "subscribed", :id => self.id, :return => 'count'})
+    return count > 0
+  end
+
+  # TODO: temporary..
+  def as_json(options = nil)
+    options = {:methods => ["attendance"]}
+    return AM_as_json(options)
+  end
+
+  def attendance
+    hash = Invite::STATUS.clone
+    hash.each{|k,v| hash[k] = 0}
+
+    Invite::STATUS.each{|k,v|
+      hash[k] = self.invites.send(k).size
+    }
+
+    if self.event_type == Event::TYPE[:coordinator] && self.privacy == Event::PRIVACY[:location]
+      # get all users in location and children locations
+      total_users = !self.location.nil? ? self.location.users.count : self.user.promotion.users.count
+      total_users += -1 # minus 1 for the coordinator
+    elsif self.event_type == Event::TYPE[:user] && self.privacy == Event::PRIVACY[:all_friends]
+      # get all user's friends
+      total_users = self.user.friends.count
+    else
+      total_users = hash.values.sum
+    end
+
+    additional_unresponded = total_users - hash.values.sum
+
+    hash[:unresponded] += additional_unresponded
+
+    return JSON.parse(hash.to_json)
+
   end
 
 end

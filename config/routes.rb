@@ -21,6 +21,7 @@ Go::Application.routes.draw do
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
 
+  match 'groups/*group_id/users' => 'group_users#index', :via => :get
   resources :groups do
     resources :group_users, :only => [:index, :show]
   end
@@ -33,10 +34,10 @@ Go::Application.routes.draw do
   end
 
   # locations...
-  resources :locations
-  match '*locationable_type/*locationable_id/locations' => "locations#index", :via => :get
-  match '*locationable_type/*locationable_id/locations' => "locations#create", :via => :post
-  match '*locationable_type/*locationable_id/locations/upload' => "locations#upload", :via => :post
+  resources :locations do
+    resources :locations, :only => [:index, :show]
+  end
+  
 
   # friendships...
   resources :friendships

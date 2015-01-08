@@ -4,30 +4,30 @@ class ChallengesSentController < ApplicationController
 
   def index
     if @target_user.id != @current_user.id && !@current_user.master?
-      return HESResponder("You can't view other peoples challenges.", "DENIED")
+      return HESResponder2("You can't view other peoples challenges.", "DENIED")
     else
-      return HESResponder(@target_user.challenges_sent)
+      return HESResponder2(@target_user.challenges_sent)
     end
   end
 
   def show
     challenge_sent = ChallengeSent.find(params[:id])
     if !challenge_sent
-      return HESResponder("Challenge", "NOT_FOUND")
+      return HESResponder2("Challenge", "NOT_FOUND")
     elsif (challenge_sent.user.id != @current_user.id) && !@current_user.master?
-      return HESResponder("You may not view this challenge.", "DENIED")
+      return HESResponder2("You may not view this challenge.", "DENIED")
     else
-      return HESResponder(challenge_sent)
+      return HESResponder2(challenge_sent)
     end
   end
 
   def create
     challenge_sent = @current_user.challenges_sent.build(params[:challenge_sent])
     if !challenge_sent.valid?
-      return HESResponder(challenge_sent.errors.full_messages, "ERROR")
+      return HESResponder2(challenge_sent.errors.full_messages, "ERROR")
     else
       if challenge_sent.user.id != @current_user.id && !@current_user.master?
-        return HESResponder("Warning: Attempting impersonation. Activity logged.", "ERROR")
+        return HESResponder2("Warning: Attempting impersonation. Activity logged.", "ERROR")
       end
 
 
@@ -60,9 +60,9 @@ class ChallengesSentController < ApplicationController
           challenge_sent.save!
         end
         if !challenge_sent.errors.empty?
-          return HESResponder(challenge_sent.errors.full_messages, "ERROR")
+          return HESResponder2(challenge_sent.errors.full_messages, "ERROR")
         end
-        return HESResponder(challenge_sent)
+        return HESResponder2(challenge_sent)
 
 
  #     end

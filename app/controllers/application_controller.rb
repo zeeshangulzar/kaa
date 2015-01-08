@@ -12,6 +12,8 @@ class ApplicationController < ActionController::Base
     'NOT_FOUND' => 404,
     'ERROR'     => 422
   }
+
+  PAGE_SIZE = 20
   
   MeEquivalents = ['-', 'me']
 
@@ -80,15 +82,83 @@ class ApplicationController < ActionController::Base
       # status is OK and body is a string..
       response = {:message => body}
     else
-      if body.is_a?(Array)
-        # ActiveRecord collection
-      else
-        # Single ActiveRecord
-      end
       response = body
     end
+
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
+
     render :json => response, :status => code and return
+  end
+
+  def HESResponder2(body = 'AOK', status = 'OK', messages = nil)
+    offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
+    page_size = !params[:page_size].nil? && params[:page_size].is_i? ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
+
+    data = nil
+    total_records = 0
+
+    if status != 'OK'
+      # we have an error of some sort..
+      body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
+      body = [body] if !body.is_a?(Array)
+      response = {:errors => body}
+    elsif body.is_a?(String)
+      # status is OK and body is a string..
+      response = {:message => body}
+    else
+      # get the class.table_name for the root node name
+      if body.is_a?(Array) || body.is_a?(Hash)
+        # ActiveRecord collection
+        if !body.first.nil? && !body.first.class.nil? && !body.first.class.table_name.nil?
+          root = body.first.class.table_name.to_s
+        end
+      else
+        # Single ActiveRecord
+        if !body.class.nil? && !body.class.table_name.nil?
+          root = body.class.table_name.to_s
+        end
+      end
+
+      data = body.respond_to?('size') ? body.slice(offset, page_size) : [body]
+
+      total_records = body.respond_to?('size') ? body.size : 1
+      total_pages = (total_records.to_f / page_size.to_f).ceil
+      current_page = (offset.to_f / page_size.to_f).ceil + 1
+
+      response = {
+        root => {
+          :data => data,
+          :meta => {
+            :messages       => messages,
+            :page_size      => page_size,
+            :page           => current_page,
+            :total_pages    => total_pages,
+            :total_records  => total_records,
+            :links   => {
+              :current  => request.fullpath
+            }
+          }
+        }
+      }
+
+      if total_records > page_size
+        if offset > 0
+          prev_offset = (offset - page_size) <= 0 ? nil : offset - page_size
+          response[root][:meta][:links][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => prev_offset})
+        end
+        if (offset + page_size) < total_records
+          next_offset = offset + page_size
+          response[root][:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
+        end
+      end
+
+    end
+
+    code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
+
+    render :json => response, :status => code and return
+
+    #render :json => MultiJson.dump(response) and return
   end
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be
@@ -102,6 +172,20 @@ class ApplicationController < ActionController::Base
 
   def get_user
     return @current_user
+  end
+
+  def url_replace(url, options = {})
+    uri = URI.parse(URI.encode(url))
+    hquery = !uri.query.nil? ? CGI::parse(uri.query) : {}
+    components = Hash[uri.component.map { |key| [key, uri.send(key)] }]
+    new_hquery = hquery.merge(options[:merge_query] || {}).select { |k, v| v }.map{|v|v.join('=')}
+    new_query = new_hquery.join("&")
+    new_components = {
+      :path  => options[:path] || uri.path,
+      :query => new_query
+    }
+    new_uri = URI::Generic.build(components.merge(new_components))
+    URI.decode(new_uri.to_s)
   end
 
 end

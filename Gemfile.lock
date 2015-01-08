@@ -89,7 +89,6 @@ GEM
     rake (10.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    redis (3.0.4)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rmagick (2.13.2)
@@ -118,5 +117,4 @@ DEPENDENCIES
   mysql2
   rack-cors
   rails (= 3.2.19)
-  redis
   rmagick (~> 2.13)

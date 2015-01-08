@@ -19,3 +19,6 @@
 
 # Ignore netbeans
 /nbproject/*
+
+# ignore schema
+/db/schema.rb
