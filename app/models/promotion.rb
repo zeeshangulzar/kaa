@@ -100,7 +100,7 @@ class Promotion < ApplicationModel
     location.children.each do |child|
       location[:locations] = [] if location[:locations].nil?
       child = self.get_kids(child, parents.dup)
-      location[:locations].push(child)
+      location['locations'].push(child)
     end
     return location
   end

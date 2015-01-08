@@ -59,3 +59,4 @@ gem "hes-events"
 # gem "hes-detail", '0.0.4'
 # gem "hes-filter-attributes", '0.0.4'
 # gem "hes-api-documenter"
+gem 'oj'

@@ -34,7 +34,8 @@ class LocationsController < ApplicationController
       return HESResponder("Location", "NOT_FOUND") if !location
       locations = location.locations
     else
-      locations = @promotion.nested_locations
+      # TODO: does this break anything?
+      locations = @promotion.nested_locations.as_json(:include => :locations)
     end
 
     return HESResponder(locations)

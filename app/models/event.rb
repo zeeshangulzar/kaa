@@ -66,10 +66,9 @@ class Event < ApplicationModel
   def attendance
     hash = Invite::STATUS.clone
     hash.each{|k,v| hash[k] = 0}
-
-    Invite::STATUS.each{|k,v|
-      hash[k] = self.invites.send(k).size
-    }
+    sql = "SELECT invites.status, COUNT(DISTINCT(invites.invited_user_id)) AS users FROM invites WHERE invites.event_id = #{self.id} GROUP BY invites.status"
+    res = ActiveRecord::Base.connection.select_rows(sql)
+    res.each{|row|hash[Invite::STATUS.index(row[0].to_i)] = row[1]}
 
     if self.event_type == Event::TYPE[:coordinator] && self.privacy == Event::PRIVACY[:location]
       # get all users in location and children locations
@@ -83,11 +82,9 @@ class Event < ApplicationModel
     end
 
     additional_unresponded = total_users - hash.values.sum
-
     hash[:unresponded] += additional_unresponded
 
     return JSON.parse(hash.to_json)
-
   end
 
 end

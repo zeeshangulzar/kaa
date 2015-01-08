@@ -3,6 +3,7 @@ class EventsController < ApplicationController
   authorize :all, :user
   
   def index
+    return HESResponder2("You can't view other users' events.", "DENIED") if @target_user.id != @current_user.id && !@current_user.master?
     options = {
       :start => params[:start].nil? ? @promotion.current_time.beginning_of_month : params[:start].is_i? ? Time.at(params[:start].to_i).to_datetime : params[:start].to_datetime,
       :end => params[:end].nil? ? @promotion.current_time.end_of_month : params[:end].is_i? ? Time.at(params[:end.to_i]).to_datetime : params[:end].to_datetime
