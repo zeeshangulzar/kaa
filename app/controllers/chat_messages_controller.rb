@@ -1,5 +1,5 @@
 class ChatMessagesController < ApplicationController
-  authorize :index, :create, :user
+  authorize :index, :create, :show, :update, :user
 
   def index
     return HESResponder2(@current_user.messages)
