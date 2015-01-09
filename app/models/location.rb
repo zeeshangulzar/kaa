@@ -1,11 +1,11 @@
 class Location < ApplicationModel
   belongs_to :promotion
   belongs_to :parent_location, :class_name=>'Location'
-  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'sequence', :in_json => true
+  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'sequence'
   has_many :contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is null'
   has_many :truncated_contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is not null'
   attr_accessible *column_names
-  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :depth, :created_at, :updated_at, :locations, :public
+  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :depth, :created_at, :updated_at, :public
   attr_privacy_no_path_to_user
 
   has_many :users, :conditions => proc { "users.location_id = #{self.id} OR users.location_id IN (SELECT id FROM locations WHERE parent_location_id = #{self.id})" }
@@ -94,6 +94,11 @@ class Location < ApplicationModel
 
   def children
     return Location.where(:parent_location_id => self.id)
+  end
+
+  def as_json(options = {})
+    options[:except] ||= :locations
+    super
   end
 
 end

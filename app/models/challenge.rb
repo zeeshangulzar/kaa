@@ -1,6 +1,6 @@
 class Challenge < ApplicationModel
   self.inheritance_column = 'column_that_is_not_type'
-  attr_privacy :promotion_id, :name, :description, :type, :location_id, :any_user
+  attr_privacy :promotion_id, :name, :description, :type, :location_id, :location, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
   

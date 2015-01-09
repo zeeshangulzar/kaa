@@ -46,20 +46,23 @@ class ApplicationModel < ActiveRecord::Base
 
     tables = ApplicationModel.connection.tables
 
-
     hash.keys.each do |key|
       if tables.include?(key) && hash[key].is_a?(Array)
         data = hash[key].clone
+        total_pages = (data.size.to_f / ApplicationController::PAGE_SIZE.to_f).ceil
         hash[key] = {
           :data => data.first(ApplicationController::PAGE_SIZE),
           :meta => {
-            :count => data.size,
+            :messages       => nil,
+            :page_size      => ApplicationController::PAGE_SIZE,
+            :page           => 1,
+            :total_pages    => total_pages,
+            :total_records  => data.size,
             :links  => {
               :current   => '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s
             }
           }
         }
-
         if data.size > ApplicationController::PAGE_SIZE
           hash[key][:meta][:links][:next] = '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s + '?offset=' + ApplicationController::PAGE_SIZE.to_s
         end

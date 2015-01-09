@@ -97,4 +97,6 @@ Go::Application.routes.draw do
   end
   resources :invites
 
+  resources :chat_messages
+
 end

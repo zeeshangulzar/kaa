@@ -109,12 +109,12 @@ class ApplicationController < ActionController::Base
       # get the class.table_name for the root node name
       if body.is_a?(Array) || body.is_a?(Hash)
         # ActiveRecord collection
-        if !body.first.nil? && !body.first.class.nil? && !body.first.class.table_name.nil?
+        if !body.first.nil? && !body.first.class.nil? && !body.first.class.respond_to?('table_name')
           root = body.first.class.table_name.to_s
         end
       else
         # Single ActiveRecord
-        if !body.class.nil? && !body.class.table_name.nil?
+        if !body.class.nil? && body.class.respond_to?('table_name')
           root = body.class.table_name.to_s
         end
       end
@@ -151,14 +151,9 @@ class ApplicationController < ActionController::Base
           response[root][:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
         end
       end
-
     end
-
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
-
-    render :json => response, :status => code and return
-
-    #render :json => MultiJson.dump(response) and return
+    render :json => MultiJson.dump(response), :status => code and return
   end
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be

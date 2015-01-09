@@ -2,12 +2,12 @@ class ChallengeSent < ApplicationModel
   self.table_name = "challenges_sent"
   attr_privacy_path_to_user :user
   attr_accessible :user_id, :challenge_id, :to_user_id, :to_group_id, :created_at, :updated_at
-  attr_privacy :user, :challenge, :challenged_user, :challenged_group, :created_at, :updated_at, :me
+  attr_privacy :challenge, :challenged_user, :challenged_group, :created_at, :updated_at, :user_id, :me
   
   belongs_to :user
-  belongs_to :challenge, :in_json => true
-  belongs_to :challenged_user, :class_name => "User", :foreign_key => "to_user_id", :in_json => true
-  belongs_to :challenged_group, :class_name => "Group", :foreign_key => "to_group_id", :in_json => true
+  belongs_to :challenge
+  belongs_to :challenged_user, :class_name => "User", :foreign_key => "to_user_id"
+  belongs_to :challenged_group, :class_name => "Group", :foreign_key => "to_group_id"
 
   validates :user, :presence => true
   validates :challenge, :presence => true
