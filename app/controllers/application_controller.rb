@@ -106,18 +106,18 @@ class ApplicationController < ActionController::Base
       # status is OK and body is a string..
       response = {:message => body}
     else
-      # get the class.table_name for the root node name
-      if body.is_a?(Array) || body.is_a?(Hash)
-        # ActiveRecord collection
-        if !body.first.nil? && !body.first.class.nil? && !body.first.class.respond_to?('table_name')
-          root = body.first.class.table_name.to_s
-        end
-      else
-        # Single ActiveRecord
-        if !body.class.nil? && body.class.respond_to?('table_name')
-          root = body.class.table_name.to_s
-        end
-      end
+#      # get the class.table_name for the root node name
+#      if body.is_a?(Array) || body.is_a?(Hash)
+#        # ActiveRecord collection
+#        if !body.first.nil? && !body.first.class.nil? && !body.first.class.respond_to?('table_name')
+#          root = body.first.class.table_name.to_s
+#        end
+#      else
+#        # Single ActiveRecord
+#        if !body.class.nil? && body.class.respond_to?('table_name')
+#          root = body.class.table_name.to_s
+#        end
+#      end
 
       data = body.respond_to?('size') ? body.slice(offset, page_size) : [body]
 
@@ -126,17 +126,15 @@ class ApplicationController < ActionController::Base
       current_page = (offset.to_f / page_size.to_f).ceil + 1
 
       response = {
-        root => {
-          :data => data,
-          :meta => {
-            :messages       => messages,
-            :page_size      => page_size,
-            :page           => current_page,
-            :total_pages    => total_pages,
-            :total_records  => total_records,
-            :links   => {
-              :current  => request.fullpath
-            }
+        :data => data,
+        :meta => {
+          :messages       => messages,
+          :page_size      => page_size,
+          :page           => current_page,
+          :total_pages    => total_pages,
+          :total_records  => total_records,
+          :links   => {
+            :current  => request.fullpath
           }
         }
       }
@@ -144,11 +142,11 @@ class ApplicationController < ActionController::Base
       if total_records > page_size
         if offset > 0
           prev_offset = (offset - page_size) <= 0 ? nil : offset - page_size
-          response[root][:meta][:links][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => prev_offset})
+          response[:meta][:links][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => prev_offset})
         end
         if (offset + page_size) < total_records
           next_offset = offset + page_size
-          response[root][:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
+          response[:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
         end
       end
     end
