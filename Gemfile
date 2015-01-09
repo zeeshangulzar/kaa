@@ -60,4 +60,4 @@ gem "hes-events"
 # gem "hes-filter-attributes", '0.0.4'
 # gem "hes-api-documenter"
 gem "redis", :group => [:development, :production]
-gem 'oj'
+# gem 'oj'
