@@ -20,10 +20,10 @@ class InvitesController < ApplicationController
     if !params[:event_id]
       return HESResponder2("Must pass an event.", "ERROR")
     end
-    # TODO: privacy needed here..
     event = Event.find(params[:event_id]) rescue nil
-    if !event
-      return HESResponder2("Event", "NOT_FOUND")
+    return HESResponder2("Event", "NOT_FOUND") if !event
+    if !@current_user.master? && !event.is_user_subscribed?(@current_user)
+      return HESResponder2("You may not view this event.", "DENIED")
     end
     return HESResponder2(event.invites)
   end
@@ -49,7 +49,9 @@ class InvitesController < ApplicationController
   def show
     invite = Invite.find(params[:id]) rescue nil
     return HESResponder2("Invite", "NOT_FOUND") if !invite
-    # TODO: privacy stuff here
+    if !@current_user.master? && !invite.event.is_user_subscribed?(@current_user)
+      return HESResponder2("You may not view this event.", "DENIED")
+    end
     return HESResponder2(invite)
   end
 

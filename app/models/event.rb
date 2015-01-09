@@ -4,7 +4,7 @@ class Event < ApplicationModel
   attr_privacy :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :any_user
   attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :invites
   
-  has_many :invites, :in_json => true
+  has_many :invites
   accepts_nested_attributes_for :invites
 
   belongs_to :location, :in_json => true
@@ -58,8 +58,8 @@ class Event < ApplicationModel
   end
 
   # TODO: temporary..
-  def as_json(options = nil)
-    options = {:methods => ["attendance"]}
+  def as_json(options = {})
+    options = options.merge({:methods => ["attendance"]})
     return AM_as_json(options)
   end
 
