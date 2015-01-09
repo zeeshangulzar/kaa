@@ -248,27 +248,9 @@ WHERE
     events.user_id = #{self.id}
   )
   OR
-  # my friends events with privacy = all_friends
+  # my invites
   (
-    (
-      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-      OR
-      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
-    )
-    AND events.user_id <> #{self.id}
-    AND events.privacy = 'F'
-  )
-  OR
-  # events i'm invited to
-  (
-    my_invite.invited_user_id = #{self.id}
-  )
-  OR
-  # coordinator events in my area
-  (
-    events.event_type = 'C'
-    AND events.privacy = 'L'
-    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+    my_invite.status = #{Invite::STATUS[:attending]}
   )
         "
       when 'declined'
