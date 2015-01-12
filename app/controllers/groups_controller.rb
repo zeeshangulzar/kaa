@@ -73,7 +73,7 @@ class GroupsController < ApplicationController
       if group.owner.id != @current_user.id && !@current_user.master?
         return HESResponder("You may not edit this group.", "DENIED")
       end
-      params[:group].delete(:users) if !params[:group].nil? && !params[:group][:users].nil?
+      params[:group].delete(:group_users) if !params[:group].nil? && !params[:group][:group_users].nil?
       Group.transaction do
         group.update_attributes(params[:group])
       end
