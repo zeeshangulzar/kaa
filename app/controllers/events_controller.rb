@@ -4,10 +4,10 @@ class EventsController < ApplicationController
   
   def index
     return HESResponder2("You can't view other users' events.", "DENIED") if @target_user.id != @current_user.id && !@current_user.master?
-    options = {
-      :start => params[:start].nil? ? @promotion.current_time.beginning_of_month : params[:start].is_i? ? Time.at(params[:start].to_i).to_datetime : params[:start].to_datetime,
-      :end => params[:end].nil? ? @promotion.current_time.end_of_month : params[:end].is_i? ? Time.at(params[:end.to_i]).to_datetime : params[:end].to_datetime
-    }
+    options = {}
+    options[:start] = params[:start].nil? ? @promotion.current_time.beginning_of_month : (params[:start].is_i? ? Time.at(params[:start].to_i).to_datetime : params[:start].to_datetime)
+    options[:end] = params[:end].nil? ? (!params[:start].nil? ? options[:start].end_of_month : @promotion.current_time.end_of_month) : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_datetime : params[:end].to_datetime)
+
     if !params[:status].nil?
       if Invite::STATUS.stringify_keys.keys.include?(params[:status])
         # ?status=[unresponded, maybe, attending, declined]
@@ -21,7 +21,7 @@ class EventsController < ApplicationController
     else
       e = @target_user.subscribed_events(options)
     end
-    return HESResponder2(e)
+    return HESResponder2(e, "OK", nil, 0)
   end
 
   def show
