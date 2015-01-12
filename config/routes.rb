@@ -17,6 +17,7 @@ Go::Application.routes.draw do
     end
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
+    resources :success_stories, :only => [:index, :show]
   end
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
@@ -31,6 +32,8 @@ Go::Application.routes.draw do
     resources :activities, :only => [:index, :create, :show]
     resources :challenges, :only => [:index, :show]
     resources :suggested_challenges, :only => [:index, :show]
+    resources :posters, :only => [:index, :show]
+    resources :success_stories, :only => [:index, :show]
   end
 
   # locations...
@@ -98,5 +101,11 @@ Go::Application.routes.draw do
   resources :invites
 
   resources :chat_messages
+
+  resources :posters
+
+  match "/success_stories/featured" => "success_stories#featured", :via => :get
+  resources :success_stories
+  
 
 end

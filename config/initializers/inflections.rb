@@ -17,4 +17,5 @@
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable "ChallengesSent"
   inflect.uncountable "ChallengesReceived"
+  inflect.irregular 'success_story', 'success_stories'
 end

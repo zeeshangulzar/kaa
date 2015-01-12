@@ -10,4 +10,10 @@ class ChatMessage < ActiveRecord::Base
     where("user_id = :userid OR friend_id = :userid", :userid => userid).order(:created_at)
   end
 
+  before_create :set_default_values
+
+  def set_default_values
+    self.seen ||= false
+  end
+
 end
