@@ -14,7 +14,13 @@ class ChatMessagesController < ApplicationController
   end
 
   def create
-    @chat_message = @current_user.messages.create(params[:chat_message])
+    @chat_message = @current_user.messages.build(params[:chat_message])
+    if !@chat_message.valid?
+      return HESResponder2(@chat_message.errors.full_messages, "ERROR")
+    end
+    ChatMessage.transaction do
+      @chat_message.save!
+    end
     return HESResponder2(@chat_message)
   end
 
