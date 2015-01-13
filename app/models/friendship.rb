@@ -2,7 +2,7 @@
 class Friendship < ApplicationModel
   attr_accessible :friendee, :friender, :friender_id, :friender_type, :friendee_id, :friendee_type, :status, :friend_email
 
-  attr_privacy :friender_id, :friender_type, :friendee_id, :friendee_type, :status, :friend_email, :me
+  attr_privacy :friender_id, :friender_type, :friendee_id, :friendee, :friendee_type, :status, :friend_email, :sender_id, :me
   attr_privacy_path_to_user :friender
   
   attr_accessor :is_inverse
@@ -22,10 +22,10 @@ class Friendship < ApplicationModel
   # Any ActiveRecord model can be friendable and have friends
 
   # The user that has been friended
-  belongs_to :friendee, :polymorphic => true, :in_json => true
+  belongs_to :friendee, :polymorphic => true
 
   # The user that owns this relationship
-  belongs_to :friender, :polymorphic => true, :in_json => true
+  belongs_to :friender, :polymorphic => true
 
   # The user that ACTUALLY OWNS this relationship, when you create an inverse friendship
   # the friendee becomes the friender, in which case we don't know who sent the invite
