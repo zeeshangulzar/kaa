@@ -104,12 +104,18 @@ class UsersController < ApplicationController
     end
   end
 
-  # this might not be working yet..
   def search
-    search_string = "%#{params[:search_string]}%"
-    conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
-    p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
-    users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
+    search_string = params[:search_string].nil? ? params[:query] : params[:search_string]
+    if search_string.nil? || search_string.blank?
+      return HESResponder([])
+    end
+    if params[:unassociated].nil?
+      conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
+      p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
+      users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
+    else
+      users = @current_user.unassociated_search(search_string, 10)
+    end
     return HESResponder(users)
   end
 
