@@ -60,9 +60,9 @@ class FriendshipsController < ApplicationController
         when 'all'
           f = @friendable.friendships
         when 'sent_requests'
-          f = @friendable.friendships.pending.select{|p|p.sender_id == @friendable.id}
+          f = @friendable.friendships.pending.where("sender_id = #{@friendable.id}")
         when 'received_requests'
-          f = @friendable.friendships.pending.select{|p|p.sender_id != @friendable.id}
+          f = @friendable.friendships.pending.where("sender_id <> #{@friendable.id}")
         else
           if Friendship::STATUS.stringify_keys.keys.include?(params[:status])
             # ?status=[pending, accepted, etc.]

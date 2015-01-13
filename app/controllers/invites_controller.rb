@@ -81,6 +81,7 @@ class InvitesController < ApplicationController
     if !event
       return HESResponder2("Event", "NOT_FOUND")
     end
+    i = nil
     Invite.transaction do
       if params[:invite][:invited_user_id].nil? && !params[:invite][:invited_group_id].nil?
         group = Group.find(params[:invite][:invited_group_id]) rescue nil
