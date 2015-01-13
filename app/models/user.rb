@@ -332,9 +332,9 @@ LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.f
 WHERE
 (
   users.email LIKE '%#{search}%'
-  OR profiles.first_name like '%#{search}%'
+  OR profiles.first_name like '#{search}%'
   OR profiles.last_name like '%#{search}%'
-  OR CONCAT(profiles.first_name, ' ', profiles.last_name) LIKE '%#{search}%'
+  OR CONCAT(profiles.first_name, ' ', profiles.last_name) LIKE '#{search}%'
 )
 AND
 (

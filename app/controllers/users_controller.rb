@@ -108,6 +108,8 @@ class UsersController < ApplicationController
     search_string = params[:search_string].nil? ? params[:query] : params[:search_string]
     if search_string.nil? || search_string.blank?
       return HESResponder([])
+    else
+      search_string = search_string.strip
     end
     if params[:unassociated].nil?
       conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
