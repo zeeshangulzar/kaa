@@ -114,7 +114,8 @@ class UsersController < ApplicationController
       p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
       users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
     else
-      users = @current_user.unassociated_search(search_string, 10)
+      limit = !params[:limit].nil? ? params[:limit].to_i : 6
+      users = @current_user.unassociated_search(search_string, limit)
     end
     return HESResponder(users)
   end
