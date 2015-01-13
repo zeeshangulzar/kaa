@@ -18,6 +18,9 @@ class User < ApplicationModel
 
   # relationships
   has_one :profile, :in_json => true
+
+#  default_scope :include => :profile, :order => "profiles.last_name ASC"
+
   belongs_to :promotion
   belongs_to :location
   has_many :entries, :order => :recorded_on

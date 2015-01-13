@@ -71,7 +71,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def HESResponder(body = 'AOK', status = 'OK')
+  def HESResponder2(body = 'AOK', status = 'OK')
     response_body = nil
     if status != 'OK'
       # we have an error of some sort..
@@ -91,7 +91,7 @@ class ApplicationController < ActionController::Base
   end
 
   # page_size of 0 = all records
-  def HESResponder2(body = 'AOK', status = 'OK', messages = nil, page_size = ApplicationController::PAGE_SIZE)
+  def HESResponder(body = 'AOK', status = 'OK', messages = nil, page_size = ApplicationController::PAGE_SIZE)
     offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
     page_size = !params[:page_size].nil? && params[:page_size].is_i? ? params[:page_size].to_i : page_size
 

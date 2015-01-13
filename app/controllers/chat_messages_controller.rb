@@ -2,47 +2,47 @@ class ChatMessagesController < ApplicationController
   authorize :index, :create, :show, :update, :user
 
   def index
-    return HESResponder2(@current_user.messages)
+    return HESResponder(@current_user.messages)
   end
 
   def show
     message = ChatMessage.find(params[:id]) rescue nil
     if !message
-      return HESResponder2("Message", "NOT_FOUND")
+      return HESResponder("Message", "NOT_FOUND")
     end
-    return HESResponder2(message)
+    return HESResponder(message)
   end
 
   def create
     @chat_message = @current_user.messages.build(params[:chat_message])
     if !@chat_message.valid?
-      return HESResponder2(@chat_message.errors.full_messages, "ERROR")
+      return HESResponder(@chat_message.errors.full_messages, "ERROR")
     end
     ChatMessage.transaction do
       @chat_message.save!
     end
-    return HESResponder2(@chat_message)
+    return HESResponder(@chat_message)
   end
 
   def update
     message = ChatMessage.find(params[:id]) rescue nil
     if !message
-      return HESResponder2("Message", "NOT_FOUND")
+      return HESResponder("Message", "NOT_FOUND")
     end
     if ![message.user.id, message.friend.id].include?(@current_user.id)
-      return HESResponder2("You can't view other users' messages.", "DENIED")
+      return HESResponder("You can't view other users' messages.", "DENIED")
     end
     ChatMessage.transaction do
       message.update_attributes(params[:chat_message])
       if !message.vaild?
-        return HESResponder2(message.errors.full_messages, "ERROR")
+        return HESResponder(message.errors.full_messages, "ERROR")
       end
     end
-    return HESResponder2(message)
+    return HESResponder(message)
   end
 
   def destroy
-    return HESResponder2("Can't delete.", "ERROR")
+    return HESResponder("Can't delete.", "ERROR")
   end
 
 end
