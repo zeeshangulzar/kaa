@@ -22,7 +22,7 @@ class EntriesController < ApplicationController
     else
       return HESResponder("You may not view other users' entries.", "DENIED")
     end
-    return HESResponder(@entries)
+    return HESResponder(@entries, "OK", nil, 0)
   end
 
   # Gets a single entry for a team

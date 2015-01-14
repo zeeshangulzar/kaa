@@ -18,14 +18,14 @@ class InvitesController < ApplicationController
   #   }]
   def index
     if !params[:event_id]
-      return HESResponder2("Must pass an event.", "ERROR")
+      return HESResponder("Must pass an event.", "ERROR")
     end
     event = Event.find(params[:event_id]) rescue nil
-    return HESResponder2("Event", "NOT_FOUND") if !event
+    return HESResponder("Event", "NOT_FOUND") if !event
     if !@current_user.master? && !event.is_user_subscribed?(@current_user)
-      return HESResponder2("You may not view this event.", "DENIED")
+      return HESResponder("You may not view this event.", "DENIED")
     end
-    return HESResponder2(event.invites)
+    return HESResponder(event.invites)
   end
 
   # Gets a single entry for a team
@@ -48,11 +48,11 @@ class InvitesController < ApplicationController
   #   }
   def show
     invite = Invite.find(params[:id]) rescue nil
-    return HESResponder2("Invite", "NOT_FOUND") if !invite
+    return HESResponder("Invite", "NOT_FOUND") if !invite
     if !@current_user.master? && !invite.event.is_user_subscribed?(@current_user)
-      return HESResponder2("You may not view this event.", "DENIED")
+      return HESResponder("You may not view this event.", "DENIED")
     end
-    return HESResponder2(invite)
+    return HESResponder(invite)
   end
 
   # Creates a single entry
@@ -79,8 +79,9 @@ class InvitesController < ApplicationController
     # TODO: error when user has already been invited
     event = Event.find(params[:invite][:event_id]) rescue nil
     if !event
-      return HESResponder2("Event", "NOT_FOUND")
+      return HESResponder("Event", "NOT_FOUND")
     end
+    i = nil
     Invite.transaction do
       if params[:invite][:invited_user_id].nil? && !params[:invite][:invited_group_id].nil?
         group = Group.find(params[:invite][:invited_group_id]) rescue nil
@@ -93,7 +94,7 @@ class InvitesController < ApplicationController
             if @current_user.friends.include?(user)
               i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
               if !i.valid?
-                return HESResponder2(i.errors.full_messages, "ERROR")
+                return HESResponder(i.errors.full_messages, "ERROR")
               end
               i.save!
               invites.push(i)
@@ -101,29 +102,29 @@ class InvitesController < ApplicationController
               # there's actually a validation check on invite..
             end
           end
-          return HESResponder2(invites)
+          return HESResponder(invites)
         else
-          return HESResponder2("Group",  "NOT_FOUND")
+          return HESResponder("Group",  "NOT_FOUND")
         end
       else
         if event.privacy == Event::PRIVACY[:all_friends] || event.privacy == Event::PRIVACY[:location] || @current_user.id == event.user_id 
           i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => event.user_id)
         else
-          return HESResponder2("User not allowed to create invite for event", "ERROR")
+          return HESResponder("User not allowed to create invite for event", "ERROR")
         end
         if !i.valid?
-          return HESResponder2(i.errors.full_messages, "ERROR")
+          return HESResponder(i.errors.full_messages, "ERROR")
         end
         i.save!
       end
     end
-    return HESResponder2(i)
+    return HESResponder(i)
   end
   
   def update
     invite = Invite.find(params[:id]) rescue nil
     if !invite
-      return HESResponder2("Invite", "NOT_FOUND")
+      return HESResponder("Invite", "NOT_FOUND")
     end
 
     params[:invite] = params[:invite].delete_if{|k,v|k != 'status'}
@@ -131,11 +132,11 @@ class InvitesController < ApplicationController
     Invite.transaction do
       invite.update_attributes(params[:invite])
       if !invite.valid?
-        return HESResponder2(invite.errors.full_messages, "ERROR")
+        return HESResponder(invite.errors.full_messages, "ERROR")
       end
       invite.save!
     end
-    return HESResponder2(invite)
+    return HESResponder(invite)
   end
 
 end

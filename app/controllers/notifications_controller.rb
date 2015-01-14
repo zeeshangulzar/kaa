@@ -5,9 +5,8 @@ class NotificationsController < ApplicationController
 	# Get the notificationable type and user before each request.
 	before_filter :get_notificationable, :only => [:index, :create, :destroy]
 
-	authorize :index, :user
+	authorize :index, :show, :update, :user
 	authorize :create, :destroy, :get_past_notifications, :coordinator
-	authorize :show, :update, lambda { |user, notification, notificationable, params| notification.nil? || notification.user_id == user.id }
 
 	# Extra authorize parameters
 	def authorization_parameters
@@ -114,7 +113,9 @@ class NotificationsController < ApplicationController
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }
 	def show
-		@notification ||= Notification.find(params[:id])
+		@notification ||= Notification.find(params[:id]) rescue nil
+    return HESResponder("Notification", "NOT_FOUND") if !@notification
+    return HESResponder("You may not view this notification", "DENIED") if @notification.user_id != @current_user.id && !@current_user.master?
 		return HESResponder(@notification)
 	end
 

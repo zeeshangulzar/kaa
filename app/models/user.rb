@@ -18,6 +18,9 @@ class User < ApplicationModel
 
   # relationships
   has_one :profile, :in_json => true
+
+#  default_scope :include => :profile, :order => "profiles.last_name ASC"
+
   belongs_to :promotion
   belongs_to :location
   has_many :entries, :order => :recorded_on
@@ -44,6 +47,9 @@ class User < ApplicationModel
 
   challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
   has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+
+  accepted_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
+  has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
 
   has_many :suggested_challenges
 
@@ -323,5 +329,33 @@ events.*, COUNT(DISTINCT all_invites.id) AS total_invites
     return @result
   end
 
+  def unassociated_search(search, limit = 0)
+    sql = "
+SELECT users.*
+FROM users
+JOIN profiles ON profiles.user_id = users.id
+LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)) AND friendships.friender_type = 'User' AND friendships.friendee_type = 'User')
+WHERE
+(
+  users.email LIKE '%#{search}%'
+  OR profiles.first_name like '#{search}%'
+  OR profiles.last_name like '%#{search}%'
+  OR CONCAT(profiles.first_name, ' ', profiles.last_name) LIKE '#{search}%'
+)
+AND
+(
+  users.id <> #{self.id}
+  AND (
+    friendships.status IS NULL
+    OR friendships.status = 'D'
+  )
+)
+ORDER BY profiles.last_name
+#{'LIMIT ' + limit.to_s if limit > 0}
+    "
+    users = User.find_by_sql(sql)
+    ActiveRecord::Associations::Preloader.new(users, :profile).run
+    return users
+  end
 
 end

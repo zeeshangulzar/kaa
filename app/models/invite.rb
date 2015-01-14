@@ -29,6 +29,8 @@ class Invite < ApplicationModel
     self.status ||= Invite::STATUS[:unresponded]
   end
 
+  validates_uniqueness_of :invited_user_id, :scope => [:inviter_user_id, :event_id]
+
   validate :we_are_friends
   def we_are_friends
     if self.inviter.user? && !self.inviter.friends.include?(self.user)
