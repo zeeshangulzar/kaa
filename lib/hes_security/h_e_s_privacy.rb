@@ -109,7 +109,7 @@ module HESPrivacy
           if rule_hash[:test] == :public
             ok = true
           end
-          if !requester.nil?
+          if !ok && !requester.nil?
             target_user = get_user_from_target(target)
             if rule_hash[:test] == :any_user
               ok = !requester.nil?
