@@ -59,6 +59,10 @@ class FriendshipsController < ApplicationController
       case params[:status]
         when 'all'
           f = @friendable.friendships
+        when 'sent_requests'
+          f = @friendable.friendships.pending.where("sender_id = #{@friendable.id}")
+        when 'received_requests'
+          f = @friendable.friendships.pending.where("sender_id <> #{@friendable.id}")
         else
           if Friendship::STATUS.stringify_keys.keys.include?(params[:status])
             # ?status=[pending, accepted, etc.]
@@ -73,6 +77,7 @@ class FriendshipsController < ApplicationController
     else
       f = @friendable.friendships
     end
+    f.sort!{|a,b|a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase}
     return HESResponder(f)
   end
 

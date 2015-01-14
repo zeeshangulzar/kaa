@@ -1,5 +1,5 @@
-class ChatMessage < ActiveRecord::Base
-  attr_accessible :message, :friend_id, :user_id
+class ChatMessage < ApplicationModel
+  attr_accessible *column_names
   attr_privacy :message, :user_id, :friend_id, :seen, :created_at, :updated_at, :friend, :user, :any_user
   attr_privacy_no_path_to_user
 
@@ -14,6 +14,7 @@ class ChatMessage < ActiveRecord::Base
 
   def set_default_values
     self.seen ||= false
+    nil
   end
 
 end
