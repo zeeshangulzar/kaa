@@ -204,8 +204,23 @@ entry_1.save!
 entry_2 = user.entries.build(:recorded_on => user.profile.started_on + 1 , :exercise_steps => 10302, :exercise_minutes => nil)
 entry_2.save!
 
+
+#content -- just load the content from kpwalk
+content_hash = {Tip=>'db/yaml-sample-data/tip.yml',Article=>'db/yaml-sample-data/article.yml'}
+content_hash.each_pair do |model,file|
+  yaml_arr = YAML::load File.open(file)
+  yaml_arr.each do |yaml_obj|
+    x = model.new
+    model.accessible_attributes.each do |key|
+      x.send("#{key}=", yaml_obj.ivars[key]) unless key.to_s.strip.empty?
+    end
+    x.save
+  end
+end
+
 puts "to make testing easy, auth-basic headers are below"
 User.all.each do |user|
   puts user.email
   puts user.auth_basic_header 
 end
+

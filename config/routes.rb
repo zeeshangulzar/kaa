@@ -34,7 +34,15 @@ Go::Application.routes.draw do
     resources :suggested_challenges, :only => [:index, :show]
     resources :posters, :only => [:index, :show]
     resources :success_stories, :only => [:index, :show]
+
+    # CONTENT MODELS
+    resources :tips
+    resources :articles
   end
+
+  # CONTENT MODELS
+  resources :tips
+  resources :articles
 
   # locations...
   resources :locations do

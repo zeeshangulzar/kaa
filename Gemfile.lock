@@ -32,6 +32,7 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.3)
     bcrypt-ruby (3.0.1)
+    bluecloth (2.2.0)
     builder (3.0.4)
     carrierwave (0.8.0)
       activemodel (>= 3.2.0)
@@ -110,6 +111,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
+  bluecloth (= 2.2.0)
   hes-authorization
   hes-cloud-storage (= 1.0.10)
   hes-events

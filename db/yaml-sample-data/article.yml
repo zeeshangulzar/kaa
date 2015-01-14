@@ -1,0 +1,400 @@
+--- 
+- !ruby/object:ZArticle 
+  id: 1
+  content: !str 
+    str: "We\xE2\x80\x99ve all heard the advice: Exercise to reduce your risk of heart disease and other cardiovascular problems. It\xE2\x80\x99s a fact reiterated by health professionals and nutrition gurus, backed by libraries of evidence. So why is it still so hard to actually be consistently active on behalf of that tiny pump inside our chests? The answer is simple: Clich\xC3\xA9s like \xE2\x80\x9CExercise because it\xE2\x80\x99s good for you\xE2\x80\x9D don\xE2\x80\x99t say how exercise can directly affect your overall health or exactly what you can do to jumpstart your ticker.\r\n\
+      \r\n\
+      Although some experts argue that vigorous, prolonged activity for an hour a day provides the most benefit, recent studies suggest shorter periods of moderate-intensity exercise, such as brisk walking, can also have a positive impact. Understanding how exercise influences your heart is the key to getting the most out of your walk. \r\n\
+      \r\n\
+      ###What does exercise really do for your heart?\r\n \r\n\
+      - Boosts the level of high-density lipoproteins (HDL \xE2\x80\x94 the \xE2\x80\x9Cgood\xE2\x80\x9D cholesterol); it helps reduce low-density lipoproteins (LDL or \xE2\x80\x9Cbad\xE2\x80\x9D cholesterol) in the blood, which has been attributed to plaque buildup along the coronary artery walls. \r\n\
+      - Speeds up metabolism and burns calories, which ultimately stimulates weight loss when combined with cutting calories; lower weight means less stress on your heart.\r\n\
+      - Helps lower blood pressure; hypertension leads to coronary problems because the increased pressure against your artery walls forces the heart to work too hard.\r\n\
+      - Reduces stress, a proven contributing factor to heart-related problems.\r\n\
+      \r\n\
+      ###Where do you begin?\r\n\
+      \r\n\
+      Sometimes we compensate for inconsistency by pushing too hard when we do make time for physical activity. But this can actually do more harm than good. Consistency is the most important factor in getting the most out of your exercise program. If you can walk 30 minutes a day at least five days a week &mdash; broken into intervals  &mdash;  you\xE2\x80\x99ll give your heart the conditioning it needs to be strong and efficient. Here are some tips to start you out on the right foot:\r\n\
+      \r\n\
+      - During your walks, you should be able to maintain a conversation. If you\xE2\x80\x99re breathing too lightly, increase your pace; if you can\xE2\x80\x99t catch your breath, slow it down. \r\n\
+      - On your way home from work, swing by a local track and put on your walking shoes. Without having to worry about dodging traffic or stopping for signals, you can maximize your workout time and remain focused.\r\n\
+      - Use half of your lunch break to walk around the local area. If you aren\xE2\x80\x99t able to take that much time, dedicate at least 15 minutes to walking up and down the staircase. Climbing is an excellent way to strengthen your heart.\r\n\
+      - At night, trade a half hour in front of the TV for a brisk stroll around the block. Take a friend with you for company or get the whole family involved.\r\n\
+      \r\n\
+      With just a little planning and the tangible incentive of benefiting your heart, you can coordinate a simple walking plan that enhances your coronary health&hellip; and that\xE2\x80\x99s worth putting your heart into! \r\n"
+    "@_rails_html_safe": false
+  image_version: 8
+  sequence: 1
+  summary: !str 
+    str: "We\xE2\x80\x99ve all heard the advice: Exercise to reduce your risk of heart disease and other cardiovascular problems. It\xE2\x80\x99s a fact reiterated by health professionals and nutrition gurus, backed by libraries of evidence. So why is it still so hard to actually be consistently active on behalf of that tiny pump inside our chests?"
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for your heart: how to reduce cardiovascular risks"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 2
+  content: !str 
+    str: "###A heavy problem\r\n\
+      \r\n\
+      There are countless alarming statistics about our nation\xE2\x80\x99s struggle with obesity. Some say 97 million Americans are overweight. Others suggest over 60 percent of the population need to shed some pounds, while still others argue the figure is closer to 80 percent, with 30 percent of those considered clinically obese. Regardless of what the numbers say, we all know we\xE2\x80\x99re eating more and moving less than any generation. Our country is suffering from a full-scale health epidemic that\xE2\x80\x99s responsible for thousands of premature deaths each year. \r\n\
+      \r\n\
+      With ads for fancy contraptions and complex fitness routines all around us, it\xE2\x80\x99s hard to know what will help us lose weight safely and permanently. The good news: You don\xE2\x80\x99t need more than your own legs, some good shoes, and a little open space to rid yourself of unwanted pounds while improving your health. \r\n\
+      \r\n\
+      ###Downsizing\r\n\
+      \r\n\
+      When it comes to body weight, remember this simple equation: one pound = 3,500 calories. For every pound you want to lose, you must expend 3,500 calories worth of energy above the total you consume. The only way to use up that energy is to reduce the calories you eat and be physical. \r\n\
+      \r\n\
+      Walking is one of the best forms of physical activity because it\xE2\x80\x99s aerobic, which means it uses up oxygen efficiently, causing your body to burn stored fat. For example, a 150-pound person will use up about 136 calories by walking briskly (about 3.5 miles per hour) on level ground for 30 minutes. That might not seem like a lot at first, but if you walk 30 minutes each day at least five times a week, you can easily burn 680 calories. That\xE2\x80\x99s nearly 20 percent of a pound of stored fat gone  &mdash;  without changing anything else about your lifestyle. \r\n\
+      \r\n\
+      Do that each week, while cutting back on calories, and your body can\xE2\x80\x99t help but lose weight. \r\n\
+      \r\n\
+      ###Metabolic lift\r\n\
+      \r\n\
+      Walking also strengthens muscles, which means toning and shaping your whole body. In addition, the increase in muscular development enhances your metabolism, which means you continue to burn calories long after you stop moving. This is why you don\xE2\x80\x99t have to walk the full 30 minutes all at once. If your fitness level or schedule keeps you from walking 30 minutes at once, find pockets of time throughout the day that you dedicate to walking shorter distances. The consistent movement will work your muscles regularly, while also improving your base metabolic rate (the number of calories your body burns while at rest).\r\n\
+      \r\n\
+      ###How to get the most from your walk\r\n\
+      \r\n\
+      Any form of walking will burn calories and improve muscle definition, but concentrate on these points to get the most from your workout:\r\n\
+      \r\n\
+      - **Focus on distance over speed.** Especially if you\xE2\x80\x99re just starting out, it\xE2\x80\x99s better to walk for 30 minutes at a steady pace than walk too quickly and have to quit after 10. As your fitness level improves, you can speed up gradually.\r\n\
+      - **Alternate inclines.** To help build your muscles, walk some of your 30 minutes up stairs, bleachers, or hills.\r\n\
+      - **Warm up slowly.** Walk the first few minutes at a comfortable pace to get your body prepared for an endurance activity. Physical activity does not have to be strenuous to produce results; it just has to be done regularly. Walking lets you raise your body temperature, work your muscles, and ultimately burn off stored fat without the risk of overtaxing yourself or getting injured. It\xE2\x80\x99s simple, enjoyable, and an effective weapon in the ongoing battle against bulge. \r\n"
+    "@_rails_html_safe": false
+  image_version: 7
+  sequence: 6
+  summary: !str 
+    str: "There are countless alarming statistics about our nation\xE2\x80\x99s struggle with obesity. Some say 97 million Americans are overweight. Others suggest over 60 percent of the population need to shed some pounds, while still others argue the figure is closer to 80 percent, with 30 percent of those considered clinically obese."
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for weight control: how daily walks burn fat"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 3
+  content: !str 
+    str: "If a daily fitness walk could be put in a pill, there\xE2\x80\x99s no doubt it would be one of the most popular prescriptions in the world. Regular activity such as brisk walking has been shown to reduce the risk of many common, deadly diseases  &mdash;  everything from heart attack and stroke to hip fracture and glaucoma.\r\n\
+      \r\n\
+      These may sound like claims on a bottle of snake oil, but they\xE2\x80\x99re backed by major research. Regular exercise requires no prescription, the risk of side effects is very low, and the benefits are numerous:\r\n\
+      \r\n\
+      - **Managing your weight.** Combined with healthy eating, physical activity is a key ingredient of any plan for long-lasting weight control. Keeping your weight within healthy limits can significantly lower your risks of obesity-related conditions such as type 2 diabetes, heart disease, stroke, cancer, sleep apnea, and osteoarthritis. \r\n\
+      - **Controlling your blood pressure.** Physical activity strengthens the heart so it can pump more blood with less effort; it also triggers chemical changes that cause blood vessels to relax, lowering blood pressure for up to 24 hours. Staying fit is just as effective as some medications in keeping down blood pressure levels.\r\n\
+      - **Decreasing your risk of heart attack.** Vigorous exercise such as brisk walking is associated with a 30 percent to 40 percent lower risk of heart disease in women, based on the 20-year Nurses\xE2\x80\x99 Health Study of 72,000 female nurses.\r\n\
+      - **Reducing your risk of breast cancer and type 2 diabetes.** The Nurses\xE2\x80\x99 Health Study also found that regular, vigorous activity is linked to significant risk reductions for both these diseases. In another study, people at high risk of diabetes cut their risk by 58 percent when they combined consistent exercise like walking with lower fat intake and 5 percent to 7 percent weight loss.\r\n\
+      - **Lowering your risk of stroke.** Regular, moderate exercise can cut the risk of stroke in half, according to a Harvard study of more than 11,000 men.\r\n\
+      - **Avoiding your need for gallstone surgery.** Regular walking or other physical activity lowers the risk of needing gallstone surgery by 20 percent to 31 percent, according to a Harvard study of more than 60,000 women ages 40\xE2\x80\x9365.\r\n\
+      - **Protecting against hip fracture.** Consistent activity diminishes the risk of hip fracture, according to a study of more than 30,000 men and women ages 20\xE2\x80\x9393.\r\n\
+      \r\n\
+      The advantages go on and on&hellip; according to a wide variety of other studies, a daily brisk walk can help prevent depression, colon cancer, osteoporosis, and impotence while improving longevity, lowering cholesterol as well as stress levels, and relieving arthritis, back pain, and constipation. It also can be good for a healthy pregnancy and delivery.\r\n\
+      \r\n\
+      ###The best prescription? \r\n\
+      \r\n\
+      Aim to be physically active on most  &mdash;  if not all  &mdash;  days of the week; 30 minutes a day at least five days a week is an achievable, reasonable goal that will yield disease-fighting benefits.\r\n"
+    "@_rails_html_safe": false
+  image_version: 7
+  sequence: 2
+  summary: !str 
+    str: "If a daily fitness walk could be put in a pill, there\xE2\x80\x99s no doubt it would be one of the most popular prescriptions in the world. Regular activity such as brisk walking has been shown to reduce the risk of many common, deadly diseases  &mdash;  everything from heart attack and stroke to hip fracture and glaucoma."
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for warding off disease: how to protect your health"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 4
+  content: !str 
+    str: "###Preventing bone and muscle loss \r\n\
+      \r\n\
+      As we age, our bones lose density and our muscles atrophy. The results can be very serious. With weak muscles you lose control of your overall balance, fail to protect your joints, and are more prone to falls. Having a brittle, soft skeleton on top of that makes you more susceptible to breaks and fractures if you do fall, even if the impact is minor. Ultimately, a frail muscular-skeletal system can lead to arthritic conditions, chronic pain, and osteoporosis.\r\n\
+      \r\n\
+      Fortunately, we don\xE2\x80\x99t have to succumb to the effects of bone and muscle loss: Walking is a proven method for improving and sustaining bone mass and muscular strength. Not only can a consistent walking routine ward off or delay the onset of muscle and bone degeneration, it can actually help control and reverse the effects of some deterioration.\r\n\
+      \r\n\
+      ###Walk now, keep walking later\r\n\
+      \r\n\
+      Aim for walking 30 minutes a day, at least five days a week. It provides two important levels of training for your body: aerobic and weight bearing. Both forms of conditioning enhance muscular and skeletal strength&hellip; now and in your later years.\r\n\
+      \r\n\
+      ###Counting the benefits\r\n\
+      \r\n\
+      Aerobic exercise, from low- to moderate-intensity physical activity such as walking, improves cardiovascular efficiency. The heart is a muscle itself; when you walk, you elevate your heart rate and breathing, while providing oxygen to the entire body. Your heart is strengthened, as are the muscle groups responsible for movement.\r\n\
+      \r\n\
+      In addition, aerobic activity encourages fat burning. In place of stored fat, the body develops muscle, which weighs more but takes up less space, resulting in a leaner, more efficient overall body mass. Exercise also induces production of the human growth hormone, responsible for maintaining the size and strength of your muscles.\r\n\
+      \r\n\
+      Walking benefits bones and joints as well. Because it\xE2\x80\x99s low impact, walking rarely causes strain or injury to knees, ankles, back, or hips and instead uses their strength to stimulate development. As you walk, your legs and feet work against gravity, which acts as a natural weight your bones and muscles must counteract. The body responds to the stress of its own weight by building bone cells and soft tissue. \r\n\
+      \r\n\
+      ###Take to the pavement \r\n\
+      \r\n\
+      Walking 30 minutes is an ideal goal &mdash; enough activity to yield these health benefits, yet not so much as to overexert individual bones, muscles, and joints. What\xE2\x80\x99s more, walking isn\xE2\x80\x99t a high-maintenance exercise. The most important factor in what you\xE2\x80\x99ll get out of your walk is your dedication. \r\n\
+      \r\n\
+      ###Controlling your technique\r\n\
+      \r\n\
+      Because you have final say in how fast or slow you go and how much or little incline you incorporate, walking gives you control. Regardless of intensity, it\xE2\x80\x99s vital to understand proper walking technique to maximize the advantages. Here are some tips:\r\n\
+      \r\n\
+      - Be sure your shoes are comfortable and equipped with the right padding for cushion and support. \r\n\
+      - Start out and end up at a slower pace, with less incline.\r\n\
+      - Stretch before and after your walks to minimize chances for injury, cramping, or stiffness.\r\n\
+      - Follow through from heel to toe, pushing off the ball of your foot as you take each new step.\r\n\
+      - Keep your ankles straight, and try to avoid rotating your foot in or out from the center of your arch.\r\n\
+      - Make your strides natural and quick, with your knees bent for shock absorption. Avoid taking steps that are too long, which can result in injury over time. \r\n\
+      \r\n"
+    "@_rails_html_safe": false
+  image_version: 5
+  sequence: 3
+  summary: !str 
+    str: As we age, our bones lose density and our muscles atrophy. The results can be very serious. With weak muscles you lose control of your overall balance, fail to protect your joints, and are more prone to falls. Having a brittle, soft skeleton on top of that makes you more susceptible to breaks and fractures if you do fall, even if the impact is minor.
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for strong muscles and bones: how to get stronger with every step"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 5
+  content: !str 
+    str: "It\xE2\x80\x99s been another long day at work. You covered for your coworker who called in sick, and spilled coffee on your pants before the big meeting. Now you\xE2\x80\x99re late picking up the kids because your route home has turned from a freeway into a parking lot. You can just feel the stresses of the day wrapping around your muscle fibers and crushing your temples. The last thing you want to do is exercise.\r\n\
+      \r\n\
+      Remember this: physical activity is one of the best remedies for a frazzled mind. Experts agree that working out can actually reduce anxiety, tension, and fatigue by releasing vent-up pressure. When faced with a stressful situation, in fact, your body instinctively activates physiological responses that prepare you for \xE2\x80\x9Cflight or fight.\xE2\x80\x9D In other words, your body\xE2\x80\x99s natural inclination is to engage in some form of physical effort to release your inner burdens.\r\n \r\n\
+      This necessary instinct provided strength and speed in primitive times for a fast getaway from or confrontation with danger. In today\xE2\x80\x99s world, it\xE2\x80\x99s different &mdash; but your body doesn\xE2\x80\x99t know any better. Since you can\xE2\x80\x99t get out of the car and run screaming down the street, you take a tight neck or headache home with you instead. \r\n\
+      \r\n\
+      The problem, however, is that most of us are stressed because we feel overtaxed&hellip; too much going on and not enough time. It\xE2\x80\x99s easy to see how exercise gets pushed aside. So how do you motivate yourself to break a sweat after you\xE2\x80\x99ve already sweated out a hard day?\r\n \r\n\
+      - Remember that any time you can give to being active is worth investing. You don\xE2\x80\x99t have to block off an entire hour all at once to reap the benefits. Research from the American Medical Association shows 15-minute sessions twice a day can have the same effect as 30 minutes of continuous exercise. \r\n\
+      - When stress starts coming on, ward off its effects by giving yourself a break. Walk around your building, step outside and pace the sidewalk, or just stand up at your chair and do some stretches. It may not seem like much, but it will add up by the end of the day. Consistent movement is like preventive maintenance &mdash; it increases your overall physical and mental stamina, while loosening tense muscles as a defense against future stress symptoms. \r\n\
+      \r\n\
+      Recreational activities like tennis, swimming, or dancing are unsuspecting outlets for tension relief; yet the simple act of walking also is a proven tool that\xE2\x80\x99s easy to slip into your day. Try these ideas for walking your way to a healthier, more relaxed lifestyle:\r\n\
+      \r\n\
+      - **Focus on your surroundings.** Walk or hike where the scenery draws you in. You don\xE2\x80\x99t have to be a nature enthusiast to marvel at the beauty of a desert landscape or grassy hillside. Even an urban setting can invite appreciation. \r\n\
+      - **Engage your senses.** Breathe calmly and deeply. Concentrate on your movement through the world around you. Listen to the sounds that come from your environment. You\xE2\x80\x99ll find that surrendering yourself to the freedom of your walk will open up your mind to inspiration. You might gain new perspective about your troubles or formulate a resolution.\r\n\
+      - **Bring a partner.** Walking together makes the time pass quickly while giving you a chance to catch up and have quality conversations. What better way to improve your health?\r\n\
+      \r\n\
+      This might surprise you: if you manage to put in 30 minutes a day, five days a week, you\xE2\x80\x99ll actually have increased energy for other things you enjoy, and be motivated to even more activity. A brisk 30-minute walk pumps up your metabolism, clears your head, and triggers the release of mood-enhancing hormones known as endorphins, which cause you to want more. And more exercise means a healthier lifestyle &mdash; a huge stress relief to you and those who love you. \r\n"
+    "@_rails_html_safe": false
+  image_version: 5
+  sequence: 4
+  summary: !str 
+    str: "It\xE2\x80\x99s been another long day at work. You covered for your coworker who called in sick, and spilled coffee on your pants before the big meeting. Now you\xE2\x80\x99re late picking up the kids because your route home has turned from a freeway into a parking lot. You can just feel the stresses of the day wrapping around your muscle fibers and crushing your temples. The last thing you want to do is exercise."
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for stress relief: how to get tension and worry to take a hike"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 6
+  content: !str 
+    str: "When most of us think of recreation, we see ourselves laughing, relaxing, enjoying time with friends and family &mdash; pure entertainment. So it may not seem likely that exercise &mdash; a generally dreaded activity &mdash; could fall under the category of fun. With just a little imagination, though, and a new perspective on fitness, walking can be something you actually&hellip; dare we say&hellip; look forward to doing. It\xE2\x80\x99s all in how you view it.\r\n\
+      \r\n\
+      ###A picnic\r\n\
+      \r\n\
+      When was the last time you thought about having a picnic? At first thought, it seems like a leisure activity that involves eating, resting, and enjoying the outdoors. Yet with just a slight tweak, an afternoon lunch outside can become an easy reason for physical activity, and you won\xE2\x80\x99t lose any of the recreation benefits.\r\n \r\n\
+      Consider planning a picnic along a hiking trail or at a park with walking paths. Build up your appetite with a 15-minute walk to your lunch spot and work off your meal by walking the 15 minutes back. The scenic journey will also reintroduce you to the beauty of nature, while inspiring conversation.\r\n\
+      \r\n\
+      ###Shopping trip\r\n\
+      \r\n\
+      Let\xE2\x80\x99s not forget the joys of shopping. A trip to the mall, craft fair, or swap meet might burn a hole in your wallet, but it\xE2\x80\x99s sure to burn calories as well. With shopping as the goal, it\xE2\x80\x99s easy to lose sight of the fact you\xE2\x80\x99re also walking. Spend a couple hours making your way through the shopping center or booths with few to no breaks, and you\xE2\x80\x99ll work up some mileage.\r\n \r\n\
+      ###Edutainment\r\n\
+      \r\n\
+      With computers, we can read about an animal, history topic, or piece of artistic mastery at the click of a button, but nothing will ever replace the enjoyment and raw learning experience gained from visiting a zoo or museum. Spending the day looking at animals can be a fun adventure; if weather is a factor, head indoors to an art or history museum. Walking around the exhibits will not only stimulate your mind, but also provide hidden exercise. The hours of educational enjoyment won\xE2\x80\x99t even feel like physical fitness. \r\n\
+      \r\n\
+      ###Walking games\r\n\
+      \r\n\
+      These days games are something kids use high-tech joysticks to play while perched in front of a screen; the only physical requirement is thumb mobility. Games used to be activities the whole family or a group of friends could play, and often involved some form of physical movement. You can resurrect those kinds of games for enjoyment today, especially if you\xE2\x80\x99re looking for something to do with the kids:\r\n\
+      \r\n\
+      - Head to the local track and have walking races, using the bleachers for added intensity. \r\n\
+      - Set up walking \xE2\x80\x9Chunts.\xE2\x80\x9D Select objects to identify &mdash; from a specific state license plate to a flower color to a billboard ad. Designate the playing field in a 15-minute radius, and you\xE2\x80\x99ll get in a good scavenger walk and fill much of your 30-minute requirement.  \r\n\
+      \r\n\
+      Walking is a simple, inexpensive activity anyone can do, and it requires nothing more than a sidewalk, a good pair of shoes, and an open mind. \r\n\
+      \r\n\
+      So instead of taking your shoes off to relax, put them on and go for a walk, to turn your exercise into extracurricular fun.  \r\n"
+    "@_rails_html_safe": false
+  image_version: 5
+  sequence: 10
+  summary: !str 
+    str: When most of us think of recreation, we see ourselves laughing, relaxing, enjoying time with friends and family &mdash; pure entertainment. So it may not seem likely that exercise &mdash; a generally dreaded activity &mdash; could fall under the category of fun.
+    "@_rails_html_safe": false
+  title: !str 
+    str: " Walk for recreation: how to turn exercise into extracurricular fun"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 8
+  content: !str 
+    str: "###Cranium fitness\r\n\
+      \r\n\
+      You lace up your walking shoes, stretch out your legs, back, and hips, and set out on a  brisk walk&hellip; all with the intention of getting in shape. What you might not know is that your mind actually benefits just as much as your body. Recent research concludes that physical activity positively affects mental prowess, giving you another incentive to aim for 30 minutes of walking a day, five days a week.\r\n\
+      \r\n\
+      Several different studies have examined the mental responses of individuals who engage in consistent activity. The most conclusive evidence suggests simple forms of steady-paced aerobic exercise, such as walking regularly, provide the greatest mental stimulation. Participants actually demonstrate improved cerebral function in decision making, problem solving, and concentrating after just 15 minutes of moderate exercise, which means you don\xE2\x80\x99t have to run a marathon to ace a pop quiz. \r\n\
+      \r\n\
+      ###Brain power\r\n\
+      \r\n\
+      Exercise acts as a natural treatment for some of life\xE2\x80\x99s greatest mental burdens. According to the Surgeon General\xE2\x80\x99s Report on Physical Activity and Health, \xE2\x80\x9Cphysical activity appears to relieve symptoms of depression and anxiety and improve mood\xE2\x80\x9D (*President\xE2\x80\x99s Council on Physical Fitness and Sports Research Digest*). Here\xE2\x80\x99s why. Hormones such as adrenaline and noradrenaline, believed to be instrumental in neural processing, are released in response to aerobic activity. So are endorphins, which help relieve pain and generate a natural sense of euphoria. This means physical activity induces the production of chemicals that positively influence your brain\xE2\x80\x99s operation. \r\n\
+      \r\n\
+      Who needs artificial drugs when the body manufactures its own mood-enhancing stimulants?\r\n \r\n\
+      ###It\xE2\x80\x99s all in your mind\r\n\
+      \r\n\
+      The mental benefits of walking result from more than just the physiological triggers. Many people use walking as a time to pray, meditate, or just think, which can lead to spiritual and philosophical enlightenment. Solitary time spent embracing the physical gift of your walking ability helps you draw perspective about the world and your personal life. You might encounter your inner muse and discover hidden inspiration. Walking lets you clear your mind and tap into your creative side, opening doors to new ideas and solutions. \r\n\
+      \r\n\
+      If you walk with a friend or family member, you also can enrich your consciousness through thought-provoking conversation. Intelligent dialogue sharpens your wit and stimulates your intellect, which increases your overall mental dexterity. It\xE2\x80\x99s enjoyable to plan what topics the day\xE2\x80\x99s walk will explore.\r\n\
+      \r\n\
+      ###Even more benefits\r\n\
+      \r\n\
+      - Exercise helps you sleep better. Restful nights are considered essential for cognitive alertness. \r\n\
+      - In using physical activity to promote your psychological fitness, you\xE2\x80\x99ll find that you develop a greater sense of self-motivation and personal will. This can help you muster the mental drive to accomplish goals you might have thought impossible.\r\n\
+      \r\n\
+      ###What to do\r\n \r\n\
+      Consider scheduling brain breaks during your day. Though 30 minutes might seem like a lot to walk, you can achieve it in a variety of ways. Set aside time at the beginning or end of the day to get your 30 minutes in all at once, or you can break up the time. Try walking 15 minutes twice a day. \r\n\
+      \r\n\
+      The point is this: Any time you can dedicate to walking is time your brain and mind need for clarity and strength. Whenever your head is overwhelmed, give yourself permission to walk it off. You\xE2\x80\x99ll receive initial relief from your mental load and long-term enhancement to your overall mental health. \r\n"
+    "@_rails_html_safe": false
+  image_version: 2
+  sequence: 5
+  summary: !str 
+    str: You lace up your walking shoes, stretch out your legs, back, and hips, and set out on a  brisk walk&hellip; all with the intention of getting in shape. What you might not know is that your mind actually benefits just as much as your body.
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for mental strength: how exercise buffs your brain"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 9
+  content: !str 
+    str: "Sure we know the health benefits associated with exercise &mdash; weight loss, disease prevention, stress relief. Yet exercise does more than burn calories and tighten thighs. It can be a valuable tool in lasting, healthy relationships.\r\n \r\n\
+      ###The chemical factor\r\n\
+      \r\n\
+      Studies show that physical activity has a profound effect on disposition. According to the National Institute of Mental Health, 19 million Americans experience some form of anxiety or depression-related disorder. Even if we\xE2\x80\x99re not officially diagnosed with those conditions, we all tend to feel symptoms from time to time, which can strain relationships and affect interactions with family and friends.\r\n\
+      \r\n\
+      In very real ways, exercise can alleviate some of the tension associated with these mental and emotional ailments by:\r\n\
+      \r\n\
+      - Stimulating the body\xE2\x80\x99s production of endorphins, our natural mood enhancers.\r\n\
+      - Promoting an increase in phenylacetic acid, a chemical linked to our attention levels and overall physical energy. \r\n\
+      \r\n\
+      With more vitality and less worry, we can be more loving and attentive to those we care about, and better able to initiate effort in maintaining those relationships.\r\n\
+      \r\n\
+      ###The social factor\r\n\
+      \r\n\
+      Exercise is a great \xE2\x80\x9Cexcuse\xE2\x80\x9D for quality time. In a Family Services Association poll, 87 percent of men and women interviewed said the number one missing ingredient in their marriage was communication. We\xE2\x80\x99re busier now than ever; between career commitments and responsibilities to children, there\xE2\x80\x99s barely enough time to kiss goodbye. But ongoing communication is a key factor in keeping any marriage strong and healthy. \r\n \r\n\
+      When couples are active together, they\xE2\x80\x99re likely to talk about issues of concern to the relationship. Taking walks (before or after dinner, on the weekends) facilitates conversation and gently forces communication between people who might otherwise have very little one-on-one time to reconnect. And including the kids gives your entire family an opportunity to talk, laugh, and enjoy each other\xE2\x80\x99s company.\r\n\
+      \r\n\
+      ###The physical factor\r\n\
+      \r\n\
+      One of the more obvious benefits of exercise is improved bodily health. Lethargy, decreased immunity, and weakened bones/muscles are just some of the physical responses when we don\xE2\x80\x99t stay active. As a result, we\xE2\x80\x99re less likely or able to take part in recreation with family or friends.\r\n \r\n\
+      ###Enhancing your relationships through activity\r\n\
+      \r\n\
+      Getting in 30 minutes of walking, five days a week, can dramatically affect the bonds you share with your children, spouse, partner, and buddies. Being more in shape opens up opportunities for entertainment. You\xE2\x80\x99ll also have more stamina and strength to play sports, which not only enhances relationships but encourages others to become more active too. \r\n\
+      \r\n\
+      Try some of these relationship boosters next time you put on your walking shoes, and you\xE2\x80\x99ll find the benefits affect all parts of your lives:\r\n\
+      \r\n\
+      - Make after-dinner walks a family affair. Take hikes on the weekend. Let kids help choose the route. Set aside special couple walks instead of watching TV.\r\n\
+      - Walk or run around the field\xE2\x80\x99s perimeter and cheer on the team rather than dropping the kids off at practice or sitting on the sidelines. You\xE2\x80\x99ll show your child how proud you are, while getting your exercise.\r\n\
+      - Join or organize coed sports teams you both can play. Not only will you get to share a mutual interest, but you\xE2\x80\x99ll spend quality time with each other and friends.\r\n\
+      - Go on a walk-and-talk session instead of meeting a friend for coffee and a chat. You\xE2\x80\x99ll have the same opportunity to catch up, and you\xE2\x80\x99ll do both your bodies a favor.\r\n"
+    "@_rails_html_safe": false
+  image_version: 2
+  sequence: 8
+  summary: !str 
+    str: Sure we know the health benefits associated with exercise &mdash; weight loss, disease prevention, stress relief. Yet exercise does more than burn calories and tighten thighs. It can be a valuable tool in lasting, healthy relationships.
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for healthier relationships: how to strengthen bonds while strengthening your body"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 10
+  content: !str 
+    str: "###Trade in your wheels for your legs\r\n\
+      \r\n\
+      We live in a time when most of us rely on a vehicle to get from point A to point B. We have busy lives, hectic schedules &mdash; and rarely find enough time in the day to think about exercise, let alone actually engage in it. Yet, as we all know, physical activity is a primary factor in living longer, healthier lives. \r\n\
+      \r\n\
+      There are simple ways to get the exercise you need. Walking just 30 minutes a day, five days a week can help you lose weight, gain energy, and improve your overall health. The even better news is that you can break up your time into shorter increments and obtain the same benefits as from walking the total amount all at once. \r\n\
+      \r\n\
+      For some of us, work, kids, errands, and our million other responsibilities leave little time for even short spurts of dedicated walking. So if you want to pay attention to your health while handling the other facets of life, you have to get creative.\r\n\
+      \r\n\
+      ###Get creative\r\n\
+      - **Shopping:** Forgot the milk? Put on your walking shoes when you have to make a last-minute purchase. Obviously you can\xE2\x80\x99t walk to the store when you have a full shopping list of items to lug home. But for a quick trip to pick up a few things, use your legs instead of your car to complete two tasks at once: finish your shopping and get in your walk.  \r\n\
+      - **Banking:** When that Friday paycheck comes in, don\xE2\x80\x99t rush to the bank after work just to wait in a long line. Drop off your car at home and take a walk to your local branch. Check out your neighborhood&hellip; use the same thinking for the dry cleaners, post office, and other errands.\r\n\
+      - **Taking the kids to school:** Consider walking with them instead of driving. The walk helps you avoid traffic and, even more important, gives you a chance to spend quality time together. Not only will you get some of your daily exercise, your kids will, too.\r\n\
+      - **Heading out to lunch:** Use the weekend as an excuse to get your family or friends together for lunch. Mid-day meals tend to be more casual than dinners, which means you can dress in comfortable clothing that allows you to walk to the restaurant. If there\xE2\x80\x99s a theater nearby, you can top off your outing by walking to an afternoon movie.\r\n\
+      - **Home shopping:** Looking to buy or rent a new home? Consider walking through neighborhoods to survey your options. This gives you time to see each house as you pass by and notice the nuances you might otherwise miss just driving through. You can stop and talk to residents and really get a feel for the overall community atmosphere.\r\n\
+      \r\n\
+      Every minute is valuable, so why not get the most out of each one you have? By walking to and from nearby destinations, you make your time count toward something even more valuable &mdash; your health. And the rewards don\xE2\x80\x99t end there: you\xE2\x80\x99ll also help the environment by reducing pollutants from your car&hellip; and you get to pocket the cash you would have spent on gas. \r\n"
+    "@_rails_html_safe": false
+  image_version: 2
+  sequence: 11
+  summary: !str 
+    str: "We live in a time when most of us rely on a vehicle to get from point A to point B. We have busy lives, hectic schedules &mdash; and rarely find enough time in the day to think about exercise, let alone actually engage in it. Yet, as we all know, physical activity is a primary factor in living longer, healthier lives. "
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for getting somewhere: how to accomplish other tasks while exercising "
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 11
+  content: !str 
+    str: "###Tossing and turning\r\n \r\n\
+      Are you *tired* of always being tired? Have you counted your last sheep? Would you rather be dreaming than watching late-night infomercials? If you answered yes to these questions, you\xE2\x80\x99re one of millions who suffer from sleep deprivation. The health consequences can be staggering. Not enough sleep can result in a variety of mental and physical problems, including:\r\n\
+      \r\n\
+      - poor cognitive performance\r\n\
+      - weight gain\r\n\
+      - muscle atrophy\r\n\
+      - stress\r\n\
+      - overall fatigue\r\n\
+      - depression\r\n\
+      - difficulty making decisions\r\n\
+      - propensity toward illness and injury.\r\n\
+      \r\n\
+      ###Work out by day, conk out by night\r\n\
+      \r\n\
+      There is a solution. Research shows consistent activity can significantly alleviate bouts with insomnia and other sleep disorders. Even 30 minutes of walking a day, five days a week can improve your sleep cycle &mdash; with direct, positive influence on physiological and mental processes: \r\n\
+      \r\n\
+      - Staying active loosens tight muscles and relieves stress &mdash; factors that contribute to poor quality and duration of sleep. \r\n\
+      - It helps the body achieve longer, deeper sleep periods known as slow wave &mdash; the sleep-pattern phase that experts believe provides the most restorative value.\r\n\
+      - Exercise also reduces depression and anxiety symptoms &mdash; substantial causes of restlessness and light sleeping. \r\n\
+      \r\n\
+      ###Negative or positive cycle\r\n\
+      \r\n\
+      Not surprisingly, the quality and duration of your sleep in turn influence the effectiveness of your workouts. Researchers at the University of Chicago\xE2\x80\x99s Endocrine Rhythms Lab concluded that lack of sleep reduces the amount of human growth hormone, which is responsible for controlling the body\xE2\x80\x99s fat-to-muscle ratio. In addition, sleep loss triggers the release of glucose in the bloodstream, which slows metabolism and influences weight gain. And when you haven\xE2\x80\x99t had enough sleep, you\xE2\x80\x99re less motivated to exercise anyway. The result is a negative cycle that leads to many physical problems. \r\n\
+      \r\n\
+      To create a positive cycle for your body, you need the right balance of sleep and exercise. Activity helps satisfy your body\xE2\x80\x99s requirement for sleep, and a better sleep pattern maximizes the benefits of exercise.\r\n  \r\n\
+      ###Walk to sleep\r\n\
+      \r\n\
+      The first step in a healthier sleep-exercise lifestyle is to incorporate consistent physical activity into your daily schedule. \r\n\
+      \r\n\
+      - Ease yourself into a walking program. Start with 15 minutes a day and gradually work up to 30. The steady introduction of activity will give your body time to acclimate, which reduces the chance for sore muscles &mdash; a common excuse to give up too quickly.\r\n\
+      - Try walking before and after dinner to help calm your nerves while burning calories. The increased energy consumption combined with the stress release will relax your body and mind, helping you sleep better and longer.\r\n\
+      - Partner with a friend or family member. Companionship can help you stay committed and motivated.\r\n\
+      - Keep your walks brisk enough to break a sweat but not so fast that you run out of breath. Make your last five minutes slower to bring your heartbeat down to its resting rate, which prepares your body for a decent night\xE2\x80\x99s sleep.\r\n\
+      \r\n\
+      Walking not only has lasting effects on your sleep, but can provide short-term relief as well. On restless nights, instead of turning on the TV, get up and pace around the house, taking in deep breaths as you move. Shake out your arms and legs. Stretch out your neck. When you climb back into bed, you\xE2\x80\x99ll feel more prepared for a healthy trip to dreamland. \r\n"
+    "@_rails_html_safe": false
+  image_version: 2
+  sequence: 7
+  summary: !str 
+    str: "Are you *tired* of always being tired? Have you counted your last sheep? Would you rather be dreaming than watching late-night infomercials? If you answered yes to these questions, you\xE2\x80\x99re one of millions who suffer from sleep deprivation. The health consequences can be staggering."
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for better sleep: how an active day helps you rest well"
+    "@_rails_html_safe": false
+- !ruby/object:ZArticle 
+  id: 12
+  content: !str 
+    str: "###Living life to the fullest\r\n\
+      \r\n\
+      There was a time when 30 years was considered middle age, and 55 was a rare birthday for anyone to celebrate. Today\xE2\x80\x99s advances in medicine have increased the chances of long-term survival, and it no longer seems impossible to live to the century mark.\r\n \r\n\
+      We all want to enjoy longer, healthier, active lives&hellip; and many factors play into reaching that goal. One of the most influential is the long-standing recommendation to exercise. Consistent physical activity slows the aging process and sustains overall vitality.\r\n\
+      \r\n\
+      ###Delaying age\r\n \r\n\
+      Because it\xE2\x80\x99s aerobic, walking improves the cardiovascular system &mdash; one of the first to naturally deteriorate as you age. In a study at Bloomsburg University in Pennsylvania, researchers found that individuals who exercise at least 30 minutes a day, three times a week, actually slowed the general decline in heart health. \r\n\
+      \r\n\
+      Walking also burns calories. As we get older, our metabolism tends to lose efficiency, so we\xE2\x80\x99re more subject to weight gain. Keeping active limits our chances of developing obesity-related problems &mdash; such as diabetes and even some cancers.\r\n \r\n\
+      ###Getting active, staying active\r\n\
+      \r\n\
+      A long life doesn\xE2\x80\x99t necessarily mean a quality life. As we age, our muscles and bones tend to weaken, and we\xE2\x80\x99re more susceptible to debilitating diseases like osteoporosis and arthritis. Continuous movement and activity help maintain adequate conditioning, which means more mobility during later years. \r\n\
+      \r\n\
+      Walking is an activity that contributes to increased bone and muscle strength. It\xE2\x80\x99s ideal for all ages, making it a popular, effective choice for people in their later decades of life. \r\n\
+      \r\n\
+      ###Lively mind and spirit\r\n\
+      \r\n\
+      Beyond the physical results, walkers gain many psychological benefits that may influence healthy longevity. Regular walks provide an escape from mental stress and allow us to reconnect with our thoughts and feelings, which helps release negative energy. We\xE2\x80\x99re more likely to regain an optimistic outlook&hellip; to avoid feeling depressed or anxious.\r\n \r\n\
+      Experts say a positive attitude has dramatic effects on our immune system and its ability to maintain health. In addition, when we use our bodies to accomplish anything, even something as seemingly minor as a simple walk, we subconsciously remind ourselves that we are alive, that we have purpose.\r\n \r\n\
+      ###Walking through the years\r\n \r\n\
+      Aim to walk 30 minutes a day, five days a week. You don\xE2\x80\x99t have to walk the entire distance all at once. In fact, if you\xE2\x80\x99re a beginner, it\xE2\x80\x99s best to start out with shorter walks and gradually work your way up. You can divide your time into two or even four segments. Try these tips to sustain your walking program for adding years to your life:\r\n\
+      \r\n\
+      - For companionship and extra motivation, ask your spouse, partner, friend, or child to join you. \r\n\
+      - For a more inviting experience, select scenic paths, routes, or trails.\r\n\
+      - Walk when you like to walk &mdash; if you\xE2\x80\x99re a morning person, get up a half hour early and take a walk; if you\xE2\x80\x99re more energetic later in the day, work in some miles on your lunch hour or after dinner.\r\n"
+    "@_rails_html_safe": false
+  image_version: 2
+  sequence: 9
+  summary: !str 
+    str: "There was a time when 30 years was considered middle age, and 55 was a rare birthday for anyone to celebrate. Today\xE2\x80\x99s advances in medicine have increased the chances of long-term survival, and it no longer seems impossible to live to the century mark."
+    "@_rails_html_safe": false
+  title: !str 
+    str: "Walk for a longer life: how exercising adds years to your future"
+    "@_rails_html_safe": false
