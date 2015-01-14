@@ -1,7 +1,7 @@
 class Event < ApplicationModel
 
   attr_privacy_no_path_to_user
-  attr_privacy :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :any_user
+  attr_privacy :id, :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :any_user
   attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :invites
   
   has_many :invites
@@ -60,7 +60,7 @@ class Event < ApplicationModel
   # TODO: temporary..
   def as_json(options = {})
     options = options.merge({:methods => ["attendance"]})
-    return AM_as_json(options)
+    super
   end
 
   def attendance

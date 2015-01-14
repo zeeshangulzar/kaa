@@ -97,10 +97,4 @@ class ChallengeSent < ApplicationModel
     e.save! # fires Entry::calculate_points
   end
 
-
-  # TODO: temporary..
-  def as_json(options = nil)
-    return AM_as_json(options)
-  end
-
 end

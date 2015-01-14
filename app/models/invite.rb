@@ -49,10 +49,4 @@ class Invite < ApplicationModel
     return true
   end
 
-  # TODO: temporary..
-  def as_json(options = nil)
-    return AM_as_json(options)
-  end
-
-
 end

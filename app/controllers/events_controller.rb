@@ -21,6 +21,30 @@ class EventsController < ApplicationController
     else
       e = @target_user.subscribed_events(options)
     end
+
+    hash = []
+    e.each{|event|
+      hash_event = {
+        :id           => event.id,
+        :start        => event.start,
+        :end          => event.end,
+        :url          => "/events/" + event.id.to_s,
+        :place        => event.place,
+        :name         => event.name,
+        :description  => event.description,
+        :all_day      => event.all_day,
+        :photo        => event.photo,
+        :user_id      => event.user_id,
+        :event_type   => event.event_type,
+        :privacy      => event.privacy,
+        :location_id  => event.location_id,
+        :location     => event.location,
+        :attendance   => event.attendance
+      }
+      hash.push(hash_event)
+    }
+    return HESResponder(hash, "OK", nil, 0)
+
     return HESResponder(e, "OK", nil, 0)
   end
 

@@ -205,8 +205,6 @@ WHERE
   (
     (
       events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-      OR
-      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
     )
     AND events.user_id <> #{self.id}
     AND events.privacy = 'F'
@@ -280,8 +278,6 @@ WHERE
   (
     (
       events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-      OR
-      events.user_id in (select friender_id from friendships where (friendee_id = #{self.id}) AND friendships.status = 'A')
     )
     AND events.user_id <> #{self.id}
     AND events.privacy = 'F'
@@ -322,7 +318,7 @@ COUNT(DISTINCT(events.id)) AS total_events
       # default/"array"
       sql = "
 SELECT
-events.*, COUNT(DISTINCT all_invites.id) AS total_invites
+events.*
 " + sql
       @result = Event.find_by_sql(sql)
     end
