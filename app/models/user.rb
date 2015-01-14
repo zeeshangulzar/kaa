@@ -48,6 +48,9 @@ class User < ApplicationModel
   challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
   has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
 
+  accepted_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
+  has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+
   has_many :suggested_challenges
 
   has_many :groups, :foreign_key => "owner_id"
