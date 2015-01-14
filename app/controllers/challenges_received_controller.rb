@@ -69,7 +69,7 @@ class ChallengesReceivedController < ApplicationController
         return HESResponder("You may not edit this challenge.", "DENIED")
       end
       return HESResponder("Challenge expired.", "ERROR") if challenge_received.expired?
-      if params[:challenge_received] && params[:challenge_received][:status] && [ChallengeReceived::STATUS[:accepted], ChallengeReceived::STATUS[:completed]].include?(params[:challenge_received][:status]) && @current_user.accepted_challenges.size >= 4
+      if params[:challenge_received] && params[:challenge_received][:status] && [ChallengeReceived::STATUS[:accepted], ChallengeReceived::STATUS[:completed]].include?(params[:challenge_received][:status]) && @current_user.accepted_challenges.size >= 4 && !@current_user.accepted_challenges.include?(challenge_received)
         return HESResponder("Can't accept anymore challenges.", "ERROR")
       end
       ChallengeReceived.transaction do
