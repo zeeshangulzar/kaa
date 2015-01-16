@@ -81,44 +81,46 @@ class InvitesController < ApplicationController
     if !event
       return HESResponder("Event", "NOT_FOUND")
     end
+
+    already_invited_user_ids = event.invites.collect{|invite|invite.invited_user_id}
+
+    user_group_ids = @current_user.groups.collect{|group|group.id}
+    user_friend_ids = @current_user.friends.collect{|friend|friend.id}
+
+    # make sure all posted group ids are valid
+    invited_group_ids = params[:invite][:invited_group_id].nil? ? [] : params[:invite][:invited_group_id].is_a?(Array) ? params[:invite][:invited_group_id] : [params[:invite][:invited_group_id]]
+    bad_group_ids = invited_group_ids.reject{|id|user_group_ids.include?(id)}
+    return HESResponder("Invalid group id(s).", "ERROR") if !bad_group_ids.empty?
+
+    # make sure all posted user ids are valid
+    invited_user_ids = params[:invite][:invited_user_id].nil? ? [] : params[:invite][:invited_user_id].is_a?(Array) ? params[:invite][:invited_user_id] : [params[:invite][:invited_user_id]]
+    bad_user_ids = invited_user_ids.reject{|id|user_friend_ids.include?(id)}
+    return HESResponder("Invalid friend id(s).", "ERROR") if !bad_user_ids.empty?
+    
+    # add group users to invited users
+    invited_group_ids.each{|id|
+      Group.find(id).users.each{|user|
+        invited_user_ids.push(user.id) unless invited_user_ids.include?(user.id)
+      }
+    }
+
+    # filter out users that already have invites
+    invited_user_ids.reject!{|id|already_invited_user_ids.include?(id)}
+    
+    # build the invites
     i = nil
+    invites = []
     Invite.transaction do
-      if params[:invite][:invited_user_id].nil? && !params[:invite][:invited_group_id].nil?
-        group = Group.find(params[:invite][:invited_group_id]) rescue nil
-        if !group.nil? && group.owner.id == @current_user.id
-          invites = []
-          group.users.each do |user|
-            # TODO: not here though..
-            # need to make sure when group users are referenced for various actions, such as here, that the group users are also still friends with @current_user
-            # since they could be unfriended and still in the group, as of now..
-            if @current_user.friends.include?(user)
-              i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
-              if !i.valid?
-                return HESResponder(i.errors.full_messages, "ERROR")
-              end
-              i.save!
-              invites.push(i)
-              # do we need an error message if they aren't in the group anymore? shouldn't... should be taken care of soon as the unfriending occurs
-              # there's actually a validation check on invite..
-            end
-          end
-          return HESResponder(invites)
-        else
-          return HESResponder("Group",  "NOT_FOUND")
-        end
-      else
-        if event.privacy == Event::PRIVACY[:all_friends] || event.privacy == Event::PRIVACY[:location] || @current_user.id == event.user_id 
-          i = event.invites.build(:invited_user_id => params[:invite][:invited_user_id], :inviter_user_id => event.user_id)
-        else
-          return HESResponder("User not allowed to create invite for event", "ERROR")
-        end
+      invited_user_ids.each{|id|
+        i = event.invites.build(:invited_user_id => id, :inviter_user_id => @current_user.id)
         if !i.valid?
           return HESResponder(i.errors.full_messages, "ERROR")
         end
         i.save!
-      end
+        invites.push(i)
+      }
     end
-    return HESResponder(i)
+    return HESResponder(invites)
   end
   
   def update
