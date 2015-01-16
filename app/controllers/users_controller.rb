@@ -17,7 +17,7 @@ class UsersController < ApplicationController
     if user && user.password == params[:password]
       json = user.as_json
       json[:auth_basic_header] = user.auth_basic_header
-      return HESResponder(json)
+      render :json => json and return
     else
       return HESResponder("Email or password is incorrect.", 401)
     end

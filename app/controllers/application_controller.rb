@@ -107,6 +107,7 @@ class ApplicationController < ActionController::Base
       # status is OK and body is a string..
       response = {:message => body}
     else
+      # KEEP THIS FOR NOW..
 #      # get the class.table_name for the root node name
 #      if body.is_a?(Array) || body.is_a?(Hash)
 #        # ActiveRecord collection
