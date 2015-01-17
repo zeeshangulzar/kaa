@@ -3,7 +3,7 @@ module UserDefinedFields
 
   # commenting these out to make sure it executes..
   #def UserDefinedFields.init
-    # this will find the name of udfable classes, and cause creation of the UDF class
+    # this will find the name of udfable classes, and cause creation of the Udf class
     # otherwise, you might get a constant not found error when you refer to it
     ActiveRecord::Base.connection.tables.select{|t| t.downcase.include?("_udfs")}.each do |t|
       table = t[0..(t.index("_udfs")-1)].capitalize.singularize rescue nil
@@ -53,10 +53,10 @@ module UserDefinedFields
         end
         connection.add_index def_table_name, ["parent_type","parent_id"], :name => "by_parent_type_parent_id"
         UdfDef.reset_column_information
-        puts "UDF definitions table created...OK"
+        puts "Udf definitions table created...OK"
       else
-        #puts "UDF definitions table found...OK"
-        # JS 2014-06-18 - part of condensing the _udfs table is to store the conventionalized_field_name on the UDFDef
+        #puts "Udf definitions table found...OK"
+        # JS 2014-06-18 - part of condensing the _udfs table is to store the conventionalized_field_name on the UdfDef
         unless connection.columns(def_table_name).collect(&:name).include?('field_name')
           ActiveRecord::Migration.add_column def_table_name, 'field_name', :string
         end
@@ -68,14 +68,14 @@ module UserDefinedFields
           t.column "#{args[:class_name].downcase}_id", :integer
         end
         connection.add_index udf_table_name, "#{args[:class_name].downcase}_id", :name=>"by_#{args[:class_name].downcase}_id"
-        puts "UDF table created for model #{self.to_s}...OK"
+        puts "Udf table created for model #{self.to_s}...OK"
       else
-        #puts "UDF table found for model #{self.to_s}...OK"
+        #puts "Udf table found for model #{self.to_s}...OK"
       end
 
-      # make a new class def, like UDF, but named, for example, EntryUDF
-      klass_name = "#{args[:class_name]}UDF"
-      klass_new = Class.new(UDF)
+      # make a new class def, like Udf, but named, for example, EntryUdf
+      klass_name = "#{args[:class_name]}Udf"
+      klass_new = Class.new(Udf)
       klass_new.send(:belongs_to, args[:class_symbol])
       klass_new.send(:alias_method, :parent, args[:class_symbol])
       klass = Object.const_set(klass_name,klass_new)
@@ -86,8 +86,8 @@ module UserDefinedFields
       self.has_one :udfs, :class_name => klass_name, :dependent => :destroy
 
       if self.to_s == 'Profile' || self.to_s == 'Evaluation'
-        klass_name = "Legacy#{args[:class_name]}UDF"
-        klass_new = Class.new(UDF)
+        klass_name = "Legacy#{args[:class_name]}Udf"
+        klass_new = Class.new(Udf)
         klass_new.send(:belongs_to, args[:class_symbol])
         klass_new.send(:alias_method, :parent, args[:class_symbol])
         klass = Object.const_set(klass_name,klass_new)
