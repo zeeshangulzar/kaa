@@ -11,7 +11,7 @@ class Entry < ApplicationModel
 
   attr_accessible :entry_behaviors, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :daily_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :me
   
   # Can not have the same recorded on date for one user
   validates_uniqueness_of :recorded_on, :scope => :user_id
@@ -46,7 +46,7 @@ class Entry < ApplicationModel
   def write_attribute_with_exercise(attr,val)
     write_attribute_without_exercise(attr,val)
     if [:exercise_minutes,:exercise_steps].include?(attr.is_a?(String) ? attr.to_sym : attr) && !self.user.nil?
-      calculate_daily_points
+      calculate_exercise_points
       # set_is_recorded
     end
   end
@@ -59,7 +59,7 @@ class Entry < ApplicationModel
     true
   end
 
-  def calculate_daily_points
+  def calculate_exercise_points
     points = 0
     value = 0
     point_thresholds = []
@@ -78,11 +78,11 @@ class Entry < ApplicationModel
       end #if
     end #do activity point threshold
 
-    self.daily_points = points
-  end #calculate_daily_points
+    self.exercise_points = points
+  end
 
   def calculate_points
-    calculate_daily_points
+    calculate_exercise_points
 
     timed_behavior_points = 0
     self.entry_behaviors.each do |entry_behavior|

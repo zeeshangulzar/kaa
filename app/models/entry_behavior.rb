@@ -1,9 +1,10 @@
 # Many to many class that ties Entry and Behavior together
 class EntryBehavior < ApplicationModel
   belongs_to :entry
-  belongs_to :behavior
-  
+  belongs_to :behavior  
   attr_accessible :value, :entry_id, :behavior_id
+  attr_privacy :id, :behavior_id, :value, :behavior, :me
+  attr_privacy_path_to_user :entry, :user
 
   before_save :clear_value_if_empty
 

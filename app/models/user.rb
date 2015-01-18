@@ -2,11 +2,24 @@ require 'bcrypt'
 
 class User < ApplicationModel
 
+  attr_privacy_no_path_to_user
+
+#  can_earn_achievements
+  
+#  UserAchievement.attr_privacy_path_to_user :user
+#  UserAchievement.attr_privacy :user_id, :achievement_id, :has_achieved, :date_fulfilled, :created_on, :created_at, :updated_on, :updated_at, :any_user
+#  UserAchievement.attr_accessible :user, :achievement
+
+#  attr_accessible :achievements_attributes
+
   has_friendships
+  can_post
+  can_like
+  has_notifications
 
   # attrs
   attr_protected :role, :auth_key
-  attr_privacy_no_path_to_user
+  
   attr_privacy :email, :public
   attr_privacy :location, :any_user
   attr_privacy :username, :tiles, :me
@@ -26,11 +39,6 @@ class User < ApplicationModel
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
   has_many :events
-
-  has_notifications
-
-  can_post
-  can_like
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
@@ -136,7 +144,6 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
-  # TODO: not really using this but it may be nice to have sooo decide whether to keep..
   def groups_with_user(user_id)
     sql = "
 SELECT
@@ -146,7 +153,7 @@ JOIN group_users ON groups.id = group_users.group_id
 WHERE
 groups.owner_id = #{self.id}
 AND
-group_users.user_id = #{friend_id}
+group_users.user_id = #{user_id}
     "
     @result = Group.find_by_sql(sql)
     return @result
@@ -155,9 +162,6 @@ group_users.user_id = #{friend_id}
   has_many :invites, :foreign_key => "invited_user_id"  
 
   # events associations that are too complex for Rails..
-  # TODO: this is inefficient.. the sql is ok, but the Event.find_by_sql() and resulting ActiveRecord crap will likely be a huge performance hit down the road
-  # need to figure out a way to populate/simulate ActiveRecord objects through this query, including the necessary associations and pagination (invites especially)
-
   has_many :events
 
   def subscribed_events(options = {})
@@ -179,7 +183,6 @@ group_users.user_id = #{friend_id}
   def declined_events(options = {})
     return self.events_query(options.merge({:type=>'declined'}))
   end
-
 
   def events_query(options = {})
     options = {
