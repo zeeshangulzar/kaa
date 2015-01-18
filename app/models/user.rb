@@ -54,6 +54,8 @@ class User < ApplicationModel
   has_many :suggested_challenges
 
   has_many :groups, :foreign_key => "owner_id"
+
+  has_many :badges
   
   accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events
   attr_accessor :include_evaluation_definitions
