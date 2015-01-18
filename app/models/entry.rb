@@ -183,41 +183,7 @@ class Entry < ApplicationModel
 
     # NOTE:  saturday,sunday is 0,6 in ruby. it is 5,6 in mysql when using mode=1 with the week argument
     if [0,6].include?(self.recorded_on.wday)
-      sql = "
-        select z.badge_key, week, recorded_on, z.sequence, badges.id badge_id from (
-          select '#{Badge::WeekendWarrior}' badge_key, week, recorded_on, @sequence:=@sequence+1 sequence from(
-              select
-              @week := x.week week,
-              if(@week >= @next_possible, 'Y', 'N') award,
-              @next_possible:=if(@week >= @next_possible, @week+5,@next_possible) next_possible,
-              x.recorded_on
-              from(
-                select 
-                  week(entries.recorded_on,1) week,
-                  min(entries.recorded_on) recorded_on, 
-                  count(distinct week(moving_e.recorded_on,1)) consecutive
-                from entries
-                left join entries moving_e on moving_e.user_id = entries.user_id 
-                                              and year(moving_e.recorded_on) = year(entries.recorded_on) 
-                                              and weekday(moving_e.recorded_on) in (5,6) and week(moving_e.recorded_on,1) 
-                                              between week(entries.recorded_on,1) - 4  and week(entries.recorded_on,1)
-                where entries.user_id = #{self.user_id}
-                and weekday(entries.recorded_on) in (5,6) 
-                and year(entries.recorded_on) = #{self.recorded_on.year}
-                group by week(entries.recorded_on,1)
-                having count(distinct week(moving_e.recorded_on,1)) = 5
-              ) x
-              left join (select @next_possible := 5, @week := 1) test on 1=1
-          )y 
-          left join (select @sequence :=-1) test on 1=1
-          where y.award = 'Y'
-          UNION
-          select '#{Badge::Weekender}',week(min(entries.recorded_on),1),min(entries.recorded_on),0
-          from entries
-          where user_id = #{self.user_id} and year(recorded_on) = #{self.recorded_on.year} and weekday(entries.recorded_on) in (5,6) 
-        ) z 
-        left join badges on badges.user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and badges.badge_key = z.badge_key and badges.sequence = z.sequence"
-
+      sql = Badge.weekend_query(self.user_id,self.recorded_on.year)
       rows = connection.select_all(sql)
       if !rows.empty?
         now = self.user.promotion.current_time.to_s(:db)
