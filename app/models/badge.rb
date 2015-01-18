@@ -8,6 +8,8 @@ class Badge < ActiveRecord::Base
   attr_privacy :badge_key, :earned_year, :sequence, :connections
   attr_privacy :user_id, :earned_date, :me 
 
+  attr_accessible *column_names 
+
   # query returns what the milestones SHOULD BE
   def self.milestone_query(user_id,year)
     cases = Milestones.keys.sort{|x,y|Milestones[y]<=>Milestones[x]}.collect{|k| "when total_points >=#{Milestones[k]} then '#{k}'"}
@@ -66,5 +68,11 @@ class Badge < ActiveRecord::Base
           where user_id = #{user_id} and year(recorded_on) = #{year} and weekday(entries.recorded_on) in (5,6) 
         ) z 
         left join badges on badges.user_id = #{user_id} and earned_year = #{year} and badges.badge_key = z.badge_key and badges.sequence = z.sequence"
+  end
+
+  def self.possible(for_promotion,year)
+    # ignoring for_promotion and year for now
+    # eventually we'll want to do something with those...
+    Milestones.keys.concat([Weekender,WeekendWarrior])
   end
 end

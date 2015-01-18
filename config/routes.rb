@@ -19,6 +19,7 @@ Go::Application.routes.draw do
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
     resources :success_stories, :only => [:index, :show]
+    resources :badges, :only => [:index]
   end
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
