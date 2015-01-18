@@ -91,9 +91,8 @@ class EvaluationsController < ApplicationController
   #   }
   def create
     @evaluation = @evaluation_definition.evaluations.create(params[:evaluation])
-    if !@evaluation
-      # TODO: is there any sort of validation on Evaluation?
-      return HESResponder("Error creating evaluation.", "ERROR")
+    if !@evaluation.valid?
+      return HESResponder(@evalution.errors.full_messages, "ERROR")
     end
     return HESResponder(@evaluation)
   end

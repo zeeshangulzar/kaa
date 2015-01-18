@@ -57,7 +57,6 @@ class Event < ApplicationModel
     return count > 0
   end
 
-  # TODO: temporary..
   def as_json(options = {})
     options = options.merge({:methods => ["attendance"]})
     super

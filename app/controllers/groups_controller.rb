@@ -6,6 +6,7 @@ class GroupsController < ApplicationController
       return HESResponder("You may not view user's groups.", "DENIED")
     else
       # TODO: make ?exclude=users,etc. work...
+      # likely will have to rely on constructing explicit hashes, a la GET /events
 #      if !params[:exclude].nil?
 #        exclusions = params[:exclude].split(',')
 #        exclusions.each do |exclusion|

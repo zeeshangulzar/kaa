@@ -76,7 +76,6 @@ class InvitesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    # TODO: error when user has already been invited
     event = Event.find(params[:invite][:event_id]) rescue nil
     if !event
       return HESResponder("Event", "NOT_FOUND")

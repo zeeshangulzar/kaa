@@ -83,7 +83,4 @@ class ChallengesReceivedController < ApplicationController
     end
   end
 
-  def destroy
-    # TODO: make me
-  end
 end

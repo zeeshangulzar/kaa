@@ -18,11 +18,31 @@ class EntriesController < ApplicationController
   #   }]
   def index
     if @current_user.id == @target_user.id || @current_user.master?
-      @entries = (!@target_user.entries.empty? && !@target_user.entries.available.empty?) ? @target_user.entries.available : []
+      entries = (!@target_user.entries.empty? && !@target_user.entries.available.empty?) ? @target_user.entries.available : []
     else
       return HESResponder("You may not view other users' entries.", "DENIED")
     end
-    return HESResponder(@entries, "OK", nil, 0)
+    # TODO: this still isn't fast enough
+    # need to figure out a quick method of getting attrs of behaviors, etc.
+    entries_hash = []
+    entries.each_with_index{|entry,index|
+      entry_hash = {
+        :id                     => entry.id,
+        :recorded_on            => entry.recorded_on,
+        :is_recorded            => entry.is_recorded,
+        :exercise_minutes       => entry.exercise_minutes,
+        :exercise_steps         => entry.exercise_steps,
+        :exercise_points        => entry.exercise_points,
+        :timed_behavior_points  => entry.timed_behavior_points,
+        :challenge_points       => entry.challenge_points,
+        :url                    => "/entries/" + entry.id.to_s,
+        :notes                  => entry.notes,
+        :entry_behaviors        => entry.entry_behaviors,
+        :updated_at             => entry.updated_at
+      }
+      entries_hash[index] = entry_hash
+    }
+    return HESResponder(entries_hash, "OK", nil, 0)
   end
 
   # Gets a single entry for a team

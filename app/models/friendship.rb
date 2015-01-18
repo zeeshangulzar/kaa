@@ -110,9 +110,7 @@ class Friendship < ApplicationModel
   
   # Updates inverse relationship to also be accepted
   after_update :accept_inverse_friendship, :if => Proc.new {|friendship| friendship.status_was == STATUS[:pending] && friendship.status == STATUS[:accepted]}
-  
-  # Destroy inverse friendship if it exists
-  after_destroy :destroy_inverse_friendship, :if => Proc.new {|friendship| !friendship.inverse_friendship.nil?}
+
   # @!endgroup
 
   def fix_types
@@ -143,11 +141,6 @@ class Friendship < ApplicationModel
   # @return [Boolean] true if inverse friendship is accepted successfully
   def accept_inverse_friendship
     inverse_friendship.accept if !inverse_friendship.nil?
-  end
-  
-  # Destroys the inverse friendship
-  def destroy_inverse_friendship
-    inverse_friendship.destroy if !inverse_friendship.nil?
   end
   
   # Accepts a friendship request by updating status to accepted
@@ -185,4 +178,28 @@ class Friendship < ApplicationModel
   def accessible_attributes
     attributes.delete_if {|key, value| !Friendship.accessible_attributes.include?(key) }
   end
+
+
+  after_destroy :destroy_inverse_and_associations, :if => Proc.new {|friendship| !friendship.inverse_friendship.nil?}
+  # TODO: make sure any necessary associations between friends are removed here
+  # STAY ON TOP OF THIS!
+  def destroy_inverse_and_associations
+    # get group_users of the friendship..
+    friendee_group_ids = self.friendee.groups.collect{|g|g.id}
+    friender_group_ids = self.friender.groups.collect{|g|g.id}
+    # GroupUsers with friender id = user_id
+    friender_group_users = GroupUser.where(:user_id => self.friender_id, :group_id => friendee_group_ids)
+    # GroupUsers with friendee id = user_id
+    friendee_group_users = GroupUser.where(:user_id => self.friendee_id, :group_id => friender_group_ids)
+    # destroy them...
+    friender_group_users.each{|gu|
+      gu.destroy
+    }
+    friendee_group_users.each{|gu|
+      gu.destroy
+    } 
+    # Destroy inverse friendship if it exists
+    inverse_friendship.destroy if !inverse_friendship.nil?
+  end
+
 end

@@ -47,7 +47,6 @@ class EventsController < ApplicationController
   def show
     event = Event.find(params[:id]) rescue nil
     return HESResponder("Event", "NOT_FOUND") if !event
-    # TODO: privacy stuff here, probably quite similar to User::subscribed_events
     if event.is_user_subscribed?(@current_user) || @current_user.master?
       return HESResponder(event)
     else
@@ -68,9 +67,6 @@ class EventsController < ApplicationController
           group = Group.find(invite[:invited_group_id]) rescue nil
           if !group.nil? && group.owner.id == @current_user.id
             group.users.each do |user|
-              # TODO: not here though..
-              # need to make sure when group users are referenced for various actions, such as here, that the group users are also still friends with @current_user
-              # since they could be unfriended and still in the group, as of now..
               if @current_user.friends.include?(user)
                 i = event.invites.build(:invited_user_id => user.id, :inviter_user_id => @current_user.id, :invited_group_id => invite[:invited_group_id])
                   if !i.valid?
