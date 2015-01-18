@@ -21,7 +21,7 @@
 
 development:
    adapter: mysql2
-   encoding: utf8
+   encoding: latin1
    database: go_development
    username: hesdev
    password: l0ngd@y
