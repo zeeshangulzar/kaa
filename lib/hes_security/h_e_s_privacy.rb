@@ -122,7 +122,9 @@ module HESPrivacy
             elsif rule_hash[:test] == :connections
               #user now has a method named ids_of_connections to the user model that executes a SQL query that returns the type and id of every friend, team member, etc.
               if target_user
-                if target_user.respond_to?(:ids_of_connections)
+                if requester == target_user
+                  ok = true
+                elsif target_user.respond_to?(:ids_of_connections)
                   ok = target_user.ids_of_connections.include?(requester.id)
                 else
                   Rails.logger.warn "HESPrivacy warning: :connections was specified but #{target_user.class.to_s} does not have a method named ids_of_connections"
