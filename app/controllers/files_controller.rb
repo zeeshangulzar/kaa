@@ -94,13 +94,32 @@ class FilesController < ApplicationController
     require 'RMagick'
     
     img_path = Dir["#{DIRNAME}/#{params[:image].split('/').last}"].first
-    img = Magick::Image.read(img_path).first
-    img = img.crop(params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h]) unless params[:crop].empty?
 
-    circle = Magick::Image.new params[:crop][:w], params[:crop][:h]
+    name = img_path.split('/').last
+    ext_type = img_path.split('.').last
+    new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
+    new_img_path = img_path.gsub(name, new_name);
+
+    tn_path = File.join(DIRNAME, "thumbnail-#{new_name}")
+    crop_to_circle(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+    render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :name => new_name}, :status => 202
+  end
+
+  def crop_to_circle(filename, x, y, w, h, out_filename, thumb_filename=nil)
+    require 'RMagick'
+
+    img_path = filename
+    img = Magick::Image.read(img_path).first
+    w = [w, img.columns-x].min
+    h = [h, img.rows-y].min
+    w = [w,h].min
+    h = w
+    img = img.crop(x,y,w,h)
+
+    circle = Magick::Image.new w,h 
     gc = Magick::Draw.new
     gc.fill 'black'
-    gc.circle params[:crop][:w]/2, params[:crop][:w]/2, params[:crop][:w]/2, 1
+    gc.circle w/2, w/2, w/2, 1
     gc.draw circle
 
     mask = circle.blur_image(0,1).negate
@@ -113,12 +132,15 @@ class FilesController < ApplicationController
     new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s)
     img_path = img_path.gsub(name, new_name)
 
-    tn_path = File.join(DIRNAME, "thumbnail-#{new_name}")
+    if !thumb_filename.nil?
+      tn_path = File.join(thumb_filename)
+    else 
+      tn_path = File.join(DIRNAME, "thumbnail-#{out_filename}")
+    end
+
     tn_img = img.resize_to_fit(50, 50)
     tn_img.write(tn_path)
-
-    img.write(img_path)
-    render :json => {:url => "/#{img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :name => new_name}, :status => 202
+    img.write(out_filename)
   end
 
   private
