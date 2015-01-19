@@ -359,4 +359,54 @@ ORDER BY profiles.last_name
     return users
   end
 
+  def posters(options = {})
+    user = self
+    options[:unlocked_only] ||= false
+    options[:start] ||= user.promotion.current_date.beginning_of_week
+    options[:end] ||= user.promotion.current_date.end_of_week
+    sql = "
+SELECT
+IF(
+  -- entry's minutes is greater than the goal minutes of the entry, fall back on profile
+  IF(entries.exercise_minutes > COALESCE(entries.goal_minutes, profiles.goal_minutes, 0), 1, 0)
+  OR
+  -- entry's steps is greater than the goal steps of the entry, fall back on profile
+  IF(entries.exercise_steps > COALESCE(entries.goal_steps, profiles.goal_steps, 0), 1, 0)
+  , 1, 0) AS unlocked,
+posters.*
+FROM posters
+LEFT JOIN entries ON entries.user_id = #{user.id}
+  AND (
+    entries.recorded_on = posters.visible_date
+    OR (
+      -- saturday's entry lines up with friday
+      WEEKDAY(entries.recorded_on) = 5 AND DATE_SUB(entries.recorded_on, INTERVAL 1 DAY) = posters.visible_date
+      OR
+      -- sunday's entry lines up with friday
+      WEEKDAY(entries.recorded_on) = 6 AND DATE_SUB(entries.recorded_on, INTERVAL 2 DAY) = posters.visible_date
+    )
+  )
+LEFT JOIN profiles ON profiles.user_id = entries.user_id
+WHERE
+posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
+GROUP BY posters.visible_date, entries.recorded_on
+ORDER BY entries.recorded_on
+    "
+    posters_array = []
+    last = nil
+    Poster.connection.select_all(sql).each do |row|
+      if last && last['visible_date'] == row['visible_date']
+        if row['unlocked']
+          posters_array.pop
+          posters_array.push(row)
+        end
+      else
+        posters_array.push(row)
+      end
+      last = row
+    end
+
+    return posters_array
+  end
+
 end

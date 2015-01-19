@@ -11,7 +11,7 @@ class CreatePosters < ActiveRecord::Migration
       t.string      :image4
       t.integer     :success_story_id
       t.boolean     :active
-      t.datetime    :visible_date
+      t.date        :visible_date
       t.timestamps
     end
   end

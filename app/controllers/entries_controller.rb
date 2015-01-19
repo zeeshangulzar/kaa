@@ -98,6 +98,9 @@ class EntriesController < ApplicationController
       ex_activities = params[:entry].delete(:entry_exercise_activities) || []
       behaviors = params[:entry].delete(:entry_behaviors) || []
       @entry = @target_user.entries.build(params[:entry])
+      # update goals from profile for POST & PUT only
+      @entry.goal_minutes = @target_user.profile.goal_minutes
+      @entry.goal_steps = @target_user.profile.goal_steps
       @entry.save!
 
       #create exercise activites
@@ -184,6 +187,10 @@ class EntriesController < ApplicationController
           end
         end
       end 
+
+      # update goals from profile for POST & PUT only
+      @entry.goal_minutes = @target_user.profile.goal_minutes
+      @entry.goal_steps = @target_user.profile.goal_steps
 
       @entry.save!
       @entry.update_attributes(scrub(params[:entry], Entry))

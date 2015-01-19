@@ -3,7 +3,7 @@ class PostersController < ApplicationController
   authorize :all, :user
   
   def index
-    return HESResponder(@promotion.posters)
+    return HESResponder(@current_user.posters)
   end
 
   def show
