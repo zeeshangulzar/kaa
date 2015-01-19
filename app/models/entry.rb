@@ -137,7 +137,7 @@ class Entry < ApplicationModel
   end
 
   def do_milestone_badges
-    rows = connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year))
+    rows = connection.uncached{ connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year)) }
     inserts = []
     updates = []
     now = self.user.promotion.current_time.to_s(:db)
@@ -184,7 +184,7 @@ class Entry < ApplicationModel
     # NOTE:  saturday,sunday is 0,6 in ruby. it is 5,6 in mysql when using mode=1 with the week argument
     if [0,6].include?(self.recorded_on.wday)
       sql = Badge.weekend_query(self.user_id,self.recorded_on.year)
-      rows = connection.select_all(sql)
+      rows = connection.uncached{ connection.select_all(sql) }
       if !rows.empty?
         now = self.user.promotion.current_time.to_s(:db)
         inserts = []

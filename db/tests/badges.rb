@@ -145,6 +145,40 @@ if badge_user.save
   e.save
   return unless verify_weekend_warrior(badge_user,some_saturday_of_2014+63,3,"fourth test -- logged 10 consecutive weekends")
 
+  # now delete the badges and see if they can be put back
+  badges_before_delete = badge_user.badges.find(:all,:order=>'badge_key,sequence').collect{|badge|[badge.badge_key,badge.sequence,badge.earned_date]}
+  Badge.connection.execute "delete from badges where user_id = #{badge_user.id}"
+  badge_user.entries.where(:recorded_on=>some_saturday_of_2014).first.save
+  badges_after_delete = badge_user.badges.find(:all,:order=>'badge_key,sequence').collect{|badge|[badge.badge_key,badge.sequence,badge.earned_date]}
+  if badges_before_delete == badges_after_delete
+    # they were put back the same way they were before they were deleted
+  else
+    puts "boo! badges don't get put back the same way they were before delete. badges below"
+    puts "===before delete==="
+    puts y(badges_before_delete)
+    puts "===after delete==="
+    puts y(badges_after_delete)
+  end
+
+  # now delete random badges and see if they can be put back
+  badges_before_delete = badge_user.badges.find(:all,:order=>'badge_key,sequence').collect{|badge|[badge.badge_key,badge.sequence,badge.earned_date]}
+  badge_user.badges.find(:all,:order=>'badge_key,sequence').each_with_index{|badge,i| badge.destroy if i%2==1}
+  badges_post_delete = badge_user.badges.find(:all,:order=>'badge_key,sequence').collect{|badge|[badge.badge_key,badge.sequence,badge.earned_date]}
+  badge_user.entries.where(:recorded_on=>some_saturday_of_2014).first.save
+  badges_after_delete = badge_user.badges.find(:all,:order=>'badge_key,sequence').collect{|badge|[badge.badge_key,badge.sequence,badge.earned_date]}
+  if badges_before_delete == badges_after_delete
+    # they were put back the same way they were before they were deleted
+  else
+    puts "boo! badges don't get put back the same way they were before delete. badges below"
+    puts "===before delete==="
+    puts y(badges_before_delete)
+    puts "===post delete==="
+    puts y(badges_post_delete)
+    puts "===after delete==="
+    puts y(badges_after_delete)
+  end
+
+
   msgs << "logged #{badge_user.entries.count} days for #{badge_user.email} and badges are: #{badge_user.badges.reload.collect(&:badge_key).join(', ')}"
 end
 
