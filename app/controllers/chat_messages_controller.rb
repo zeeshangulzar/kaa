@@ -21,6 +21,7 @@ class ChatMessagesController < ApplicationController
     ChatMessage.transaction do
       @chat_message.save!
     end
+    $redis.publish('newMessageCreated', @chat_message.to_json)
     return HESResponder(@chat_message)
   end
 
@@ -34,7 +35,7 @@ class ChatMessagesController < ApplicationController
     end
     ChatMessage.transaction do
       message.update_attributes(params[:chat_message])
-      if !message.vaild?
+      if !message.valid?
         return HESResponder(message.errors.full_messages, "ERROR")
       end
     end
