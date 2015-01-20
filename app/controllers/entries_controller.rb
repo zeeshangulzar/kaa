@@ -27,18 +27,19 @@ class EntriesController < ApplicationController
     entries_hash = []
     entries.each_with_index{|entry,index|
       entry_hash = {
-        :id                     => entry.id,
-        :recorded_on            => entry.recorded_on,
-        :is_recorded            => entry.is_recorded,
-        :exercise_minutes       => entry.exercise_minutes,
-        :exercise_steps         => entry.exercise_steps,
-        :exercise_points        => entry.exercise_points,
-        :timed_behavior_points  => entry.timed_behavior_points,
-        :challenge_points       => entry.challenge_points,
-        :url                    => "/entries/" + entry.id.to_s,
-        :notes                  => entry.notes,
-        :entry_behaviors        => entry.entry_behaviors,
-        :updated_at             => entry.updated_at
+        :id                           => entry.id,
+        :recorded_on                  => entry.recorded_on,
+        :is_recorded                  => entry.is_recorded,
+        :exercise_minutes             => entry.exercise_minutes,
+        :exercise_steps               => entry.exercise_steps,
+        :exercise_points              => entry.exercise_points,
+        :timed_behavior_points        => entry.timed_behavior_points,
+        :challenge_points             => entry.challenge_points,
+        :url                          => "/entries/" + entry.id.to_s,
+        :notes                        => entry.notes,
+        :entry_behaviors              => entry.entry_behaviors,
+        :entry_exercise_activities    => entry.entry_exercise_activities,
+        :updated_at                   => entry.updated_at
       }
       entries_hash[index] = entry_hash
     }

@@ -107,4 +107,9 @@ class Promotion < ApplicationModel
     return location
   end
 
+  def as_json(options={})
+    options[:meta] ||= false
+    super
+  end
+
 end
