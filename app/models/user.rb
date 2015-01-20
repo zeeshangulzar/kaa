@@ -390,7 +390,7 @@ LEFT JOIN profiles ON profiles.user_id = entries.user_id
 WHERE
 posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
 GROUP BY posters.visible_date, entries.recorded_on
-ORDER BY entries.recorded_on
+ORDER BY posters.visible_date ASC, entries.recorded_on ASC
     "
     posters_array = []
     last = nil

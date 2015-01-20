@@ -3,7 +3,11 @@ class PostersController < ApplicationController
   authorize :all, :user
   
   def index
-    return HESResponder(@current_user.posters)
+    options = {}
+    options[:start] = params[:start].nil? ? @promotion.current_date.beginning_of_month : (params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date)
+    options[:end] = params[:end].nil? ? (!params[:start].nil? ? options[:start].end_of_month : @promotion.current_date.end_of_month) : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date)
+    return HESResponder(@current_user.posters(options))
+
   end
 
   def show

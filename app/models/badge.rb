@@ -14,22 +14,32 @@ class Badge < ActiveRecord::Base
   def self.milestone_query(user_id,year)
     cases = Milestones.keys.sort{|x,y|Milestones[y]<=>Milestones[x]}.collect{|k| "when total_points >=#{Milestones[k]} then '#{k}'"}
     "
-      select milestone,min(as_of) earned_on, if(badges.id is null, 'ADD', if(as_of=badges.earned_date,'OK','UPDATE')) to_do from (
-        select case
-        #{cases.join("\n")}
-        else null
-        end milestone, as_of from(
-          select sum(moving_e.exercise_points + moving_e.challenge_points + moving_e.timed_behavior_points) total_points, e.recorded_on as_of 
-          from entries e 
-          left join entries moving_e on (moving_e.user_id = e.user_id and year(moving_e.recorded_on) = #{year.to_i} and moving_e.recorded_on <= e.recorded_on) 
-          where e.user_id = #{user_id.to_i}
-          and year(e.recorded_on) = #{year.to_i}
-          group by e.recorded_on
-        ) x
-      )y 
-      left join badges on badges.user_id = #{user_id.to_i} and earned_year = #{year.to_i} and badges.badge_key = y.milestone
-      where milestone is not null 
-      group by milestone;
+SELECT
+milestone, MIN(as_of) earned_on, IF(badges.id is null, 'ADD', IF(as_of=badges.earned_date,'OK','UPDATE')) to_do
+FROM (
+SELECT
+  CASE
+    #{cases.join("\n")}
+    ELSE null
+  END milestone, as_of
+  FROM (
+    SELECT
+    @runtot := (@runtot + z.total_points) AS total_points, z.as_of
+    FROM (
+      SELECT
+      @runtot := 0, SUM(e.exercise_points + e.challenge_points + e.timed_behavior_points) total_points, e.recorded_on as_of
+      FROM
+        entries e
+      WHERE
+        e.user_id = #{user_id.to_i}
+        AND year(e.recorded_on) = #{year.to_i}
+      GROUP BY e.recorded_on
+    ) z
+  ) x
+)y 
+LEFT JOIN badges on badges.user_id = #{user_id.to_i} and earned_year = #{year.to_i} and badges.badge_key = y.milestone
+WHERE milestone is not null
+GROUP BY milestone;
   "
   end
 
