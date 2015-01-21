@@ -63,3 +63,4 @@ gem "redis", :group => [:development, :production]
 # gem 'oj'
 #
 gem "bluecloth", '2.2.0'
+gem "resque", "1.25.2"

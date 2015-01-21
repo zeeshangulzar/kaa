@@ -1,3 +1,5 @@
+require 'resque/server'
+
 Go::Application.routes.draw do
   resources :resellers do
     resources :organizations, :only => [:index, :show]
@@ -117,5 +119,6 @@ Go::Application.routes.draw do
   match "/success_stories/featured" => "success_stories#featured", :via => :get
   resources :success_stories
   
+  mount Resque::Server.new, :at => "/resque"
 
 end

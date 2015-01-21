@@ -57,6 +57,7 @@ class HESSecurityMiddleware
     #     - if that returns false, then they're not allowed to proceed, so return a response code of 403
     uri = URI::parse(request.url)
     path = uri.path
+    return nil if path =~ /^\/resque/ # need a better way to mount applications...
     env[:method] ||= env['REQUEST_METHOD']  # Rails.application.routes.recognize_path looks for :method not 'REQUEST_METHOD' -- so add it.
     route_hash = Rails.application.routes.recognize_path(path,env) rescue {}
     controller = route_hash[:controller]

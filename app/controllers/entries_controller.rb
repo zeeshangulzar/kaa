@@ -116,6 +116,14 @@ class EntriesController < ApplicationController
 
       @entry.save!
     end
+
+    # see app/mailers/go_mailer.rb
+    #GoMailer.dummy_email(@entry).deliver!
+    
+    # see app/jobs/dummy_job.rb
+    Resque.enqueue(DummyJob,@entry.id)
+
+
     return HESResponder(@entry)
   end
 
