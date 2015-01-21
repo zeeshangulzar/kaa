@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class ProfilePhotoUploader < CarrierWave::Uploader::Base
+class PosterImageUploader < CarrierWave::Uploader::Base
 
   include CarrierWave::RMagick
 
@@ -8,6 +8,15 @@ class ProfilePhotoUploader < CarrierWave::Uploader::Base
 
   def store_dir
     "posters/"
+  end
+
+  version :large do
+    process :resize_to_fit => [100, 100]
+  end
+
+  # Create different versions of your uploaded files:
+  version :small do
+    process :resize_to_fit => [40, 40]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
