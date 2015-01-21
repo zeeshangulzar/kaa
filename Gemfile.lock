@@ -40,12 +40,6 @@ GEM
     erubis (2.7.0)
     hes-authorization (2.0.5)
       rails (~> 3)
-    hes-cloud-storage (1.0.10)
-      carrierwave (= 0.8.0)
-      mime-types (~> 1.19)
-      rails (~> 3)
-      rest-client
-      rmagick (~> 2.13)
     hes-events (0.0.2)
       rails (~> 3)
     hes-many_to_many (0.0.3)
@@ -112,13 +106,15 @@ PLATFORMS
 DEPENDENCIES
   bcrypt-ruby (= 3.0.1)
   bluecloth (= 2.2.0)
+  carrierwave (= 0.8.0)
   hes-authorization
-  hes-cloud-storage (= 1.0.10)
   hes-events
   hes-sequencer
   json
+  mime-types (= 1.25.1)
   mysql2
   rack-cors
   rails (= 3.2.19)
   redis
+  rest-client (= 1.6.7)
   rmagick (~> 2.13)

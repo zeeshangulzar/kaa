@@ -22,7 +22,6 @@ class Post < ApplicationModel
 
   mount_uploader :photo, PostPhotoUploader
 
-
   # Validates post making sure attributes are present
   validates_presence_of :content, :depth, :user_id, :wallable_id, :wallable_type
 

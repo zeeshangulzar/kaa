@@ -6,6 +6,12 @@ class Poster < ApplicationModel
   belongs_to :promotion
   belongs_to :success_story
 
+  mount_uploader :image1, PosterImageUploader
+  mount_uploader :image2, PosterImageUploader
+  mount_uploader :image3, PosterImageUploader
+  mount_uploader :image4, PosterImageUploader
+
+
 
 
 end

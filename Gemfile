@@ -22,7 +22,10 @@ gem 'bcrypt-ruby', '3.0.1'
 # gem "hes-subdomain-handler"
 # gem "hes-authentication"
 gem "hes-authorization"
-gem "hes-cloud-storage", '1.0.10'
+#gem "hes-cloud-storage", '1.0.10'
+gem "carrierwave", '0.8.0'
+gem "rest-client", '1.6.7'
+gem "mime-types", '1.25.1'
 gem "hes-sequencer"
 # gem "hes-many_to_many", '0.0.3'
 # gem "hes-auth-key", :require => 'hes-auth-key'
