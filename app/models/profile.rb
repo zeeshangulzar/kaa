@@ -12,6 +12,8 @@ class Profile < ApplicationModel
   # relationships
   belongs_to :user
 
+  mount_uploader :image, ProfilePhotoUploader
+
   # includes
   include TrackChangedFields
   udfable

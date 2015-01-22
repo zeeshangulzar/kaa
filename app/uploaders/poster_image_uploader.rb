@@ -1,20 +1,22 @@
 # encoding: utf-8
 
-class PostPhotoUploader < CarrierWave::Uploader::Base
+class PosterImageUploader < CarrierWave::Uploader::Base
 
   include CarrierWave::RMagick
 
   storage :hes_cloud
 
   def store_dir
-    "posts/"
+    "posters/"
   end
 
-  process :resize_to_fit => [612, 612]
+  version :large do
+    process :resize_to_fit => [100, 100]
+  end
 
   # Create different versions of your uploaded files:
-  version :thumbnail do
-    process :resize_to_fit => [150, 150]
+  version :small do
+    process :resize_to_fit => [40, 40]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
@@ -26,11 +28,11 @@ class PostPhotoUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def filename
-    "post-#{Time.now.to_i}.jpg" if original_filename
+    "poster-#{Time.now.to_i}.jpg" if original_filename
   end
 
   def default_url
-    "/images/posts/" + [version_name, "default.jpg"].compact.join('_')
+    "/images/posters/" + [version_name, "default.jpg"].compact.join('_')
   end
 
 end

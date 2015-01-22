@@ -15,6 +15,10 @@ class ApplicationModel < ActiveRecord::Base
     parent_class = self.class.table_name
     hash = serializable_hash(options)
 
+    if defined?(options[:meta]) && options[:meta] === false
+      return hash
+    end
+
     tables = ApplicationModel.connection.tables
 
     hash.keys.each do |key|

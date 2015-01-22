@@ -20,10 +20,10 @@ class User < ApplicationModel
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :public
+  attr_privacy :email, :profile_photo, :public
   attr_privacy :location, :any_user
   attr_privacy :username, :tiles, :me
-  attr_accessible :username, :tiles, :email, :username, :altid
+  attr_accessible :username, :tiles, :email, :username, :altid, :profile_photo
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password

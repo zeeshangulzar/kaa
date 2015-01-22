@@ -209,5 +209,10 @@ class Entry < ApplicationModel
       #self.basket << self.user.badges.where(:created_at=>now)
     end
   end
+
+  def as_json(options={})
+    options[:meta] ||= false
+    super
+  end
   
 end

@@ -3,7 +3,6 @@ require "hes-authorization"
 #require "hes-likeable"
 #require "hes-notifier"
 require 'hes-events'
-require 'hes-cloud-storage'
 require 'carrierwave'
 
 require File.dirname(__FILE__) + "/post_validator"

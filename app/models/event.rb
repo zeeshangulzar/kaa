@@ -10,6 +10,8 @@ class Event < ApplicationModel
   belongs_to :location, :in_json => true
   belongs_to :user, :in_json => true
 
+  mount_uploader :photo, EventPhotoUploader
+
   PRIVACY = {
     :owner         => "O",
     :invitees      => "I",
