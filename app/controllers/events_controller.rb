@@ -32,7 +32,7 @@ class EventsController < ApplicationController
         :name         => event.name,
         :description  => event.description,
         :all_day      => event.all_day,
-        :photo        => event.photo,
+        :photo        => event.photo.as_json[:photo],
         :user_id      => event.user_id,
         :event_type   => event.event_type,
         :privacy      => event.privacy,
