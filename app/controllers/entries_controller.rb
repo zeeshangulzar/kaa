@@ -118,28 +118,31 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    Entry.transaction do
-      ex_activities = params[:entry].delete(:entry_exercise_activities) || []
-      behaviors = params[:entry].delete(:entry_behaviors) || []
-      @entry = @target_user.entries.build(params[:entry])
-      # update goals from profile for POST & PUT only
-      @entry.goal_minutes = @target_user.profile.goal_minutes
-      @entry.goal_steps = @target_user.profile.goal_steps
-      @entry.save!
+    ex_activities = params[:entry].delete(:entry_exercise_activities) || []
+    behaviors = params[:entry].delete(:entry_behaviors) || []
+    @entry = @target_user.entries.build(params[:entry])
+    # update goals from profile for POST & PUT only
+    @entry.goal_minutes = @target_user.profile.goal_minutes
+    @entry.goal_steps = @target_user.profile.goal_steps
+    if !@entry.valid?
+      return HESResponder(@entry.errors.full_messages, "ERROR")
+    else
+      Entry.transaction do
+        @entry.save!
+        #create exercise activites
+        ex_activities.each do |hash|
+          @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
+        end
 
-      #create exercise activites
-      ex_activities.each do |hash|
-        @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
+        #TODO: Test entry activities
+        behaviors.each do |hash|
+          @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
+        end
+
+        @entry.save!
       end
-
-      #TODO: Test entry activities
-      behaviors.each do |hash|
-        @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
-      end
-
-      @entry.save!
+      return HESResponder(@entry)
     end
-    return HESResponder(@entry)
   end
 
   # Updates a single entry
@@ -171,6 +174,7 @@ class EntriesController < ApplicationController
     if @entry.user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not edit this entry.", "DENIED")
     end
+    return HESResponder(@entry.errors.full_messages, "ERRROR") if !@entry.valid?
     Entry.transaction do
       entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
       if !entry_ex_activities.nil?

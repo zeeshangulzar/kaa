@@ -38,7 +38,7 @@ class Entry < ApplicationModel
   def do_validation
     user = self.user
     #Entries cannot be in the future, or outside of the started_on and promotion "ends on" range
-    if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
+    if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on < self.user.promotion.backlog_date || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
       self.errors[:base] << "Cannot have an entry outside of user's promotion start and end date range"
     end
   end

@@ -398,7 +398,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     last = nil
     Poster.connection.select_all(sql).each do |row|
       if last && last['visible_date'] == row['visible_date']
-        if row['unlocked']
+        if row['unlocked'] === 1
           posters_array.pop
           posters_array.push(row)
         end

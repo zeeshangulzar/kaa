@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :public
 
-  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :static_tiles, :dynamic_tiles, :any_user
+  attr_privacy :starts_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :static_tiles, :dynamic_tiles, :backlog_days, :any_user
 
   belongs_to :organization
 
@@ -85,7 +85,6 @@ class Promotion < ApplicationModel
     end
     paths
   end
-  
 
   def nested_locations
     nested = []
@@ -116,6 +115,10 @@ class Promotion < ApplicationModel
 
   def milestone_goals
     milestones = self.badges.milestones.collect{|ms| [ms.id, ms.point_goal]}.inject({}) { |h, (id, pts)| h[id] = pts; h }
+  end
+
+  def backlog_date
+    return (!self.backlog_days.nil? && self.backlog_days > 0) ? self.current_date - self.backlog_days : self.starts_on
   end
 
 end
