@@ -6,7 +6,6 @@ class ApplicationModel < ActiveRecord::Base
     return *self.class.column_names
   end
 
-
   def url
     return '/' + self.class.table_name.to_s + '/' + self.id.to_s
   end

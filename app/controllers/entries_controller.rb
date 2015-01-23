@@ -212,11 +212,12 @@ class EntriesController < ApplicationController
         end
       end 
 
+      @entry.assign_attributes(scrub(params[:entry], Entry))
+
       # update goals from profile for POST & PUT only
       @entry.goal_minutes = @target_user.profile.goal_minutes
       @entry.goal_steps = @target_user.profile.goal_steps
-
-      @entry.assign_attributes(scrub(params[:entry], Entry))
+      
       @entry.save!
       
     end

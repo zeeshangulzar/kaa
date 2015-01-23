@@ -2,7 +2,7 @@
   LAST_NAMES=["Myers","Craig","Harris","Cook","Houston","Goff","Hurley","Montoya","Combs","Collier","Pittman","Albert","Evans","Marsh","Branch","Wolf","Galloway","Spencer","Prince","Hess","Ingram","Todd","Perez","Harvey","Mccormick","Boone","Ferguson","Horn","Glenn","Sandoval","Pacheco","Contreras","Woods","Pratt","Bush","Vance","Vance","Lang","Gordon","Love","King","Dudley","Peters","Giles","Parrish","Kline","Watkins","Hill","Rich","Nguyen","Fry","Joseph","Haynes","Stanton","Valenzuela","Owen","Barrera","Cook","Morrison","Scott","Ortega","Rasmussen","Barker","Maynard","George","Ortiz","Schneider","Suarez","Clark","Wise","Chapman","Knapp","Meyers","Wilcox","Dodson","Mercado","Cabrera","Maxwell","Lott","Whitney","Harrell","Lee","Sexton","Hooper","Chang","Branch","Bradshaw","Lindsay","Franks","Woodard","Ford","Justice","William","Mcgowan","Craig","Harvey","Daniel","Sanders","Gibson","Becker","Nixon","Sellers","Reese","Joyce","Steele","Mercado","Blackwell","Mckee","Chang","Mason","Reeves","Wiley","Swanson","Baird","Banks","Phelps","Dillard","James","Vasquez","Bentley","Hines","Wheeler","Rogers","Luna","Reese","Gamble","Blevins","Kelley","Blankenship","Combs","Mcmillan","Sargent","James","Simon","Dixon","Cline","Mcdowell","Chapman","Parks","Garza","Sellers","Wilkinson","Watson","Stevenson","Woodard","Cantrell","Wolf","Horn","Dorsey","Short","Cooke","Castillo","Charles","Chen","Barber","Garrison","Casey","Rivas","Richardson","Caldwell","Pennington","Gomez","Delacruz","Carver","Bond","Wiley","Ashley","Bishop","Howe","Beck","Pruitt","Good","Oneill","Acevedo","Rivera","Crane","Henderson","Colon","Gonzales","Burke","Giles","Paul","Curry","Lowe","Avila","Carver","Woodward","Nguyen","Mills","Caldwell","Roy","Taylor","Tillman","Simmons","Hodges","Odonnell","Bean","Burt","Clayton","Walls"]
  
 promotion = Promotion.first
-
+=begin
 1000.times do
   fn = FIRST_NAMES.shuffle.first
   ln = LAST_NAMES.shuffle.first
@@ -10,8 +10,27 @@ promotion = Promotion.first
   user.role = User::Role[:user]
   user.password = 'test'
   user.email = "#{fn.downcase}.#{ln.downcase}@test.hesonline.com"
+  next if !User.find_by_email(user.email).nil?
+  user.auth_key = rand(9999999)
   user.username = "#{fn.downcase}#{ln.downcase}"
   user.save
-  user_profile = user.create_profile :first_name => fn, :last_name => ln
+  user_profile = user.create_profile :first_name => fn, :last_name => ln, :goal_steps => 6000, :goal_minutes => 30
   puts "created #{user.email}"
 end
+=end
+
+
+
+promotion.users.each_with_index{|u,index|
+  ds = Date.parse("2014-01-01")
+  de = Date.parse("2014-12-31")
+  (ds..de).each do |day|
+    puts day
+    steps = [*2000..12000].sample
+    minutes = [*20..120].sample
+    next if !u.entries.where(:recorded_on => day).empty?
+    e = u.entries.create(:recorded_on => day, :exercise_steps => steps, :exercise_minutes => minutes)
+    e.save!
+    puts "User #{index}: #{day}"
+  end
+}

@@ -64,8 +64,10 @@ class User < ApplicationModel
   has_many :groups, :foreign_key => "owner_id"
 
   has_many :badges
+
+  has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events, :badges_earned
   attr_accessor :include_evaluation_definitions
   
   # hooks

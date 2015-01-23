@@ -17,6 +17,8 @@ class Promotion < ApplicationModel
   has_many :challenges
   has_many :suggested_challenges
 
+  has_many :badges, :order => "sequence ASC"
+
   has_many :locations, :order => "parent_location_id, sequence", :dependent => :destroy
 
   has_wall
@@ -110,6 +112,10 @@ class Promotion < ApplicationModel
   def as_json(options={})
     options[:meta] ||= false
     super
+  end
+
+  def milestone_goals
+    milestones = self.badges.milestones.collect{|ms| [ms.id, ms.point_goal]}.inject({}) { |h, (id, pts)| h[id] = pts; h }
   end
 
 end
