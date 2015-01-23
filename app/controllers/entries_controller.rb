@@ -24,8 +24,29 @@ class EntriesController < ApplicationController
     end
     # TODO: this still isn't fast enough
     # need to figure out a quick method of getting attrs of behaviors, etc.
-    entries_hash = []
+    entries_array = []
     entries.each_with_index{|entry,index|
+      
+      behaviors_array = []
+      entry.entry_behaviors.each_with_index{|eb,eb_index|
+        behavior_hash = {
+          :id           => eb.id,
+          :behavior_id  => eb.behavior_id,
+          :value        => eb.value
+        }
+        behaviors_array[eb_index] = behavior_hash
+      }
+      
+      activities_array = []
+      entry.entry_exercise_activities.each_with_index{|eea,eea_index|
+        activity_hash = {
+          :id => eea.id,
+          :exercise_activity_id => eea.exercise_activity_id,
+          :value                => eea.value
+        }
+        activities_array[eea_index] = activity_hash
+      }
+
       entry_hash = {
         :id                           => entry.id,
         :recorded_on                  => entry.recorded_on,
@@ -37,13 +58,15 @@ class EntriesController < ApplicationController
         :challenge_points             => entry.challenge_points,
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
-        :entry_behaviors              => entry.entry_behaviors,
-        :entry_exercise_activities    => entry.entry_exercise_activities,
+        :entry_behaviors              => behaviors_array,
+        :entry_exercise_activities    => activities_array,
+        :goal_steps                   => entry.goal_steps,
+        :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at
       }
-      entries_hash[index] = entry_hash
+      entries_array[index] = entry_hash
     }
-    return HESResponder(entries_hash, "OK", nil, 0)
+    return HESResponder(entries_array, "OK", nil, 0)
   end
 
   # Gets a single entry for a team
@@ -193,9 +216,10 @@ class EntriesController < ApplicationController
       @entry.goal_minutes = @target_user.profile.goal_minutes
       @entry.goal_steps = @target_user.profile.goal_steps
 
+      @entry.assign_attributes(scrub(params[:entry], Entry))
       @entry.save!
-      @entry.update_attributes(scrub(params[:entry], Entry))
-    end 
+      
+    end
     return HESResponder(@entry)
   end
 end
