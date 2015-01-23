@@ -6,6 +6,8 @@ class Badge < ActiveRecord::Base
 
   belongs_to :promotion
 
+  mount_uploader :image, BadgeImageUploader
+
   TYPE = {
     :milestones   => 'milestone',
     :achievements => 'achievement'
