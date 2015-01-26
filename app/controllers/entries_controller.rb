@@ -203,7 +203,7 @@ class EntriesController < ApplicationController
 
       entry_behaviors = params[:entry].delete(:entry_behaviors)
       if !entry_behaviors.nil?
-        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x.id}
+        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x[:id]}
         remove_behaviors = @entry.entry_behaviors.reject{|x| ids.include? x.id}
 
         remove_behaviors.each do |act|
