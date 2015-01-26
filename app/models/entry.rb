@@ -26,7 +26,17 @@ class Entry < ApplicationModel
   scope :recently_updated, order("`entries`.`updated_at` DESC")
   
   # Get only entries that are available for recording, can't record in the future so don't grab those entries
-  scope :available, lambda{ where("`entries`.`recorded_on` <= '#{Date.today.to_s}'").order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities) }
+  scope :available, lambda{ |options|
+    sql = "1=1"
+    if !options.nil?
+      sql += " AND `entries`.`recorded_on` >= '#{options[:start].to_s}' " if !options[:start].nil?
+      sql += " AND `entries`.`recorded_on` <= '#{options[:end].to_s}' " if !options[:end].nil?
+      sql += " AND `entries`.`recorded_on` = '#{options[:recorded_on].to_s}' " if !options[:recorded_on].nil?
+    else
+      sql += " AND `entries`.`recorded_on` <= '#{Date.today.to_s}'"
+    end
+    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities)
+  }
 
   before_save :calculate_points
 

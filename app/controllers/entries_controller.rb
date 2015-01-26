@@ -17,11 +17,15 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    if @current_user.id == @target_user.id || @current_user.master?
-      entries = (!@target_user.entries.empty? && !@target_user.entries.available.empty?) ? @target_user.entries.available : []
-    else
-      return HESResponder("You may not view other users' entries.", "DENIED")
+    return HESResponder("You can't view other users' events.", "DENIED") if @target_user.id != @current_user.id && !@current_user.master?
+    options = {}
+    options[:start] = params[:start].nil? ? @promotion.starts_on : (params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date)
+    options[:end] = params[:end].nil? ? @promotion.current_date : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date)
+    if !params[:recorded_on].nil?
+      options[:recorded_on] = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
     end
+    entries = (!@target_user.entries.available(options).empty?) ? @target_user.entries.available(options) : []
+    
     # TODO: this still isn't fast enough
     # need to figure out a quick method of getting attrs of behaviors, etc.
     entries_array = []
