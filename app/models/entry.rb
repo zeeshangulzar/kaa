@@ -20,7 +20,7 @@ class Entry < ApplicationModel
   validates_presence_of :recorded_on, :user_id
 
   # validate
-  validate :do_validation
+  validate :custom_validation
   
   # Order entries from most recently updated to least recently
   scope :recently_updated, order("`entries`.`updated_at` DESC")
@@ -39,18 +39,27 @@ class Entry < ApplicationModel
   }
 
   before_save :calculate_points
+  before_save :nullify_exercise
 
   after_save    :do_milestone_badges
   after_destroy :do_milestone_badges
   after_save    :do_weekend_badges
   after_destroy :do_weekend_badges
   
-  def do_validation
+  def custom_validation
     user = self.user
     #Entries cannot be in the future, or outside of the started_on and promotion "ends on" range
     if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on < self.user.promotion.backlog_date || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
       self.errors[:base] << "Cannot have an entry outside of user's promotion start and end date range"
     end
+    if self.exercise_steps.to_i > 0 && self.exercise_minutes.to_i > 0
+      self.errors[:base] << "Cannot log both steps and minutes"
+    end
+  end
+
+  def nullify_exercise
+    self.exercise_steps = nil if self.exercise_steps.to_i == 0
+    self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
   end
 
   def write_attribute_with_exercise(attr,val)
