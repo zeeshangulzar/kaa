@@ -126,6 +126,7 @@ class ApplicationController < ActionController::Base
 #      end
 
       if body.respond_to?('size')
+        body = body.to_a if body.is_a?(Hash)
         data = page_size > 0 ? body.slice(offset, page_size) : body
       else
         data = [body]

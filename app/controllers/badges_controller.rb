@@ -1,5 +1,6 @@
 class BadgesController < ApplicationController
   authorize :index, :user_badges_earned, :show, :user
+  authorize :create, :update, :destroy, :master
 
   def index
     if !params[:type].nil? && !params[:type].empty? && Badge::TYPE.values.include?(params[:type])
@@ -30,5 +31,36 @@ class BadgesController < ApplicationController
     return HESResponder("Badge", "NOT_FOUND") if badge.nil?
     return HESResponder(badge)
   end
+
+  def create
+    badge = @promotion.badges.build(params[:badge])
+    return HESResponder(badge.errors.full_messages, "ERROR") if !badge.valid?
+    Badge.transaction do
+      badge.save!
+    end
+    return HESResponder(badge)
+  end
+
+  def update
+    badge = @promotion.badges.find(params[:id]) rescue nil
+    return
+    badge.assign_attributes(params[:badge])
+    return HESResponder(badge.errors.full_messages, "ERROR") if !badge.valid?
+    Badge.transaction do
+      badge.save!
+    end
+    return HESResponder(badge)
+  end
+
+  def destroy
+    badge = @promotion.badges.find(params[:id]) rescue nil
+    return HESResponder("Badge", "NOT_FOUND") if badge.nil?
+    Badge.transaction do
+      badge.destroy
+    end
+    return HESResponder(badge)
+  end
+
+
 
 end

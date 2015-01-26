@@ -231,4 +231,12 @@ class EntriesController < ApplicationController
     end
     return HESResponder(@entry)
   end
+
+  def aggregate
+    year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
+    
+
+
+  end
+
 end

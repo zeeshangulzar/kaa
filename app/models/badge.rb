@@ -4,6 +4,8 @@ class Badge < ActiveRecord::Base
   attr_accessible *column_names
   attr_privacy :promotion_id, :name, :description, :completion_message, :image, :badge_type, :point_goal, :sequence, :any_user
 
+  validates_presence_of :badge_type, :promotion_id, :name
+
   belongs_to :promotion
 
   mount_uploader :image, BadgeImageUploader
