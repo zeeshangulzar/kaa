@@ -2,6 +2,9 @@ require 'bcrypt'
 
 class User < ApplicationModel
 
+  flags :hide_goal_hit_message, :default => false
+  flags :has_seen_tutorial, :default => false
+
   attr_privacy_no_path_to_user
 
 #  can_earn_achievements
@@ -22,7 +25,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile_photo, :public
   attr_privacy :location, :any_user
-  attr_privacy :username, :tiles, :me
+  attr_privacy :username, :tiles, :flags, :me
   attr_accessible :username, :tiles, :email, :username, :altid, :profile_photo
 
   # validation
