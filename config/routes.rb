@@ -7,6 +7,10 @@ Go::Application.routes.draw do
   match "/users/:user_id/profile" => "profiles#show", :via => :get
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
   match 'users/:user_id/entries' => 'entries#index', :via => :get
+  
+  match '/entries/aggregate' => 'entries#aggregate', :via => :get
+  match '/entries/aggregate/:year' => 'entries#aggregate', :via => :get
+
   match "/files/upload" => "files#upload", :via => :post
   match "/files/crop" => "files#crop", :via => :put
 
