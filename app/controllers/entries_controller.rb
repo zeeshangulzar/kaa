@@ -234,9 +234,7 @@ class EntriesController < ApplicationController
 
   def aggregate
     year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
-    
-
-
+    return HESResponder(Entry.aggregates({:year => year, :user_id => @current_user.id}), "OK", nil, 0)
   end
 
 end
