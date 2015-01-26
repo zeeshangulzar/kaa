@@ -17,15 +17,40 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }]
   def index
-    if @current_user.id == @target_user.id || @current_user.master?
-      entries = (!@target_user.entries.empty? && !@target_user.entries.available.empty?) ? @target_user.entries.available : []
-    else
-      return HESResponder("You may not view other users' entries.", "DENIED")
+    return HESResponder("You can't view other users' events.", "DENIED") if @target_user.id != @current_user.id && !@current_user.master?
+    options = {}
+    options[:start] = params[:start].nil? ? @promotion.starts_on : (params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date)
+    options[:end] = params[:end].nil? ? @promotion.current_date : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date)
+    if !params[:recorded_on].nil?
+      options[:recorded_on] = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
     end
+    entries = (!@target_user.entries.available(options).empty?) ? @target_user.entries.available(options) : []
+    
     # TODO: this still isn't fast enough
     # need to figure out a quick method of getting attrs of behaviors, etc.
-    entries_hash = []
+    entries_array = []
     entries.each_with_index{|entry,index|
+      
+      behaviors_array = []
+      entry.entry_behaviors.each_with_index{|eb,eb_index|
+        behavior_hash = {
+          :id           => eb.id,
+          :behavior_id  => eb.behavior_id,
+          :value        => eb.value
+        }
+        behaviors_array[eb_index] = behavior_hash
+      }
+      
+      activities_array = []
+      entry.entry_exercise_activities.each_with_index{|eea,eea_index|
+        activity_hash = {
+          :id => eea.id,
+          :exercise_activity_id => eea.exercise_activity_id,
+          :value                => eea.value
+        }
+        activities_array[eea_index] = activity_hash
+      }
+
       entry_hash = {
         :id                           => entry.id,
         :recorded_on                  => entry.recorded_on,
@@ -37,13 +62,15 @@ class EntriesController < ApplicationController
         :challenge_points             => entry.challenge_points,
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
-        :entry_behaviors              => entry.entry_behaviors,
-        :entry_exercise_activities    => entry.entry_exercise_activities,
+        :entry_behaviors              => behaviors_array,
+        :entry_exercise_activities    => activities_array,
+        :goal_steps                   => entry.goal_steps,
+        :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at
       }
-      entries_hash[index] = entry_hash
+      entries_array[index] = entry_hash
     }
-    return HESResponder(entries_hash, "OK", nil, 0)
+    return HESResponder(entries_array, "OK", nil, 0)
   end
 
   # Gets a single entry for a team
@@ -95,28 +122,31 @@ class EntriesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    Entry.transaction do
-      ex_activities = params[:entry].delete(:entry_exercise_activities) || []
-      behaviors = params[:entry].delete(:entry_behaviors) || []
-      @entry = @target_user.entries.build(params[:entry])
-      # update goals from profile for POST & PUT only
-      @entry.goal_minutes = @target_user.profile.goal_minutes
-      @entry.goal_steps = @target_user.profile.goal_steps
-      @entry.save!
+    ex_activities = params[:entry].delete(:entry_exercise_activities) || []
+    behaviors = params[:entry].delete(:entry_behaviors) || []
+    @entry = @target_user.entries.build(params[:entry])
+    # update goals from profile for POST & PUT only
+    @entry.goal_minutes = @target_user.profile.goal_minutes
+    @entry.goal_steps = @target_user.profile.goal_steps
+    if !@entry.valid?
+      return HESResponder(@entry.errors.full_messages, "ERROR")
+    else
+      Entry.transaction do
+        @entry.save!
+        #create exercise activites
+        ex_activities.each do |hash|
+          @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
+        end
 
-      #create exercise activites
-      ex_activities.each do |hash|
-        @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
+        #TODO: Test entry activities
+        behaviors.each do |hash|
+          @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
+        end
+
+        @entry.save!
       end
-
-      #TODO: Test entry activities
-      behaviors.each do |hash|
-        @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
-      end
-
-      @entry.save!
+      return HESResponder(@entry)
     end
-    return HESResponder(@entry)
   end
 
   # Updates a single entry
@@ -148,6 +178,7 @@ class EntriesController < ApplicationController
     if @entry.user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not edit this entry.", "DENIED")
     end
+    return HESResponder(@entry.errors.full_messages, "ERRROR") if !@entry.valid?
     Entry.transaction do
       entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
       if !entry_ex_activities.nil?
@@ -189,13 +220,15 @@ class EntriesController < ApplicationController
         end
       end 
 
+      @entry.assign_attributes(scrub(params[:entry], Entry))
+
       # update goals from profile for POST & PUT only
       @entry.goal_minutes = @target_user.profile.goal_minutes
       @entry.goal_steps = @target_user.profile.goal_steps
-
+      
       @entry.save!
-      @entry.update_attributes(scrub(params[:entry], Entry))
-    end 
+      
+    end
     return HESResponder(@entry)
   end
 end

@@ -1,6 +1,6 @@
 class PostersController < ApplicationController
-
-  authorize :all, :user
+  authorize :index, :show, :public
+  authorize :create, :update, :delete, :coordinator
   
   def index
     options = {}

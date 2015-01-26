@@ -17,6 +17,10 @@ class ApplicationController < ActionController::Base
   
   MeEquivalents = ['-', 'me']
 
+  rescue_from ActiveRecord::RecordNotUnique do |exception|
+    return HESResponder("Record not unique", "ERROR")
+  end
+
   def get_user_from_params_user_id
     user = @current_user
     id_to_check = (controller_name == "users") ? params[:id] : params[:user_id]

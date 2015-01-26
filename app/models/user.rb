@@ -64,8 +64,10 @@ class User < ApplicationModel
   has_many :groups, :foreign_key => "owner_id"
 
   has_many :badges
+
+  has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events
+  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events, :badges_earned
   attr_accessor :include_evaluation_definitions
   
   # hooks
@@ -390,13 +392,13 @@ LEFT JOIN profiles ON profiles.user_id = entries.user_id
 WHERE
 posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
 GROUP BY posters.visible_date, entries.recorded_on
-ORDER BY posters.visible_date ASC, entries.recorded_on ASC
+ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     "
     posters_array = []
     last = nil
     Poster.connection.select_all(sql).each do |row|
       if last && last['visible_date'] == row['visible_date']
-        if row['unlocked']
+        if row['unlocked'] === 1
           posters_array.pop
           posters_array.push(row)
         end

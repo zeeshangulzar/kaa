@@ -1,29 +1,21 @@
 class Badge < ActiveRecord::Base
+  Milestones = {"ORANGE"=>50,"GREEN"=>100,"BRONZE"=>250,"SILVER"=>500,"GOLD"=>750,"PLATINUM"=>1000,"DIAMOND"=>1500}
+  Weekender = "WEEKENDER"
+  WeekendWarrior = "WEEKEND_WARRIOR"
 
-  attr_privacy_no_path_to_user
-  attr_accessible *column_names
-  attr_privacy :promotion_id, :name, :description, :completion_message, :image, :badge_type, :point_goal, :sequence, :any_user
+  belongs_to :user
 
-  belongs_to :promotion
+  attr_privacy :badge_key, :earned_year, :sequence, :connections
+  attr_privacy :user_id, :earned_date, :me 
 
-  mount_uploader :image, BadgeImageUploader
-
-  TYPE = {
-    :milestones   => 'milestone',
-    :achievements => 'achievement'
-  }
-
-  TYPE.each_pair do |key, value|
-    self.send(:scope, key, where(:badge_type => value))
-  end
+  attr_accessible *column_names 
 
   # query returns what the milestones SHOULD BE
   def self.milestone_query(user_id,year)
-    milestones = Promotion.find(User.find(user_id).promotion_id).milestone_goals
-    cases = milestones.keys.sort{|x,y|milestones[y]<=>milestones[x]}.collect{|k| "when total_points >=#{milestones[k]} then #{k}"}
+    cases = Milestones.keys.sort{|x,y|Milestones[y]<=>Milestones[x]}.collect{|k| "when total_points >=#{Milestones[k]} then '#{k}'"}
     "
 SELECT
-milestone, MIN(as_of) earned_on, IF(user_badges.id is null, 'ADD', IF(as_of=user_badges.earned_date,'OK','UPDATE')) to_do
+milestone, MIN(as_of) earned_on, IF(badges.id is null, 'ADD', IF(as_of=badges.earned_date,'OK','UPDATE')) to_do
 FROM (
 SELECT
   CASE
@@ -45,7 +37,7 @@ SELECT
     ) z
   ) x
 )y 
-LEFT JOIN user_badges on user_badges.user_id = #{user_id.to_i} and earned_year = #{year.to_i} and user_badges.badge_id = y.milestone
+LEFT JOIN badges on badges.user_id = #{user_id.to_i} and earned_year = #{year.to_i} and badges.badge_key = y.milestone
 WHERE milestone is not null
 GROUP BY milestone;
   "
