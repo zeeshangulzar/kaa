@@ -7,6 +7,10 @@ Go::Application.routes.draw do
   match "/users/:user_id/profile" => "profiles#show", :via => :get
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
   match 'users/:user_id/entries' => 'entries#index', :via => :get
+  
+  match '/entries/aggregate' => 'entries#aggregate', :via => :get
+  match '/entries/aggregate/:year' => 'entries#aggregate', :via => :get
+
   match "/files/upload" => "files#upload", :via => :post
   match "/files/crop" => "files#crop", :via => :put
 
@@ -19,8 +23,12 @@ Go::Application.routes.draw do
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
     resources :success_stories, :only => [:index, :show]
-    resources :badges, :only => [:index]
   end
+
+  match 'badges' => 'badges#user_badges_earned', :via => 'get'
+  match 'users/:user_id/badges' => 'badges#user_badges_earned', :via => 'get'
+
+  resources :badges
 
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
 
@@ -36,7 +44,7 @@ Go::Application.routes.draw do
     resources :suggested_challenges, :only => [:index, :show]
     resources :posters, :only => [:index, :show]
     resources :success_stories, :only => [:index, :show]
-
+    resources :badges, :only => [:index]
     # CONTENT MODELS
     resources :tips
     resources :articles

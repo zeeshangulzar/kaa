@@ -14,33 +14,52 @@ class Entry < ApplicationModel
   attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :me
   
   # Can not have the same recorded on date for one user
-  validates_uniqueness_of :recorded_on, :scope => :user_id
+#  validates_uniqueness_of :recorded_on, :scope => :user_id
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
 
   # validate
-  validate :do_validation
+  validate :custom_validation
   
   # Order entries from most recently updated to least recently
   scope :recently_updated, order("`entries`.`updated_at` DESC")
   
   # Get only entries that are available for recording, can't record in the future so don't grab those entries
-  scope :available, lambda{ where("`entries`.`recorded_on` <= '#{Date.today.to_s}'").order("`entries`.`recorded_on` DESC") }
+  scope :available, lambda{ |options|
+    sql = "1=1"
+    if !options.nil?
+      sql += " AND `entries`.`recorded_on` >= '#{options[:start].to_s}' " if !options[:start].nil?
+      sql += " AND `entries`.`recorded_on` <= '#{options[:end].to_s}' " if !options[:end].nil?
+      sql += " AND `entries`.`recorded_on` = '#{options[:recorded_on].to_s}' " if !options[:recorded_on].nil?
+    else
+      sql += " AND `entries`.`recorded_on` <= '#{Date.today.to_s}'"
+    end
+    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities)
+  }
 
   before_save :calculate_points
+  before_save :nullify_exercise
 
   after_save    :do_milestone_badges
   after_destroy :do_milestone_badges
   after_save    :do_weekend_badges
   after_destroy :do_weekend_badges
   
-  def do_validation
+  def custom_validation
     user = self.user
     #Entries cannot be in the future, or outside of the started_on and promotion "ends on" range
-    if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
+    if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on < self.user.promotion.backlog_date || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
       self.errors[:base] << "Cannot have an entry outside of user's promotion start and end date range"
     end
+    if self.exercise_steps.to_i > 0 && self.exercise_minutes.to_i > 0
+      self.errors[:base] << "Cannot log both steps and minutes"
+    end
+  end
+
+  def nullify_exercise
+    self.exercise_steps = nil if self.exercise_steps.to_i == 0
+    self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
   end
 
   def write_attribute_with_exercise(attr,val)
@@ -107,7 +126,7 @@ class Entry < ApplicationModel
 
     #Challenge Points Calculation
 
-    # sent challenges not including today
+    # sent challenges during this recording week not including today
     challenges_sent_this_week = self.user.challenges_sent.where("DATE(created_at) <> ? AND DATE(created_at) >= ? AND DATE(created_at) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
     # how many challenges sent can count towards points based on what's already been sent this week?
     max_sent_countable = challenges_sent_this_week.empty? ? self.user.promotion.max_challenges_sent : [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
@@ -136,7 +155,7 @@ class Entry < ApplicationModel
     
   end
 
-  def do_milestone_badges
+  def do_milestone_badges_original
     rows = connection.uncached{ connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year)) }
     inserts = []
     updates = []
@@ -177,7 +196,35 @@ class Entry < ApplicationModel
     #self.basket << self.user.badges.where(:created_at=>now)
   end
 
+  def do_milestone_badges
+    #raise caller.to_yaml
+    rows = connection.uncached{ connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year)) }
+    inserts = []
+    updates = []
+    now = self.user.promotion.current_time.to_s(:db)
+    rows.each do |row|
+      if row['to_do'] == 'ADD'
+        inserts << "(#{self.user_id},'#{row['milestone']}',#{row['earned_on'].year},'#{row['earned_on']}','#{now}','#{now}')"
+      elsif row['to_do'] == 'UPDATE'
+        updates << [row['earned_on'],row['milestone']]
+      end
+    end
+
+    deletes = (self.user.promotion.milestone_goals.keys - rows.collect{|row|row['milestone']}).collect{|x|x}
+    connection.execute "DELETE FROM user_badges WHERE user_id = #{self.user_id} AND earned_year = #{self.recorded_on.year} AND badge_id IN (#{deletes.join(",")})" unless deletes.empty?
+
+    connection.execute "INSERT INTO user_badges (user_id,badge_id,earned_year,earned_date,created_at,updated_at) values #{inserts.join(",\n")}" unless inserts.empty?
+
+    updates.each do |array|
+      connection.execute "UPDATE user_badges set earned_date = '#{array[0]}' WHERE user_id = #{self.user_id} AND earned_year = #{self.recorded_on.year} AND badge_id = '#{array[1]}'"
+    end
+
+    return true
+
+  end
+
   def do_weekend_badges
+    return
     # the query below may help you diagnose problems with weekend badges -- look for 5 consecutive weeks in the results
     #   select week(recorded_on,1) week, min(recorded_on) from entries where user_id = 9 and weekday(recorded_on) in (5,6) group by week(recorded_on,1) order by recorded_on;
 
@@ -213,6 +260,116 @@ class Entry < ApplicationModel
   def as_json(options={})
     options[:meta] ||= false
     super
+  end
+
+  def self.aggregate(options={})
+    sql = "
+  -- steps/minutes summary
+  SELECT
+    YEAR(entries.recorded_on) AS year,
+    MONTH(entries.recorded_on) AS month,
+    SUM(entries.exercise_minutes) AS total_minutes,
+    SUM(entries.exercise_steps) AS total_steps,
+    AVG(entries.exercise_minutes) AS avg_minutes,
+    AVG(entries.exercise_steps) AS avg_steps,
+    NULL AS behavior_id,
+    NULL AS total_behavior,
+    NULL AS avg_behavior,
+    NULL as exercise_activity_id,
+    NULL AS total_activity,
+    NULL AS avg_activity,
+    'all' AS type
+  FROM entries
+  WHERE
+    entries.user_id = #{options[:user_id]}
+    AND YEAR(entries.recorded_on) = #{options[:year]}
+  GROUP BY
+    YEAR(entries.recorded_on), MONTH(entries.recorded_on)
+UNION
+  -- entry behaviors
+  SELECT
+    YEAR(entries.recorded_on) AS year,
+    MONTH(entries.recorded_on) AS month,
+    NULL AS total_minutes,
+    NULL AS total_steps,
+    NULL AS avg_minutes,
+    NULL AS avg_steps,
+    entry_behaviors.behavior_id,
+    SUM(entry_behaviors.value) AS total_behavior,
+    AVG(entry_behaviors.value) AS avg_behavior,
+    NULL AS exercise_activity_id,
+    NULL AS total_activity,
+    NULL AS avg_activity,
+    'behavior' AS type
+  FROM entries
+  JOIN entry_behaviors ON entry_behaviors.entry_id = entries.id
+  WHERE
+    entries.user_id = #{options[:user_id]}
+    AND YEAR(entries.recorded_on) = #{options[:year]}
+  GROUP BY
+    YEAR(entries.recorded_on), MONTH(entries.recorded_on), entry_behaviors.behavior_id
+UNION
+  -- entry exercise activities
+  SELECT
+    YEAR(entries.recorded_on) AS year,
+    MONTH(entries.recorded_on) AS month,
+    NULL AS total_minutes,
+    NULL AS total_steps,
+    NULL AS avg_minutes,
+    NULL AS avg_steps,
+    NULL AS behavior_id,
+    NULL AS total_behavior,
+    NULL AS avg_behavior,
+    rel_entries_exercises_activities.exercise_activity_id,
+    SUM(rel_entries_exercises_activities.value) AS total_activity,
+    AVG(rel_entries_exercises_activities.value) AS avg_activity,
+    'activity' AS type
+  FROM entries
+  JOIN rel_entries_exercises_activities ON rel_entries_exercises_activities.entry_id = entries.id
+  WHERE
+    entries.user_id = #{options[:user_id]}
+    AND YEAR(entries.recorded_on) = #{options[:year]}
+  GROUP BY
+    YEAR(entries.recorded_on), MONTH(entries.recorded_on), rel_entries_exercises_activities.exercise_activity_id
+    "
+    rows = connection.select_all(sql)
+    summary = []
+    rows.each{|row|
+      m = row['month'] - 1
+      if !summary[m].present?
+        summary[m] = {
+          :total_minutes => 0,
+          :avg_minutes   => 0,
+          :total_steps   => 0,
+          :avg_steps     => 0,
+          :behaviors     => [],
+          :activities    => []
+        }
+      end
+      
+      case row['type']
+        when 'all'
+          summary[m][:total_minutes] = row['total_minutes']
+          summary[m][:avg_minutes]  = row['avg_minutes']
+          summary[m][:total_steps]   = row['total_steps']
+          summary[m][:avg_steps]     = row['avg_steps']
+        when 'behavior'
+          bsum = {
+            :behavior_id => row['behavior_id'],
+            :total       => row['total_behavior'],
+            :avg         => row['avg_behavior']
+          }
+          summary[m][:behaviors].push(bsum)
+        when 'activity'
+          asum = {
+            :exercise_activity_id => row['exercise_activity_id'],
+            :total                => row['total_activity'],
+            :avg                  => row['avg_activity']
+          }
+          summary[m][:activities].push(asum)
+      end
+    }
+    return summary
   end
   
 end

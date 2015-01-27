@@ -23,20 +23,24 @@ var redis = require('redis').createClient();
 var users = {};
 
 // Subscribe to these specific Redis channels.
-redis.subscribe('newPost');
+redis.subscribe('newMessageCreated');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
-	var room;
+	var userId;
+	var friendId;
 
 	if(typeof data === 'string') {
 		data = JSON.parse(data);
 	}
 
 	switch(channel) {
-		case 'newPost':
-			room = data.user_id.toString();
-			io.sockets.in('Promotion' + room).emit('newPost', data);
+		case 'newMessageCreated':
+			userId = data.user_id.toString();
+			friendId = data.friend_id.toString();
+
+			io.sockets.in('User' + userId).emit('newMessageCreated', data);
+			io.sockets.in('User' + friendId).emit('newMessageCreated', data);
 			break;
 	}
 });
