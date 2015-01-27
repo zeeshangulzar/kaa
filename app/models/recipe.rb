@@ -1,84 +1,198 @@
-# ActiveResource model of recipes
-class Recipe < HesCentral::CentralResource
-  require 'rest_client'
-  self.include_root_in_json = false
+class Recipe < ActiveRecord::Base
+  attr_accessor :require_validation
+  
+  attr_privacy_no_path_to_user
+  attr_privacy :id, :title, :servings, :description, :active_time, :total_time, :recipe_tip, :make_ahead_tip, :large_image_url, :copyright_text_url, :nutrition_information, :day, :source, :is_featured, :updated_at, :recipe_url, :is_secondary_featured, :any_user
+
+  set_primary_key 'id'
+
+  has_many :recipe_steps, :dependent => :destroy
+  has_many :ingredients, :dependent => :destroy
+  has_many :recipe_categories, :dependent => :destroy
 
   acts_as_likeable :label => "Favorite"
   acts_as_commentable
 
-  attr_accessor :recipe_categories, :ingredients, :recipe_steps
-
-  # Gets all recipes
-  # @return [Array<Recipe>] all recipes
-  # @note Not recommended to use this method since it will return a lot of data
-  def self.all
-    get('all', {}, true)
+  def validate
+    if require_validation
+      errors.add(:recipe_steps, "This recipe needs at least one recipe step") if recipe_steps.empty?
+      errors.add(:ingredients, "This recipe needs at least one ingredient") if ingredients.empty?
+    end
   end
+  
+  def content
+    recipe_content = <<-EOF
+#{description}
 
-  # Finds all recipes with a title, ingredient, or description matching the search query
-  # @param [String] query to search recipes for
-  # @return [Array<Recipe>] all recipes that match the query
-  def self.find_all_by_search(query)
-    get('search', {
-          :query => query
-    }, true)
+###Ingredients
+#{content_ingredients}
+
+###Directions
+#{content_directions}
+
+#{"###Tip:" unless recipe_tip.to_s.empty?}
+#{recipe_tip}
+
+#{"###Make Ahead Tip:" unless make_ahead_tip.to_s.empty?}
+#{make_ahead_tip}
+
+###Nutrition Information
+#{nutrition_information}
+
+#{copyright_text_url}
+    EOF
+    return recipe_content
   end
-
-  # Finds all recipes with a certain meal type
-  # @param [String] meal_type of recipes
-  # @return [Array<Recipe>] all recipes that match the meal type
-  def self.find_all_by_meal_type(meal_type)
-    get('by_category', {
-          :meal_type => meal_type
-    }, true)
+  
+  def content_ingredients
+    text = ""
+    ingredients.collect {|c| c.category }.uniq.each do |cat|
+      unless ingredients.collect {|c| c.category }.uniq.size == 1
+        text += "\n#####{cat}\n"
+      end
+      ingredients.select { |i| i.category==cat }.each do |i|
+        text += "- #{i.to_string}\n"
+      end
+    end
+    return text
   end
-
-  # Gets the recipe that matches the ID
-  # @param [Integer] id of the recipe
-  # @return [Recipe] found recipe
-  def self.find(id)
-    get(id)
+  
+  def content_directions
+    text = ""
+    directions.each_with_index do |d,i| 
+      text += "#{i+1}. #{d.description}\n"
+    end
+    return text
   end
-
-  # Gets the first recipe
-  # @return [Recipe] first recipe
-  def self.first
-    get('first')
+  
+  #path to the image file
+  def image_url(host='')
+    #assume we're going to use staging url
+    url = "http://dashboard.staging.hesapps.com/images/recipe/#{large_image_url}"
+    #if in a production mode, remove the staging url
+    url = url.gsub("staging.","") unless (host.include?('staging.') || Rails.env.to_s == 'development')
+    
+    return url
   end
-
-  # Gets the last recipe
-  # @return [Recipe] last recipe
-  def self.last
-    get('last')
+  #check to see if validation is required
+  def is_required
+    !is_video
   end
-
-  # Gets the recipe that has been specifed for today or the day passed in
-  # @param [Integer] day that recipe is needed for, defaults to today
-  # @return [Recipe] recipe that matches the day
-  # @note Returns the last recipe if no recipes match the day
-  def self.daily(day = get_day)
-    get("daily/#{day}")
-  rescue RestClient::ResourceNotFound
-    Recipe.last
+  
+  #get the recipe steps in the correct order
+  def directions
+    recipe_steps.sort
   end
-
-  # Raise an error since recipes should only be saved in central application
-  def save(*args)
-    raise "Recipe cannot be saved from ActiveResource"
+  
+  #check to see if a recipe has been saved to the database yet
+  def new?
+    id.nil?
   end
-
-  # Raise an error since recipes should only be created in central application
-  def create(*args)
-    raise "Recipe cannot be created from ActiveResource"
+  
+  #compare recipes on the day they are to appear on and not their ids
+  def <=> otherRecipe
+    if day.nil?
+      -1
+    elsif otherRecipe.day.nil?
+      1
+    else
+      day <=> otherRecipe.day
+    end
   end
+  
+  def has_multiple_ingredient_categories
+    category_count = 0
+    category = ""
+    ingredients.each do |i|
+      unless category == i.category
+        category_count = category_count + 1
+        category = i.category
+      end
+    end
+    if category_count == 1
+      return false
+    else
+      return true
+    end
+  end
+  
+  #converts the ingredients into a string seperated by a colon.
+  def ingredients_to_string
+    ingredients.to_sentence
+  end
+  
+  def course
+    course = ""
+    courses = recipe_categories.find(:all, :conditions => "category_type = 'meal' or category_type = 'Courses'")
+    courses.each do |c|
+      course += "#{c.category}&nbsp;/&nbsp;" 
+    end
+    if course.empty?
+      courses = recipe_categories.find(:all, :conditions => "category_type = 'DishTypes'")
+      courses.each do |c|
+        course += "#{c.category}&nbsp;/&nbsp;" 
+      end
+    end
+    course.chomp("&nbsp;/&nbsp;")
+  end
+  
+  def self.find_by_meal_type(type,order=:title,limit=nil)
+    find(:all,
+         :include => [:recipe_categories,:ingredients,:recipe_steps],
+         :conditions => "recipe_categories.category_type = 'meal' and (#{Recipe.meal_type_condition(type)})",
+         :order => order,
+         :limit=>limit)
+  end  
 
-  def initialize(*args)
-
-    @recipe_categories = (args[0].delete("recipe_categories") || []).collect{|x| RecipeCategory.new(x)}
-    @recipe_steps = (args[0].delete("recipe_steps") || []).collect{|x| RecipeStep.new(x)}
-    @ingredients = (args[0].delete("ingredients") || []).collect{|x| Ingredient.new(x)}
-
-    super
+  def self.find_random_by_meal_type(type,limit=5)
+    self.find_by_meal_type(type,'rand()',limit)
+  end
+  
+  def self.find_by_search_text(search_text,options={})
+    search_text_sanitized = sanitize(search_text)
+    wildcard_search_text_sanitized = sanitize("%#{search_text}%")
+    rank_select =<<-EOF
+        DISTINCT recipes.id, title,                                       
+          case
+          when INSTR(LCASE(title), LCASE(#{search_text_sanitized})) > 0 AND
+            INSTR(LCASE(description), LCASE(#{search_text_sanitized})) > 0 AND
+            INSTR(LCASE(item), LCASE(#{search_text_sanitized})) > 0 THEN 100
+          when INSTR(LCASE(title), LCASE(#{search_text_sanitized})) > 0 AND
+            INSTR(LCASE(description), LCASE(#{search_text_sanitized})) > 0 THEN 75
+          when INSTR(LCASE(title), LCASE(#{search_text_sanitized})) > 0 THEN 75
+          when INSTR(LCASE(description), LCASE(#{search_text_sanitized})) > 0 AND
+            INSTR(LCASE(item), LCASE(#{search_text_sanitized})) > 0 THEN 75
+          when INSTR(LCASE(description), LCASE(#{search_text_sanitized})) > 0 THEN 50
+          else 0
+          end AS 'rank'
+        EOF
+    
+    default_options = {
+             :joins => "INNER JOIN ingredients ON ingredients.recipe_id = recipes.id", 
+             :conditions => "description like #{wildcard_search_text_sanitized} or title like #{wildcard_search_text_sanitized} or ingredients.item like #{wildcard_search_text_sanitized}", 
+             :order => 'rank DESC, title',
+             :select => "#{rank_select}, total_time, description, large_image_url"}
+    
+    find(:all, default_options.merge(options))
+  end
+  
+  def self.meal_type_condition(type)
+    conditions = []
+    RecipeCategory::MealTypeNames[type.to_sym].each do |name|
+      conditions << "recipe_categories.category = #{sanitize(name)}"
+    end
+    conditions.join(' or ')
+  end
+  
+  #get the daily recipe
+  def self.daily
+    # this gets a Range object with the days between jan1 and today
+    # then it skips Sat and Sun, so new recipes will only appear Mon - Fri
+    now = Date.today
+    jan1 = now.to_time.beginning_of_year.to_date
+    days = (jan1..now).select{ |day| (day.wday !=0 && day.wday != 6) }.size
+    # this fails gracefully as long as there is at least one recipe for this application
+    Recipe.find_by_day(days) || Recipe.find_by_day(Recipe.maximum(:day))
   end
 
   # Override as_json since ActiveResource seems to ignore include_root_in_json set to false on instances
@@ -91,46 +205,5 @@ class Recipe < HesCentral::CentralResource
   def as_json(options = {})
     recipe_hash = super
     recipe_hash['recipe'] ? recipe_hash['recipe'] : recipe_hash
-  end
-
-  def image_url
-    #assume we're going to use staging url
-    url = "http://dashboard.staging.hesapps.com/images/recipe/#{large_image_url}"
-    #if in a production mode, remove the staging url
-    url = url.gsub("staging.","") unless Rails.env.development? || Rails.env.test? || (defined?(IS_STAGING) && IS_STAGING)
-    
-    return url
-  end
-
-
-  private
-
-  # Gets the recipes from the central HES application
-  # @param [String] path that will be appended to app_recipes central url
-  # @param [Hash] params that will be turned into a query string and appended to url
-  # @param [Boolean] plural should be true if array is returned, false if just one is expected, defaults to false
-  def self.get(path, params = nil, plural = false)
-    path = path == "all" ? "" : "/#{path}"
-    params = "&#{CGI.unescape(params.to_query)}" if params
-
-    url = "#{Recipe.site.to_s.gsub("http://", "http://#{Recipe.user}:#{Recipe.password}@")}/app_recipes#{path}.xml?app_name=#{HesCentral.application_repository_name}#{params}"
-
-    xml_recipes_doc = RestClient.get(url)
-
-    unless plural
-      Recipe.new(Hash.from_xml(xml_recipes_doc)['recipe'])
-    else
-      Hash.from_xml(xml_recipes_doc).values.first.collect{|x| Recipe.new(x)}
-    end
-  end
-
-  # Gets the curent day using a Range object with the days between jan1 and today then it skips Sat and Sun, so new recipes will only appear Mon - Fri
-  # @param [Date] current_date to find the day of the year, defaults to today
-  # @return [Integer] day of the year skipping weekends
-  def self.get_day(current_date = Date.today)
-    now = current_date
-    jan1 = now.to_time.beginning_of_year.to_date
-
-    (jan1..now).select{ |day| (day.wday != 0 && day.wday != 6) }.size
   end
 end

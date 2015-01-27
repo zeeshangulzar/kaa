@@ -41,7 +41,7 @@ class EventsController < ApplicationController
       }
       events_hash.push(event_hash)
     }
-    return HESResponder(events_hash, "OK", nil, 0)
+    return HESResponder(events_hash, "OK", 0)
   end
 
   def show

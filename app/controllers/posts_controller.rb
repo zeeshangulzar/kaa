@@ -98,15 +98,61 @@ class PostsController < ApplicationController
   #     "max_id": 20
   #   }
   def index
+    psize = params[:page_size].nil? ? Post::PAGESIZE : params[:page_size]
     if params[:user_id].nil?
-      @posts = 
-      if params[:max_id].nil? && params[:since_id].nil?
-        @wallable.posts.top.limit(Post::PAGESIZE)
-      elsif params[:max_id]
-        @wallable.posts.top.limit(Post::PAGESIZE).before(params[:max_id])
+      if params[:location].nil?
+        @posts =
+        if params[:max_id].nil? && params[:since_id].nil?
+          @wallable.posts.top.limit(psize)
+        elsif params[:max_id]
+          @wallable.posts.top.limit(psize).before(params[:max_id])
+        else
+          @wallable.posts.top.limit(psize).after(params[:since_id])
+        end
       else
-        @wallable.posts.top.limit(Post::PAGESIZE).after(params[:since_id])
+        @posts =
+        if params[:max_id].nil? && params[:since_id].nil?
+          @wallable.posts.locationed(params[:location]).top.limit(psize)
+        elsif params[:max_id]
+          @wallable.posts.locationed(params[:location]).top.limit(psize).before(params[:max_id])
+        else
+          @wallable.posts.locationed(params[:location]).top.limit(psize).after(params[:since_id])
+        end
       end
+      
+      response = {
+        :data => @posts,
+        :meta => {
+          :page_size => psize,
+          :total_records => params[:location].nil? ? @wallable.posts.top.count : @wallable.posts.locationed(params[:location]).top.count
+        }
+      }
+
+      if @posts.last.id != (@wallable || @postable).posts.top.last.id
+        response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
+      end
+
+      if @posts.first.id != (@wallable || @postable).posts.top.first.id
+        response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+      end
+
+      return HESResponder(response)
+
+      # TODO: finish this up, when Drew starts on it.
+      
+      old = {
+        :posts => @posts.to_a,
+        :page => params[:page] || 1,
+        :post_count => @wallable.posts.top.count,
+        :reply_count => @wallable.posts.reply.count,
+        :max_id => @posts.last.id,
+        :next_page_url => "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}",
+        :since_id => @posts.last.id,
+        :prev_p => "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+      }
+
+
+
 
       @paged_posts = {
         :posts => @posts.to_a.each{|x| 

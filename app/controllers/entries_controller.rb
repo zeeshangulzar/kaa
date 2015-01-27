@@ -70,7 +70,7 @@ class EntriesController < ApplicationController
       }
       entries_array[index] = entry_hash
     }
-    return HESResponder(entries_array, "OK", nil, 0)
+    return HESResponder(entries_array, "OK", 0)
   end
 
   # Gets a single entry for a team
@@ -203,7 +203,7 @@ class EntriesController < ApplicationController
 
       entry_behaviors = params[:entry].delete(:entry_behaviors)
       if !entry_behaviors.nil?
-        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x.id}
+        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x[:id]}
         remove_behaviors = @entry.entry_behaviors.reject{|x| ids.include? x.id}
 
         remove_behaviors.each do |act|
@@ -231,4 +231,10 @@ class EntriesController < ApplicationController
     end
     return HESResponder(@entry)
   end
+
+  def aggregate
+    year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
+    return HESResponder(Entry.aggregate({:year => year, :user_id => @current_user.id}), "OK", 0)
+  end
+
 end

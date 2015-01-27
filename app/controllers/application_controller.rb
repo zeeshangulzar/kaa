@@ -95,50 +95,60 @@ class ApplicationController < ActionController::Base
   end
 
   # page_size of 0 = all records
-  def HESResponder(body = 'AOK', status = 'OK', messages = nil, page_size = ApplicationController::PAGE_SIZE)
-    offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
-    page_size = !params[:page_size].nil? && params[:page_size].is_i? ? params[:page_size].to_i : page_size
+  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
+    if payload.is_a?(Hash) && payload[:data].present? && payload[:meta].present?
+      # allow a complete response to pass right thru
+      render :json => MultiJson.dump(payload), :status => HTTP_CODES['OK'] and return
+    end
+    
+    unless !page_size.nil?
+      page_size = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
+    end
 
+    offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
     data = nil
     total_records = 0
 
     if status != 'OK'
       # we have an error of some sort..
-      body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
-      body = [body] if !body.is_a?(Array)
-      response = {:errors => body}
-    elsif body.is_a?(String)
-      # status is OK and body is a string..
-      response = {:message => body}
+      payload = payload.strip + " doesn't exist" if status == 'NOT_FOUND'
+      payload = [payload] if !payload.is_a?(Array)
+      response = {:errors => payload}
+    elsif payload.is_a?(String)
+      # status is OK and payload is a string..
+      response = {:message => payload}
     else
       # KEEP THIS FOR NOW..
 #      # get the class.table_name for the root node name
-#      if body.is_a?(Array) || body.is_a?(Hash)
+#      if payload.is_a?(Array) || payload.is_a?(Hash)
 #        # ActiveRecord collection
-#        if !body.first.nil? && !body.first.class.nil? && !body.first.class.respond_to?('table_name')
-#          root = body.first.class.table_name.to_s
+#        if !payload.first.nil? && !payload.first.class.nil? && !payload.first.class.respond_to?('table_name')
+#          root = payload.first.class.table_name.to_s
 #        end
 #      else
 #        # Single ActiveRecord
-#        if !body.class.nil? && body.class.respond_to?('table_name')
-#          root = body.class.table_name.to_s
+#        if !payload.class.nil? && payload.class.respond_to?('table_name')
+#          root = payload.class.tab# get the class.table_name for the root node name
+#      if payload.is_a?(Array) || payload.is_a?(Hash)
+#        # ActiveRecord collection
+#        le_name.to_s
 #        end
 #      end
 
-      if body.respond_to?('size')
-        data = page_size > 0 ? body.slice(offset, page_size) : body
+      if payload.respond_to?('size')
+        payload = payload.to_a if payload.is_a?(Hash)
+        data = page_size > 0 ? payload.slice(offset, page_size) : payload
       else
-        data = [body]
+        data = [payload]
       end
 
-      total_records = body.respond_to?('size') ? body.size : 1
+      total_records = payload.respond_to?('size') ? payload.size : 1
       total_pages = page_size > 0 ? (total_records.to_f / page_size.to_f).ceil : 1
       current_page = page_size > 0 ? (offset.to_f / page_size.to_f).ceil + 1 : 1
 
       response = {
         :data => data,
         :meta => {
-          :messages       => messages,
           :page_size      => page_size,
           :page           => current_page,
           :total_pages    => total_pages,
