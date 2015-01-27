@@ -70,7 +70,7 @@ class EntriesController < ApplicationController
       }
       entries_array[index] = entry_hash
     }
-    return HESResponder(entries_array, "OK", nil, 0)
+    return HESResponder(entries_array, "OK", 0)
   end
 
   # Gets a single entry for a team
@@ -234,7 +234,7 @@ class EntriesController < ApplicationController
 
   def aggregate
     year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
-    return HESResponder(Entry.aggregate({:year => year, :user_id => @current_user.id}), "OK", nil, 0)
+    return HESResponder(Entry.aggregate({:year => year, :user_id => @current_user.id}), "OK", 0)
   end
 
 end

@@ -4,7 +4,7 @@ class Post < ApplicationModel
   attr_privacy :content, :depth, :photo, :parent_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :any_user
   
   # The page size allowed for getting posts
-  PAGESIZE = 10
+  PAGESIZE = 20
 
   belongs_to :user, :in_json => true
 
@@ -48,9 +48,11 @@ class Post < ApplicationModel
 
   is_postable
 
-  scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("created_at DESC") }
+  scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
+
+  scope :locationed, lambda { |location_id| where(:depth => 0, :users => {:location_id => location_id}).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
   
-  scope :reply, lambda { where("depth > 0").includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("created_at DESC") }
+  scope :reply, lambda { where("depth > 0").includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
   scope :before, lambda { |post_id| where("`posts`.id < :post_id", {:post_id => post_id || 10000000}) }
 
