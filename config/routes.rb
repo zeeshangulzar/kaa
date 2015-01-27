@@ -95,10 +95,12 @@ Go::Application.routes.draw do
 	resources :wall_expert_posts
 
   # hes-recipes
-  resources :recipes, :only => [:index, :show]
   match "/recipes/daily" => "recipes#show", :daily => true
   match "/recipes/first" => "recipes#show", :first => true
   match "/recipes/last" => "recipes#show", :last => true
+  match "/recipes/browse/:category" => "recipes#browse"
+  match "/recipes/search/:search" => "recipes#search"
+  resources :recipes, :only => [:index, :show]
 
   # hes-commentable
   resources :comments

@@ -1,15 +1,11 @@
-# ActiveResource model of recipe categories
-class RecipeCategory < HesCentral::CentralResource
-  self.include_root_in_json = false
-  
-  # Different types of meals
-  MealTypes = ["breakfast", "lunch", "dinner", "snacks"]
+class RecipeCategory < ActiveRecord::Base
+  belongs_to :recipe
 
-  # Meal types with their possible category names
-  MealTypeNames = {:breakfast => ["breakfast", "brunch"], :lunch => ["lunch"], :dinner => ["dinner"], :snacks => ["snacks"]}
-
-  # Override as_json since ActiveResource seems to ignore include_root_in_json set to false on instances
-  def as_json(options = {})
-    serializable_hash(options)
-  end
+  set_primary_key 'id'
+ 
+  attr_privacy_no_path_to_user
+  attr_privacy :id, :recipe_id, :category_type, :category, :any_user
+ 
+  MealTypes = ["breakfast","lunch","dinner","snacks"]
+  MealTypeNames = {:breakfast => ["breakfast","brunch"],:lunch => ["lunch"],:dinner => ["dinner"],:snacks => ["snacks"]}
 end

@@ -1,9 +1,19 @@
-# ActiveResource model of recipe steps
-class RecipeStep < HesCentral::CentralResource
-  self.include_root_in_json = false
+class RecipeStep < ActiveRecord::Base
+  belongs_to :recipe
+
+  set_primary_key 'id'
+
+  attr_privacy_no_path_to_user
+  attr_privacy :id, :recipe_id, :description, :is_optional, :sequence, :any_user
   
-  # Override as_json since ActiveResource seems to ignore include_root_in_json set to false on instances
-  def as_json(options = {})
-    serializable_hash(options)
+  def <=> otherStep
+    if sequence.nil?
+      -1
+    elsif otherStep.sequence.nil?
+      1
+    else
+      sequence <=> otherStep.sequence
+    end
   end
+
 end
