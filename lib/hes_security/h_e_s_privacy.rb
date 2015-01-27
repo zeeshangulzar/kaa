@@ -108,12 +108,12 @@ module HESPrivacy
           # pay close attention to the order of the first 3 conditions below!
           if rule_hash[:test] == :public
             ok = true
+          elsif rule_hash[:test] == :any_user && !requester.nil?
+            ok = true
           end
           if !ok && !requester.nil?
             target_user = get_user_from_target(target)
-            if rule_hash[:test] == :any_user
-              ok = !requester.nil?
-            elsif rule_hash[:test] == :master
+            if rule_hash[:test] == :master
               ok = requester.master?
             elsif requester.master?
               ok = true
