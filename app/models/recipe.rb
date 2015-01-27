@@ -9,7 +9,10 @@ class Recipe < ActiveRecord::Base
   has_many :recipe_steps, :dependent => :destroy
   has_many :ingredients, :dependent => :destroy
   has_many :recipe_categories, :dependent => :destroy
-  
+
+  acts_as_likeable :label => "Favorite"
+  acts_as_commentable
+
   def validate
     if require_validation
       errors.add(:recipe_steps, "This recipe needs at least one recipe step") if recipe_steps.empty?
