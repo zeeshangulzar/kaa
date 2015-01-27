@@ -122,8 +122,8 @@ class PostsController < ApplicationController
       
       response = {
         :data => @posts,
-        :page_size => psize,
         :meta => {
+          :page_size => psize,
           :total_records => params[:location].nil? ? @wallable.posts.top.count : @wallable.posts.locationed(params[:location]).top.count
         }
       }
