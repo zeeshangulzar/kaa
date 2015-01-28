@@ -1,7 +1,7 @@
 class PromotionsController < ApplicationController
   authorize :index, :create, :update, :destroy, :master
 
-  authorize :show, :public
+  authorize :show, :current, :public
   authorize :index, :poster
   authorize :create, :update, :destroy, :master
 
@@ -24,6 +24,10 @@ class PromotionsController < ApplicationController
       return HESResponder("Promotion", "NOT_FOUND")
     end
     return HESResponder(promotion)
+  end
+
+  def current
+    return HESResponder(@promotion)
   end
 
   def create

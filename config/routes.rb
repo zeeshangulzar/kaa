@@ -1,4 +1,8 @@
 Go::Application.routes.draw do
+  
+  root :to => "promotions#current"
+  match '/promotions/current' => "promotions#current", :via => :get
+
   resources :resellers do
     resources :organizations, :only => [:index, :show]
   end

@@ -378,7 +378,7 @@ IF(
   -- entry's steps is greater than the goal steps of the entry, fall back on profile
   IF(entries.exercise_steps > COALESCE(entries.goal_steps, profiles.goal_steps, 0), 1, 0)
   , 1, 0) AS unlocked,
-posters.*
+posters.id, posters.visible_date, posters.summary, posters.content, posters.success_story_id, posters.title
 FROM posters
 LEFT JOIN entries ON entries.user_id = #{user.id}
   AND (
@@ -394,6 +394,7 @@ LEFT JOIN entries ON entries.user_id = #{user.id}
 LEFT JOIN profiles ON profiles.user_id = entries.user_id
 WHERE
 posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
+AND posters.active = 1
 GROUP BY posters.visible_date, entries.recorded_on
 ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     "
@@ -410,6 +411,13 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       end
       last = row
     end
+
+    loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
+
+    posters_array.each_with_index{|poster,index|
+      posters_array[index]['image1'] = loaded_posters[index].image1.serializable_hash
+      posters_array[index]['image2'] = loaded_posters[index].image2.serializable_hash
+    }
 
     return posters_array
   end
