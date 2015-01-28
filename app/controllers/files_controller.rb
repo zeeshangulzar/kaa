@@ -92,16 +92,18 @@ class FilesController < ApplicationController
   #   }
   def crop
     require 'RMagick'
-    
     img_path = Dir["#{DIRNAME}/#{params[:image].split('/').last}"].first
-
     name = img_path.split('/').last
     ext_type = img_path.split('.').last
     new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
     new_img_path = img_path.gsub(name, new_name);
 
     tn_path = File.join(DIRNAME, "thumbnail-#{new_name}")
-    crop_to_circle(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+    if params[:type].nil? || params[:type] == 'rect' then
+      crop_to_rect(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+    else 
+      crop_to_circle(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+    end
     render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :name => new_name}, :status => 202
   end
 
@@ -139,6 +141,34 @@ class FilesController < ApplicationController
     end
 
     tn_img = img.resize_to_fit(50, 50)
+    tn_img.write(tn_path)
+    img.write(out_filename)
+  end
+
+  def crop_to_rect(filename, x, y, w, h, out_filename, thumb_filename=nil)
+    img_path = filename
+    img = Magick::Image.read(img_path).first
+    # w = [w, img.columns-x].min
+    # h = [h, img.rows-y].min
+    # w = [w,h].min
+    # h = w
+    img = img.crop(x,y,w,h)
+
+    name = img_path.split('/').last
+    new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s)
+    img_path = img_path.gsub(name, new_name)
+
+    if !thumb_filename.nil?
+      tn_path = File.join(thumb_filename)
+    else 
+      tn_path = File.join(DIRNAME, "thumbnail-#{out_filename}")
+    end
+
+    ratio = w/h
+    tn_h = 50
+    tn_w = tn_h * ratio
+
+    tn_img = img.resize_to_fit(tn_w, tn_h)
     tn_img.write(tn_path)
     img.write(out_filename)
   end
