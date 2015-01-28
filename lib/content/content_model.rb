@@ -19,9 +19,21 @@ class ContentModel < ActiveRecord::Base
     unless @@config[self][:routed]
       resource_name = self.name.pluralize.underscore.to_sym
       puts "ROUTED #{resource_name}"
-      Rails.application.routes.draw do
-        resources resource_name 
+      # this is a fancy hack for appending routes without blowing away current ones.
+      # if routing continues to screw up, scrutinize this better...
+      begin
+        _routes = Rails.application.routes
+        _routes.disable_clear_and_finalize = true
+        _routes.clear!
+        Rails.application.routes_reloader.paths.each{ |path| load(path) }
+        _routes.draw do
+          resources resource_name
+        end
+        ActiveSupport.on_load(:action_controller) { _routes.finalize! }
+      ensure
+        _routes.disable_clear_and_finalize = false
       end
+      # end routing hack
       @@config[self][:routed] = true
     end
   end
