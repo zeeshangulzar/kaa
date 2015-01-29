@@ -395,6 +395,7 @@ LEFT JOIN profiles ON profiles.user_id = entries.user_id
 WHERE
 posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
 AND posters.active = 1
+AND posters.visible_date <= '#{user.promotion.current_date}'
 GROUP BY posters.visible_date, entries.recorded_on
 ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     "

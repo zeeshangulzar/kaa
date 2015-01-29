@@ -11,7 +11,7 @@ class Promotion < ApplicationModel
   has_many :behaviors
   has_many :exercise_activities
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
-  has_many :posters, :order => 'visible_date ASC'
+  has_many :posters, :order => 'visible_date DESC'
   has_many :success_stories
 
   has_many :challenges
