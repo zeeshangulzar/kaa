@@ -13,7 +13,24 @@ class PostersController < ApplicationController
       p = Promotion.find(params[:promotion_id]) rescue nil
       return HESresponder("Promotion", "NOT_FOUND") if !p
       if @current_user.master? || (@current_user.coordinator? && @current_user.promotion_id == p.id)
-        return HESResponder(p.posters)
+        start_date = false
+        end_date = false
+        if !params[:start].nil?
+          start_date = params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date
+        end
+        if !params[:end].nil?
+          end_date = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
+        end
+        if start_date && end_date
+          posters = p.posters.where("posters.visible_date BETWEEN '#{start_date}' AND '#{end_date}'")
+        elsif start_date
+          posters = p.posters.where("posters.visible_date >= '#{start_date}'")
+        elsif end_date
+          posters = p.posters.where("posters.visible_date <= '#{end_date}'")
+        else
+          posters = p.posters
+        end
+        return HESResponder(posters)
       else
         return HESResponder("Not authorized.", "DENIED")
       end
