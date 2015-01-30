@@ -143,4 +143,10 @@ class UsersController < ApplicationController
     end
   end
 
+  def stats
+    user = (@target_user.id != @current_user.id) ? @target_user : @current_user
+    year = !params[:year].nil? && params[:year].is_i? ? params[:year] : @promotion.current_date.year
+    return HESResponder(user.stats(year))
+  end
+
 end

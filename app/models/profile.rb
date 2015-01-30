@@ -63,5 +63,5 @@ class Profile < ApplicationModel
       self.registered_on = promotion.current_date
       self.started_on = self.class.get_next_start_date(promotion)
   end
-  
+
 end
