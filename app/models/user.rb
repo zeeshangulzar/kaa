@@ -458,7 +458,7 @@ AND YEAR(recorded_on) = #{year}
     user_stats = []
     User.connection.select_all(sql).each do |row|
       user_stats = [
-        'total_exercise_points'      => row['total_exercise_points'],
+        'total_exercise_points'       => row['total_exercise_points'],
         'total_challenge_points'      => row['total_challenge_points'],
         'total_timed_behavior_points' => row['total_timed_behavior_points'],
         'total_exercise_steps'        => row['total_exercise_steps'],
