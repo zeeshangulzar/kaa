@@ -6,7 +6,7 @@ class PostsController < ApplicationController
   before_filter :get_wallable, :only => [:index, :create, :popular_posts]
 
 
-  authorize :index, :show, :create, :user
+  authorize :index, :show, :create, :update, :destroy, :user
 
   # for the user that owns the post, any user to flag a post, and master users
   authorize :update, :user, lambda { |user, post, params|
@@ -128,12 +128,14 @@ class PostsController < ApplicationController
         }
       }
 
-      if @posts.last.id != (@wallable || @postable).posts.top.last.id
-        response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
-      end
+      if !@posts.empty?
+        if @posts.last.id != (@wallable || @postable).posts.top.last.id
+          response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
+        end
 
-      if @posts.first.id != (@wallable || @postable).posts.top.first.id
-        response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+        if @posts.first.id != (@wallable || @postable).posts.top.first.id
+          response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+        end
       end
 
       return HESResponder(response)
@@ -375,6 +377,7 @@ class PostsController < ApplicationController
       return HESResponder(@post.errors.full_messages, "ERROR")
     end
     @post.reload
+    $redis.publish('newPostCreated', @post.to_json)
     return HESResponder(@post)
   end
 

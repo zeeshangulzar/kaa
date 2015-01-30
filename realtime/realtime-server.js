@@ -24,9 +24,12 @@ var users = {};
 
 // Subscribe to these specific Redis channels.
 redis.subscribe('newMessageCreated');
+redis.subscribe('newPostCreated');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
+	console.log(data);
+
 	var userId;
 	var friendId;
 
@@ -38,9 +41,15 @@ redis.on('message', function(channel, data) {
 		case 'newMessageCreated':
 			userId = data.user_id.toString();
 			friendId = data.friend_id.toString();
-
 			io.sockets.in('User' + userId).emit('newMessageCreated', data);
 			io.sockets.in('User' + friendId).emit('newMessageCreated', data);
+			break;
+		case 'newPostCreated':
+
+			// TODO: Fix.
+			// promotionId = data.user.promotion_id.toString();
+			
+			io.sockets.in('Promotion1').emit('newPostCreated', data);
 			break;
 	}
 });
