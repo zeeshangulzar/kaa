@@ -99,12 +99,13 @@ class FilesController < ApplicationController
     new_img_path = img_path.gsub(name, new_name);
 
     tn_path = File.join(DIRNAME, "thumbnail-#{new_name}")
+    blur_path = File.join(DIRNAME, "blur_#{new_name}")
     if params[:type].nil? || params[:type] == 'rect' then
-      crop_to_rect(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+      crop_to_rect(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path, blur_path)
     else 
       crop_to_circle(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
     end
-    render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :name => new_name}, :status => 202
+    render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :blur_url => "/#{blur_path}".split('public').last, :name => new_name}, :status => 202
   end
 
   def crop_to_circle(filename, x, y, w, h, out_filename, thumb_filename=nil)
@@ -145,7 +146,7 @@ class FilesController < ApplicationController
     img.write(out_filename)
   end
 
-  def crop_to_rect(filename, x, y, w, h, out_filename, thumb_filename=nil)
+  def crop_to_rect(filename, x, y, w, h, out_filename, thumb_filename=nil, blur_filename=nil)
     img_path = filename
     img = Magick::Image.read(img_path).first
     # w = [w, img.columns-x].min
@@ -164,12 +165,22 @@ class FilesController < ApplicationController
       tn_path = File.join(DIRNAME, "thumbnail-#{out_filename}")
     end
 
+    if !blur_filename.nil?
+      blur_path = File.join(blur_filename)
+    else
+      tn_path = File.join(DIRNAME, "blur-#{out_filename}")
+    end
+
     ratio = w/h
     tn_h = 50
     tn_w = tn_h * ratio
 
     tn_img = img.resize_to_fit(tn_w, tn_h)
     tn_img.write(tn_path)
+
+    blur_img = img.blur_image(0, 25.0)
+    blur_img.write(blur_path)
+
     img.write(out_filename)
   end
 
