@@ -194,7 +194,7 @@ user2_cs.save!
 
 #Build up user entries
 
-entry_1 = user.entries.build(:recorded_on => user.profile.started_on, :exercise_steps => 10302, :exercise_minutes => nil)
+entry_1 = user.entries.build(:recorded_on => user.profile.started_on, :exercise_minutes => nil)
 entry_1.save!
 entry_1.entry_behaviors.build(:behavior_id => behavior_water.id, :value => 1)
 entry_1.save_exercise_activity(ex_activity_biking, :value => 28)

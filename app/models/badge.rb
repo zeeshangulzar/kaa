@@ -22,6 +22,7 @@ class Badge < ActiveRecord::Base
   # query returns what the milestones SHOULD BE
   def self.milestone_query(user_id,year)
     milestones = Promotion.find(User.find(user_id).promotion_id).milestone_goals
+    return nil if milestones.empty?
     cases = milestones.keys.sort{|x,y|milestones[y]<=>milestones[x]}.collect{|k| "when total_points >=#{milestones[k]} then #{k}"}
     "
 SELECT

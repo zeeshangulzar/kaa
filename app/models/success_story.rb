@@ -10,7 +10,7 @@ class SuccessStory < ApplicationModel
   scope :active, :conditions => {:active => true}
   scope :featured, :conditions => {:featured => true}
 
-  mount_uploader :image, SucessStoryImageUploader
+  mount_uploader :image, SuccessStoryImageUploader
   
 
 end

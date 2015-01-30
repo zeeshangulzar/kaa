@@ -1,13 +1,46 @@
 class PostersController < ApplicationController
-  authorize :index, :show, :public
+  authorize :current, :public
+  authorize :index, :show, :user
   authorize :create, :update, :delete, :coordinator
+
+  def current
+    return HESResponder(@promotion.posters.where("posters.visible_date <= '#{@promotion.current_date}'").limit(1))
+  end
   
   def index
-    options = {}
-    options[:start] = params[:start].nil? ? @promotion.current_date.beginning_of_month : (params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date)
-    options[:end] = params[:end].nil? ? (!params[:start].nil? ? options[:start].end_of_month : @promotion.current_date.end_of_month) : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date)
-    return HESResponder(@current_user.posters(options))
-
+    if params[:promotion_id]
+      # /promotions/:id/posters
+      p = Promotion.find(params[:promotion_id]) rescue nil
+      return HESresponder("Promotion", "NOT_FOUND") if !p
+      if @current_user.master? || (@current_user.coordinator? && @current_user.promotion_id == p.id)
+        start_date = false
+        end_date = false
+        if !params[:start].nil?
+          start_date = params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date
+        end
+        if !params[:end].nil?
+          end_date = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
+        end
+        if start_date && end_date
+          posters = p.posters.where("posters.visible_date BETWEEN '#{start_date}' AND '#{end_date}'")
+        elsif start_date
+          posters = p.posters.where("posters.visible_date >= '#{start_date}'")
+        elsif end_date
+          posters = p.posters.where("posters.visible_date <= '#{end_date}'")
+        else
+          posters = p.posters
+        end
+        return HESResponder(posters)
+      else
+        return HESResponder("Not authorized.", "DENIED")
+      end
+    else
+      # /posters
+      options = {}
+      options[:start] = params[:start].nil? ? @promotion.current_date.beginning_of_month : (params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date)
+      options[:end] = params[:end].nil? ? (!params[:start].nil? ? options[:start].end_of_month : @promotion.current_date.end_of_month) : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date)
+      return HESResponder(@current_user.posters(options))
+    end
   end
 
   def show

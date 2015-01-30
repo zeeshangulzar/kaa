@@ -423,6 +423,9 @@ class PostsController < ApplicationController
     return HESResponder("Post", "NOT_FOUND") if !@post
     if @post.user_id != @current_user.id
       params[:post] = {:is_flagged => params[:post][:is_flagged]}
+      if !params[:post][:is_flagged].nil? && params[:post][:is_flagged] == true
+        params[:post][:flagged_by] = @current_user.id
+      end
     end
     @post.update_attributes(params[:post])
     if !@post.valid?

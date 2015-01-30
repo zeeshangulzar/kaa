@@ -8,10 +8,12 @@ class RecipesController < ApplicationController
   private :page_settings
   
   def index
-    HESResponder Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).all
+    # TODO: CC
+    return HESResponder(Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).all)
   end
 
   def show
+    # TODO: CC
     if params[:daily]
       recipe = Recipe.daily
     elsif params[:first]   
@@ -27,6 +29,7 @@ class RecipesController < ApplicationController
   end
   
   def browse
+    # TODO: CC
     chosen = params[:category].downcase
     available = RecipeCategory::MealTypes
     if available.include?(chosen)

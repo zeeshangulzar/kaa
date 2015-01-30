@@ -11,7 +11,4 @@ class Poster < ApplicationModel
   mount_uploader :image3, PosterImageUploader
   mount_uploader :image4, PosterImageUploader
 
-
-
-
 end

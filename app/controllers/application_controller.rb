@@ -102,6 +102,7 @@ class ApplicationController < ActionController::Base
     end
     
     unless !page_size.nil?
+      # only allow overriding of page_size if it isn't passed
       page_size = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
     end
 
@@ -136,9 +137,12 @@ class ApplicationController < ActionController::Base
 #      end
 
       if payload.respond_to?('size')
+        # generally, size() would indicate an array, however, I've come across instances where it's a hash
         payload = payload.to_a if payload.is_a?(Hash)
+        # regardless, chop it up for paging..
         data = page_size > 0 ? payload.slice(offset, page_size) : payload
       else
+        # singular object
         data = [payload]
       end
 
@@ -159,7 +163,8 @@ class ApplicationController < ActionController::Base
         }
       }
 
-      if page_size > 0 # prev/next links will never exist if we're getting all records..
+      if page_size > 0
+        # prev/next links will never exist if we're getting all records..
         if total_records > page_size
           if offset > 0
             prev_offset = (offset - page_size) <= 0 ? nil : offset - page_size

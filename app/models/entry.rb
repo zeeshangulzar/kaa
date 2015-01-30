@@ -198,7 +198,9 @@ class Entry < ApplicationModel
 
   def do_milestone_badges
     #raise caller.to_yaml
-    rows = connection.uncached{ connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year)) }
+    query = Badge.milestone_query(self.user_id,self.recorded_on.year)
+    return true unless query
+    rows = connection.uncached{ connection.select_all(query) }
     inserts = []
     updates = []
     now = self.user.promotion.current_time.to_s(:db)
