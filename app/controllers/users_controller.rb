@@ -143,4 +143,9 @@ class UsersController < ApplicationController
     end
   end
 
+  def stats
+    user = (@target_user.id != @current_user.id) ? @target_user : @current_user
+    return HESResponder(user.stats)
+  end
+
 end

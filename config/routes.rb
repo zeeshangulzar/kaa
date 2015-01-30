@@ -18,6 +18,9 @@ Go::Application.routes.draw do
   match "/files/upload" => "files#upload", :via => :post
   match "/files/crop" => "files#crop", :via => :put
 
+  match "/stats" => "users#stats", :via => :get
+  match "/users/:id/stats" => "users#stats", :via => :get
+
   resources :users do
     collection do
       get 'search/:search_string', :to=>'users#search'

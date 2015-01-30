@@ -113,6 +113,10 @@ class User < ApplicationModel
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
 
+   # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
+   ms = self.current_milestone
+   user_json["milestone_id"] = ms ? ms.id : nil
+
     user_json
   end
 
@@ -421,6 +425,48 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     }
 
     return posters_array
+  end
+
+  def current_milestone
+    ub = self.badges_earned.where("badge_type = '#{Badge::TYPE[:milestones]}'", "YEAR(earned_date) = #{self.promotion.current_date.year}").order("earned_date DESC").limit(1)
+    if !ub.empty?
+      return ub.first.badge
+      # here's some ideas..
+      # return ub.first.badge.attributes.reject{|k,v| !['name','image','id'].include?(k)}
+      # has_one :milestone, :class_name => "Badge", :through => :badges_earned, :source => :badge, :conditions => proc { "badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }, :order => "sequence DESC"
+    else
+      return nil
+    end
+  end
+
+  def stats(year = self.promotion.current_date.year)
+    user = self
+    sql = "
+SELECT
+SUM(exercise_points) AS total_exercise_points,
+SUM(challenge_points) AS total_challenge_points,
+SUM(timed_behavior_points) AS total_timed_behavior_points,
+SUM(exercise_steps) AS total_exercise_steps,
+SUM(exercise_minutes) AS total_exercise_minutes,
+SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points
+FROM
+entries
+WHERE
+user_id = #{user.id}
+AND YEAR(recorded_on) = #{year}
+    "
+    user_stats = []
+    User.connection.select_all(sql).each do |row|
+      user_stats = [
+        'total_exercise_points'      => row['total_exercise_points'],
+        'total_challenge_points'      => row['total_challenge_points'],
+        'total_timed_behavior_points' => row['total_timed_behavior_points'],
+        'total_exercise_steps'        => row['total_exercise_steps'],
+        'total_exercise_minutes'      => row['total_exercise_minutes'],
+        'total_points'                => row['total_points']
+      ]
+    end
+    return user_stats
   end
 
 end
