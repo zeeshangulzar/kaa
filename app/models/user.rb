@@ -25,7 +25,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile_photo, :public
   attr_privacy :location, :any_user
-  attr_privacy :username, :tiles, :flags, :me
+  attr_privacy :username, :tiles, :flags, :role, :me
   attr_accessible :username, :tiles, :email, :username, :altid, :profile_photo
 
   # validation
