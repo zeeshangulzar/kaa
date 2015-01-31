@@ -403,7 +403,7 @@ events.*
 SELECT users.*
 FROM users
 JOIN profiles ON profiles.user_id = users.id
-LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)) AND friendships.friender_type = 'User' AND friendships.friendee_type = 'User')
+LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
 WHERE
 (
   users.email LIKE '%#{search}%'
