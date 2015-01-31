@@ -73,21 +73,25 @@ class User < ApplicationModel
   can_like
   has_notifications
 
+  # relationships
+  has_one :profile, :in_json => true
+
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :public
+  attr_privacy :email, :profile, :public
   attr_privacy :location, :any_user
-
   attr_privacy :username, :tiles, :flags, :role, :me
-  attr_accessible :username, :tiles, :email, :username, :altid
+
+  
+  
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
   validates_uniqueness_of :email, :scope => :promotion_id
 
-  # relationships
-  has_one :profile, :in_json => true
+  
 
 #  default_scope :include => :profile, :order => "profiles.last_name ASC"
 
