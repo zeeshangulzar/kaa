@@ -15,26 +15,83 @@ class User < ApplicationModel
 
 #  attr_accessible :achievements_attributes
 
-  has_friendships
+  
+  # pulling in friendships..
+  
+  has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
+  has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
+  
+  after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
+  after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
+  after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
+
+  def friends
+    @friends = self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
+  end
+
+  # Requests a friendship from another user or email address
+  #
+  # @param [User, String] user_or_email of user if exists, otherwise just use email address
+  # @return [Friendship] instance of your friendship with other user, status will be 'requested'
+  # @example
+  #  @target_user.request_friend(another_user)
+  #  @target_user.request_friend("developer@hesonline.com")
+  # @todo Try to find user if string is passed in. Not sure if good idea because will have to know structure of database for this to work.
+  def request_friend(user_or_email)
+    unless user_or_email.is_a?(String)
+      friendships.create(:friendee => user_or_email, :status => Friendship::STATUS[:requested])
+    else
+      friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
+    end
+  end
+
+  # Checks for friendship requests before user was registered by email address.
+  # If any are found, updates friendships tied to other user while creating one for this user
+  #
+  # @param [String] email address if want to check for email not associated with user
+  # @note Called in after_create by default
+  def associate_requested_friendships(email = nil)
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
+      friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
+      f.update_attributes(:friendee => self)
+    end
+  end
+
+  # Checks to see if email address has changed after user is updated.
+  # Calls check_for_requested_friendships if email was updated.
+  # @see #check_for_requested_friendships
+  def check_if_email_has_changed_and_associate_requested_friendships
+    if email_was != email
+      associate_requested_friendships
+    end
+  end
+  
+  # end friendships pulled in
+
+
   can_post
   can_like
   has_notifications
 
+  # relationships
+  has_one :profile, :in_json => true
+
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :public
+  attr_privacy :email, :profile, :public
   attr_privacy :location, :any_user
-
   attr_privacy :username, :tiles, :flags, :role, :me
-  attr_accessible :username, :tiles, :email, :username, :altid
+
+  
+  
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
   validates_uniqueness_of :email, :scope => :promotion_id
 
-  # relationships
-  has_one :profile, :in_json => true
+  
 
 #  default_scope :include => :profile, :order => "profiles.last_name ASC"
 
@@ -114,9 +171,10 @@ class User < ApplicationModel
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
 
-   # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
-   ms = self.current_milestone
-   user_json["milestone_id"] = ms ? ms.id : nil
+    # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
+    ms = self.current_milestone
+    user_json["milestone_id"] = ms ? ms.id : nil
+    user_json["stats"] = self.stats
 
     user_json
   end
@@ -457,7 +515,7 @@ user_id = #{user.id}
 AND YEAR(recorded_on) = #{year}
     "
     user_stats = []
-    User.connection.select_all(sql).each do |row|
+    self.connection.select_all(sql).each do |row|
       user_stats = [
         'total_exercise_points'       => row['total_exercise_points'],
         'total_challenge_points'      => row['total_challenge_points'],

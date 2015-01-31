@@ -11,7 +11,8 @@ class UsersController < ApplicationController
   end
 
   def authenticate
-    user = @promotion.users.find_by_email(params[:email])
+    user = @promotion.users.find_by_email(params[:email]) rescue nil
+    user ||= @promotion.users.find_by_username(params[:username]) rescue nil
     HESSecurityMiddleware.set_current_user(user)
 
     if user && user.password == params[:password]

@@ -1,4 +1,4 @@
-require "hes-friendships/engine"
+#require "hes-friendships/engine"
 
 # Friendships module
 module HesFriendships
