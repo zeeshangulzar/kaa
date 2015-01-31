@@ -1,8 +1,8 @@
 # Friendship active record class for keeping track of relationships between users
 class Friendship < ApplicationModel
-  attr_accessible :friendee, :friender, :friender_id, :friender_type, :friendee_id, :friendee_type, :status, :friend_email
+  attr_accessible :friendee, :friender, :friender_id, :friendee_id, :status, :friend_email
 
-  attr_privacy :friender_id, :friender_type, :friendee_id, :friendee, :friendee_type, :status, :friend_email, :sender_id, :me
+  attr_privacy :friender_id, :friendee_id, :friendee, :status, :friend_email, :sender_id, :me
   attr_privacy_path_to_user :friender
   
   attr_accessor :is_inverse
@@ -22,15 +22,15 @@ class Friendship < ApplicationModel
   # Any ActiveRecord model can be friendable and have friends
 
   # The user that has been friended
-  belongs_to :friendee, :polymorphic => true
+  belongs_to :friendee, :class_name => "User"
 
   # The user that owns this relationship
-  belongs_to :friender, :polymorphic => true
+  belongs_to :friender, :class_name => "User"
 
   # The user that ACTUALLY OWNS this relationship, when you create an inverse friendship
   # the friendee becomes the friender, in which case we don't know who sent the invite
   # and we need to know this so the friender can't update the status and accept the friendship their self
-  belongs_to :sender, :polymorphic => true
+  belongs_to :sender, :class_name => "User"
   
   # Creates scopes for limit friendships to specific status
   # @return [ActiveRecord::Relation] scoped to the status
@@ -55,12 +55,10 @@ class Friendship < ApplicationModel
   
   # @!group Validators
   # Makes sure there are only unique friendship relationships
-  validates_uniqueness_of :friender_id, :scope => [:friendee_id, :friendee_type, :friender_type]
+  validates_uniqueness_of :friender_id, :scope => [:friendee_id]
   # validates_uniqueness_of :user_id, :scope => :friend_id
   # validates_presence_of :friend_id, :if => Proc.new {|friendship| friendship.accepted? }
   validates_presence_of :friendee_id, :if => Proc.new {|friendship| friendship.accepted? }
-
-  validates_presence_of :friendee_type
 
   validate :friendee_id_or_friend_email
   # friendee_id or email is compulsory
@@ -102,8 +100,6 @@ class Friendship < ApplicationModel
   # !@endgroup
   
   # @!group Callbacks
-  after_initialize :fix_types
-  before_create :fix_types
   before_create :set_sender
   # Creates an inverse relationship
   after_create :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil?} if HesFriendships.create_inverse_friendships
@@ -113,13 +109,7 @@ class Friendship < ApplicationModel
 
   # @!endgroup
 
-  def fix_types
-    self.friender_type = self.friender_type.blank? ? 'User' : self.friender_type.camelize
-    self.friendee_type = self.friendee_type.blank? ? 'User' : self.friendee_type.camelize
-  end
-
   def set_sender
-    self.sender_type ||= 'User'
     if is_inverse
       self.sender_id ||= self.friendee_id
     else
@@ -164,7 +154,7 @@ class Friendship < ApplicationModel
   # Gets the inverse friendship
   # @return [Friendship] that is related to the friend of this friendship
   def inverse_friendship
-    @inverse_friendship ||= Friendship.where({:friendee_id => friender_id, :friendee_type => friender_type, :friender_id => friendee_id, :friender_type => friendee_type}).first
+    @inverse_friendship ||= Friendship.where({:friendee_id => friender_id, :friender_id => friendee_id}).first
   end
   
   # Sets the inverse friendship
