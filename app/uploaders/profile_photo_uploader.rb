@@ -24,11 +24,11 @@ class ProfilePhotoUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def filename
-    "profile-#{Time.now.to_i}.jpg" if original_filename
+    "profile-#{Time.now.to_i}.png" if original_filename
   end
 
   def default_url
-    "/images/users/" + [version_name, "default.jpg"].compact.join('_')
+    "/images/users/" + [version_name, "default.png"].compact.join('_')
   end
 
 end
