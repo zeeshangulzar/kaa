@@ -10,7 +10,7 @@ Go::Application.routes.draw do
   match "/users/validate" => "users#validate", :via => :post
   match "/users/:user_id/profile" => "profiles#show", :via => :get
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
-  match 'users/:user_id/entries' => 'entries#index', :via => :get
+  match '/users/:user_id/entries' => 'entries#index', :via => :get
   
   match '/entries/aggregate' => 'entries#aggregate', :via => :get
   match '/entries/aggregate/:year' => 'entries#aggregate', :via => :get
