@@ -174,8 +174,10 @@ class User < ApplicationModel
     # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
     ms = self.current_milestone
     user_json["milestone_id"] = ms ? ms.id : nil
-    user_json["stats"] = self.stats
+    #user_json["stats"] = self.stats
 
+
+    user_json['stats'] = @stats if @stats
     user_json
   end
 
@@ -498,34 +500,43 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     end
   end
 
-  def stats(year = self.promotion.current_date.year)
+  def self.stats(user_ids,year)
     user = self
     sql = "
-SELECT
-SUM(exercise_points) AS total_exercise_points,
-SUM(challenge_points) AS total_challenge_points,
-SUM(timed_behavior_points) AS total_timed_behavior_points,
-SUM(exercise_steps) AS total_exercise_steps,
-SUM(exercise_minutes) AS total_exercise_minutes,
-SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points
-FROM
-entries
-WHERE
-user_id = #{user.id}
-AND YEAR(recorded_on) = #{year}
+      SELECT
+      entries.user_id AS user_id,
+      SUM(exercise_points) AS total_exercise_points,
+      SUM(challenge_points) AS total_challenge_points,
+      SUM(timed_behavior_points) AS total_timed_behavior_points,
+      SUM(exercise_steps) AS total_exercise_steps,
+      SUM(exercise_minutes) AS total_exercise_minutes,
+      SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points
+      FROM
+      entries
+      WHERE
+      user_id in (#{user_ids.join(',')})
+      AND YEAR(recorded_on) = #{year}
+      GROUP BY user_id
     "
-    user_stats = []
+    # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
+    keys = ['total_exercise_points','total_challenge_points','total_timed_behavior_points','total_exercise_steps','total_exercise_minutes','total_points']
+    zeroes = Hash[*keys.collect{|k|[k,0]}.flatten]
+    user_stats = Hash[*user_ids.collect{|id|[id,zeroes]}.flatten]
     self.connection.select_all(sql).each do |row|
-      user_stats = [
-        'total_exercise_points'       => row['total_exercise_points'],
-        'total_challenge_points'      => row['total_challenge_points'],
-        'total_timed_behavior_points' => row['total_timed_behavior_points'],
-        'total_exercise_steps'        => row['total_exercise_steps'],
-        'total_exercise_minutes'      => row['total_exercise_minutes'],
-        'total_points'                => row['total_points']
-      ]
+      user_stats[row['user_id'].to_i] = row
     end
     return user_stats
   end
 
+  def stats(year = self.promotion.current_date.year)
+    unless @stats
+      arr =  self.class.stats([self.id],year)
+      @stats = arr[self.id]
+    end
+    @stats
+  end
+
+  def stats=(hash)
+    @stats=hash
+  end
 end

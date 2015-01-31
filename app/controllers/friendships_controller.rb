@@ -76,6 +76,17 @@ class FriendshipsController < ApplicationController
       f = @friendable.friendships.includes(:friendee => :profile)
     end
     f.sort!{|a,b|a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase}
+
+    # find all accepted friendships, get all their stats in 1 query, apply those stats to the friender and/or friendee of the friendship 
+    accepted = f.select{|friendship|friendship.accepted?}
+    stats_ids = accepted.collect{|friendship|[friendship.friendee_id,friendship.friender_id]}.flatten.uniq
+    stats = User.stats(stats_ids,@promotion.current_date.year)
+    accepted.each do |accepted|
+      # check loaded? to ensure it doesn't unnecessarily load friender or friendee
+      accepted.friender.stats=stats[accepted.friender_id] if accepted.association(:friender).loaded?
+      accepted.friendee.stats=stats[accepted.friendee_id] if accepted.association(:friendee).loaded?
+    end
+
     return HESResponder(f)
   end
 
