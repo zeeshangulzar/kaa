@@ -1,12 +1,12 @@
 # Model that is posted to walls. Can be nested or replies to other posts and also contain postable object related to post.
 class Post < ApplicationModel
 
-  attr_privacy :content, :depth, :photo, :parent_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :any_user
+  attr_privacy :content, :depth, :photo, :parent_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :user, :any_user
   
   # The page size allowed for getting posts
   PAGESIZE = 20
 
-  belongs_to :user, :in_json => true
+  belongs_to :user
 
   belongs_to :parent_post, :class_name => Post, :foreign_key => :parent_post_id
 
