@@ -15,25 +15,83 @@ class User < ApplicationModel
 
 #  attr_accessible :achievements_attributes
 
-  has_friendships
+  
+  # pulling in friendships..
+  
+  has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
+  has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
+  
+  after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
+  after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
+  after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
+
+  def friends
+    @friends = self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
+  end
+
+  # Requests a friendship from another user or email address
+  #
+  # @param [User, String] user_or_email of user if exists, otherwise just use email address
+  # @return [Friendship] instance of your friendship with other user, status will be 'requested'
+  # @example
+  #  @target_user.request_friend(another_user)
+  #  @target_user.request_friend("developer@hesonline.com")
+  # @todo Try to find user if string is passed in. Not sure if good idea because will have to know structure of database for this to work.
+  def request_friend(user_or_email)
+    unless user_or_email.is_a?(String)
+      friendships.create(:friendee => user_or_email, :status => Friendship::STATUS[:requested])
+    else
+      friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
+    end
+  end
+
+  # Checks for friendship requests before user was registered by email address.
+  # If any are found, updates friendships tied to other user while creating one for this user
+  #
+  # @param [String] email address if want to check for email not associated with user
+  # @note Called in after_create by default
+  def associate_requested_friendships(email = nil)
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
+      friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
+      f.update_attributes(:friendee => self)
+    end
+  end
+
+  # Checks to see if email address has changed after user is updated.
+  # Calls check_for_requested_friendships if email was updated.
+  # @see #check_for_requested_friendships
+  def check_if_email_has_changed_and_associate_requested_friendships
+    if email_was != email
+      associate_requested_friendships
+    end
+  end
+  
+  # end friendships pulled in
+
+
   can_post
   can_like
   has_notifications
 
+  # relationships
+  has_one :profile, :in_json => true
+
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :profile_photo, :public
+  attr_privacy :email, :profile, :public
   attr_privacy :location, :any_user
-  attr_privacy :username, :tiles, :flags, :me
-  attr_accessible :username, :tiles, :email, :username, :altid, :profile_photo
+  attr_privacy :username, :tiles, :flags, :role, :me
+
+  
+  
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
   validates_uniqueness_of :email, :scope => :promotion_id
 
-  # relationships
-  has_one :profile, :in_json => true
+  
 
 #  default_scope :include => :profile, :order => "profiles.last_name ASC"
 
@@ -113,6 +171,13 @@ class User < ApplicationModel
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
 
+    # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
+    ms = self.current_milestone
+    user_json["milestone_id"] = ms ? ms.id : nil
+    #user_json["stats"] = self.stats
+
+
+    user_json['stats'] = @stats if @stats
     user_json
   end
 
@@ -340,7 +405,7 @@ events.*
 SELECT users.*
 FROM users
 JOIN profiles ON profiles.user_id = users.id
-LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)) AND friendships.friender_type = 'User' AND friendships.friendee_type = 'User')
+LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
 WHERE
 (
   users.email LIKE '%#{search}%'
@@ -423,4 +488,56 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return posters_array
   end
 
+  def current_milestone
+    ub = self.badges_earned.where("badge_type = '#{Badge::TYPE[:milestones]}'", "YEAR(earned_date) = #{self.promotion.current_date.year}").order("earned_date DESC").limit(1)
+    if !ub.empty?
+      return ub.first.badge
+      # here's some ideas..
+      # return ub.first.badge.attributes.reject{|k,v| !['name','image','id'].include?(k)}
+      # has_one :milestone, :class_name => "Badge", :through => :badges_earned, :source => :badge, :conditions => proc { "badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }, :order => "sequence DESC"
+    else
+      return nil
+    end
+  end
+
+  def self.stats(user_ids,year)
+    user_ids = [user_ids] unless user_ids.is_a?(Array)
+    user = self
+    sql = "
+      SELECT
+      entries.user_id AS user_id,
+      SUM(exercise_points) AS total_exercise_points,
+      SUM(challenge_points) AS total_challenge_points,
+      SUM(timed_behavior_points) AS total_timed_behavior_points,
+      SUM(exercise_steps) AS total_exercise_steps,
+      SUM(exercise_minutes) AS total_exercise_minutes,
+      SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points
+      FROM
+      entries
+      WHERE
+      user_id in (#{user_ids.join(',')})
+      AND YEAR(recorded_on) = #{year}
+      GROUP BY user_id
+    "
+    # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
+    keys = ['total_exercise_points','total_challenge_points','total_timed_behavior_points','total_exercise_steps','total_exercise_minutes','total_points']
+    zeroes = Hash[*keys.collect{|k|[k,0]}.flatten]
+    user_stats = Hash[*user_ids.collect{|id|[id,zeroes]}.flatten]
+    self.connection.select_all(sql).each do |row|
+      user_stats[row['user_id'].to_i] = row
+    end
+    return user_stats
+  end
+
+  def stats(year = self.promotion.current_date.year)
+    unless @stats
+      arr =  self.class.stats([self.id],year)
+      @stats = arr[self.id]
+    end
+    @stats
+  end
+
+  def stats=(hash)
+    @stats=hash
+  end
 end

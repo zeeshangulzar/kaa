@@ -11,7 +11,8 @@ class UsersController < ApplicationController
   end
 
   def authenticate
-    user = @promotion.users.find_by_email(params[:email])
+    user = @promotion.users.find_by_email(params[:email]) rescue nil
+    user ||= @promotion.users.find_by_username(params[:username]) rescue nil
     HESSecurityMiddleware.set_current_user(user)
 
     if user && user.password == params[:password]
@@ -32,6 +33,7 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
+    @target_user.stats = @target_user.stats if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
     return HESResponder(@target_user)
   end
 
@@ -83,9 +85,9 @@ class UsersController < ApplicationController
     else
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
-        
-        @target_user.flags[:has_seen_tutorial] = params[:flags][:has_seen_tutorial] if !params[:flags][:has_seen_tutorial].nil?
-        @target_user.flags[:hide_goal_hit_message] = params[:flags][:hide_goal_hit_message] if !params[:flags][:hide_goal_hit_message].nil?
+
+        @target_user.flags[:has_seen_tutorial] = params[:flags][:has_seen_tutorial] if params[:flags].try(:has_seen_tutorial)
+        @target_user.flags[:hide_goal_hit_message] = params[:flags][:hide_goal_hit_message] if params[:flags].try(:hide_goal_hit_message)
 
         @target_user.update_attributes(params[:user])
         @target_user.profile.update_attributes(profile_data) if !profile_data.empty?
@@ -141,6 +143,12 @@ class UsersController < ApplicationController
     else
       return HESResponder()
     end
+  end
+
+  def stats
+    user = (@target_user.id != @current_user.id) ? @target_user : @current_user
+    year = !params[:year].nil? && params[:year].is_i? ? params[:year] : @promotion.current_date.year
+    return HESResponder(user.stats(year))
   end
 
 end

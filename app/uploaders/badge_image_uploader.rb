@@ -10,11 +10,6 @@ class BadgeImageUploader < CarrierWave::Uploader::Base
     "badges/"
   end
 
-  # Create different versions of your uploaded files:
-  version :thumbnail do
-    process :resize_to_fit => [40, 40]
-  end
-
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:
   def extension_white_list
@@ -24,11 +19,11 @@ class BadgeImageUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def filename
-    "badge-#{Time.now.to_i}.jpg" if original_filename
+    "badge-#{Time.now.to_i}.png" if original_filename
   end
 
   def default_url
-    "/images/badges/" + [version_name, "default.jpg"].compact.join('_')
+    "/images/badges/" + [version_name, "default.png"].compact.join('_')
   end
 
 end

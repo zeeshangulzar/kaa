@@ -28,11 +28,11 @@ class SuccessStoryImageUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def filename
-    "success_story-#{Time.now.to_i}.jpg" if original_filename
+    "success_story-#{Time.now.to_i}.png" if original_filename
   end
 
   def default_url
-    "/images/success_stories/" + [version_name, "default.jpg"].compact.join('_')
+    "/images/success_stories/" + [version_name, "default.png"].compact.join('_')
   end
 
 end

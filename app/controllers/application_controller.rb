@@ -96,7 +96,7 @@ class ApplicationController < ActionController::Base
 
   # page_size of 0 = all records
   def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
-    if payload.is_a?(Hash) && payload[:data].present? && payload[:meta].present?
+    if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
       # allow a complete response to pass right thru
       render :json => MultiJson.dump(payload), :status => HTTP_CODES['OK'] and return
     end

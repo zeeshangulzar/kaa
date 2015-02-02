@@ -22,11 +22,11 @@ class TipSmallImageUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def filename
-    "tip-small-image-#{Time.now.to_i}.jpg" if original_filename
+    "tip-small-image-#{Time.now.to_i}.png" if original_filename
   end
 
   def default_url
-    "/images/tips/small_image_" + [version_name, "default.jpg"].compact.join('_')
+    "/images/tips/small_image_" + [version_name, "default.png"].compact.join('_')
   end
 
 end

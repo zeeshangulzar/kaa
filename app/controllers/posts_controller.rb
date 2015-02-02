@@ -43,7 +43,10 @@ class PostsController < ApplicationController
   # @param [String] wallable type of the wall with posts
   def get_wallable
     unless params[:wallable_id].nil? || params[:wallable_type].nil?
-      @wallable = params[:wallable_type].singularize.camelcase.constantize.find(params[:wallable_id])
+      @wallable = params[:wallable_type].singularize.camelcase.constantize.find(params[:wallable_id]) rescue nil
+      if !@wallable
+        return HESResponder(params[:wallable_type].singularize.camelcase, "NOT_FOUND")
+      end
     else
       return HESResponder("Must pass wallable id and wallable_type", "ERROR")
     end
@@ -99,89 +102,51 @@ class PostsController < ApplicationController
   #   }
   def index
     psize = params[:page_size].nil? ? Post::PAGESIZE : params[:page_size]
-    if params[:user_id].nil?
-      if params[:location].nil?
-        @posts =
-        if params[:max_id].nil? && params[:since_id].nil?
-          @wallable.posts.top.limit(psize)
-        elsif params[:max_id]
-          @wallable.posts.top.limit(psize).before(params[:max_id])
-        else
-          @wallable.posts.top.limit(psize).after(params[:since_id])
-        end
-      else
-        @posts =
-        if params[:max_id].nil? && params[:since_id].nil?
-          @wallable.posts.locationed(params[:location]).top.limit(psize)
-        elsif params[:max_id]
-          @wallable.posts.locationed(params[:location]).top.limit(psize).before(params[:max_id])
-        else
-          @wallable.posts.locationed(params[:location]).top.limit(psize).after(params[:since_id])
-        end
+    conditions = ''
+    if !params[:has_photo].nil?
+      if params[:has_photo] == 'true' || params[:has_photo] == true
+        conditions = 'photo IS NOT NULL'
+      elsif params[:has_photo] == 'false' || params[:has_photo] == false
+        conditions = 'photo IS NULL'
       end
-      
-      response = {
-        :data => @posts,
-        :meta => {
-          :page_size => psize,
-          :total_records => params[:location].nil? ? @wallable.posts.top.count : @wallable.posts.locationed(params[:location]).top.count
-        }
-      }
-
-      if !@posts.empty?
-        if @posts.last.id != (@wallable || @postable).posts.top.last.id
-          response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
-        end
-
-        if @posts.first.id != (@wallable || @postable).posts.top.first.id
-          response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
-        end
-      end
-
-      return HESResponder(response)
-
-      # TODO: finish this up, when Drew starts on it.
-      
-      old = {
-        :posts => @posts.to_a,
-        :page => params[:page] || 1,
-        :post_count => @wallable.posts.top.count,
-        :reply_count => @wallable.posts.reply.count,
-        :max_id => @posts.last.id,
-        :next_page_url => "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}",
-        :since_id => @posts.last.id,
-        :prev_p => "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
-      }
-
-
-
-
-      @paged_posts = {
-        :posts => @posts.to_a.each{|x| 
-          # add_url(x, :is_collection => true)
-        },
-        :page => params[:page] || 1,
-        :post_count => @wallable.posts.top.count,
-        :reply_count => @wallable.posts.reply.count
-      }
-
-      unless @posts.empty?
-        unless @posts.last.id == (@wallable || @postable).posts.first.id
-          @paged_posts[:max_id] = @posts.last.id
-          @paged_posts[:next_page_url] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
-        end
-
-        unless @posts.first.id == (@wallable || @postable).posts.last.id
-          @paged_posts[:since_id] = @posts.last.id
-          @paged_posts[:prev_page_url] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
-        end
-      end
-
-      return HESResponder(@paged_posts)
-    else
-      @posts = @wallable.posts.top.where(:user_id => params[:user_id])
-      return HESResponder(@posts)
     end
+    if params[:location].nil?
+      @posts =
+      if params[:max_id].nil? && params[:since_id].nil?
+        @wallable.posts.top.where(conditions).limit(psize)
+      elsif params[:max_id]
+        @wallable.posts.top.where(conditions).limit(psize).before(params[:max_id])
+      else
+        @wallable.posts.top.where(conditions).limit(psize).after(params[:since_id])
+      end
+    else
+      @posts =
+      if params[:max_id].nil? && params[:since_id].nil?
+        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize)
+      elsif params[:max_id]
+        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize).before(params[:max_id])
+      else
+        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize).after(params[:since_id])
+      end
+    end
+
+    response = {
+      :data => @posts,
+      :meta => {
+        :page_size => psize,
+        :total_records => params[:location].nil? ? @wallable.posts.top.where(conditions).count : @wallable.posts.locationed(params[:location]).where(conditions).top.count
+      }
+    }
+    if !@posts.empty?
+      if @posts.last.id != (@wallable || @postable).posts.top.last.id
+        response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
+      end
+
+      if @posts.first.id != (@wallable || @postable).posts.top.first.id
+        response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+      end
+    end
+    return HESResponder(response)
   end
 
 
