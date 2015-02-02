@@ -501,6 +501,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
   end
 
   def self.stats(user_ids,year)
+    user_ids = [user_ids] unless user_ids.is_a?(Array)
     user = self
     sql = "
       SELECT
