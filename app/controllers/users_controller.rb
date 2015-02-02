@@ -33,7 +33,7 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
-    @target_user.stats = @target_user.stats
+    @target_user.stats = @target_user.stats if @target_user.friends.include?(@current_user) || @current_user.master?
     return HESResponder(@target_user)
   end
 
