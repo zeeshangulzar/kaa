@@ -80,7 +80,7 @@ class FriendshipsController < ApplicationController
     # find all accepted friendships, get all their stats in 1 query, apply those stats to the friender and/or friendee of the friendship 
     accepted = f.select{|friendship|friendship.accepted?}
     stats_ids = accepted.collect{|friendship|[friendship.friendee_id,friendship.friender_id]}.flatten.uniq
-    stats = User.stats(stats_ids,@promotion.current_date.year)
+    stats = User.stats(stats_ids,@promotion.current_date.year) unless stats_ids.empty?
     accepted.each do |accepted|
       # check loaded? to ensure it doesn't unnecessarily load friender or friendee
       accepted.friender.stats=stats[accepted.friender_id] if accepted.association(:friender).loaded?
