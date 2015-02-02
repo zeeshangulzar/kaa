@@ -110,6 +110,7 @@ class Promotion < ApplicationModel
 
   def as_json(options={})
     options[:meta] ||= false
+    options = options.merge({:methods => ["backlog_date","current_date"]})
     super
   end
 
