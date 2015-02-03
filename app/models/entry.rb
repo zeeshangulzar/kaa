@@ -49,8 +49,14 @@ class Entry < ApplicationModel
   def custom_validation
     user = self.user
     #Entries cannot be in the future, or outside of the started_on and promotion "ends on" range
-    if user && self.recorded_on && (self.recorded_on < user.profile.started_on || self.recorded_on < self.user.promotion.backlog_date || self.recorded_on > (user.profile.started_on + user.promotion.program_length - 1) || self.recorded_on > user.promotion.current_date)
-      self.errors[:base] << "Cannot have an entry outside of user's promotion start and end date range"
+    if user && self.recorded_on
+      if self.recorded_on < user.profile.started_on
+        self.errors[:base] << "Cannot record earlier than user start date: " + user.profile.started_on.to_s
+      elsif self.recorded_on < self.user.profile.backlog_date
+        self.errors[:base] << "Cannot record earlier than user backlog date: " + self.user.promotion.backlog_date.to_s
+      elsif self.recorded_on > user.promotion.current_date
+        self.errors[:base] << "Cannot record later than promotion current date: " + user.promotion.current_date.to_s
+      end
     end
     if self.exercise_steps.to_i > 0 && self.exercise_minutes.to_i > 0
       self.errors[:base] << "Cannot log both steps and minutes"

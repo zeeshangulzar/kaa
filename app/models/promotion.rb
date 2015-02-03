@@ -110,16 +110,12 @@ class Promotion < ApplicationModel
 
   def as_json(options={})
     options[:meta] ||= false
-    options = options.merge({:methods => ["backlog_date","current_date"]})
+    options = options.merge({:methods => ["current_date"]})
     super
   end
 
   def milestone_goals
     milestones = self.badges.milestones.collect{|ms| [ms.id, ms.point_goal]}.inject({}) { |h, (id, pts)| h[id] = pts; h }
-  end
-
-  def backlog_date
-    return (!self.backlog_days.nil? && self.backlog_days > 0) ? self.current_date - self.backlog_days : self.starts_on
   end
 
 end

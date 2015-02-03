@@ -1,7 +1,7 @@
 class Profile < ApplicationModel
   # attrs
-  attr_accessible :gender,:first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :image
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :me
+  attr_accessible :gender,:first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :image, :backlog_date
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :me
   attr_privacy :first_name,:last_name,:image,:connections
   attr_privacy :first_name,:last_name,:image,:public_comment
   attr_privacy_path_to_user :user
@@ -16,7 +16,9 @@ class Profile < ApplicationModel
 
   # includes
   include TrackChangedFields
-  udfable
+  # udfable is breaking things..
+  # none of the methods below were defined with udfable "enabled" (not commented out)
+  # udfable
 
   # flags
   flags :has_changed_password_at_least_once, :default => false
@@ -59,9 +61,18 @@ class Profile < ApplicationModel
   end
 
   def set_default_values
-      promotion = self.user.promotion
-      self.registered_on = promotion.current_date
-      self.started_on = self.class.get_next_start_date(promotion)
+    promotion = self.user.promotion
+    self.registered_on = promotion.current_date
+    self.started_on = self.class.get_next_start_date(promotion)
+  end
+
+  def backlog_date
+    return (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
+  end
+
+  def as_json(options={})
+    options = options.merge({:methods => ["backlog_date"]})
+    super
   end
 
 end
