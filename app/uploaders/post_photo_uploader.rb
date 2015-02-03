@@ -25,8 +25,9 @@ class PostPhotoUploader < CarrierWave::Uploader::Base
 
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
-  def filename
-    "post-#{Time.now.to_i}.png" if original_filename
+  def original_filename
+    @original_filename = "post-#{Time.now.to_i}-#{SecureRandom.hex(16)}.png"
+    return @original_filename
   end
 
   def default_url
