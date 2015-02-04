@@ -7,6 +7,8 @@ class Friendship < ApplicationModel
   
   attr_accessor :is_inverse
   attr_writer :url
+
+  Label = "Friend"
   
   # Constant for keeping statuses only one character in database
   STATUS = {
@@ -31,6 +33,38 @@ class Friendship < ApplicationModel
   # the friendee becomes the friender, in which case we don't know who sent the invite
   # and we need to know this so the friender can't update the status and accept the friendship their self
   belongs_to :sender, :class_name => "User"
+
+  acts_as_notifier
+  after_create :send_notification
+  after_update :send_assigned_friend_notification
+  after_update :mark_friendship_notification_as_viewed
+
+
+  # Sends notification to the user that friendship was requested of
+  # @note Sent after friendships is created
+  def send_notification
+    unless friendee.nil? || status == Friendship::STATUS[:accepted] || is_inverse
+      notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
+      if user.flags[:notify_email_friend_requests]
+        # TODO: resque email friend request notification
+      end
+    end
+  end
+
+  # Sends notification if friendships is updated with a friend id
+  # @note Called after friendships is updated
+  # @see #send_notification
+  def send_assigned_friend_notification
+    send_notification if friend_id_was.nil? && friend_id
+  end
+
+  # Removes notification after friendships has been accepted or declined
+  # @note Called after friendshps is updated
+  def mark_notification_as_viewed
+    notifications.each{|n| n.update_attributes(:viewed => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
+  end
+
+
   
   # Creates scopes for limit friendships to specific status
   # @return [ActiveRecord::Relation] scoped to the status

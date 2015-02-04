@@ -38,13 +38,12 @@ module HESApi
       def create_polymorphic_alias_method(polymorphic_association_name, polymorphic_name)
         polymorphic_class_name = self.to_s
         polymorphic_alias_method = self.to_s.underscore
-
         polymorphic_association_name.to_s.singularize.camelcase.constantize.send(:define_method, polymorphic_alias_method) do
-
           if polymorphic_class_name == self.send("#{polymorphic_name}_type")
             self.send(polymorphic_name)
           else
-            raise NoMethodError
+          # TODO: figure out why polys fail with this line...
+          #  raise NoMethodError
           end
 
         end

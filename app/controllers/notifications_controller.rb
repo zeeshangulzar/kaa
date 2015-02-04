@@ -196,6 +196,7 @@ class NotificationsController < ApplicationController
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }
 	def update
+    # TODO: only allow recipient to update maybe??
 		if params[:id]
 			@notification ||= Notification.find(params[:id])
 			@notification.update_attributes(params[:notification])

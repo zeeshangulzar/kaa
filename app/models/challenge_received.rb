@@ -8,6 +8,8 @@ class ChallengeReceived < ApplicationModel
   belongs_to :user
   belongs_to :challenge, :in_json => true
 
+  validates_presence_of :challenge_id, :status
+
   STATUS = {
     :unseen    => 0,
     :pending   => 1,
@@ -15,6 +17,9 @@ class ChallengeReceived < ApplicationModel
     :completed => 3,
     :declined  => 4
   }
+
+  acts_as_notifier
+  after_update :send_notification
 
   before_create :set_defaults
   before_update :set_expiration_if_accepted
@@ -40,8 +45,13 @@ class ChallengeReceived < ApplicationModel
 
   def challengers
     # self.created_at - 5, because of the potential for delay between ChallengeSent, which triggers ChallengeReceived to be created
-    user_ids = ChallengeSent.where("challenge_id = ? AND challenges_sent.created_at >= ? AND (to_user_id = ? OR to_group_id IN (SELECT group_id FROM group_users WHERE user_id = ? AND created_at < ?))", self.challenge.id, self.created_at - 5, self.user.id, self.user.id, self.created_at).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
-    return User.where("id IN (?)", user_ids)
+    if self.challenge.type == Challenge::TYPE[:regional]
+      user_ids = [self.challenge.created_by]
+    else
+      user_ids = ChallengeSent.where("challenge_id = ? AND challenges_sent.created_at BETWEEN ? AND ? AND (to_user_id = ? OR to_group_id IN (SELECT group_id FROM group_users WHERE user_id = ? AND created_at < ?))", self.challenge.id, self.created_at - 5, self.completed_on, self.user.id, self.user.id, self.created_at).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
+      user_ids = [user_ids] if !user_ids.is_a?(Array)
+    end
+    return User.where("id IN (?)", user_ids.join(','))
   end
 
   def as_json(options={})
@@ -58,7 +68,7 @@ class ChallengeReceived < ApplicationModel
 
   def set_completed_on_if_completed
     if self.completed? && self.status_was != STATUS[:completed]
-      self.completed_on = self.challenge.promotion.current_date
+      self.completed_on = self.challenge.promotion.current_time
     end
   end
 
@@ -68,6 +78,21 @@ class ChallengeReceived < ApplicationModel
       e = self.user.entries.create(:recorded_on => self.user.promotion.current_date)
     end
     e.save! # fires Entry::calculate_points
+  end
+
+  def send_notification
+    if self.accepted? && self.status_was != STATUS[:accepted]
+      # accepted notification
+      self.challengers.each{|challenger|
+        notify(challenger, "Challenge Accepted", "#{self.user.profile.full_name} accepted your challenge to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
+      }
+    end
+    if self.completed? && self.status_was != STATUS[:completed]
+      # completed notification
+      self.challengers.each{|challenger|
+        self.notify(challenger, "Challenge Completed", "#{self.user.profile.full_name} completed your challenge to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
+      }
+    end
   end
 
 end

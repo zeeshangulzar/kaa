@@ -18,7 +18,6 @@ module HesPosts
   	#initializer "hes-posts" do |app|
   		ActiveRecord::Base.send(:extend, HesPosts::HasWall)
   		ActiveRecord::Base.send(:extend, HesPosts::IsPostable)
-   #   Post.send(:include, HesPosts::PostActionNotifier) if HesPosts.uses_notifications
       ActiveRecord::Base.send(:extend, HesPosts::UserPostMethods)
   #	end
 

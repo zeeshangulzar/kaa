@@ -5,7 +5,14 @@ class User < ApplicationModel
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
 
+  flags :notify_email_friend_requests, :default => false
+  flags :notify_email_messages, :default => false
+  flags :notify_email_challenges, :default => false
+  flags :notify_email_events, :default => false
+
   attr_privacy_no_path_to_user
+
+  acts_as_notifier
 
 #  can_earn_achievements
   
@@ -22,6 +29,7 @@ class User < ApplicationModel
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
+  after_create :send_notification
   after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
 
@@ -43,6 +51,10 @@ class User < ApplicationModel
     else
       friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
     end
+  end
+
+  def send_notification
+    notify(self, "User Created", "Welcome to GoKP! If you haven't checked it out yet, you can see how the site works with our <a href='/tutorial'>tutorial</a>.", :from => self, :key => "user_#{id}")
   end
 
   # Checks for friendship requests before user was registered by email address.
@@ -68,7 +80,6 @@ class User < ApplicationModel
   
   # end friendships pulled in
 
-
   can_post
   can_like
   has_notifications
@@ -83,8 +94,7 @@ class User < ApplicationModel
   attr_privacy :location, :any_user
   attr_privacy :username, :tiles, :flags, :role, :me
 
-  
-  
+
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id
 
   # validation

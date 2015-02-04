@@ -1,10 +1,12 @@
 # A model that handles notifications, including creating single notifications and groups of them, as well as deleting groups and marking them as viewed.
 class Notification < ApplicationModel
   belongs_to :notificationable, :polymorphic => true 
-  belongs_to :user
+  belongs_to :user, :foreign_key => "user_id"
   belongs_to :from_user, :class_name => 'User'
   
   attr_accessible :viewed, :hidden, :key, :title, :message, :from_user, :user
+  attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :user, :any_user
+  attr_privacy_no_path_to_user
 
   validates :title, :presence => true, :length => {:maximum => 100}
   validates :message, :presence => true
@@ -13,6 +15,8 @@ class Notification < ApplicationModel
   scope :viewed, where(:viewed => true)
   scope :visible, where(:hidden => false)
   scope :hidden, where(:hidden => true)
+
+  after_create :publish_to_redis
 
   # Deletes a group of notifications.
   def self.delete_group(notificationable, time)
@@ -40,12 +44,6 @@ class Notification < ApplicationModel
   def self.find_all_by_key_group_by_created_at(notificationable)
     all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
   end
-  
-  # JSON format.
-  def as_json(options = nil)
-    hash = serializable_hash(options)
-    hash.merge!('user' => user.as_json)
-  end
 
   # Sets certain attributes as accessible for creating/updating
   def accessible_attributes
@@ -61,4 +59,15 @@ class Notification < ApplicationModel
   def mark_as_hidden
     update_attributes(:hidden => true)
   end
+
+  def as_json(options = nil)
+    hash = serializable_hash(options)
+    hash.merge!('user' => user.as_json)
+  end
+
+  # send all notifications to redis to have broadcasted via socket.io
+  def publish_to_redis
+    $redis.publish('notificationCreated', self)
+  end
+
 end

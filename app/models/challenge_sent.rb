@@ -15,6 +15,8 @@ class ChallengeSent < ApplicationModel
   validate :unique_challenge_received
   validate :to_user_or_group
 
+  acts_as_notifier
+
   def unique_challenge_received    
     user = User.find(self.user_id)
     if !self.to_user_id.nil?
@@ -48,12 +50,15 @@ class ChallengeSent < ApplicationModel
     end
   end
 
-  before_create :create_challenge_received
+  after_create :create_challenge_received
+
+  def receivers
+    return self.to_group_id.nil? ? [self.challenged_user] : self.challenged_group.users
+  end
 
   def create_challenge_received
     challenge = Challenge.find(self.challenge_id)
-    receivers = self.to_group_id.nil? ? [self.challenged_user] : self.challenged_group.users
-    receivers.each do |receiver|
+    self.receivers.each do |receiver|
       existing = receiver.active_challenges.detect{|c| c.challenge_id == self.challenge_id}
       if !existing
         rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:unseen])
@@ -62,7 +67,10 @@ class ChallengeSent < ApplicationModel
           self.errors.add(:base, rcc.errors.full_messages)
         else
           rcc.save!
+          notify(receiver, "Challenge Received", "#{self.user.profile.full_name} challenged you to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
         end
+      else
+        notify(receiver, "Challenge Received", "#{self.user.profile.full_name} has also challenged you to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
       end
     end
     

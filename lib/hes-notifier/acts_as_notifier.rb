@@ -19,7 +19,7 @@ module HesNotifier
         #    acts_as_notifier
         #    ...
         def acts_as_notifier
-          return unless ActiveRecord::Base.connection.tables.include?(self.to_s.tableize)
+          return unless (ActiveRecord::Base.connection.tables.include?(self.to_s.tableize) || ActiveRecord::Base.connection.tables.include?(self.table_name))
           return unless ActiveRecord::Base.connection.tables.include?('notifications')
             
           self.send(:has_many, :notifications, :as => :notificationable, :dependent => :destroy)

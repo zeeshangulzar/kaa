@@ -49,7 +49,8 @@ class ChallengesReceivedController < ApplicationController
     if params[:challenge_received] && params[:challenge_received][:status] && [ChallengeReceived::STATUS[:accepted], ChallengeReceived::STATUS[:completed]].include?(params[:challenge_received][:status]) && @current_user.accepted_challenges.size >= 4
       return HESResponder("Can't accept anymore challenges.", "ERROR")
     end
-    challenge_received = @current_user.challenges_received.build(params[:challenge_received])
+    cr = scrub(params[:challenge_received], ChallengeReceived)
+    challenge_received = @current_user.challenges_received.build(cr)
     if !challenge_received.valid?
       return HESResponder(challenge_received.errors.full_messages, "ERROR")
     else

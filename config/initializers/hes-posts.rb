@@ -39,19 +39,19 @@ module HesPosts
   self.post_liked_notification_title = lambda {|post, like| "Your post was liked!"}
 
   # Content of a notification that is sent when a post is liked
-  self.post_liked_notification_message = lambda {|post, like| "#{like.user.name} liked your <a href='/posts/#{post.id}'>post</a>!"}
+  self.post_liked_notification_message = lambda {|post, like| "#{like.user.profile.full_name} liked your <a href='/posts/#{post.id}'>post</a>!"}
 
 
   # Title of a notification that is sent when a post is replied to
   self.post_replied_notification_title = lambda {|post, reply| "Your post was replied to!"}
 
   # Content of a notification that is sent when a post is replied to
-  self.post_replied_notification_message = lambda {|post, reply| "#{reply.user.name} replied to your <a href='/posts/#{post.id}?reply=#{reply.id}'>post</a>!"}
+  self.post_replied_notification_message = lambda {|post, reply| "#{reply.user.profile.full_name} replied to your <a href='/posts/#{post.id}?reply=#{reply.id}'>post</a>!"}
 
 
   # Title of a notification that is sent when an expert post is liked
-  self.expert_post_liked_notification_message = lambda {|post, like| "#{like.user.name} liked your <a href='/wall_expert_posts/#{post.id}'>post</a>!"}
+  self.expert_post_liked_notification_message = lambda {|post, like| "#{like.user.profile.full_name} liked your <a href='/wall_expert_posts/#{post.id}'>post</a>!"}
 
   # Content of a notification that is sent when an expert post is replied
-  self.expert_post_replied_notification_message = lambda {|post, reply| "#{reply.user.name} replied to your <a href='/wall_expert_posts/#{post.id}?reply=#{reply.id}'>post</a>!"}
+  self.expert_post_replied_notification_message = lambda {|post, reply| "#{reply.user.profile.full_name} replied to your <a href='/wall_expert_posts/#{post.id}?reply=#{reply.id}'>post</a>!"}
 end
