@@ -45,7 +45,7 @@ class Friendship < ApplicationModel
   def send_notification
     unless friendee.nil? || status == Friendship::STATUS[:accepted] || is_inverse
       notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
-      if user.flags[:notify_email_friend_requests]
+      if friendee.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
       end
     end
