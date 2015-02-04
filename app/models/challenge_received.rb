@@ -51,7 +51,7 @@ class ChallengeReceived < ApplicationModel
       user_ids = ChallengeSent.where("challenge_id = ? AND challenges_sent.created_at BETWEEN ? AND ? AND (to_user_id = ? OR to_group_id IN (SELECT group_id FROM group_users WHERE user_id = ? AND created_at < ?))", self.challenge.id, self.created_at - 5, self.completed_on, self.user.id, self.user.id, self.created_at).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
       user_ids = [user_ids] if !user_ids.is_a?(Array)
     end
-    return User.where("id IN (?)", user_ids.join(','))
+    return User.where("id IN (#{user_ids.join(',')})")
   end
 
   def as_json(options={})
