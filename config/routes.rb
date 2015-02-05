@@ -1,3 +1,5 @@
+require 'resque/server'
+
 Go::Application.routes.draw do
   
   root :to => "promotions#current"
@@ -135,5 +137,6 @@ Go::Application.routes.draw do
   match "/success_stories/featured" => "success_stories#featured", :via => :get
   resources :success_stories
   
+  mount Resque::Server.new, :at => "/resque"
 
 end
