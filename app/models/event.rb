@@ -1,8 +1,8 @@
 class Event < ApplicationModel
 
   attr_privacy_no_path_to_user
-  attr_privacy :id, :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :any_user
-  attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :invites
+  attr_privacy :id, :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :is_canceled, :any_user
+  attr_accessible :user_id, :user, :event_type, :place, :can_others_invite, :start, :end, :all_day, :name, :description, :privacy, :location_id, :location, :photo, :invites, :is_canceled
   
   has_many :invites
   accepts_nested_attributes_for :invites
@@ -30,6 +30,11 @@ class Event < ApplicationModel
   before_create :fix_timestamps
   before_update :fix_timestamps
 
+  acts_as_notifier
+
+  after_create :invited_notifications
+  after_update :updated_notifications
+
   def set_default_values
     self.event_type ||= Event::TYPE[:user]
     self.privacy ||= Event::PRIVACY[:owner]
@@ -50,6 +55,10 @@ class Event < ApplicationModel
 
   def end
     read_attribute(:end).to_i
+  end
+
+  def canceled?
+    return self.is_canceled == true
   end
 
   def is_user_subscribed?(user)
@@ -86,6 +95,47 @@ class Event < ApplicationModel
     hash[:unresponded] += additional_unresponded
 
     return JSON.parse(hash.to_json)
+  end
+
+
+
+  # TODO: add emails
+  def invited_notifications
+    return if self.event_type != Event::TYPE[:user]
+    recipients = []
+    if self.privacy == Event::PRIVACY[:invitees]
+      recipients = self.invites
+    elsif self.privacy == Event::PRIVACY[:all_friends]
+      recipients = self.user.friends
+    end
+    recipients.each{|recipient|
+      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
+    }
+  end
+
+
+  # TODO: add emails
+  # TODO: make this run in the background.. resque or something?
+  def updated_notifications
+    return if self.event_type != Event::TYPE[:user]
+    n = false
+    if !self.is_canceled && self.start_was != self.start || self.end_was != self.end || self.place_was != self.place
+      n = {
+        :title   => "Event Updated",
+        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\", has been updated."
+      }
+    end
+    if self.is_canceled && self.is_canceled_was != self.is_canceled
+      n = {
+        :title   => "Event Canceled",
+        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\", has been canceled."
+      }
+    end
+    return unless n
+    self.invites.attending.each{|invite|
+      recipient = invite.user
+      notify(recipient, n[:title], n[:message], :from => self.user, :key => "event_#{self.id}")
+    }
   end
 
 end

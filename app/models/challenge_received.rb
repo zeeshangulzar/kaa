@@ -84,13 +84,13 @@ class ChallengeReceived < ApplicationModel
     if self.accepted? && self.status_was != STATUS[:accepted]
       # accepted notification
       self.challengers.each{|challenger|
-        notify(challenger, "Challenge Accepted", "#{self.user.profile.full_name} accepted your challenge to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
+        notify(challenger, "Challenge Accepted", "#{self.user.profile.full_name} accepted your challenge to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
       }
     end
     if self.completed? && self.status_was != STATUS[:completed]
       # completed notification
       self.challengers.each{|challenger|
-        self.notify(challenger, "Challenge Completed", "#{self.user.profile.full_name} completed your challenge to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
+        self.notify(challenger, "Challenge Completed", "#{self.user.profile.full_name} completed your challenge to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
       }
     end
   end

@@ -76,15 +76,34 @@ class InvitesController < ApplicationController
   #    "notes": "Eliptical machine while reading Fitness magazine"
   #   }
   def create
-    event = Event.find(params[:invite][:event_id]) rescue nil
+    event_id = params[:invite][:event_id].nil? ? params[:event_id] : params[:invite][:event_id]
+    event = Event.find(event_id) rescue nil
     if !event
       return HESResponder("Event", "NOT_FOUND")
     end
 
     already_invited_user_ids = event.invites.collect{|invite|invite.invited_user_id}
 
-    user_group_ids = @current_user.groups.collect{|group|group.id}
-    user_friend_ids = @current_user.friends.collect{|friend|friend.id}
+    if @current_user.id != event.user.id
+      # catch users making their own invites (in the case of PRIVACY == all_friends & coordinator events
+      return HESResponder("User not invited to this event.", "ERROR") if !event.is_user_subscribed?(@current_user) # this line is important, otherwise the user could invite himself to anything..
+      if already_invited_user_ids.include?(@current_user.id)
+        # maybe we should do an update on the invite
+        return HESResponder(event.invites.where(:invited_user_id => @current_user.id))
+      else
+        invite = event.invites.build(:invited_user_id => @current_user.id, :inviter_user_id => event.user.id, :status => params[:invite][:status])
+        if !invite.valid?
+          return HESResponder(invite.errors.full_messages, "ERROR")
+        end
+        Invite.transaction do
+          invite.save!
+        end
+        return HESResponder(invite)
+      end
+    end
+
+    user_group_ids = event.user.groups.collect{|group|group.id}
+    user_friend_ids = event.user.friends.collect{|friend|friend.id}
 
     # make sure all posted group ids are valid
     invited_group_ids = params[:invite][:invited_group_id].nil? ? [] : params[:invite][:invited_group_id].is_a?(Array) ? params[:invite][:invited_group_id] : [params[:invite][:invited_group_id]]
@@ -111,7 +130,7 @@ class InvitesController < ApplicationController
     invites = []
     Invite.transaction do
       invited_user_ids.each{|id|
-        i = event.invites.build(:invited_user_id => id, :inviter_user_id => @current_user.id)
+        i = event.invites.build(:invited_user_id => id, :inviter_user_id => event.user.id)
         if !i.valid?
           return HESResponder(i.errors.full_messages, "ERROR")
         end

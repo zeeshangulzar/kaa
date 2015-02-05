@@ -123,7 +123,7 @@ Go::Application.routes.draw do
   match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
 
   resources :events do
-    resources :invites, :only => [:index, :show]
+    resources :invites, :only => [:index, :show, :create]
   end
   resources :invites
 
