@@ -11,7 +11,7 @@ class ContentController < ApplicationController
 
   # returns all content models for the current promotion -- whether they're default or custom
   def index
-    if @current_user.user?
+    if !@current_user || @current_user.user?
       # average joe does not need the markdown -- because we can just give him HTML
       HESResponder @content_model_class_name.for_promotion(@promotion).select(@content_model_class_name.column_names_minus_markdown).all
     else
@@ -21,7 +21,9 @@ class ContentController < ApplicationController
   end
 
   def show
-    HESResponder @content_model_class_name.for_promotion(@promotion).find(params[:id])
+    obj = @content_model_class_name.for_promotion(@promotion).find(params[:id]) rescue nil
+    return HESResponder("Object", "NOT_FOUND") if !obj
+    return HESResponder(@content_model_class_name.for_promotion(@promotion).find(params[:id]))
   end
 
   def update
