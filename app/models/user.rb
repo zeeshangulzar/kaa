@@ -4,7 +4,7 @@ class User < ApplicationModel
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
-
+  
   flags :notify_email_friend_requests, :default => false
   flags :notify_email_messages, :default => false
   flags :notify_email_challenges, :default => false
@@ -29,7 +29,8 @@ class User < ApplicationModel
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
-  after_create :send_notification
+  after_create :welcome_email
+  after_create :welcome_notification
   after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
 
@@ -53,7 +54,11 @@ class User < ApplicationModel
     end
   end
 
-  def send_notification
+  def welcome_email
+    #Resque.enqueue(WelcomeEmail,self.id)
+  end
+
+  def welcome_notification
     notify(self, "User Created", "Welcome to GoKP! If you haven't checked it out yet, you can see how the site works with our <a href='/#/tutorial'>tutorial</a>.", :from => self, :key => "user_#{id}")
   end
 

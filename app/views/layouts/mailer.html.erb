@@ -1,3 +1,27 @@
-<h1>GoKP</h1>
+<table width="100%">
+  <tr>
+    <td style="background-color:#FFFFFF" align="center">
+      <img src="http://assets1.hesapps.com/go_kp/email/header.png" style="max-width:630px;width:100%" />
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#40b5af" align="center">
+      <table style="width:100%;max-width:630px;margin-top:16px;">
+        <tr>
+          <td style="background-color:#FFFFFF" colspan="2">
+            <%= yield %>
+          </td>
+        </tr>
+        <tr>
+          <td align="left">
+            <a href="/unsuvscrv" style="color:#FFFFFF">Unsubscribe</a>
+          </td>
+          <td align="right" style="color:#FFFFFF">
+            &copy; <%= Date.today.year %> Health Enhancement Systems
+          </td>
+        </tr>
+      </table>
 
-<%= yield %>
+    </td>
+  </tr>
+</table>
