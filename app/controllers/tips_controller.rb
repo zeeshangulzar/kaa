@@ -5,14 +5,28 @@ class TipsController < ContentController
     if !@current_user || @current_user.user?
       # average joe does not need the markdown -- because we can just give him HTML
       if !params[:day].nil? && params[:day].is_i?
-        tips = @content_model_class_name.for_promotion(@promotion).select(@content_model_class_name.column_names_minus_markdown).where("day <= #{params[:day]}")
+        tips = Tip.asc.for_promotion(@promotion).select(Tip.column_names_minus_markdown).where("day <= #{params[:day]}")
+        if !params[:minimum].nil? && params[:minimum].is_i?
+          min = params[:minimum].to_i
+          diff = min - tips.size
+          if diff > 0
+            # number of tips returned is less than minimum the app wants
+            # so first figure out how may weekdays are in last year
+            last_year_limit = Tip::get_weekdays_in_year(@promotion.current_date.year.to_i - 1)
+            # then grab the tips in day DESC order limited to the diff
+            tips2 = Tip.for_promotion(@promotion).desc.select(Tip.column_names_minus_markdown).where("day <= #{last_year_limit}").limit(diff)
+            tips2.reverse!
+            # switch it around so it's in the same order as the rest of tips and combine the arrays
+            tips = tips2 + tips
+          end
+        end
       else
-        tips = @content_model_class_name.for_promotion(@promotion).select(@content_model_class_name.column_names_minus_markdown).all
+        tips = Tip.for_promotion(@promotion).asc.select(Tip.column_names_minus_markdown).all
       end
       return HESResponder(tips)
     else
       # non-average joe may need the markdown -- because master is the editor of the markdown... maybe others are, too
-      return HESResponder(@content_model_class_name.for_promotion(@promotion).all)
+      return HESResponder(Tip.for_promotion(@promotion).all)
     end
   end
 end
