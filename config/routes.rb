@@ -46,6 +46,8 @@ Go::Application.routes.draw do
     resources :group_users, :only => [:index, :show]
   end
 
+  get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
+
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
@@ -56,12 +58,14 @@ Go::Application.routes.draw do
     resources :badges, :only => [:index]
     # CONTENT MODELS
     resources :tips
+    resources :facts
     resources :articles
   end
 
   # CONTENT MODELS
   resources :tips
   resources :articles
+  resources :facts
 
   # locations...
   resources :locations do
