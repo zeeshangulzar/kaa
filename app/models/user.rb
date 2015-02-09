@@ -181,6 +181,14 @@ class User < ApplicationModel
     end
   end
 
+  def serializable_hash(options={})
+    hash = super(options)
+    # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
+    ms = self.current_milestone
+    hash["milestone_id"] = ms ? ms.id : nil
+    return hash
+  end
+
   def as_json(options={})
     user_json = super(options.merge(:include=>:profile))
 
@@ -188,13 +196,6 @@ class User < ApplicationModel
       _evaluations_definitions = self.evaluations.collect{|x| x.definition.id}
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
-
-    # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
-    ms = self.current_milestone
-    user_json["milestone_id"] = ms ? ms.id : nil
-    #user_json["stats"] = self.stats
-
-
     user_json['stats'] = @stats if @stats
     user_json
   end
