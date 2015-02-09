@@ -149,8 +149,12 @@ class Entry < ApplicationModel
     # how many challenges completed can count towards points based on what's already been done this week?
     max_completed_countable = challenges_completed_this_week.empty? ? self.user.promotion.max_challenges_completed : [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
     # today's completed challenges
-    challenges_completed_today = self.user.challenges_received.find_by_completed_on(self.recorded_on) rescue []
-    challenges_completed_today = [challenges_completed_today] if !challenges_completed_today.is_a?(Array)
+    challenges_completed_today = self.user.challenges_received.find_by_completed_on(self.recorded_on)
+    if !challenges_completed_today
+      challenges_completed_today = []
+    else
+      challenges_completed_today = [challenges_completed_today] if !challenges_completed_today.is_a?(Array)
+    end
     challenges_completed_countable = 0
     if challenges_completed_today && !challenges_completed_today.empty?
       challenges_completed_countable = (challenges_completed_today.size > max_completed_countable) ? max_completed_countable : challenges_completed_today.size
