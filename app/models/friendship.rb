@@ -35,14 +35,15 @@ class Friendship < ApplicationModel
   belongs_to :sender, :class_name => "User"
 
   acts_as_notifier
-  after_create :send_notification
-  after_update :send_assigned_friend_notification
-  after_update :mark_friendship_notification_as_viewed
+  after_create :send_requested_notification
+  after_update :send_accepted_notification
+
+#  after_update :mark_friendship_notification_as_viewed
 
 
   # Sends notification to the user that friendship was requested of
   # @note Sent after friendships is created
-  def send_notification
+  def send_requested_notification
     unless friendee.nil? || status == Friendship::STATUS[:accepted] || is_inverse
       notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
       if friendee.flags[:notify_email_friend_requests]
@@ -54,8 +55,13 @@ class Friendship < ApplicationModel
   # Sends notification if friendships is updated with a friend id
   # @note Called after friendships is updated
   # @see #send_notification
-  def send_assigned_friend_notification
-    send_notification if friend_id_was.nil? && friend_id
+  def send_accepted_notification
+     if !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
+      notify(friender, "#{Label} Accepted", "#{friendee.profile.full_name} has accepted your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => friendee, :key => "friendship_#{id}")
+      if friendee.flags[:notify_email_friend_requests]
+        # TODO: resque email friend request notification
+      end
+    end
   end
 
   # Removes notification after friendships has been accepted or declined
