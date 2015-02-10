@@ -1,5 +1,5 @@
 class CreateChallengeSentUsers < ActiveRecord::Migration
-  def change
+  def up
     create_table :challenge_sent_users do |t|
       t.integer     :challenge_sent_id
       t.integer     :user_id
