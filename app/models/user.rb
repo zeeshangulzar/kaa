@@ -440,6 +440,7 @@ AND
     OR friendships.status = 'D'
   )
 )
+GROUP BY users.id
 ORDER BY profiles.last_name
 #{'LIMIT ' + limit.to_s if limit > 0}
     "
