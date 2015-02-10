@@ -59,8 +59,10 @@ class Friendship < ApplicationModel
     if self.status == Friendship::STATUS[:pending] && self.status_was == Friendship::STATUS[:declined] && !is_inverse
       self.send_requested_notification
     elsif !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
-      notify(friender, "#{Label} Accepted", "#{friendee.profile.full_name} has accepted your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => friendee, :key => "friendship_#{id}")
-      if friendee.flags[:notify_email_friend_requests]
+      receiver = (self.sender_id == self.friender_id) ? self.friender : self.friendee
+      remitter = (self.sender_id == self.friender_id) ? self.friendee : self.friender
+      notify(receiver, "#{Label} Accepted", "#{remitter.profile.full_name} has accepted your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => remitter, :key => "friendship_#{id}")
+      if receiver.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
       end
     end
@@ -145,6 +147,9 @@ class Friendship < ApplicationModel
   before_create :set_sender
   # Creates an inverse relationship
   after_create :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil?} if HesFriendships.create_inverse_friendships
+
+  before_update :update_sender
+  after_update :set_inverse_friendship
   
   # Updates inverse relationship to also be accepted
   after_update :accept_inverse_friendship, :if => Proc.new {|friendship| friendship.status_was == STATUS[:pending] && friendship.status == STATUS[:accepted]}
@@ -157,9 +162,18 @@ class Friendship < ApplicationModel
 
   def set_sender
     if is_inverse
-      self.sender_id ||= self.friendee_id
+      Rails.logger.warn(self.id.to_s + ' is inverse')
+      self.sender_id = self.friendee_id
     else
-      self.sender_id ||= self.friender_id
+      Rails.logger.warn(self.id.to_s + ' is NOT inverse')
+      self.sender_id = self.friender_id
+    end
+  end
+
+  def update_sender
+    if self.status_was == STATUS[:declined] && self.status == STATUS[:pending]
+      Rails.logger.warn("set sender: " + self.id.to_s)
+      self.set_sender
     end
   end
   
@@ -170,6 +184,15 @@ class Friendship < ApplicationModel
       inverse_friendship = friendee.friendships.build(:friendee => friender, :friender => friendee, :status => accepted? ? STATUS[:accepted] : STATUS[:pending])
       inverse_friendship.is_inverse = true
       inverse_friendship.save
+    end
+  end
+
+    # Creates an inverse friendship
+  # @return [Boolean] true if inverse friendship was created successfully
+  def set_inverse_friendship
+    unless is_inverse
+      inverse_friendship = self.inverse_friendship
+      inverse_friendship.is_inverse = true
     end
   end
   
