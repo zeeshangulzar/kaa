@@ -163,12 +163,17 @@ class FriendshipsController < ApplicationController
     if @friendable.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't alter other users' friendships.", "DENIED")
     end
+    declined = @friendable.friendships.where("((friendee_id = ? AND friender_id = ?) OR (friendee_id = ? AND friender_id = ?)) AND status = ?", params[:friendee_id], @current_user.id, @current_user.id, params[:friendee_id], Friendship::STATUS[:declined])
     Friendship.transaction do
-      @friendship = @friendable ? @friendable.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
-    end
-    if !@friendship.valid?
-      return HESResponder(@friendship.errors.full_messages, "ERROR")
-    end
+      if !declined.empty?
+        @friendship = declined.first
+        attrs = params[:friendship].merge({:sender_id => @current_user.id, :status => Friendship::STATUS[:pending]})
+        @friendship.update_attributes(attrs)
+      else
+        @friendship = @friendable ? @friendable.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
+      end
+    end 
+    return HESResponder(@friendship.errors.full_messages, "ERROR") if !@friendship.valid?
     return HESResponder(@friendship)
   end
 

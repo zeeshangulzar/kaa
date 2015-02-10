@@ -1,6 +1,6 @@
 # Friendship active record class for keeping track of relationships between users
 class Friendship < ApplicationModel
-  attr_accessible :friendee, :friender, :friender_id, :friendee_id, :status, :friend_email
+  attr_accessible :friendee, :friender, :friender_id, :friendee_id, :status, :friend_email, :sender_id
 
   attr_privacy :friender_id, :friendee_id, :friendee, :status, :friend_email, :sender_id, :me
   attr_privacy_path_to_user :friender
@@ -56,7 +56,9 @@ class Friendship < ApplicationModel
   # @note Called after friendships is updated
   # @see #send_notification
   def send_accepted_notification
-     if !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
+    if self.status == Friendship::STATUS[:pending] && self.status_was == Friendship::STATUS[:declined] && !is_inverse
+      self.send_requested_notification
+    elsif !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
       notify(friender, "#{Label} Accepted", "#{friendee.profile.full_name} has accepted your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => friendee, :key => "friendship_#{id}")
       if friendee.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
@@ -147,6 +149,10 @@ class Friendship < ApplicationModel
   # Updates inverse relationship to also be accepted
   after_update :accept_inverse_friendship, :if => Proc.new {|friendship| friendship.status_was == STATUS[:pending] && friendship.status == STATUS[:accepted]}
 
+  after_update :decline_inverse_friendship, :if => Proc.new {|friendship| friendship.status_was == STATUS[:pending] && friendship.status == STATUS[:declined]}
+
+  after_update :set_pending_inverse_friendship, :if => Proc.new {|friendship| friendship.status_was == STATUS[:declined] && friendship.status == STATUS[:pending]}
+
   # @!endgroup
 
   def set_sender
@@ -172,11 +178,35 @@ class Friendship < ApplicationModel
   def accept_inverse_friendship
     inverse_friendship.accept if !inverse_friendship.nil?
   end
+
+  # Accepts inverse friendship
+  # @return [Boolean] true if inverse friendship is accepted successfully
+  def decline_inverse_friendship
+    inverse_friendship.decline if !inverse_friendship.nil?
+  end
+
+  # Accepts inverse friendship
+  # @return [Boolean] true if inverse friendship is accepted successfully
+  def set_pending_inverse_friendship
+    inverse_friendship.set_pending if !inverse_friendship.nil?
+  end
   
   # Accepts a friendship request by updating status to accepted
   # @return [Boolean] true if friendship was succesfully accepted, false if there was an error
   def accept
     update_attributes(:status => STATUS[:accepted])
+  end
+
+  # Declines a friendship request by updating status to accepted
+  # @return [Boolean] true if friendship was succesfully accepted, false if there was an error
+  def declined
+    update_attributes(:status => STATUS[:declined])
+  end
+
+  # Declines a friendship request by updating status to accepted
+  # @return [Boolean] true if friendship was succesfully accepted, false if there was an error
+  def set_pending
+    update_attributes(:status => STATUS[:pending])
   end
 
   # Checks to see if the friend associated to this friendship exists in the database
