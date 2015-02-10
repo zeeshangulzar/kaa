@@ -1,64 +1,131 @@
 class ChallengeSent < ApplicationModel
   self.table_name = "challenges_sent"
   attr_privacy_path_to_user :user
-  attr_accessible :user_id, :challenge_id, :to_user_id, :to_group_id, :created_at, :updated_at
-  attr_privacy :challenge, :challenged_user, :challenged_group, :created_at, :updated_at, :user_id, :me
+  attr_accessible :user_id, :challenge_id, :created_at, :updated_at, :challenge_sent_users
+  attr_privacy :challenge, :challenged_users, :challenged_group, :created_at, :updated_at, :user_id, :me
   
   belongs_to :user
   belongs_to :challenge
-  belongs_to :challenged_user, :class_name => "User", :foreign_key => "to_user_id"
-  belongs_to :challenged_group, :class_name => "Group", :foreign_key => "to_group_id"
+
+  has_many :challenge_sent_users
+
+  has_many :challenged_users, :class_name => "User", :foreign_key => "user_id", :through => :challenge_sent_users
+  
+  has_many :challenged_group, :class_name => "Group", :foreign_key => "associated_group_id", :through => :challenge_sent_users, :group => "associated_group_id"
 
   validates :user, :presence => true
   validates :challenge, :presence => true
 
-  validate :unique_challenge_received
-  validate :to_user_or_group
+
+  accepts_nested_attributes_for :challenge_sent_users
 
   acts_as_notifier
 
-  def unique_challenge_received    
-    user = User.find(self.user_id)
-    if !self.to_user_id.nil?
-      challenge_received = ChallengeReceived.where(:challenge_id => self.challenge_id, :user_id => self.to_user_id).where("(expires_on IS NULL OR expires_on >= ?) AND status IN (?)", Time.now.utc.to_s(:db), [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]).first
-      if challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
-        # below is an incomplete but different way of getting sent challenge
-        # cs = ChallengeSent.where(:challenge_id => self.challenge_id, :user_id => self.user_id).where("(to_user_id = #{self.to_user_id} OR to_group_id IN (#{user.groups_with_user(self.to_user_id).collect{|x|x.id}.join(',')})").where("created_at >= '?'", Time.now.utc.to_s(:db), challenge_received.created_at).first
-        self.errors.add(:base, "You've already challenged this person to this.")
-        return false
+  def build_users_and_groups(options)
+    options[:group_ids] ||= []
+    options[:group_ids] = !options[:group_ids].is_a?(Array) ? [options[:group_ids]] : options[:group_ids]
+    options[:user_ids] ||= []
+    options[:user_ids] = !options[:user_ids].is_a?(Array) ? [options[:user_ids]] : options[:user_ids]
+
+    # keep track of everyone challenge has been sent to
+    sent_to_users = self.challenged_users.collect{|cu|cu.id}
+    
+    options[:group_ids].each{|group_id|
+      g = self.user.groups.find(group_id) rescue nil
+      if g
+        # only send to users in groups owned by user
+        g.users.each{|group_user|
+          unless !self.user.friends.include?(group_user) || sent_to_users.include?(group_user.id)
+            challenge_received = group_user.active_challenges.where(:challenge_id => self.challenge_id).first
+            unless challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
+              Rails.logger.warn("User hasnt received this challenge, wtf")
+              # only send to friends
+              # shouldn't need this check but it MAY BE possible groups could be corrupted and contain users you're no longer friends with
+              self.challenge_sent_users.create(:user_id => group_user.id, :associated_group_id => g.id)
+              sent_to_users.push(group_user.id.to_i)
+            end
+          end
+        }
       end
-    else
-      return true
-    end
+    }
+    options[:user_ids].each{|user_id|
+      next if sent_to_users.include?(user_id.to_i) # already sent to this user
+      u = self.user.friends.find(user_id) rescue nil
+      if u
+        challenge_received = u.active_challenges.where(:challenge_id => self.challenge_id).first
+        unless challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
+          self.challenge_sent_users.create(:user_id => u.id)
+          sent_to_users.push(u.id.to_i)
+        end
+      end
+    }
+    return self.challenged_users.reload
   end
 
 
-  def to_user_or_group
-    if !self.to_user_id.nil?
-      if !self.user || !self.user.friends.include?(self.challenged_user)
-        self.errors.add(:base, "You can only challenge your friends.")
-        return false
+  # return any users or groups which are invalid and/or already have received the sent challenge from challenge_sent.user
+  def check_users_and_groups(options)
+    options[:group_ids] ||= []
+    options[:group_ids] = !options[:group_ids].is_a?(Array) ? [options[:group_ids]] : options[:group_ids]
+    options[:user_ids] ||= []
+    options[:user_ids] = !options[:user_ids].is_a?(Array) ? [options[:user_ids]] : options[:user_ids]
+
+    # keep track of everyone already checked
+    already_checked_users = []
+    invalid_users = []
+    invalid_groups = []
+
+    options[:group_ids].each{|group_id|
+      g = self.user.groups.find(group_id) rescue nil
+      if g
+        g.users.each{|group_user|
+          next if already_checked_users.include?(group_user.id) # no need to keep checking
+          if !self.user.friends.include?(group_user)
+            # can't send to not friends, this shouldn't be possible if they're in the user's group but data corruption MAY BE possible
+            invalid_users.push(group_user.id)
+          else
+            # users are friends, check to see if receiver already has this challenge from sender
+            challenge_received = group_user.active_challenges.where(:challenge_id => self.challenge_id).first
+            if challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
+              # got it already
+              invalid_users.push(group_user.id)
+            end
+          end
+          already_checked_users.push(group_user.id)
+        }
+        if (g.users.collect{|u|u.id}-invalid_users).empty?
+          # all users in this group are invalid, so mark the group invalid
+          invalid_groups.push(group_id)
+        end
+      else
+        # group either doesn't exist or isn't owned by challenge_sent.user
+        invalid_groups.push(group_id)
       end
-    elsif !self.to_group_id.nil?
-      if !self.challenged_group || self.challenged_group.owner.id != self.user.id
-        self.errors.add(:base, "You can't access this group.")
-        return false
+    }
+    options[:user_ids].each{|user_id|
+      next if already_checked_users.include?(user_id.to_i) # already checked this user
+      u = self.user.friends.find(user_id) rescue nil
+      if u
+        # users are friends, check to see if receiver already has this challenge from sender
+        challenge_received = u.active_challenges.where(:challenge_id => self.challenge_id).first
+        if challenge_received && challenge_received.challengers.collect{|x|x.id}.include?(self.user_id)
+          invalid_users.push(u.id)
+        end
+      else
+        # user either doesn't exist or isn't friends with challenge_sent.user
+        invalid_users.push(user_id)
       end
-    else
-      self.errors.add(:base, "Must provide user or group.")
-      return false
-    end
+    }
+    return {:users => invalid_users, :groups => invalid_groups}
   end
 
-  after_create :create_challenge_received
 
-  def receivers
-    return self.to_group_id.nil? ? [self.challenged_user] : self.challenged_group.users
-  end
+  # after create no longer works thanks to challenge_sent_users many-to-many
+  #after_create :create_challenges_received
 
-  def create_challenge_received
+  def create_challenges_received
     challenge = Challenge.find(self.challenge_id)
-    self.receivers.each do |receiver|
+    self.challenged_users.each do |receiver|
       existing = receiver.active_challenges.detect{|c| c.challenge_id == self.challenge_id}
       if !existing
         rcc = receiver.challenges_received.build(:status => ChallengeReceived::STATUS[:unseen])

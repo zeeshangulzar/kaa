@@ -189,8 +189,9 @@ if user7.save
   user7.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
-user2_cs = user2.challenges_sent.build(:to_group_id => user2_group.id, :challenge_id => mc.id)
-user2_cs.save!
+# TODO: update for challenge_sent_users
+#user2_cs = user2.challenges_sent.build(:to_group_id => user2_group.id, :challenge_id => mc.id)
+#user2_cs.save!
 
 #Build up user entries
 

@@ -39,6 +39,8 @@ Go::Application.routes.draw do
 
   resources :badges
 
+  match "challenges_sent/validate" => "challenges_sent#validate", :via => 'post'
+
   resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
 
   match 'groups/*group_id/users' => 'group_users#index', :via => :get
