@@ -199,7 +199,7 @@ class Friendship < ApplicationModel
 
   # Declines a friendship request by updating status to accepted
   # @return [Boolean] true if friendship was succesfully accepted, false if there was an error
-  def declined
+  def decline
     update_attributes(:status => STATUS[:declined])
   end
 
