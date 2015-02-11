@@ -1,5 +1,5 @@
 class RecipesController < ApplicationController
-  authorize :index, :show, :search, :browse, :user
+  authorize :index, :show, :search, :browse, :public
   
   before_filter :page_settings
   def page_settings

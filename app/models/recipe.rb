@@ -2,7 +2,7 @@ class Recipe < ActiveRecord::Base
   attr_accessor :require_validation
   
   attr_privacy_no_path_to_user
-  attr_privacy :id, :title, :servings, :description, :active_time, :total_time, :recipe_tip, :make_ahead_tip, :large_image_url, :copyright_text_url, :nutrition_information, :day, :source, :is_featured, :updated_at, :recipe_url, :is_secondary_featured, :any_user
+  attr_privacy :id, :title, :servings, :description, :active_time, :total_time, :recipe_tip, :make_ahead_tip, :large_image_url, :copyright_text_url, :nutrition_information, :day, :source, :is_featured, :updated_at, :recipe_url, :is_secondary_featured, :public
 
   set_primary_key 'id'
 

@@ -4,7 +4,7 @@ class Ingredient < ActiveRecord::Base
   set_primary_key 'id'
 
   attr_privacy_no_path_to_user
-  attr_privacy :id, :recipe_id, :quantity, :unit, :item, :note, :measure_type, :brand, :category, :any_user
+  attr_privacy :id, :recipe_id, :quantity, :unit, :item, :note, :measure_type, :brand, :category, :public
 
   def to_string
      ing_text = ""
