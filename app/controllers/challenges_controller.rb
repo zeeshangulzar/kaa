@@ -4,24 +4,31 @@ class ChallengesController < ApplicationController
   authorize :create, :update, :destroy, :coordinator
   
   def index
-    c = @promotion.challenges.peer.where(:location_id => [nil, @current_user.location_id])
+    if @current_user.master? || @current_user.location_coordinator?
+      challenges = @promtion.challenges
+    else
+      challenges = @promotion.challenges.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
+    end
     if params[:type]
       if Challenge::TYPE.stringify_keys.keys.include?(params[:type])
         # ?type=[peer,regional,etc.]
-        c = @promotion.challenges.send(params[:type]).where(:location_id => [nil, @current_user.location_id])
+        challenges = challenges.send(params[:type])
       else
         return HESResponder("No such type.", "ERROR")
       end
     end
-    return HESResponder(c)
+    return HESResponder(challenges)
   end
 
   def show
-    challenge = Challenge.find(params[:id])
+    challenge = Challenge.find(params[:id]) rescue nil
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif (challenge.promotion != @current_user.promotion || (challenge.location && challenge.location != @current_user.location))  && !@current_user.master?
+    elsif (challenge.promotion != @current_user.promotion || (challenge.location_id && ![@current_user.location_id, @current_user.top_level_location_id].include?(challenge.location_id))) && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
+    elsif !challenge.is_active? && !@current_user.location_coordinator?
+      # respect the visible from/to dates..
+      return HESResponder("Challenge inactive.", "DENIED")
     else
       return HESResponder(challenge)
     end

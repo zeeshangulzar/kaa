@@ -100,6 +100,7 @@ class LocationsController < ApplicationController
   def create
     Location.transaction do
       @location = @promotion.locations.create(params[:location])
+      return HESResponder(@location.errors.full_messages, "ERROR") if !@location.valid?
     end
     return HESResponder(@location)
   end

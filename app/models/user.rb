@@ -101,7 +101,7 @@ class User < ApplicationModel
   attr_protected :role, :auth_key
   
   attr_privacy :email, :profile, :public
-  attr_privacy :location, :any_user
+  attr_privacy :location, :top_level_location_id, :any_user
   attr_privacy :username, :tiles, :flags, :role, :me
 
 
@@ -154,6 +154,7 @@ class User < ApplicationModel
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
   before_validation :set_parents, :on => :create
+  before_save :set_top_level_location
 
   # constants
   Role = {
@@ -183,6 +184,12 @@ class User < ApplicationModel
     end
   end
 
+  def set_top_level_location
+    unless !self.location_id
+      self.top_level_location_id = Location.find(self.location_id).top_location.id
+    end
+  end
+  
   def serializable_hash(options={})
     hash = super(options)
     # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
@@ -323,7 +330,7 @@ WHERE
   (
     events.event_type = 'C'
     AND events.privacy = 'L'
-    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+    AND (events.location_id IS NULL #{"OR events.location_id IN (" + [self.location_id, self.top_level_location_id].join(',') + ")" if self.location_id})
     # invite doesn't exist or is unresponded
     AND (
       my_invite.status IS NULL
@@ -389,7 +396,7 @@ WHERE
   (
     events.event_type = 'C'
     AND events.privacy = 'L'
-    AND (events.location_id IS NULL OR events.location_id = #{self.location_id})
+    AND (events.location_id IS NULL #{"OR events.location_id IN (" + [self.location_id, self.top_level_location_id].join(',') + ")" if self.location_id})
   )
       "
     else

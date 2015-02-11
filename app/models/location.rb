@@ -12,6 +12,10 @@ class Location < ApplicationModel
 
   flags :has_content
 
+  before_save :set_root_location
+
+  validates_presence_of :name
+
   def depth
     d=0
     unless new_record?
@@ -25,6 +29,16 @@ class Location < ApplicationModel
       d = parent_location ? parent_location.depth+1 : 0
     end
     d
+  end
+
+  def set_root_location
+    self.root_location_id = self.top_location
+  end
+
+  def top_location(this_location = self, i = 0)
+    return Location.find(self.root_location_id) if self.root_location_id
+    return this_location if !this_location.parent_location || i > 20 # just in case the data gets effed we can break out of an infinite loop..
+    return self.top_location(this_location.parent_location, i += 1)
   end
 
   def top?
