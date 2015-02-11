@@ -52,7 +52,10 @@ class Post < ApplicationModel
 
   scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
-  scope :locationed, lambda { |location_id| where(:depth => 0, :users => {:location_id => location_id}).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
+  scope :locationed, lambda { |location_id|
+    locations = Location.find(location_id).children.collect{|l|l.id}.push(location_id)
+    where(:depth => 0, :users => {:location_id => locations}).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC")
+  }
   
   scope :reply, lambda { where("depth > 0").includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
