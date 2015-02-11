@@ -45,7 +45,7 @@ class UsersController < ApplicationController
   # @authorize Public
   # TODO: document me!
   def create
-    return HESResponder("No user provided.", "ERROR") if params[:user].nil?
+    return HESResponder("No user provided.", "ERROR") if params[:user].empty?
 
     params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
 
