@@ -64,7 +64,7 @@ class User < ApplicationModel
   end
 
   def welcome_notification
-    notify(self, "User Created", "Welcome to GoKP! If you haven't checked it out yet, you can see how the site works with our <a href='/#/tutorial'>tutorial</a>.", :from => self, :key => "user_#{id}")
+    notify(self, "User Created", "Welcome to #{Constant::AppName}! If you haven't checked it out yet, you can see how the site works with our <a href='/#/tutorial'>tutorial</a>.", :from => self, :key => "user_#{id}")
   end
 
   # Checks for friendship requests before user was registered by email address.

@@ -1,6 +1,6 @@
 class GoMailer < ActionMailer::Base
   # see config/initializers/domain_config.rb
-  default :from=>"admin@#{DomainConfig::DomainNames.first}"
+  default :from=>"#{Constant::AppName}<no-reply@#{DomainConfig::DomainNames.first}>"
 
   # see app/views/layouts/mailer.html.erb and app/views/layouts/mailer.text.erb
   layout 'mailer'
@@ -13,6 +13,6 @@ class GoMailer < ActionMailer::Base
 
   def welcome_email(user)
     @user = user
-    mail(:to => @user.email, :subject => 'Welcome to GoKP!')
+    mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 end
