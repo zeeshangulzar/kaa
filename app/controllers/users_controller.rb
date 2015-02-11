@@ -86,8 +86,11 @@ class UsersController < ApplicationController
       User.transaction do
         profile_data = !params[:user][:profile].nil? ? params[:user].delete(:profile) : []
 
-        @target_user.flags[:has_seen_tutorial] = params[:flags][:has_seen_tutorial] if params[:flags].try(:has_seen_tutorial)
-        @target_user.flags[:hide_goal_hit_message] = params[:flags][:hide_goal_hit_message] if params[:flags].try(:hide_goal_hit_message)
+        if params[:flags]
+          @target_user.flags.keys.each{|flag|
+            @target_user.flags[flag] = params[:flags][flag] if !params[:flags][flag].nil?
+          }
+        end
 
         @target_user.update_attributes(params[:user])
         @target_user.profile.update_attributes(profile_data) if !profile_data.empty?
