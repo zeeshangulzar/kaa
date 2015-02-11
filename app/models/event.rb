@@ -64,7 +64,7 @@ class Event < ApplicationModel
   def is_user_subscribed?(user)
     user = user.class == User ? user : User.find(user) rescue nil
     return false if user.nil?
-    count = user.events_query({:type => "subscribed", :id => self.id, :return => 'count'})
+    count = user.events_query({:type => "subscribed", :id => self.id, :return => 'count', :include_canceled => true})
     return count > 0
   end
 

@@ -95,6 +95,7 @@ class EventsController < ApplicationController
   def update
     event = Event.find(params[:id]) rescue nil
     return HESResponder("Event", "NOT_FOUND") if !event
+    return HESResponder("Cannot modify others' events.", "DENIED") if event.user.id != @current_user.id && !@current_user.master?
     if !params[:event].nil? && !params[:event][:invites].nil?
       params[:event].delete(:invites)
     end
