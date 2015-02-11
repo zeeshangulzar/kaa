@@ -20,7 +20,7 @@ class ChallengeReceived < ApplicationModel
 
   acts_as_notifier
   after_update :send_notification
-
+  after_update :do_challenge_badges
   before_create :set_defaults
   before_update :set_expiration_if_accepted
   before_update :set_completed_on_if_completed
@@ -92,6 +92,18 @@ class ChallengeReceived < ApplicationModel
       self.challengers.each{|challenger|
         self.notify(challenger, "Challenge Completed", "#{self.user.profile.full_name} completed your challenge to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_received_#{id}")
       }
+    end
+  end
+
+  def do_challenge_badges
+    completed = self.user.challenges_received.completed.size
+    rookie = self.user.badges_earned.where(:badges=>{:name=>"Rookie"},:earned_year => self.promotion.current_date).size
+    mvp = self.user.badges_earned.where(:badges=>{:name=>"MVP"},:earned_year => self.promotion.current_date).size
+    if rookie < 1 && completed > 0
+      self.user.badges_earned.create(:badge_id => self.promotion.badges.where(:name => "Rookie").first.id, :earned_date => self.promotion.current_date, :earned_year => self.promotion.current_date.year)
+    end
+    if mvp < 1 && completed > 9
+      self.user.badges_earned.create(:badge_id => self.promotion.badges.where(:name => "MVP").first.id, :earned_date => self.promotion.current_date, :earned_year => self.promotion.current_date.year)
     end
   end
 
