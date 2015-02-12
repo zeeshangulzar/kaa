@@ -142,6 +142,8 @@ Go::Application.routes.draw do
 
   match "/success_stories/featured" => "success_stories#featured", :via => :get
   resources :success_stories
+
+  resources :launch_notifications, :only => [:create]
   
   mount Resque::Server.new, :at => "/resque"
 
