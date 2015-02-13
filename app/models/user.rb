@@ -539,7 +539,9 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       SUM(timed_behavior_points) AS total_timed_behavior_points,
       SUM(exercise_steps) AS total_exercise_steps,
       SUM(exercise_minutes) AS total_exercise_minutes,
-      SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points
+      SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points,
+      AVG(exercise_minutes) AS avergage_exercise_minutes,
+      AVG(exercise_steps) AS avergage_exercise_steps
       FROM
       entries
       WHERE
@@ -548,7 +550,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
-    keys = ['total_exercise_points','total_challenge_points','total_timed_behavior_points','total_exercise_steps','total_exercise_minutes','total_points']
+    keys = ['total_exercise_points','total_challenge_points','total_timed_behavior_points','total_exercise_steps','total_exercise_minutes','total_points','average_exercise_minutes','average_exercise_steps']
     zeroes = Hash[*keys.collect{|k|[k,0]}.flatten]
     user_stats = Hash[*user_ids.collect{|id|[id,zeroes]}.flatten]
     self.connection.select_all(sql).each do |row|
