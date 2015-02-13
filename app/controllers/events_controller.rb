@@ -104,7 +104,6 @@ class EventsController < ApplicationController
       if !event.valid?
         return HESResponder(event.errors.full_messages, "ERROR")
       end
-      event.save!
     end
     return HESResponder(event)
   end
