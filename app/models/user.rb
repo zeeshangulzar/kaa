@@ -540,8 +540,8 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       SUM(exercise_steps) AS total_exercise_steps,
       SUM(exercise_minutes) AS total_exercise_minutes,
       SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points,
-      AVG(exercise_minutes) AS avergage_exercise_minutes,
-      AVG(exercise_steps) AS avergage_exercise_steps
+      AVG(exercise_minutes) AS average_exercise_minutes,
+      AVG(exercise_steps) AS average_exercise_steps
       FROM
       entries
       WHERE
