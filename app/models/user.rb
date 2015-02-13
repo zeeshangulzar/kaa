@@ -468,11 +468,9 @@ ORDER BY profiles.last_name
     sql = "
 SELECT
 IF(
-  -- entry's minutes is greater than the goal minutes of the entry, fall back on profile
-  IF(entries.exercise_minutes > COALESCE(entries.goal_minutes, profiles.goal_minutes, 0), 1, 0)
+  IF(entries.exercise_minutes > 0, 1, 0)
   OR
-  -- entry's steps is greater than the goal steps of the entry, fall back on profile
-  IF(entries.exercise_steps > COALESCE(entries.goal_steps, profiles.goal_steps, 0), 1, 0)
+  IF(entries.exercise_steps > 0, 1, 0)
   , 1, 0) AS unlocked,
 posters.id, posters.visible_date, posters.summary, posters.content, posters.success_story_id, posters.title
 FROM posters
@@ -487,7 +485,6 @@ LEFT JOIN entries ON entries.user_id = #{user.id}
       WEEKDAY(entries.recorded_on) = 6 AND DATE_SUB(entries.recorded_on, INTERVAL 2 DAY) = posters.visible_date
     )
   )
-LEFT JOIN profiles ON profiles.user_id = entries.user_id
 WHERE
 posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
 AND posters.active = 1
@@ -570,5 +567,68 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def stats=(hash)
     @stats=hash
+  end
+
+  # KEEP ME
+  # this was the original way of determining which posters a user has unlocked
+  # leaving it here for now, cuz they'll probably change their minds and this was a nice quick implementation
+  # that took some thought and time
+  def posters_original(options = {})
+    user = self
+    options[:unlocked_only] ||= false
+    options[:start] ||= user.promotion.current_date.beginning_of_week
+    options[:end] ||= user.promotion.current_date.end_of_week
+    sql = "
+SELECT
+IF(
+  -- entry's minutes is greater than the goal minutes of the entry, fall back on profile
+  IF(entries.exercise_minutes > COALESCE(entries.goal_minutes, profiles.goal_minutes, 0), 1, 0)
+  OR
+  -- entry's steps is greater than the goal steps of the entry, fall back on profile
+  IF(entries.exercise_steps > COALESCE(entries.goal_steps, profiles.goal_steps, 0), 1, 0)
+  , 1, 0) AS unlocked,
+posters.id, posters.visible_date, posters.summary, posters.content, posters.success_story_id, posters.title
+FROM posters
+LEFT JOIN entries ON entries.user_id = #{user.id}
+  AND (
+    entries.recorded_on = posters.visible_date
+    OR (
+      -- saturday's entry lines up with friday
+      WEEKDAY(entries.recorded_on) = 5 AND DATE_SUB(entries.recorded_on, INTERVAL 1 DAY) = posters.visible_date
+      OR
+      -- sunday's entry lines up with friday
+      WEEKDAY(entries.recorded_on) = 6 AND DATE_SUB(entries.recorded_on, INTERVAL 2 DAY) = posters.visible_date
+    )
+  )
+LEFT JOIN profiles ON profiles.user_id = entries.user_id
+WHERE
+posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
+AND posters.active = 1
+AND posters.visible_date <= '#{user.promotion.current_date}'
+GROUP BY posters.visible_date, entries.recorded_on
+ORDER BY posters.visible_date DESC, entries.recorded_on DESC
+    "
+    posters_array = []
+    last = nil
+    Poster.connection.select_all(sql).each do |row|
+      if last && last['visible_date'] == row['visible_date']
+        if row['unlocked'] === 1
+          posters_array.pop
+          posters_array.push(row)
+        end
+      else
+        posters_array.push(row)
+      end
+      last = row
+    end
+
+    loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
+
+    posters_array.each_with_index{|poster,index|
+      posters_array[index]['image1'] = loaded_posters[index].image1.serializable_hash
+      posters_array[index]['image2'] = loaded_posters[index].image2.serializable_hash
+    }
+
+    return posters_array
   end
 end
