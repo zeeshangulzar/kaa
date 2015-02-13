@@ -51,7 +51,10 @@ class ApplicationController < ActionController::Base
       @promotion = @current_user.promotion
       if params[:promotion_id]
         can_change_promotion = false
-        other_promotion = Promotion.find(params[:promotion_id])
+        other_promotion = Promotion.find(params[:promotion_id]) rescue nil
+        if !other_promotion
+          return HESResponder("Promotion", "NOT_FOUND")
+        end
         if @current_user.master? || @current_user.poster?
           can_change_promotion = true
         elsif @current_user.reseller? && other_promotion.organization.reseller_id == @current_user.promotion.organization.reseller_id

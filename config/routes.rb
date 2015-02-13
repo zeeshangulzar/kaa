@@ -48,6 +48,7 @@ Go::Application.routes.draw do
     resources :group_users, :only => [:index, :show]
   end
 
+  get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
 
   resources :promotions do
