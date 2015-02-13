@@ -1,7 +1,9 @@
 class ChatMessage < ApplicationModel
   attr_accessible *column_names
-  attr_privacy :message, :user_id, :friend_id, :seen, :created_at, :updated_at, :friend, :user, :any_user
+  attr_privacy :message, :user_id, :friend_id, :seen, :photo, :created_at, :updated_at, :friend, :user, :any_user
   attr_privacy_no_path_to_user
+
+  mount_uploader :photo, ChatMessagePhotoUploader
 
   belongs_to :user
   belongs_to :friend, :class_name => "User", :foreign_key => "friend_id"

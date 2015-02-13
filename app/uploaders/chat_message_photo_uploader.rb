@@ -1,13 +1,13 @@
 # encoding: utf-8
 
-class PostPhotoUploader < CarrierWave::Uploader::Base
+class ChatMessagePhotoUploader < CarrierWave::Uploader::Base
 
   include CarrierWave::RMagick
 
   storage :hes_cloud
 
   def store_dir
-    "posts/"
+    "messages/"
   end
 
   # Create different versions of your uploaded files:
@@ -24,12 +24,12 @@ class PostPhotoUploader < CarrierWave::Uploader::Base
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def original_filename
-    @original_filename = "post-#{Time.now.to_i}-#{SecureRandom.hex(16)}.png"
+    @original_filename = "message-#{Time.now.to_i}-#{SecureRandom.hex(16)}.png"
     return @original_filename
   end
 
   def default_url
-    "/images/posts/" + [version_name, "default.png"].compact.join('_')
+    "/images/messages/" + [version_name, "default.png"].compact.join('_')
   end
 
 end
