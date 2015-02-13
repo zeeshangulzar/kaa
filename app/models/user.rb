@@ -105,7 +105,7 @@ class User < ApplicationModel
   attr_privacy :username, :tiles, :flags, :role, :me
 
 
-  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password

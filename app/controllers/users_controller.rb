@@ -92,6 +92,10 @@ class UsersController < ApplicationController
           }
         end
 
+        profile_data.delete :id
+        profile_data.delete :url
+        profile_data.delete :backlog_date
+
         @target_user.update_attributes(params[:user])
         @target_user.profile.update_attributes(profile_data) if !profile_data.empty?
       end
