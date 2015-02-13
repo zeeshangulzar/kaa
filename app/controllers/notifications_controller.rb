@@ -195,23 +195,25 @@ class NotificationsController < ApplicationController
 	#      "updated_at": "2014-03-07T14:33:09-05:00",
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }
-	def update
+  def update
+    updateable_attrs = ['viewed']
+    attrs = scrub(params[:notification], updateable_attrs)
     # TODO: only allow recipient to update maybe??
-		if params[:id]
-			@notification ||= Notification.find(params[:id])
-			@notification.update_attributes(params[:notification])
-			return HESResponder(@notification)
-		elsif params[:ids]
-			@notifications = Notification.where(:id => params[:ids])
-			@notifications.each do |notification|
-				notification.update_attributes(params[:notification])
-			end
-		  	#respond_with @notifications, :location => "/notifications?ids=#{@notifications.collect(&:id).join(',')}"
-        return HESResponder(@notifications)
-		else
-		  	return HESResponder("Must pass an id or a group of ids", "ERROR")
-		end
-	end
+    if params[:id]
+      @notification ||= Notification.find(params[:id]) rescue nil
+      return HESResponder("Notification", "NOT_FOUND") if !@notification
+      @notification.update_attributes(attrs)
+      return HESResponder(@notification)
+    elsif params[:ids]
+      @notifications = Notification.where(:id => params[:ids])
+      @notifications.each do |notification|
+        notification.update_attributes(attrs)
+      end
+      return HESResponder(@notifications)
+    else
+      return HESResponder("Must pass an id or a group of ids", "ERROR")
+    end
+  end
 
 	# Destroys a group of notifications
 	#

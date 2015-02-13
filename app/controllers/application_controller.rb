@@ -182,9 +182,9 @@ class ApplicationController < ActionController::Base
   end
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be
-  # written in accordance with the incoming model Object. Then returns the scrubbed hash
-  def scrub(param, model)
-    allowed_attrs = model.accessible_attributes.to_a
+  # written in accordance with the incoming model or array. Then returns the scrubbed hash
+  def scrub(param, model_or_array = [])
+    allowed_attrs = model_or_array.is_a?(Array) ? model_or_array : model_or_array.accessible_attributes.to_a
     posted_attrs = param.stringify_keys.keys
     attrs_to_update = allowed_attrs & posted_attrs
     param.delete_if{|k,v|!attrs_to_update.include?(k)}
