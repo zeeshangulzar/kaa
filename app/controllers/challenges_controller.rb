@@ -7,12 +7,18 @@ class ChallengesController < ApplicationController
     if @current_user.master? || @current_user.location_coordinator?
       challenges = @promtion.challenges
     else
+      # regular user should only see active challenges
       challenges = @promotion.challenges.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
     end
     if params[:type]
       if Challenge::TYPE.stringify_keys.keys.include?(params[:type])
         # ?type=[peer,regional,etc.]
-        challenges = challenges.send(params[:type])
+        if params[:type] == 'regional'
+          # only return regional challenges that the user isn't currently working towards
+          challenges = challenges.regional.reject!{|challenge|@current_user.accepted_challenges.collect{|ac|ac.id}.include?(challenge.id)}
+        else
+          challenges = challenges.send(params[:type])
+        end
       else
         return HESResponder("No such type.", "ERROR")
       end
