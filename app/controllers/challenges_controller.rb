@@ -15,7 +15,7 @@ class ChallengesController < ApplicationController
         # ?type=[peer,regional,etc.]
         if params[:type] == 'regional'
           # only return regional challenges that the user isn't currently working towards
-          challenges = challenges.regional.select{|challenge| !@current_user.accepted_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id) }
+          challenges = challenges.regional.select{|challenge| !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id) }
         else
           challenges = challenges.send(params[:type])
         end

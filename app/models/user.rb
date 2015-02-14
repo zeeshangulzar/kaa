@@ -139,6 +139,8 @@ class User < ApplicationModel
 
   accepted_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
   has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+  
+  has_many :accepted_and_completed_challenges, :class_name => "ChallengeReceived", :conditions => proc { "(status = #{ChallengeReceived::STATUS[:accepted]} AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')) OR status = #{ChallengeReceived::STATUS[:completed]}" }
 
   has_many :suggested_challenges
 
