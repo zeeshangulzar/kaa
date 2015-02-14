@@ -22,6 +22,7 @@ class ChallengeReceived < ApplicationModel
   after_update :send_notification
   after_update :do_challenge_badges
   before_create :set_defaults
+  before_create :set_expiration_if_accepted
   before_update :set_expiration_if_accepted
   before_update :set_completed_on_if_completed
   after_create :entry_calculate_points
