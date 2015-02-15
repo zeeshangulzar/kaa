@@ -1,12 +1,12 @@
-<table width="100%">
+<table width="100%" cellspacing="0" cellpadding="0">
   <tr>
     <td style="background-color:#FFFFFF" align="center">
       <img src="http://assets1.hesapps.com/go_kp/email/header.png" style="max-width:630px;width:100%" />
     </td>
   </tr>
   <tr>
-    <td style="background-color:#40b5af" align="center">
-      <table style="width:100%;max-width:630px;margin-top:16px;">
+    <td style="background-color:#40b5af" align="center" colspan="2">
+      <table style="width:100%;max-width:630px;margin-top:16px;background-color:#FFF;box-shadow:0px 5px 5px #666;" cellspacing="0" cellpadding="0">
         <tr>
           <td style="background-color:#FFFFFF" colspan="2">
             <%= yield %>
@@ -14,7 +14,7 @@
         </tr>
         <tr>
           <td align="left">
-            <a href="/unsuvscrv" style="color:#FFFFFF">Unsubscribe</a>
+            <a href="/emails/unsubscribe" style="color:#FFFFFF">Unsubscribe</a>
           </td>
           <td align="right" style="color:#FFFFFF">
             &copy; <%= Date.today.year %> Health Enhancement Systems
