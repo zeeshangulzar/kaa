@@ -144,7 +144,6 @@ class EntriesController < ApplicationController
         end
 
         @entry.save!
-        $redis.publish('entrySaved', @entry.to_json)
       end
       return HESResponder(@entry)
     end
@@ -232,7 +231,6 @@ class EntriesController < ApplicationController
       @entry.goal_steps = @target_user.profile.goal_steps
       
       @entry.save!
-      
     end
     return HESResponder(@entry)
   end
