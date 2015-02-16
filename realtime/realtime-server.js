@@ -25,6 +25,7 @@ var users = {};
 // Subscribe to these specific Redis channels.
 redis.subscribe('newMessageCreated');
 redis.subscribe('newPostCreated');
+redis.subscribe('entrySaved');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
@@ -50,6 +51,10 @@ redis.on('message', function(channel, data) {
 			// promotionId = data.user.promotion_id.toString();
 			
 			io.sockets.in('Promotion1').emit('newPostCreated', data);
+			break;
+		case 'entrySaved':
+			userId = data.user_id.toString();
+			io.sockets.in('User' + userId).emit('entrySaved', data);
 			break;
 	}
 });

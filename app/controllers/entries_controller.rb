@@ -144,6 +144,7 @@ class EntriesController < ApplicationController
         end
 
         @entry.save!
+        $redis.publish('entrySaved', @entry.to_json)
       end
       return HESResponder(@entry)
     end
