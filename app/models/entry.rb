@@ -11,7 +11,7 @@ class Entry < ApplicationModel
 
   attr_accessible :entry_behaviors, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :me
   
   # Can not have the same recorded on date for one user
 #  validates_uniqueness_of :recorded_on, :scope => :user_id
@@ -45,6 +45,7 @@ class Entry < ApplicationModel
   after_destroy :do_milestone_badges
   after_save    :do_weekend_badges
   after_destroy :do_weekend_badges
+  after_save :publish_to_redis
   
   def custom_validation
     user = self.user
@@ -268,6 +269,10 @@ class Entry < ApplicationModel
 
       #self.basket << self.user.badges.where(:created_at=>now)
     end
+  end
+
+  def publish_to_redis
+    $redis.publish('entrySaved', {:stats => self.user.stats, :user_id => self.user.id}.to_json)
   end
 
   def as_json(options={})
