@@ -1,23 +1,27 @@
   <tr>
     <td align="left">
-      <p style="margin:10px 20px">
-      <h1 style="color:#56a748;margin:0px;font-weight:bold;font-size:14px;">Welcome to <%=  Constant::AppName %>!</h1>
-      </p>
+      <h1 style="color:#56a748;margin:16px;font-weight:bold;font-size:14px;">Welcome to <em><%=  Constant::AppName %></em>!</h1>
     </td>
     <td align="right">
-      <p style="margin:10px 20px;color:#aaa;">
+      <p style="margin:16px;color:#aaa;">
         <%= Date.today.to_s %>
       </p>
     </td>
   </tr>
   <tr>
     <td style="background-color:#f1f7f7" colspan="2">
-      <div style="margin:10px">
+      <div style="margin:16px">
         <p>
           <%= @user.profile.full_name %>,
         </p>
         <p>
-          Welcome to the all-new <%= Constant::AppName %> brought to you by <a href="www.kp.org/healthyworkforce">healthyworkforce</a>. This is an exciting app and you can do so many things!!!
+          Welcome to the alpha test of the all-new <%= Constant::AppName %> brought to you by KP's <a href="www.kp.org/healthyworkforce">healthyworkforce</a>. Each day you log activity you'll unlock vivid images, tips and stories that can help inspire you to achieve your health goals and improve your overall well-being. Connect with friends on the Wellness Wall and challenge them to a friendly health-related activity to earn additional points.
+        </p>
+        <p>
+          Please enjoy the program and let us know if you have any questions. We wish you the best of luck on the wonderful and amazing journey that is your life!
+        </p>
+        <p>
+          <a href="http://www.healthyworkforce-gokp.org">http://www.healthyworkforce-gokp.org</a>
         </p>
       </div>
     </td>
