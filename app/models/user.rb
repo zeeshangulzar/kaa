@@ -58,9 +58,7 @@ class User < ApplicationModel
   end
 
   def welcome_email
-    if self.email =~ /\A[\w+-.]+@hesonline.com/i
-      Resque.enqueue(WelcomeEmail,self.id)
-    end
+    Resque.enqueue(WelcomeEmail, self.id)
   end
 
   def welcome_notification

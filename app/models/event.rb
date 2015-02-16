@@ -110,6 +110,9 @@ class Event < ApplicationModel
     end
     recipients.each{|recipient|
       notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
+      if recipient.flags[:notify_email_events]
+        Resque.enqueue(EventInviteEmail, self.id, recipient.id)
+      end
     }
   end
 

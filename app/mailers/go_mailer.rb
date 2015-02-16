@@ -15,4 +15,10 @@ class GoMailer < ActionMailer::Base
     @user = user
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
+
+  def event_invite_email(event, user)
+    @event = event
+    @user = user
+    mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}")
+  end
 end
