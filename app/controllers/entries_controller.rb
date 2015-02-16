@@ -231,7 +231,6 @@ class EntriesController < ApplicationController
       @entry.goal_steps = @target_user.profile.goal_steps
       
       @entry.save!
-      
     end
     return HESResponder(@entry)
   end
