@@ -1,7 +1,7 @@
 # Models a evaluation definition that is used to create an evaluation
 class EvaluationDefinition < ApplicationModel
   attr_accessible :name, :days_from_start, :message, :visible_questions
-  attr_privacy :name, :days_from_start, :message, :visible_questions, :any_user
+  attr_privacy :name, :days_from_start, :message, :visible_questions, :public
 
   belongs_to :promotion
 
