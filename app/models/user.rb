@@ -62,7 +62,7 @@ class User < ApplicationModel
   end
 
   def welcome_notification
-    notify(self, "User Created", "Welcome to #{Constant::AppName}! If you haven't checked it out yet, you can see how the site works with our <a href='/#/tutorial'>tutorial</a>.", :from => self, :key => "user_#{id}")
+    notify(self, "User Created", "Welcome to #{Constant::AppName}! You will receive important notifications here.", :from => self, :key => "user_#{id}")
   end
 
   # Checks for friendship requests before user was registered by email address.
@@ -122,23 +122,23 @@ class User < ApplicationModel
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
   has_many :challenges_sent, :class_name => "ChallengeSent", :order => "created_at DESC"
-  has_many :challenges_received, :class_name => "ChallengeReceived"
+  has_many :challenges_received, :class_name => "ChallengeReceived", :order => "completed_on DESC, created_at DESC"
 
   expired_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
-  has_many :expired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on < '#{Time.now.utc.to_s(:db)}' AND status = #{expired_challenge_statuses.join(",")}" }
+  has_many :expired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on < '#{Time.now.utc.to_s(:db)}' AND status = #{expired_challenge_statuses.join(",")}" }, :order => "created_at DESC"
 
-  has_many :unexpired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}'" }
+  has_many :unexpired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}'" }, :order => "created_at DESC"
 
   active_challenge_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
-  has_many :active_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{active_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+  has_many :active_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{active_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
 
   challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
-  has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+  has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
 
   accepted_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
-  has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }
+  has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
   
-  has_many :accepted_and_completed_challenges, :class_name => "ChallengeReceived", :conditions => proc { "(status = #{ChallengeReceived::STATUS[:accepted]} AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')) OR status = #{ChallengeReceived::STATUS[:completed]}" }
+  has_many :accepted_and_completed_challenges, :class_name => "ChallengeReceived", :conditions => proc { "(status = #{ChallengeReceived::STATUS[:accepted]} AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')) OR status = #{ChallengeReceived::STATUS[:completed]}" }, :order => "completed_on DESC, created_at DESC"
 
   has_many :suggested_challenges
 
