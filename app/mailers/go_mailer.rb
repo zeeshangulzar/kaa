@@ -8,6 +8,7 @@ class GoMailer < ActionMailer::Base
   def dummy_email(entry)
     # see app/views/go_mailer/dummy_email.html.erb and app/views/go_mailer/dummy_email.text.erb
     @entry = entry
+    @user = entry.user
     mail(:to => entry.user.email, :subject => 'You logged something!')
   end
 

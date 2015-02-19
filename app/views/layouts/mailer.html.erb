@@ -4,10 +4,10 @@
       <table style="width:100%; max-width:630px; padding:16px;" cellspacing="0" cellpadding="0">
         <tr>
           <td style="text-align:left">
-            <img src="<%= request.scheme + '://' + request.host_with_port + "/images/" + (@promotion.theme ||= 'default') + "/app-logo-blue.png?" + Time.now.to_i.to_s %>" />
+            <img src="http://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo-blue.png?" + Time.now.to_i.to_s %>" style="max-width:200px" />
           </td>
           <td style="text-align:right">
-            <img src="<%= @promotion.logo.url + '?' + Time.now.to_i.to_s %>" />
+            <img src="<%= @user.promotion.logo.url + '?' + Time.now.to_i.to_s %>" style="max-width:200px" />
           </td>
         </tr>
       </table>
