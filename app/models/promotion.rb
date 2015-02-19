@@ -24,6 +24,8 @@ class Promotion < ApplicationModel
   has_wall
   has_evaluations
 
+  mount_uploader :logo, PromotionLogoUploader
+
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
