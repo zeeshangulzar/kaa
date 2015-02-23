@@ -25,7 +25,7 @@ class RecipesController < ApplicationController
     else
       recipe = Recipe.find(params[:id])
     end
-    HESResponder recipe
+    return HESResponder(recipe)
   end
   
   def browse
@@ -34,9 +34,9 @@ class RecipesController < ApplicationController
     available = RecipeCategory::MealTypes
     if available.include?(chosen)
       recipes = Recipe.find_by_meal_type(chosen)
-      HESResponder recipes
+      return HESResponder(recipes)
     else
-      HESResponder("'#{params[:category]}' is not a category.  Categories are #{available.join(', ')}.", "ERROR") 
+      return HESResponder("'#{params[:category]}' is not a category.  Categories are #{available.join(', ')}.", "ERROR")
     end
   end
   
@@ -44,8 +44,11 @@ class RecipesController < ApplicationController
   #         - i.e. if you search for 'veal' then veal in the title is ranked higher than veal as an ingredient
   #             - sorting by that rank is better than sorting by title alphabetically
   #         - there are ONLY 260 recipes.... maybe the client can get all 260 and do the filtering by itself
+  # NOTE2: the above is no longer the case..
+  #         in order to stay consistent with the other endpoints and make it easier on the frontend, just return everything, ordered by rank
+  #         although this may likely be a spot to improve speed at a later date if/when necessary
   def search
-    recipes = Recipe.find_by_search_text(params[:search]).uniq.collect{|r|{:id=>r.id,:title=>r.title,:rank=>r.rank}}
-    HESResponder recipes
+    recipes = Recipe.find_by_search_text(params[:search]).uniq.sort{|a,b|a.rank <=> b.rank }.reverse
+    return HESResponder(recipes)
   end
 end
