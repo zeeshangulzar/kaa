@@ -168,10 +168,11 @@ class Recipe < ActiveRecord::Base
         EOF
     
     default_options = {
-             :joins => "INNER JOIN ingredients ON ingredients.recipe_id = recipes.id", 
-             :conditions => "description like #{wildcard_search_text_sanitized} or title like #{wildcard_search_text_sanitized} or ingredients.item like #{wildcard_search_text_sanitized}", 
-             :order => 'rank DESC, title',
-             :select => "#{rank_select}, total_time, description, large_image_url"}
+      :joins => "INNER JOIN ingredients ON ingredients.recipe_id = recipes.id",
+      :conditions => "description like #{wildcard_search_text_sanitized} or title like #{wildcard_search_text_sanitized} or ingredients.item like #{wildcard_search_text_sanitized}",
+      :order => 'rank DESC, title',
+      :select => "#{rank_select}, servings, description, active_time, total_time, recipe_tip, make_ahead_tip, large_image_url, copyright_text_url, nutrition_information, day, source, is_featured, updated_at, recipe_url, is_secondary_featured"
+    }
     
     find(:all, default_options.merge(options))
   end
