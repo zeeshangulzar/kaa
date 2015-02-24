@@ -112,9 +112,13 @@ Go::Application.routes.draw do
   match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
   
   match '/flagged_posts' => 'posts#flagged_posts', :via => :get
-	match '*wallable_type/*wallable_id/popular_posts' => 'posts#popular_posts', :via => :get
-	resources :posts
-	match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
+
+  match '*wallable_type/*wallable_id/popular_posts' => 'posts#popular_posts', :via => :get
+  match '*wallable_type/*wallable_id/recent_posts' => 'posts#recent_posts', :via => :get
+
+  resources :posts
+
+  match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
 	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
 	resources :wall_expert_posts
 

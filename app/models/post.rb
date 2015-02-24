@@ -1,7 +1,7 @@
 # Model that is posted to walls. Can be nested or replies to other posts and also contain postable object related to post.
 class Post < ApplicationModel
 
-  attr_privacy :content, :depth, :photo, :parent_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :user, :any_user
+  attr_privacy :content, :depth, :photo, :parent_post_id, :root_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :user, :any_user
   
   # The page size allowed for getting posts
   PAGESIZE = 20
@@ -195,6 +195,16 @@ class Post < ApplicationModel
   # @return [String] key that will be used to create notification
   def post_reply_notification_key(reply)
     "post_reply_#{reply.id}"
+  end
+
+
+  # badges...
+
+  after_create :do_badges
+  after_destroy :do_badges
+
+  def do_badges
+    return Badge.do_enthusiast(self)
   end
 
 

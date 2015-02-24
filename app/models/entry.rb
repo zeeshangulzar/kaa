@@ -39,13 +39,7 @@ class Entry < ApplicationModel
   }
 
   before_save :calculate_points
-  before_save :nullify_exercise
-
-  after_save    :do_milestone_badges
-  after_destroy :do_milestone_badges
-  after_save    :do_weekend_badges
-  after_destroy :do_weekend_badges
-  after_save :publish_to_redis
+  before_save :nullify_exercise_and_set_is_recorded
   
   def custom_validation
     user = self.user
@@ -64,9 +58,10 @@ class Entry < ApplicationModel
     end
   end
 
-  def nullify_exercise
+  def nullify_exercise_and_set_is_recorded
     self.exercise_steps = nil if self.exercise_steps.to_i == 0
     self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
+    self.is_recorded = !self.exercise_steps.nil? || !self.exercise_minutes.nil?
   end
 
   def write_attribute_with_exercise(attr,val)
@@ -165,114 +160,6 @@ class Entry < ApplicationModel
     self.challenge_points = challenges_sent_points + challenges_completed_points
     # end challenge calculations
     
-  end
-
-  def do_milestone_badges_original
-    rows = connection.uncached{ connection.select_all(Badge.milestone_query(self.user_id,self.recorded_on.year)) }
-    inserts = []
-    updates = []
-    now = self.user.promotion.current_time.to_s(:db)
-    rows.each do |row|
-      if row['to_do'] == 'ADD'
-        inserts << "(#{self.user_id},'#{row['milestone']}',0,#{row['earned_on'].year},'#{row['earned_on']}','#{now}','#{now}')"
-      elsif row['to_do'] == 'UPDATE'
-        updates << [row['earned_on'],row['milestone']]
-      end
-    end
-
-    deletes = (Badge::Milestones.keys - rows.collect{|row|row['milestone']}).collect{|x|"'#{x}'"}
-    connection.execute "delete from badges where user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and badge_key in (#{deletes.join(",")})" unless deletes.empty?
-   
-    connection.execute "insert badges (user_id,badge_key,sequence,earned_year,earned_date,created_at,updated_at) values #{inserts.join(",\n")}" unless inserts.empty?
-
-    updates.each do |array|
-      connection.execute "update badges set earned_date = '#{array[0]}' where user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and badge_key = '#{array[1]}'"
-    end
-    
-    #self.basket << self.user.badges.where(:created_at=>now)
-
-    return true     
- 
-    total_points = self.user.entries.where("year(recorded_on)=#{self.recorded_on.year}").sum('daily_points+challenge_points+timed_behavior_points').to_i
-    now = self.user.promotion.current_time.to_s(:db)
-    today = self.user.promotion.current_date.to_s(:db)
-   
-    earned_badges = Hash[self.user.badges.select('distinct badge_key, earned_date').where(:earned_year=>self.recorded_on.year).all.collect{|h|[h[:badge_key],h[:earned_date]]}]
-    inserts = Badge::Milestones.select{|k,v|v<=total_points && !earned_badges.keys.include?(v)}.collect{|arr| "(#{self.user_id},'#{arr[0]}',0,#{self.recorded_on.year},'#{today}','#{now}','#{now}')"}
-    updates = Badge::Milestones.select{|k,v|v<=total_points && earned_badges.keys.include?(v)}.collect{|arr| "(#{self.user_id},'#{arr[0]}',0,#{self.recorded_on.year},'#{today}','#{now}','#{now}')"}
-    deletes = Badge::Milestones.select{|k,v|v>total_points}.collect{|arr|"'#{arr[0]}'"}
-
-    connection.execute "insert badges (user_id,badge_key,sequence,earned_year,earned_date,created_at,updated_at) values #{inserts.join(",\n")}" unless inserts.empty?
-    connection.execute "delete from badges where user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and badge_key in (#{deletes.join(",\n")})" unless deletes.empty?
-
-    #self.basket << self.user.badges.where(:created_at=>now)
-  end
-
-  def do_milestone_badges
-    #raise caller.to_yaml
-    query = Badge.milestone_query(self.user_id,self.recorded_on.year)
-    return true unless query
-    rows = connection.uncached{ connection.select_all(query) }
-    inserts = []
-    updates = []
-    now = self.user.promotion.current_time.to_s(:db)
-    rows.each do |row|
-      if row['to_do'] == 'ADD'
-        inserts << "(#{self.user_id},'#{row['milestone']}',#{row['earned_on'].year},'#{row['earned_on']}','#{now}','#{now}')"
-      elsif row['to_do'] == 'UPDATE'
-        updates << [row['earned_on'],row['milestone']]
-      end
-    end
-
-    deletes = (self.user.promotion.milestone_goals.keys - rows.collect{|row|row['milestone']}).collect{|x|x}
-    connection.execute "DELETE FROM user_badges WHERE user_id = #{self.user_id} AND earned_year = #{self.recorded_on.year} AND badge_id IN (#{deletes.join(",")})" unless deletes.empty?
-
-    connection.execute "INSERT INTO user_badges (user_id,badge_id,earned_year,earned_date,created_at,updated_at) values #{inserts.join(",\n")}" unless inserts.empty?
-
-    updates.each do |array|
-      connection.execute "UPDATE user_badges set earned_date = '#{array[0]}' WHERE user_id = #{self.user_id} AND earned_year = #{self.recorded_on.year} AND badge_id = '#{array[1]}'"
-    end
-
-    return true
-
-  end
-
-  def do_weekend_badges
-    return
-    # the query below may help you diagnose problems with weekend badges -- look for 5 consecutive weeks in the results
-    #   select week(recorded_on,1) week, min(recorded_on) from entries where user_id = 9 and weekday(recorded_on) in (5,6) group by week(recorded_on,1) order by recorded_on;
-
-    # NOTE:  saturday,sunday is 0,6 in ruby. it is 5,6 in mysql when using mode=1 with the week argument
-    if [0,6].include?(self.recorded_on.wday)
-      sql = Badge.weekend_query(self.user_id,self.recorded_on.year)
-      rows = connection.uncached{ connection.select_all(sql) }
-      if !rows.empty?
-        now = self.user.promotion.current_time.to_s(:db)
-        inserts = []
-        updates = []
-        deletes = []
-        max_sequence = -1
-        rows.each do |row|
-          max_sequence = [max_sequence,row['badge_key'] == Badge::WeekendWarrior ? row['sequence'] : -1].max
-          inserts << "(#{self.user_id},'#{row['badge_key']}',#{row['sequence']},#{self.recorded_on.year},'#{row['recorded_on']}','#{now}','#{now}')" unless row['badge_id']
-          updates << row if row['badge_id']
-        end
-        connection.execute "insert badges (user_id,badge_key,sequence,earned_year,earned_date,created_at,updated_at) values #{inserts.join(",\n")}" unless inserts.empty?
-        updates.each do |row|
-          connection.execute "update badges set earned_date = '#{row['recorded_on']}', sequence = #{row['sequence']}, updated_at = '#{now}' where id = #{row['badge_id']}"
-        end
-        connection.execute "delete from badges where user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and (badge_key = '#{Badge::WeekendWarrior}' and sequence > #{max_sequence})"
-      else
-        # no entries this year, so delete both badges.  this can happen if you delete your only entry.
-        connection.execute "delete from badges where user_id = #{self.user_id} and earned_year = #{self.recorded_on.year} and badge_key in ('#{Badge::Weekender}','#{Badge::WeekendWarrior}')"
-      end
-
-      #self.basket << self.user.badges.where(:created_at=>now)
-    end
-  end
-
-  def publish_to_redis
-    $redis.publish('entrySaved', {:stats => self.user.stats, :user_id => self.user.id}.to_json)
   end
 
   def as_json(options={})
@@ -388,6 +275,19 @@ UNION
       end
     }
     return summary
+  end
+
+  # badges....
+
+
+  after_save    :do_badges
+  after_destroy :do_badges
+
+  def do_badges
+    Badge.do_milestones(self)
+    Badge.do_goal_getter(self)
+    Badge.do_weekender(self)
+    Badge.do_weekend_warrior(self)
   end
   
 end

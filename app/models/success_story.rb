@@ -11,6 +11,11 @@ class SuccessStory < ApplicationModel
   scope :featured, :conditions => {:featured => true}
 
   mount_uploader :image, SuccessStoryImageUploader
-  
+
+  after_create :do_badges
+
+  def do_badges
+    Badge.do_all_star(self)
+  end
 
 end

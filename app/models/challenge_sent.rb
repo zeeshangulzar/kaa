@@ -172,4 +172,10 @@ class ChallengeSent < ApplicationModel
     e.save! # fires Entry::calculate_points
   end
 
+  after_create :do_badges
+
+  def do_badges
+    Badge.do_coach(self)
+  end
+
 end

@@ -3,10 +3,10 @@ class PostsController < ApplicationController
   respond_to :json
 
   # Get the wallable before each request
-  before_filter :get_wallable, :only => [:index, :create, :popular_posts]
+  before_filter :get_wallable, :only => [:index, :create, :popular_posts, :recent_posts]
 
 
-  authorize :index, :show, :create, :update, :destroy, :user
+  authorize :index, :show, :create, :update, :destroy, :recent_posts, :popular_posts, :user
 
   # for the user that owns the post, any user to flag a post, and master users
   authorize :update, :user, lambda { |user, post, params|
@@ -147,6 +147,20 @@ class PostsController < ApplicationController
       end
     end
     return HESResponder(response)
+  end
+
+
+  def recent_posts
+    psize = params[:page_size].nil? ? 5 : params[:page_size]
+    timestamp = params[:timestamp].nil? ? @promotion.current_date.to_time : params[:timestamp].is_i? ? Time.at(params[:timestamp].to_i) : params[:timestamp]
+    after = params[:after].nil? ? false : params[:after].to_i
+    if after
+      # get N posts immediately following params[:after]
+      p = @wallable.posts.after(after).order("created_at ASC").limit(psize).reverse
+    else
+      p = @wallable.posts.where("created_at >= ?", timestamp).order("created_at DESC").limit(psize)
+    end
+    return HESResponder(p)
   end
 
 
