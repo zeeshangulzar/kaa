@@ -222,7 +222,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_rookie(challenge_received)
+  def self.do_rookie(challenge_received)
     # TODO: notification and possibly destroy?
     rookie_badge = challenge_received.user.promotion.badges.where(:name => "Rookie").first rescue nil
     return if !rookie_badge
@@ -234,7 +234,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_mvp(challenge_received)
+  def self.do_mvp(challenge_received)
     # TODO: notification and possibly destroy?
     mvp_badge = challenge_received.user.promotion.badges.where(:name => "MVP").first rescue nil
     return if !mvp_badge
@@ -246,7 +246,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_applause(like)
+  def self.do_applause(like)
     # TODO: notification and possibly destroy?
     applause_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
     return if !applause_badge
@@ -258,7 +258,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_high_five(like)
+  def self.do_high_five(like)
     # TODO: notification and possibly destroy?
     high_five_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
     return if !high_five_badge
@@ -270,7 +270,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_coach(challenge_sent)
+  def self.do_coach(challenge_sent)
     # TODO: notification and possibly destroy?
     coach_badge = challenge_sent.user.promotion.badges.where(:name => "Coach").first rescue nil
     return if !coach_badge
@@ -282,7 +282,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_all_star(success_story)
+  def self.do_all_star(success_story)
     # TODO: notification and possibly destroy?
     all_star_badge = success_story.user.promotion.badges.where(:name => "All Star").first rescue nil
     return if !all_star_badge
@@ -293,7 +293,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_time_to_shine(success_story)
+  def self.do_time_to_shine(success_story)
     # TODO: notification and possibly destroy?
     time_to_shine_badge = success_story.user.promotion.badges.where(:name => "Time To Shine").first rescue nil
     return if !time_to_shine_badge
@@ -306,7 +306,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_chef(share)
+  def self.do_chef(share)
     # TODO: notification and possibly destroy?
     chef_badge = share.user.promotion.badges.where(:name => "Chef").first rescue nil
     return if !chef_badge
@@ -318,7 +318,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_head_chef(share)
+  def self.do_head_chef(share)
     # TODO: notification and possibly destroy?
     head_chef_badge = share.user.promotion.badges.where(:name => "Head Chef").first rescue nil
     return if !head_chef_badge
@@ -330,7 +330,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_tipster(share)
+  def self.do_tipster(share)
     # TODO: notification and possibly destroy?
     tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
     return if !tipster_badge
@@ -342,7 +342,7 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def do_uber_tipster(share)
+  def self.do_uber_tipster(share)
     # TODO: notification and possibly destroy?
     uber_tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
     return if !uber_tipster_badge
