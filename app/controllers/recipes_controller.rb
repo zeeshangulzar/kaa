@@ -8,8 +8,25 @@ class RecipesController < ApplicationController
   private :page_settings
   
   def index
-    # TODO: CC
-    return HESResponder(Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).all)
+    if !params[:day].nil? && params[:day].is_i?
+      recipes = Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.where("day <= #{params[:day]}")
+      if !params[:minimum].nil? && params[:minimum].is_i?
+        min = params[:minimum].to_i
+        diff = min - recipes.size
+        if diff > 0
+          # number of recipes returned is less than minimum the app wants
+          # so first figure out how may weekdays are in last year
+          last_year_limit = Tip::get_weekdays_in_year(@promotion.current_date.year.to_i - 1)
+          # then grab the recipe in day DESC order limited to the diff
+          recipes2 = Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.where("day <= #{last_year_limit}").limit(diff)
+          # switch it around so it's in the same order as the rest of tips and combine the arrays
+          recipes = recipes + recipes2
+        end
+      end
+    else
+      recipes = Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.all
+    end
+    return HESResponder(recipes)
   end
 
   def show

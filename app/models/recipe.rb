@@ -14,6 +14,9 @@ class Recipe < ActiveRecord::Base
   acts_as_commentable
   acts_as_shareable
 
+  scope :asc, :order => "day ASC"
+  scope :desc, :order => "day DESC"
+
   def validate
     if require_validation
       errors.add(:recipe_steps, "This recipe needs at least one recipe step") if recipe_steps.empty?
