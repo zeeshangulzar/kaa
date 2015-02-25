@@ -61,7 +61,7 @@ class Entry < ApplicationModel
   def nullify_exercise_and_set_is_recorded
     self.exercise_steps = nil if self.exercise_steps.to_i == 0
     self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
-    self.is_recorded = !self.exercise_steps.nil? || !self.exercise_minutes.nil?
+    set_is_recorded
   end
 
   def write_attribute_with_exercise(attr,val)
