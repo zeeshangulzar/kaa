@@ -15,6 +15,8 @@ class Badge < ActiveRecord::Base
     :achievements => 'achievement'
   }
 
+  SOCIAL_MEDIA_TYPES = ['facebook','twitter']
+
   TYPE.each_pair do |key, value|
     self.send(:scope, key, where(:badge_type => value))
   end
@@ -301,6 +303,54 @@ class Badge < ActiveRecord::Base
       if time_to_shine < 1
         u.badges_earned.create(:badge_id => time_to_shine_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
       end
+    end
+  end
+
+  def do_chef(share)
+    # TODO: notification and possibly destroy?
+    chef_badge = share.user.promotion.badges.where(:name => "Chef").first rescue nil
+    return if !chef_badge
+    return if share.shareable_type != 'Recipe' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
+    u = share.user
+    chef =  u.badges_earned.where(:badges=>{:name=>"Chef"},:earned_year => u.promotion.current_date.year).size
+    if chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 0
+      u.badges_earned.create(:badge_id => chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    end
+  end
+
+  def do_head_chef(share)
+    # TODO: notification and possibly destroy?
+    head_chef_badge = share.user.promotion.badges.where(:name => "Head Chef").first rescue nil
+    return if !head_chef_badge
+    return if share.shareable_type != 'Recipe' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
+    u = share.user
+    head_chef =  u.badges_earned.where(:badges=>{:name=>"Head Chef"},:earned_year => u.promotion.current_date.year).size
+    if head_chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 4
+      u.badges_earned.create(:badge_id => head_chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    end
+  end
+
+  def do_tipster(share)
+    # TODO: notification and possibly destroy?
+    tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
+    return if !tipster_badge
+    return if share.shareable_type != 'Tip' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
+    u = share.user
+    tipster =  u.badges_earned.where(:badges=>{:name=>"Tipster"},:earned_year => u.promotion.current_date.year).size
+    if tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 0
+      u.badges_earned.create(:badge_id => tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    end
+  end
+
+  def do_uber_tipster(share)
+    # TODO: notification and possibly destroy?
+    uber_tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
+    return if !uber_tipster_badge
+    return if share.shareable_type != 'Tip' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
+    u = share.user
+    uber_tipster =  u.badges_earned.where(:badges=>{:name=>"Uber Tipster"},:earned_year => u.promotion.current_date.year).size
+    if uber_tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 4
+      u.badges_earned.create(:badge_id => uber_tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
     end
   end
 

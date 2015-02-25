@@ -110,6 +110,10 @@ Go::Application.routes.draw do
   match '*likeable_type/*likeable_id/likes' => 'likes#index', :via => :get
   match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
   match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
+
+  resources :shares
+  match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
+  match '*shareable_type/*shareable_id/shares' => 'shares#create', :via => :post
   
   match '/flagged_posts' => 'posts#flagged_posts', :via => :get
 

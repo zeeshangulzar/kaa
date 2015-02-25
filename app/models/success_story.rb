@@ -11,6 +11,7 @@ class SuccessStory < ApplicationModel
   scope :featured, :conditions => {:featured => true}
 
   mount_uploader :image, SuccessStoryImageUploader
+  mount_uploader :submitted_image, SuccessStorySubmittedImageUploader
 
   after_create :do_badges
   after_update :do_badges

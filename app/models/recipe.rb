@@ -12,6 +12,7 @@ class Recipe < ActiveRecord::Base
 
   acts_as_likeable :label => "Favorite"
   acts_as_commentable
+  acts_as_shareable
 
   def validate
     if require_validation

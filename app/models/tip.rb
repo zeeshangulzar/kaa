@@ -21,6 +21,8 @@ class Tip < ContentModel
   mount_uploader :small_image, TipSmallImageUploader
   mount_uploader :email_image, TipEmailImageUploader
 
+  acts_as_shareable
+
   SkipDays = [0,6]
 
   # this will answer "what tip do i display today?"
