@@ -291,6 +291,19 @@ class Badge < ActiveRecord::Base
     end
   end
 
+  def do_time_to_shine(success_story)
+    # TODO: notification and possibly destroy?
+    time_to_shine_badge = success_story.user.promotion.badges.where(:name => "Time To Shine").first rescue nil
+    return if !time_to_shine_badge
+    if success_story.featured
+      u = success_story.user
+      time_to_shine = u.badges_earned.where(:badges=>{:name=>"Time To Shine"},:earned_year => u.promotion.current_date.year).size
+      if time_to_shine < 1
+        u.badges_earned.create(:badge_id => time_to_shine_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
+    end
+  end
+
   def self.do_weekender(entry)
     weekender_badge = entry.user.promotion.badges.where(:name => "Weekender").first rescue nil
     return if !weekender_badge
