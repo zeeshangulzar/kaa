@@ -11,6 +11,9 @@ class SuccessStoriesController < ApplicationController
   end
 
   def show
+    if params[:id] == 'all' && @current_user.coordinator?
+      return HESResponder(@promotion.success_stories)
+    end
     success_story = SuccessStory.find(params[:id]) rescue nil
     return HESResponder("Success story", "NOT_FOUND") if !success_story
     if (success_story.promotion_id == @current_user.promotion_id && success_story.active) || @current_user.master?
