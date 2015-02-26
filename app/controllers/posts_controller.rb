@@ -152,7 +152,7 @@ class PostsController < ApplicationController
 
   def recent_posts
     psize = params[:page_size].nil? ? 5 : params[:page_size]
-    timestamp = params[:timestamp].nil? ? @promotion.current_date.to_time : params[:timestamp].is_i? ? Time.at(params[:timestamp].to_i) : params[:timestamp]
+    timestamp = params[:timestamp].nil? ? @promotion.current_date.to_time - 1.day : params[:timestamp].is_i? ? Time.at(params[:timestamp].to_i) : params[:timestamp]
     after = params[:after].nil? ? false : params[:after].to_i
     if after
       # get N posts immediately following params[:after]
