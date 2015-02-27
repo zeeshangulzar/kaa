@@ -134,10 +134,10 @@ class ChallengeSent < ApplicationModel
           self.errors.add(:base, rcc.errors.full_messages)
         else
           rcc.save!
-          notify(receiver, "Challenge Received", "#{self.user.profile.full_name} challenged you to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
+          notify(receiver, "Challenge Received", "#{self.user.profile.full_name} challenged you to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
         end
       else
-        notify(receiver, "Challenge Received", "#{self.user.profile.full_name} has also challenged you to <a href='/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
+        notify(receiver, "Challenge Received", "#{self.user.profile.full_name} has also challenged you to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
       end
     end
     

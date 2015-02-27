@@ -45,7 +45,7 @@ class Friendship < ApplicationModel
   # @note Sent after friendships is created
   def send_requested_notification
     unless friendee.nil? || status == Friendship::STATUS[:accepted] || is_inverse
-      notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
+      notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
       if friendee.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
       end
@@ -61,7 +61,7 @@ class Friendship < ApplicationModel
     elsif !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
       receiver = (self.sender_id == self.friender_id) ? self.friender : self.friendee
       remitter = (self.sender_id == self.friender_id) ? self.friendee : self.friender
-      notify(receiver, "#{Label} Accepted", "#{remitter.profile.full_name} has accepted your <a href='/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => remitter, :key => "friendship_#{id}")
+      notify(receiver, "#{Label} Accepted", "#{remitter.profile.full_name} has accepted your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => remitter, :key => "friendship_#{id}")
       if receiver.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
       end
