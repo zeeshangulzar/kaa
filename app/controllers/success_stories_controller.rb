@@ -3,7 +3,26 @@ class SuccessStoriesController < ApplicationController
   wrap_parameters :success_story
   
   def index
-    return HESResponder(@promotion.success_stories.active)
+    success_stories = @promotion.success_stories.active
+    if @current_user.coordinator? && !params[:status].nil?
+      case params[:status]
+        when 'all'
+          success_stories = @promotion.success_stories
+        when 'featured'
+          success_stories = @promotion.success_stories.active.featured
+        else
+          if SuccessStory::STATUS.stringify_keys.keys.include?(params[:status])
+            # ?status=[unseen,accepted,etc.]
+            success_stories = @promotion.success_stories.send(params[:status])
+          elsif params[:status].is_i? && SuccessStory::STATUS.values.include?(params[:status].to_i)
+            # ?status=[0,1,2,3,4]
+            success_stories = @promotion.success_stories.send(SuccessStory::STATUS.index(params[:status].to_i).to_s)
+          else
+            return HESResponder("No such status.", "ERROR")
+          end
+      end
+    end
+    return HESResponder(success_stories)
   end
 
   def featured
@@ -11,9 +30,6 @@ class SuccessStoriesController < ApplicationController
   end
 
   def show
-    if params[:id] == 'all' && @current_user.coordinator?
-      return HESResponder(@promotion.success_stories)
-    end
     success_story = SuccessStory.find(params[:id]) rescue nil
     return HESResponder("Success story", "NOT_FOUND") if !success_story
     if (success_story.promotion_id == @current_user.promotion_id && success_story.active) || @current_user.master?
