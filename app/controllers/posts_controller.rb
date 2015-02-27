@@ -156,11 +156,12 @@ class PostsController < ApplicationController
     after = params[:after].nil? ? false : params[:after].to_i
     if after
       # get N posts immediately following params[:after]
-      p = @wallable.posts.after(after).order("created_at ASC").limit(psize).reverse
+      p = @wallable.posts.includes(:root_post).after(after).order("created_at ASC").limit(psize).reverse
     else
-      p = @wallable.posts.where("created_at >= ?", timestamp).order("created_at DESC").limit(psize)
+      p = @wallable.posts.includes(:root_post).where("created_at >= ?", timestamp).order("created_at DESC").limit(psize)
     end
-    return HESResponder(p)
+    response = p.as_json(:methods => 'root_user')
+    return HESResponder(response)
   end
 
 

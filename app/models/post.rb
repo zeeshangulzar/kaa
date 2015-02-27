@@ -207,7 +207,15 @@ class Post < ApplicationModel
     return Badge.do_enthusiast(self)
   end
 
+  def root_user
+    return !self.root_post.nil? ? self.root_post.user : self.user
+  end
 
-
+  def as_json(options={})
+    if !options[:methods].nil? && (options[:methods] == 'root_user' || options[:methods].include?('root_user'))
+      options = options.merge({:methods => ["root_user"]})
+    end
+    super
+  end
 
 end
