@@ -68,7 +68,7 @@ class Notification < ApplicationModel
 
   # send all notifications to redis to have broadcasted via socket.io
   def publish_to_redis
-    $redis.publish('notificationPublished', self)
+    $redis.publish('notificationPublished', self.to_json)
   end
 
 end
