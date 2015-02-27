@@ -32,7 +32,7 @@ class SuccessStoriesController < ApplicationController
   def show
     success_story = SuccessStory.find(params[:id]) rescue nil
     return HESResponder("Success story", "NOT_FOUND") if !success_story
-    if (success_story.promotion_id == @current_user.promotion_id && success_story.active) || @current_user.master?
+    if @current_user.coordinator? || (success_story.promotion_id == @current_user.promotion_id && success_story.active)
       return HESResponder(success_story)
     else
       return HESResponder("You may not view this.", "DENIED")
