@@ -1,7 +1,7 @@
 class Behavior < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :name, :public
+  attr_privacy :name, :cap_value, :public
 
   belongs_to :promotion
 
