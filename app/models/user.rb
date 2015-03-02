@@ -1,6 +1,7 @@
 require 'bcrypt'
 
 class User < ApplicationModel
+  include KpwalkUserAdditions
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
@@ -634,4 +635,5 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
     return posters_array
   end
+
 end
