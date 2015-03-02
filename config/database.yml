@@ -26,3 +26,11 @@ development:
    username: hesdev
    password: l0ngd@y
    host: 10.100.1.249
+
+test:
+    adapter: mysql2
+    encoding: latin1
+    database: go_test
+    username: hesdev
+    password: l0ngd@y
+    host: 10.100.1.249

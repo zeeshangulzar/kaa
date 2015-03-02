@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Promotions API</title>
+    <meta charset="utf-8">
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Promotions API</h1>
+
+      <div class="article">
+        <h2>Show promotion</h2>
+        <h3>GET http://www.gokp.com/promotions/1</h3>
+
+
+
+          <h3>Request</h3>
+
+            <h4>Headers</h4>
+            <pre class="request headers">Cookie: 
+Origin: 
+Host: www.gokp.com</pre>
+
+          <h4>Route</h4>
+          <pre class="request route highlight">GET http://www.gokp.com/promotions/1</pre>
+
+
+
+
+            <h3>Response</h3>
+              <h4>Headers</h4>
+              <pre class="response headers">Content-Length: 273
+Cache-Control: max-age=0, private, must-revalidate
+X-UA-Compatible: IE=Edge,chrome=1
+Content-Type: application/json; charset=utf-8
+ETag: &quot;15219d9885a73aaa5c3984d211fd1534&quot;
+X-Runtime: 0.012026
+X-Request-Id: 05fe19a55b0cccb19e68c961192fab13</pre>
+            <h4>Status</h4>
+            <pre class="response status">200 OK</pre>
+              <h4>Body</h4>
+              <pre class="response body">{
+  &quot;meta&quot;: {
+    &quot;total_pages&quot;: 1,
+    &quot;page_size&quot;: 20,
+    &quot;links&quot;: {
+      &quot;current&quot;: &quot;/promotions/1&quot;
+    },
+    &quot;page&quot;: 1,
+    &quot;total_records&quot;: 1
+  },
+  &quot;data&quot;: [
+    {
+      &quot;url&quot;: &quot;/promotions/1&quot;,
+      &quot;subdomain&quot;: &quot;www&quot;,
+      &quot;customized_files&quot;: {
+      },
+      &quot;logo&quot;: {
+        &quot;url&quot;: &quot;/images/promotions/default.png&quot;
+      },
+      &quot;current_date&quot;: &quot;2015-03-02&quot;,
+      &quot;theme&quot;: null,
+      &quot;id&quot;: 1
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+  </body>
+</html>
