@@ -19,6 +19,10 @@ class SuccessStory < ApplicationModel
     self.send(:scope, key, where(:status => value))
   end
 
+  STATUS.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.status == value })
+  end
+
   scope :featured, :conditions => {:featured => true}
 
   mount_uploader :image, SuccessStoryImageUploader
@@ -30,6 +34,16 @@ class SuccessStory < ApplicationModel
   def do_badges
     Badge.do_all_star(self)
     Badge.do_time_to_shine(self)
+  end
+
+  after_update :unfeature_others
+
+  def unfeature_others
+    # only one success story can be featured at a time
+    if self.status != SuccessStory::STATUS[:rejected] && self.featured && !self.featured_was
+      sql = "UPDATE success_stories SET featured = 0 WHERE id != #{self.id}"
+      connection.execute(sql)
+    end
   end
 
 

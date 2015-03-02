@@ -32,7 +32,6 @@ class Event < ApplicationModel
 
   acts_as_notifier
 
-  after_create :invited_notifications
   after_update :updated_notifications
 
   def set_default_values
@@ -100,16 +99,16 @@ class Event < ApplicationModel
 
 
   # TODO: add emails
-  def invited_notifications
+  def send_invited_notifications
     return if self.event_type != Event::TYPE[:user]
     recipients = []
     if self.privacy == Event::PRIVACY[:invitees]
-      recipients = self.invites
+      recipients = self.invites.collect{|invite|invite.user}
     elsif self.privacy == Event::PRIVACY[:all_friends]
       recipients = self.user.friends
     end
     recipients.each{|recipient|
-      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
+      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/events/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
       if recipient.flags[:notify_email_events]
         Resque.enqueue(EventInviteEmail, self.id, recipient.id)
       end
