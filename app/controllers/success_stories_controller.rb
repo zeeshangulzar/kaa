@@ -42,7 +42,7 @@ class SuccessStoriesController < ApplicationController
   end
 
   def create
-    params[:user_id] = @current_user.id
+    params[:success_story][:user_id] = @current_user.id
     success_story = @promotion.success_stories.build(params[:success_story])
     if success_story.valid?
       SuccessStory.transaction do
