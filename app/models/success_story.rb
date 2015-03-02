@@ -36,11 +36,19 @@ class SuccessStory < ApplicationModel
     Badge.do_time_to_shine(self)
   end
 
+  before_update :activate_featured
   after_update :unfeature_others
+
+  def activate_featured
+    # activate if featured
+    if self.status != SuccessStory::STATUS[:active] && self.featured && !self.featured_was
+      self.status = SuccessStory::STATUS[:active]
+    end
+  end
 
   def unfeature_others
     # only one success story can be featured at a time
-    if self.status != SuccessStory::STATUS[:rejected] && self.featured && !self.featured_was
+    if self.status == SuccessStory::STATUS[:active] && self.featured && !self.featured_was
       sql = "UPDATE success_stories SET featured = 0 WHERE id != #{self.id}"
       connection.execute(sql)
     end
