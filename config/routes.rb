@@ -32,6 +32,8 @@ Go::Application.routes.draw do
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
     resources :success_stories, :only => [:index, :show]
+    resources :long_term_goals, :only => [:index, :show]
+    resources :personal_action_plans, :only => [:index, :show]
   end
 
   match 'badges' => 'badges#user_badges_earned', :via => 'get'
