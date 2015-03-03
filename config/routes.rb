@@ -155,7 +155,13 @@ Go::Application.routes.draw do
   resources :success_stories
 
   resources :launch_notifications, :only => [:create]
-  
+ 
+  #kpwalk
+  match 'kpw_users/enter' => 'kpw_users#enter', :via => 'post'
+  match 'kpw_users/find_by_token' => 'kpw_users#find_by_token', :via => 'post'
+  match 'kpw_users/authenticate' => 'kpw_users#authenticate', :via => 'post'
+  match 'kpw_users/:id' => 'kpw_users#show', :via => 'get'
+
   mount Resque::Server.new, :at => "/resque"
 
 end
