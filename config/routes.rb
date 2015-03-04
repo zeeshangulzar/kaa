@@ -23,6 +23,14 @@ Go::Application.routes.draw do
   match "/stats" => "users#stats", :via => :get
   match "/users/:id/stats" => "users#stats", :via => :get
 
+  match "/long_term_goals" => "long_term_goals#index", :via => :get
+  match "/long_term_goals" => "long_term_goals#create", :via => :post
+
+  match "/long_term_goals/curated_images" => "long_term_goals#curated_images", :via => :get
+
+  match "/personal_action_plans" => "personal_action_plans#index", :via => :get
+  match "/personal_action_plans" => "personal_action_plans#create", :via => :post
+
   resources :users do
     collection do
       get 'search/:search_string', :to=>'users#search'

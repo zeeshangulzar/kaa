@@ -1,5 +1,11 @@
 class LongTermGoalsController < ApplicationController
-  authorize :index, :show, :create, :update, :destroy, :user
+  authorize :curated_images, :index, :show, :create, :update, :destroy, :user
+
+  def curated_images
+    handle = HesCloudStorage::HesCloudDirectory.new("long_term_goals/curated")
+    curated = handle.files.collect{|f|f.path}
+    return HESResponder(curated)
+  end
 
   def index
     ltgs = @current_user.long_term_goals
@@ -13,6 +19,18 @@ class LongTermGoalsController < ApplicationController
   end
 
   def create
+    if !params[:curated_image].nil?
+      # TODO: make more secure, check for size and errors, etc.
+      uri = URI.parse(params[:curated_image])
+      parts = uri.host.split('.')
+      if parts[-2] + '.' + parts[-1] == 'hesapps.com'
+        f = "public/tmp/uploaded_files/#{SecureRandom.hex(32)}.png"
+        open(f, 'wb') do |file|
+          file << open(uri).read
+        end
+      end
+      params[:long_term_goal][:image] = f
+    end
     ltg = @current_user.long_term_goals.build(params[:long_term_goal])
     return HESResponder(ltg.errors.full_messages, "ERROR") if !ltg.valid?
     LongTermGoal.transaction do
