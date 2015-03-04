@@ -100,7 +100,8 @@ module KpwalkUserAdditions
 
     def get_kpwalk_show_sql(conditions)
       sql = "select users.id user_id, contacts.first_name, contacts.last_name, contacts.email, 
-             profiles.nuid, sum(entries.exercise_minutes) total_exercise_minutes, sum(entries.is_level_earned) total_stars_earned,
+             profiles.nuid, profiles.entity, profiles.employee_group,
+             sum(entries.exercise_minutes) total_exercise_minutes, sum(entries.is_level_earned) total_stars_earned,
              promotion_locations.name location, top_level_locations.name top_level_location
              from #{KPWALK_DATABASE_NAME}.users
              inner join #{KPWALK_DATABASE_NAME}.contacts on #{KPWALK_DATABASE_NAME}.contacts.contactable_type = 'User' and #{KPWALK_DATABASE_NAME}.contacts.contactable_id = #{KPWALK_DATABASE_NAME}.users.id
