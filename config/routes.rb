@@ -178,6 +178,6 @@ Go::Application.routes.draw do
 
   resources :contact_requests, :only => [:show, :create]
 
-  
+  resources :feedbacks, :only => :create
 
 end
