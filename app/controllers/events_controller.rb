@@ -89,6 +89,7 @@ class EventsController < ApplicationController
         end
       end
     end
+    event.send_invited_notifications
     return HESResponder(event)
   end
 

@@ -1,6 +1,7 @@
 require 'bcrypt'
 
 class User < ApplicationModel
+  include KpwalkUserAdditions
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
@@ -101,7 +102,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :me
 
 
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id
@@ -119,6 +120,9 @@ class User < ApplicationModel
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
   has_many :events
+
+  has_many :long_term_goals
+  has_many :personal_action_plans
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
 
@@ -634,4 +638,5 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
     return posters_array
   end
+
 end

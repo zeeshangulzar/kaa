@@ -8,6 +8,8 @@ class SuccessStoriesController < ApplicationController
       case params[:status]
         when 'all'
           success_stories = @promotion.success_stories
+        when 'not_rejected'
+          success_stories = @promotion.success_stories.where("status != ?", SuccessStory::STATUS[:rejected])
         when 'featured'
           success_stories = @promotion.success_stories.active.featured
         else
@@ -32,7 +34,7 @@ class SuccessStoriesController < ApplicationController
   def show
     success_story = SuccessStory.find(params[:id]) rescue nil
     return HESResponder("Success story", "NOT_FOUND") if !success_story
-    if (success_story.promotion_id == @current_user.promotion_id && success_story.active) || @current_user.master?
+    if @current_user.coordinator? || (success_story.promotion_id == @current_user.promotion_id && success_story.active?)
       return HESResponder(success_story)
     else
       return HESResponder("You may not view this.", "DENIED")
@@ -40,7 +42,7 @@ class SuccessStoriesController < ApplicationController
   end
 
   def create
-    params[:user_id] = @current_user.id
+    params[:success_story][:user_id] = @current_user.id
     success_story = @promotion.success_stories.build(params[:success_story])
     if success_story.valid?
       SuccessStory.transaction do

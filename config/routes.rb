@@ -23,6 +23,16 @@ Go::Application.routes.draw do
   match "/stats" => "users#stats", :via => :get
   match "/users/:id/stats" => "users#stats", :via => :get
 
+  match "/long_term_goals" => "long_term_goals#index", :via => :get
+  match "/long_term_goals" => "long_term_goals#create", :via => :post
+
+  match "/long_term_goals/curated_images" => "long_term_goals#curated_images", :via => :get
+
+  match "/personal_action_plans" => "personal_action_plans#index", :via => :get
+  match "/personal_action_plans" => "personal_action_plans#create", :via => :post
+
+  resources :profiles, :only => [:update]
+
   resources :users do
     collection do
       get 'search/:search_string', :to=>'users#search'
@@ -32,6 +42,8 @@ Go::Application.routes.draw do
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
     resources :success_stories, :only => [:index, :show]
+    resources :long_term_goals, :only => [:index, :show]
+    resources :personal_action_plans, :only => [:index, :show]
   end
 
   match 'badges' => 'badges#user_badges_earned', :via => 'get'
@@ -153,7 +165,19 @@ Go::Application.routes.draw do
   resources :success_stories
 
   resources :launch_notifications, :only => [:create]
-  
+ 
+  #kpwalk
+  match 'kpw_users/enter' => 'kpw_users#enter', :via => 'post'
+  match 'kpw_users/find_by_token' => 'kpw_users#find_by_token', :via => 'post'
+  match 'kpw_users/authenticate' => 'kpw_users#authenticate', :via => 'post'
+  match 'kpw_users/:id' => 'kpw_users#show', :via => 'get'
+
   mount Resque::Server.new, :at => "/resque"
+
+  match "/emails/content" => "emails#content", :via => :post
+
+  resources :contact_requests, :only => [:show, :create]
+
+  resources :feedbacks, :only => :create
 
 end
