@@ -176,4 +176,8 @@ Go::Application.routes.draw do
 
   match "/emails/content" => "emails#content", :via => :post
 
+  resources :contact_requests, :only => [:show, :create]
+
+  
+
 end

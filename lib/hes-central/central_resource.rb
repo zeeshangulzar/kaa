@@ -20,7 +20,6 @@ module HesCentral
       if !self.is_?(App)
         self.app_name = HesCentral.application_repository_name
       end
-      
       super(*args)
     end
   end
