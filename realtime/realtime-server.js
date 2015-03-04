@@ -30,8 +30,6 @@ redis.subscribe('notificationPublished');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
-	console.log(data);
-
 	var userId;
 	var friendId;
 
@@ -40,6 +38,10 @@ redis.on('message', function(channel, data) {
 	}
 
 	switch(channel) {
+		case 'entrySaved':
+			userId = data.user_id.toString();
+			io.sockets.in('User' + userId).emit('entrySaved', data);
+			break;
 		case 'newMessageCreated':
 			userId = data.user_id.toString();
 			friendId = data.friend_id.toString();
@@ -47,14 +49,12 @@ redis.on('message', function(channel, data) {
 			io.sockets.in('User' + friendId).emit('newMessageCreated', data);
 			break;
 		case 'newPostCreated':
-
 			promotionId = data.wallable_id.toString();
-			
 			io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
 			break;
-		case 'entrySaved':
+		case 'notificationPublished':
 			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('entrySaved', data);
+			io.sockets.in('User' + userId).emit('notificationPublished', data);
 			break;
 	}
 });
