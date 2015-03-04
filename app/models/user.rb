@@ -102,7 +102,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :me
 
 
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id

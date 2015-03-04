@@ -18,7 +18,7 @@ class ApplicationModel < ActiveRecord::Base
       return hash
     end
 
-    tables = ApplicationModel.connection.tables
+    tables = self.connection.tables
 
     hash.keys.each do |key|
       if tables.include?(key) && hash[key].is_a?(Array)

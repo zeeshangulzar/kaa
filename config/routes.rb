@@ -164,4 +164,6 @@ Go::Application.routes.draw do
 
   mount Resque::Server.new, :at => "/resque"
 
+  match "/emails/content" => "emails#content", :via => :post
+
 end
