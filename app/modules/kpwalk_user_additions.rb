@@ -99,7 +99,7 @@ module KpwalkUserAdditions
     end
 
     def get_kpwalk_show_sql(conditions)
-      sql = "select users.id user_id, contacts.first_name, contacts.last_name, contacts.email, 
+      sql = "select users.id user_id, users.gokp_token, contacts.first_name, contacts.last_name, contacts.email, 
              profiles.nuid, profiles.entity, profiles.employee_group,
              sum(entries.exercise_minutes) total_exercise_minutes, sum(entries.is_level_earned) total_stars_earned,
              promotion_locations.name location, top_level_locations.name top_level_location
