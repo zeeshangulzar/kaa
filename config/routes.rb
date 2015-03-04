@@ -31,6 +31,8 @@ Go::Application.routes.draw do
   match "/personal_action_plans" => "personal_action_plans#index", :via => :get
   match "/personal_action_plans" => "personal_action_plans#create", :via => :post
 
+  resources :profiles, :only => [:update]
+
   resources :users do
     collection do
       get 'search/:search_string', :to=>'users#search'
