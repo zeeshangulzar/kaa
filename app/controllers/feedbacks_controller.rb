@@ -28,7 +28,14 @@ class FeedbacksController < ApplicationController
   #    "session_data": "Gobblygook from the request object in yaml format"
   #   }
   def create
-    @feedback = Feedback.create({:email => params[:email], :name => params[:name], :request_url => params[:request_url], :feedback => params[:feedback], :browser => params[:browser], :os => params[:os], :session_data => params[:session_data]})
+    @feedback = Feedback.create({
+      :email => params[:email] || @current_user.email,
+      :name => params[:name] || @current_user.profile.full_name,
+      :request_url => params[:request_url],
+      :feedback => params[:feedback],
+      :browser => params[:browser] || request.env['HTTP_USER_AGENT'],
+      :os => params[:os] || request.env['HTTP_USER_AGENT'],
+      :session_data => params[:session_data] || @current_user.to_json})
     return HESResponder(@feedback)
   end
 
