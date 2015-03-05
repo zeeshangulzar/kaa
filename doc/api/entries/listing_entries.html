@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Entries API</title>
+    <meta charset="utf-8">
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Entries API</h1>
+
+      <div class="article">
+        <h2>Listing entries</h2>
+        <h3>GET http://www.gokp.com/entries</h3>
+
+
+
+          <h3>Request</h3>
+
+            <h4>Headers</h4>
+            <pre class="request headers">Origin: 
+Authorization: Basic NjpjaGFuZ2VtZTY=
+Cookie: 
+Host: www.gokp.com</pre>
+
+          <h4>Route</h4>
+          <pre class="request route highlight">GET http://www.gokp.com/entries</pre>
+
+
+
+
+            <h3>Response</h3>
+              <h4>Headers</h4>
+              <pre class="response headers">X-Request-Id: 8404394fddaa1bf98e14f6f6fd7e6ddf
+Cache-Control: max-age=0, private, must-revalidate
+ETag: &quot;c692b9bf83f668a83bc6ac01005a6e56&quot;
+Content-Type: application/json; charset=utf-8
+X-Runtime: 0.741573
+Content-Length: 433
+X-UA-Compatible: IE=Edge,chrome=1</pre>
+            <h4>Status</h4>
+            <pre class="response status">200 OK</pre>
+              <h4>Body</h4>
+              <pre class="response body">{
+  &quot;meta&quot;: {
+    &quot;page&quot;: 1,
+    &quot;total_pages&quot;: 1,
+    &quot;page_size&quot;: 0,
+    &quot;links&quot;: {
+      &quot;current&quot;: &quot;/entries&quot;
+    },
+    &quot;total_records&quot;: 1
+  },
+  &quot;data&quot;: [
+    {
+      &quot;exercise_minutes&quot;: null,
+      &quot;updated_at&quot;: &quot;2015-02-09T19:13:27Z&quot;,
+      &quot;recorded_on&quot;: &quot;2015-02-09&quot;,
+      &quot;url&quot;: &quot;/entries/4&quot;,
+      &quot;goal_steps&quot;: null,
+      &quot;entry_exercise_activities&quot;: [
+
+      ],
+      &quot;id&quot;: 4,
+      &quot;notes&quot;: null,
+      &quot;is_recorded&quot;: null,
+      &quot;goal_minutes&quot;: null,
+      &quot;entry_behaviors&quot;: [
+
+      ],
+      &quot;challenge_points&quot;: 1,
+      &quot;timed_behavior_points&quot;: 0,
+      &quot;exercise_points&quot;: 0,
+      &quot;exercise_steps&quot;: null
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+  </body>
+</html>

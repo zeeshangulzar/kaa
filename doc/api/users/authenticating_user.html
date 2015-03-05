@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Users API</title>
+    <meta charset="utf-8">
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Users API</h1>
+
+      <div class="article">
+        <h2>Authenticating user</h2>
+        <h3>POST http://www.gokp.com/users/authenticate</h3>
+
+
+
+          <h3>Request</h3>
+
+            <h4>Headers</h4>
+            <pre class="request headers">Origin: 
+Content-Type: application/x-www-form-urlencoded
+Cookie: 
+Host: www.gokp.com</pre>
+
+          <h4>Route</h4>
+          <pre class="request route highlight">POST http://www.gokp.com/users/authenticate</pre>
+
+
+            <h4>Body</h4>
+            <pre class="request body">email=richardw%40hesonline.com&password=test</pre>
+
+
+            <h3>Response</h3>
+              <h4>Headers</h4>
+              <pre class="response headers">X-Request-Id: 0ec0aaf13cbd364a99177936726fc60a
+Cache-Control: max-age=0, private, must-revalidate
+ETag: &quot;8e52ffee78e518a32333f33c320a4e45&quot;
+Content-Type: application/json; charset=utf-8
+X-Runtime: 0.237643
+Content-Length: 1240
+X-UA-Compatible: IE=Edge,chrome=1</pre>
+            <h4>Status</h4>
+            <pre class="response status">200 OK</pre>
+              <h4>Body</h4>
+              <pre class="response body">{
+  &quot;top_level_location_id&quot;: null,
+  &quot;role&quot;: &quot;User&quot;,
+  &quot;location&quot;: {
+    &quot;updated_at&quot;: &quot;2015-02-09T19:13:21Z&quot;,
+    &quot;parent_location_id&quot;: null,
+    &quot;url&quot;: &quot;/locations/1&quot;,
+    &quot;id&quot;: 1,
+    &quot;depth&quot;: 0,
+    &quot;sequence&quot;: 0,
+    &quot;promotion_id&quot;: 1,
+    &quot;name&quot;: &quot;712 Cambridge&quot;,
+    &quot;created_at&quot;: &quot;2015-02-09T19:13:21Z&quot;,
+    &quot;root_location_id&quot;: null
+  },
+  &quot;email&quot;: &quot;richardw@hesonline.com&quot;,
+  &quot;url&quot;: &quot;/users/6&quot;,
+  &quot;username&quot;: &quot;richardw&quot;,
+  &quot;id&quot;: 6,
+  &quot;flags&quot;: {
+    &quot;notify_email_friend_requests&quot;: false,
+    &quot;hide_goal_hit_message&quot;: false,
+    &quot;notify_email_messages&quot;: false,
+    &quot;notify_email_challenges&quot;: false,
+    &quot;has_seen_tutorial&quot;: false,
+    &quot;notify_email_events&quot;: false,
+    &quot;allow_daily_emails_all_week&quot;: false,
+    &quot;allow_daily_emails_monday&quot;: false
+  },
+  &quot;profile&quot;: {
+    &quot;age&quot;: null,
+    &quot;ethnicity&quot;: null,
+    &quot;updated_at&quot;: &quot;2015-02-09T19:13:25Z&quot;,
+    &quot;first_name&quot;: &quot;Richard&quot;,
+    &quot;goal_steps&quot;: null,
+    &quot;is_reward_participant&quot;: null,
+    &quot;url&quot;: &quot;/profiles/6&quot;,
+    &quot;backlog_date&quot;: &quot;2014-11-08&quot;,
+    &quot;goal_minutes&quot;: null,
+    &quot;id&quot;: 6,
+    &quot;shirt_size&quot;: null,
+    &quot;phone&quot;: null,
+    &quot;image&quot;: {
+      &quot;url&quot;: &quot;/images/users/default.png&quot;,
+      &quot;thumbnail&quot;: {
+        &quot;url&quot;: &quot;/images/users/thumbnail_default.png&quot;
+      }
+    },
+    &quot;started_on&quot;: &quot;2014-11-08&quot;,
+    &quot;employee_group&quot;: null,
+    &quot;entity&quot;: null,
+    &quot;user_id&quot;: 6,
+    &quot;created_at&quot;: &quot;2015-02-09T19:13:25Z&quot;,
+    &quot;default_logging_type&quot;: null,
+    &quot;last_name&quot;: &quot;Wardin&quot;,
+    &quot;mobile_phone&quot;: null
+  },
+  &quot;promotion_id&quot;: 1,
+  &quot;milestone_id&quot;: null,
+  &quot;auth_basic_header&quot;: &quot;Basic NjpjaGFuZ2VtZTY=&quot;,
+  &quot;tiles&quot;: null
+}</pre>
+      </div>
+    </div>
+  </body>
+</html>
