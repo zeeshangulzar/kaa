@@ -41,7 +41,7 @@ class CommentsController < ApplicationController
     unless params[:commentable_id].nil?
       @commentable = params[:commentable_type].singularize.camelcase.constantize.find(params[:commentable_id])
     else
-      render :json => { :errors => ["Must pass commentable id"] }, :status => :unprocessable_entity
+      return HESResponder("Must pass commentable id", "ERROR")
     end
   end
 
@@ -71,8 +71,8 @@ class CommentsController < ApplicationController
   #     "url": "http://api.hesapps.com/comments/1"
   #   }]
   def index
-    @comments = @commentable.comments
-    return HESResponder(@comments)
+    comments = @commentable.comments
+    return HESResponder(comments)
   end
 
   # Gets a single comment for a user
@@ -98,8 +98,8 @@ class CommentsController < ApplicationController
   #     "url": "http://api.hesapps.com/comments/1"
   #   }
   def show
-    @comment = Comment.find(params[:id])
-    return HESResponder(@comment)
+    comment = Comment.find(params[:id])
+    return HESResponder(comment)
   end
 
   # Creates a single comment for a user
@@ -126,11 +126,14 @@ class CommentsController < ApplicationController
   #     "url": "http://api.hesapps.com/comments/1"
   #   }
   def create
-    @comment = @current_user.comments.build(params[:comment])
-    @comment.commentable_type = @commentable.class.to_s
-    @comment.commentable_id = @commentable.id
-    @comment.save
-    return HESResponder(@comment)
+    comment = @current_user.comments.build(params[:comment])
+    comment.commentable_type = @commentable.class.to_s
+    comment.commentable_id = @commentable.id
+    return HESResponder(comment.errors.full_messages, "ERROR") if !comment.valid?
+    Comment.transaction do
+      comment.save
+    end
+    return HESResponder(comment)
   end
 
   # Updates a single comment for a user
@@ -159,7 +162,10 @@ class CommentsController < ApplicationController
   #   }
   def update
     @comment ||= Comment.find(params[:id])
-    @comment.update_attributes(params[:comment])
+    return HESResponder(!comment.errors.full_messages, "ERROR") if !@comment.valid?
+    Comment.transaction do
+      @comment.update_attributes(params[:comment])
+    end
     return HESResponder(@comment)
   end
 

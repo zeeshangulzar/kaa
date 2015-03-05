@@ -31,6 +31,7 @@ class Event < ApplicationModel
   before_update :fix_timestamps
 
   acts_as_notifier
+  acts_as_commentable
 
   after_update :updated_notifications
 

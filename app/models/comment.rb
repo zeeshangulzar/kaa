@@ -5,7 +5,8 @@ class Comment < ApplicationModel
   belongs_to :commentable, :polymorphic => true
   belongs_to :user, :in_json => true
 
-  attr_accessible :user, :content, :is_flagged, :is_deleted
+  attr_accessible *column_names
+  attr_privacy :user, :content, :is_flagged, :is_deleted, :created_at, :updated_at, :likes, :any_user
 
   validates :content, :presence => true, :length => {:maximum => 420}
   

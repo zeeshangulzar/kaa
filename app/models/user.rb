@@ -89,6 +89,8 @@ class User < ApplicationModel
   
   # end friendships pulled in
 
+  can_comment
+
   can_post
   can_like
   can_share
