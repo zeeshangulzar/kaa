@@ -36,3 +36,14 @@ EvaluationQuestion.new(:energy, "In the last month, how often did you have enoug
 EvaluationQuestion.new(:overall_health, "How would you describe your overall health?", :poor_good)
 EvaluationQuestion.new(:liked_most, "What did you like most about this program?")
 EvaluationQuestion.new(:liked_least, "What did you like least about this program?")
+
+
+#KP Answers
+EvaluationAnswerGroup.new :find_out_answers, ["Through an existing Healthy Workforce program (KP Walk!)", "Article", "Flyer", "Co-worker", "My manager", "Other"]
+EvaluationAnswerGroup.new :focus_options, ["Physical activity", "Healthy eating", "Weight management", "Stress-management", "Other"]
+
+#KP Questions
+EvaluationQuestion.new(:average_days_active_per_week, "On average, how many days per week are you active at a moderate or strenuous level? (like a brisk walk)", :zero_seven)
+EvaluationQuestion.new(:average_minutes_per_day, "On average, about how many minutes per day are you active at this level?", :minutes_per_day)
+EvaluationQuestion.new(:find_out, "How did you find out about Go KP?", :find_out_answers)
+EvaluationQuestion.new(:focus, "What healthy activities do you most want to focus on? (select one)", :focus_options)
