@@ -71,11 +71,12 @@ class UsersController < ApplicationController
       eval_params = nil
     end
 
+    user = @promotion.users.new(params[:user])
     User.transaction do
-      user = @promotion.users.create(params[:user])
       if !user.valid?
         return HESResponder(user.errors.full_messages, "ERROR")
       else
+        user.save!
         if eval_params
           eval_params[:user_id] = user.id
           eval = ed.evaluations.build(eval_params)
@@ -87,9 +88,10 @@ class UsersController < ApplicationController
           demographic.user_id = user.id
           demographic.save!
         end
-        return HESResponder(user)
       end
     end
+    user.welcome_notification
+    return HESResponder(user)
   end
   
   def update

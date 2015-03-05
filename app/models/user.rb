@@ -34,7 +34,8 @@ class User < ApplicationModel
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :welcome_email
-  after_create :welcome_notification
+  #after_create :welcome_notification
+
   after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
 
@@ -97,9 +98,9 @@ class User < ApplicationModel
   has_notifications
 
   # relationships
-  has_one :profile, :in_json => true
+  has_one :profile
 
-  has_one :demographic, :in_json => true
+  has_one :demographic
 
   # attrs
   attr_protected :role, :auth_key
@@ -115,7 +116,7 @@ class User < ApplicationModel
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
   validates_uniqueness_of :email, :scope => :promotion_id
   validates_uniqueness_of :username, :scope => :promotion_id
-  validates_uniqueness_of :altid, :scope => :promotion_id
+  validates_uniqueness_of :altid, :scope => :promotion_id, :unless => Proc.new { |obj| obj.altid.nil? }
 
   
 
