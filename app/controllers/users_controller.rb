@@ -11,16 +11,18 @@ class UsersController < ApplicationController
   end
 
   def authenticate
-    user = @promotion.users.find_by_email(params[:email]) rescue nil
-    user ||= @promotion.users.find_by_username(params[:email]) rescue nil
+    user = @promotion.users.find_by_username(params[:email]) rescue nil
+    unless params[:email].nil? || params[:email].empty?
+      user ||= @promotion.users.find_by_altid(params[:email]) rescue nil
+      user ||= @promotion.users.find_by_email(params[:email]) rescue nil
+    end
     HESSecurityMiddleware.set_current_user(user)
-
     if user && user.password == params[:password]
       json = user.as_json
       json[:auth_basic_header] = user.auth_basic_header
       render :json => json and return
     else
-      return HESResponder("Email or password is incorrect.", 401)
+      return HESResponder("Username, altid, email or password is incorrect.", 401)
     end
   end
 
@@ -46,8 +48,16 @@ class UsersController < ApplicationController
   # TODO: document me!
   def create
     return HESResponder("No user provided.", "ERROR") if params[:user].empty?
-
-    params[:user][:profile] = Profile.new(params[:user][:profile]) if !params[:user][:profile].nil?
+    demographic = false
+    if !params[:user][:profile].nil?
+      if !params[:user][:profile][:age].nil? || !params[:user][:profile][:gender].nil? || !params[:user][:profile][:ethnicity].nil?
+        demographic = Demographic.new()
+        demographic.age = params[:user][:profile].delete(:age) if !params[:user][:profile][:age].nil?
+        demographic.gender = params[:user][:profile].delete(:gender) if !params[:user][:profile][:gender].nil?
+        demographic.ethnicity = params[:user][:profile].delete(:ethnicity) if !params[:user][:profile][:ethnicity].nil?
+      end
+      params[:user][:profile] = Profile.new(params[:user][:profile])
+    end
 
     if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
       ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id]) rescue nil
@@ -63,7 +73,6 @@ class UsersController < ApplicationController
 
     User.transaction do
       user = @promotion.users.create(params[:user])
-
       if !user.valid?
         return HESResponder(user.errors.full_messages, "ERROR")
       else
@@ -73,6 +82,10 @@ class UsersController < ApplicationController
           if eval.valid?
             eval.save!
           end
+        end
+        if demographic
+          demographic.user_id = user.id
+          demographic.save!
         end
         return HESResponder(user)
       end
@@ -138,7 +151,7 @@ class UsersController < ApplicationController
 
   # this just checks for uniqueness at the moment
   def validate
-    fs = ['email','username']
+    fs = ['email','username', 'altid']
     f = params[:field]
     if !fs.include?(f)
       return HESResponder("Can't check this field.", "ERROR")
