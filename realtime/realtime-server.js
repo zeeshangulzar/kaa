@@ -49,7 +49,7 @@ redis.on('message', function(channel, data) {
 			io.sockets.in('User' + friendId).emit('newMessageCreated', data);
 			break;
 		case 'newPostCreated':
-			promotionId = data.wallable_id.toString();
+			promotionId = data.user.promotion_id.toString();
 			io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
 			break;
 		case 'notificationPublished':
