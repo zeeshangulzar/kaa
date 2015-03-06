@@ -11,8 +11,8 @@ class Recipe < ActiveRecord::Base
   has_many :recipe_categories, :dependent => :destroy
 
   acts_as_likeable :label => "Favorite"
-  acts_as_commentable
   acts_as_shareable
+  has_wall
 
   scope :asc, :order => "day ASC"
   scope :desc, :order => "day DESC"

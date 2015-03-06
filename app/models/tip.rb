@@ -22,7 +22,7 @@ class Tip < ContentModel
   mount_uploader :email_image, TipEmailImageUploader
 
   acts_as_shareable
-  acts_as_commentable
+  has_wall
 
   SkipDays = [0,6]
 
