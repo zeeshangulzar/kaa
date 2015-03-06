@@ -69,6 +69,8 @@ gem "bluecloth", '2.2.0'
 #gem 'yajl-ruby', :require => "yajl"
 gem "resque", "1.25.2"
 
+gem "hes-fitbit","1.0.15"
+
 group :test do
   gem 'hes_route_docs'
 end
