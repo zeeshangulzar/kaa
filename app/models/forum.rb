@@ -19,6 +19,4 @@ class Forum < ApplicationModel
     return self.posts.count
   end
 
-
-
 end

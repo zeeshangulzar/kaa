@@ -17,15 +17,16 @@ class User < ApplicationModel
   attr_privacy_no_path_to_user
 
   acts_as_notifier
-
-#  can_earn_achievements
   
-#  UserAchievement.attr_privacy_path_to_user :user
-#  UserAchievement.attr_privacy :user_id, :achievement_id, :has_achieved, :date_fulfilled, :created_on, :created_at, :updated_on, :updated_at, :any_user
-#  UserAchievement.attr_accessible :user, :achievement
-
-#  attr_accessible :achievements_attributes
-
+  Role = {
+    :user                       => "User",
+    :master                     => "Master",
+    :reseller                   => "Reseller",
+    :coordinator                => "Coordinator",
+    :sub_promotion_coordinator  => "Sub Promotion Coordinator",
+    :location_coordinator       => "Location Coordinator",
+    :poster                     => "Poster"
+  }
   
   # pulling in friendships..
   
@@ -168,16 +169,7 @@ class User < ApplicationModel
   before_validation :set_parents, :on => :create
   before_save :set_top_level_location
 
-  # constants
-  Role = {
-    :user                       => "User",
-    :master                     => "Master",
-    :reseller                   => "Reseller",
-    :coordinator                => "Coordinator",
-    :sub_promotion_coordinator  => "Sub Promotion Coordinator",
-    :location_coordinator       => "Location Coordinator",
-    :poster                     => "Poster"
-  }
+
 
   # includes
   include HESUserMixins
@@ -645,6 +637,13 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     }
 
     return posters_array
+  end
+
+  def location_ids
+    # a helper method to return all location ids of a user..
+    # right now it's just 2, but in theory it could be more
+    # so this can return a flattened array of all ids
+    return [self.location_id,self.top_level_location_id]
   end
 
 end
