@@ -8,6 +8,6 @@ class Forum < ApplicationModel
 
   has_wall
 
-  mount_uploader :imasge, ForumImageUploader
+  mount_uploader :image, ForumImageUploader
 
 end
