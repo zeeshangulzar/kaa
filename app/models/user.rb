@@ -128,7 +128,7 @@ class User < ApplicationModel
   has_many :evaluations, :dependent => :destroy
   has_many :events
 
-  has_many :long_term_goals
+  has_many :long_term_goals, :order => "created_at DESC"
   has_many :personal_action_plans
 
   has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
