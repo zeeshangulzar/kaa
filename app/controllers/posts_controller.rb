@@ -302,6 +302,10 @@ class PostsController < ApplicationController
     if !@post
       return HESResponder("Post", "NOT_FOUND")
     end
+    Post.transaction do
+      @post.views = @post.views + 1
+      @post.save!
+    end
     return HESResponder(@post)
   end
 
@@ -349,16 +353,20 @@ class PostsController < ApplicationController
   #     "url": "http://api.hesapps.com/posts/1"
   #   }
   def create
-
-    @post = (@wallable || @postable).posts.build
-    @post.user_id = @current_user.id
-    @post.update_attributes(params[:post])
-    if !@post.valid?
-      return HESResponder(@post.errors.full_messages, "ERROR")
+    parent_obj = @wallable || @postable
+    post = parent_obj.posts.build
+    if parent_obj.class == Post
+      post.parent_post_id = parent_obj.id
+      post.depth = parent_obj.depth + 1
     end
-    @post.reload
-    $redis.publish('newPostCreated', @post.to_json)
-    return HESResponder(@post)
+    post.user_id = @current_user.id
+    post.update_attributes(params[:post])
+    if !post.valid?
+      return HESResponder(post.errors.full_messages, "ERROR")
+    end
+    post.reload
+    $redis.publish('newPostCreated', post.to_json)
+    return HESResponder(post)
   end
 
   # Updates a single post for a wallable

@@ -1,7 +1,7 @@
 # Model that is posted to walls. Can be nested or replies to other posts and also contain postable object related to post.
 class Post < ApplicationModel
 
-  attr_privacy :content, :depth, :photo, :parent_post_id, :root_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :user, :any_user
+  attr_privacy :content, :depth, :photo, :parent_post_id, :root_post_id, :is_flagged, :postable_type, :postable_id, :wallable_id, :wallable_type, :created_at, :updated_at, :flagged_by, :user, :title, :replies, :likes, :views, :any_user
   
   # The page size allowed for getting posts
   PAGESIZE = 20
@@ -12,13 +12,13 @@ class Post < ApplicationModel
 
   belongs_to :root_post, :class_name => Post, :foreign_key => :root_post_id
 
-  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id, :in_json => true
+  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id
 
   has_many :child_posts, :class_name => Post, :foreign_key => :root_post_id
 
   belongs_to :wallable, :polymorphic => true
 
-  belongs_to :postable, :polymorphic => true, :in_json => true
+  belongs_to :postable, :polymorphic => true
 
   mount_uploader :photo, PostPhotoUploader
 
@@ -44,7 +44,7 @@ class Post < ApplicationModel
   event_accessor :after_reply_destroyed
   after_destroy lambda { |post| post.parent_post.fire_after_reply_destroyed(post) }, :if => lambda { |post| post.reply? && post.parent_post }
 
-  acts_as_likeable :in_json => true
+  acts_as_likeable
 
   is_postable
 
