@@ -88,15 +88,22 @@ class Promotion < ApplicationModel
     paths
   end
 
-  def nested_locations
-    nested = []
-    self.locations.each do |location|
-      if location.top?
-        location = self.get_kids(location)
-        nested.push(location)
+  def nested_locations(reload=false)
+    cache_key = "promotion_#{self.id}_nested_locations"
+    Rails.cache.delete(cache_key) if reload
+    @nested_locations = Rails.cache.fetch(cache_key) {
+      nested = []
+      self.locations.each do |location|
+        if location.top?
+          location = self.get_kids(location)
+          nested.push(location)
+        end
       end
-    end
-    return nested
+      Rails.logger.warn("building nested locations cache for promotion: #{self.id}")
+      nested_locations = nested.as_json(:include => :locations)
+      nested_locations
+    }
+    return @nested_locations
   end
 
   def get_kids(location, parents = [])

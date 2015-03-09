@@ -18,6 +18,9 @@ class Location < ApplicationModel
 
   validates_presence_of :name
 
+  after_create :clear_cache
+  after_update :clear_cache
+
   def depth
     d=0
     unless new_record?
@@ -115,6 +118,11 @@ class Location < ApplicationModel
   def as_json(options = {})
     options[:except] ||= :locations
     super
+  end
+
+  def clear_cache
+    cache_key = "promotion_#{self.promotion_id}_nested_locations"
+    Rails.cache.delete(cache_key)
   end
 
 end

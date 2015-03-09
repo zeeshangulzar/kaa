@@ -72,3 +72,5 @@ gem "resque", "1.25.2"
 group :test do
   gem 'hes_route_docs'
 end
+
+gem 'memcache-client'

@@ -75,7 +75,10 @@ module Go
       :address    =>  'email.hesonline.com',
       :port       =>  25,
       :domain     =>  'email.hesonline.com'
-    } 
+    }
+
+    # memcache
+    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => 'gokp'}
 
 end
 end
