@@ -183,4 +183,15 @@ Go::Application.routes.draw do
 
   resources :feedbacks, :only => :create
 
+  resources :fitbits do
+    collection do
+      post :begin
+      get :post_authorize
+      post :disconnect
+      post :refresh_week
+      post :master_info
+      post :notify
+    end
+  end
+
 end

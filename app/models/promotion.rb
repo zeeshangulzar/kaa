@@ -29,6 +29,9 @@ class Promotion < ApplicationModel
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
+  flags :is_fitbit_enabled, :default => false
+  flags :is_manual_override_enabled, :default => false
+
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
   end

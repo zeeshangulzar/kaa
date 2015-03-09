@@ -10,6 +10,8 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
+APPLICATION_NAME = 'GOKP'
+
 module Go
   class Application < Rails::Application
     config.middleware.insert_after Rails::Rack::Logger, HESSecurityMiddleware
