@@ -37,7 +37,7 @@ class RatingsController < ApplicationController
       @rating = @current_user.ratings.build
       @rating.rateable_id = @rateable.id
       @rating.rateable_type = @rateable.class.name.to_s
-      @rating.score = !params[:score].nil? ? params[:score].to_i : 5
+      @rating.score = !params[:score].nil? && (Rating::MIN_SCORE..Rating::MAX_SCORE).include?(params[:score].to_i) ? params[:score].to_i : Rating::MAX_SCORE
       @rating.save
       return HESResponder(@rating)
     else
