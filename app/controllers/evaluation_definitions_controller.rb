@@ -69,7 +69,7 @@ class EvaluationDefinitionsController < ApplicationController
   #
   # @note Response will also contain
   def index
-    @evaluation_definitions = @promotion.evaluation_definitions
+    @evaluation_definitions = @promotion.evaluation_definitions.as_json
     return HESResponder(@evaluation_definitions)
   end
 

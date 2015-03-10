@@ -12,7 +12,7 @@ module HesEvaluations
       # Initializes associations needed for evaluations to work on an ActiveRecord model.
       # Adds instance methods to model also
       def has_evaluations
-        self.send(:has_many, :evaluation_definitions, :include => [:questions], :dependent => :destroy, :order => :days_from_start)
+        self.send(:has_many, :evaluation_definitions, :dependent => :destroy, :order => :days_from_start)
         self.send(:has_many, :evaluations, :through => :evaluation_definitions)
         self.send(:has_custom_prompts, :with => :evaluations)
 
