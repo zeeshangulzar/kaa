@@ -34,7 +34,7 @@ class ForumsController < ApplicationController
   def update
     forum = Forum.find(params[:id]) rescue nil
     return HESResponder("Forum", "NOT_FOUND") if !forum
-    return HESResponder("You cannot update a forum.", "DENIED") if !@current_user.location_ids.include?(location.id) && !@current_user.sub_promotion_coordinator_or_above?
+    return HESResponder("You cannot update a forum.", "DENIED") if !@current_user.location_ids.include?(forum.location_id) && !@current_user.sub_promotion_coordinator_or_above?
     Forum.transaction do
       forum.update_attributes(params[:forum])
     end
