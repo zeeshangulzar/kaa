@@ -1,6 +1,6 @@
 class Entry < ApplicationModel
 
-  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes
+  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :manually_recorded
   # All entries are tied to a user
   belongs_to :user
 
