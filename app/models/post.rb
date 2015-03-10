@@ -12,7 +12,7 @@ class Post < ApplicationModel
 
   belongs_to :root_post, :class_name => Post, :foreign_key => :root_post_id
 
-  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id
+  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id, :order => "created_at DESC"
 
   has_many :child_posts, :class_name => Post, :foreign_key => :root_post_id
 
@@ -28,7 +28,7 @@ class Post < ApplicationModel
   # Validates post using custom validator locatated at lib/post_validater.rb
   validates_with HesPosts::PostValidator
 
-  attr_accessible :content, :depth, :photo, :parent_post_id, :is_flagged, :postable_type, :postable_id, :flagged_by
+  attr_accessible *column_names
 
   # Set the root post id before validation
   before_validation :set_root_post_id

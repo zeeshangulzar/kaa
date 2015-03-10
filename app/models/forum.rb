@@ -8,6 +8,15 @@ class Forum < ApplicationModel
 
   has_wall
 
-  mount_uploader :imasge, ForumImageUploader
+  mount_uploader :image, ForumImageUploader
+
+  def as_json(options = {})
+    options = options.merge({:methods => ["post_count"]})
+    super
+  end
+
+  def post_count
+    return self.posts.count
+  end
 
 end

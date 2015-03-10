@@ -22,7 +22,7 @@ class UsersController < ApplicationController
       json[:auth_basic_header] = user.auth_basic_header
       render :json => json and return
     else
-      return HESResponder("Username, altid, email or password is incorrect.", 401)
+      return HESResponder("Username, NUID, email or password is incorrect.", 401)
     end
   end
 

@@ -74,3 +74,5 @@ gem "hes-fitbit","1.0.15"
 group :test do
   gem 'hes_route_docs'
 end
+
+gem 'memcache-client'
