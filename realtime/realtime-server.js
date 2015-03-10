@@ -56,6 +56,10 @@ redis.on('message', function(channel, data) {
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('notificationPublished', data);
 			break;
+		case 'userUpdated':
+			userId = data.id.toString();
+			io.sockets.in('User' + userId).emit('userUpdated', data);
+			break;
 	}
 });
 

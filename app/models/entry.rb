@@ -40,6 +40,8 @@ class Entry < ApplicationModel
 
   before_save :calculate_points
   before_save :nullify_exercise_and_set_is_recorded
+
+  after_save :check_for_changes
   
   def custom_validation
     user = self.user
@@ -288,6 +290,20 @@ UNION
     Badge.do_goal_getter(self)
     Badge.do_weekender(self)
     Badge.do_weekend_warrior(self)
+  end
+
+  def check_for_changes
+    publish = false
+    columns_to_check = ['exercise_minutes', 'exercise_steps', 'exercise_points', 'challenge_points', 'timed_behavior_points']
+    columns_to_check.each{|column|
+      if self.send(column).to_i != self.send(column + "_was").to_i
+        publish = true
+        break
+      end
+    }
+    if publish
+      $redis.publish('userUpdated', self.user.as_json)
+    end
   end
   
 end
