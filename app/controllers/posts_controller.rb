@@ -52,6 +52,10 @@ class PostsController < ApplicationController
   end
 
   def index
+    if @wallable.class == Post
+      # parent is Post.. so just grab the replies..
+      return HESResponder(@wallable.replies)
+    end
     psize = params[:page_size].nil? ? Post::PAGESIZE : params[:page_size]
     conditions = ''
     if !params[:has_photo].nil?

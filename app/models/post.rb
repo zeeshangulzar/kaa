@@ -12,7 +12,7 @@ class Post < ApplicationModel
 
   belongs_to :root_post, :class_name => Post, :foreign_key => :root_post_id
 
-  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id
+  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id, :order => "created_at DESC"
 
   has_many :child_posts, :class_name => Post, :foreign_key => :root_post_id
 
