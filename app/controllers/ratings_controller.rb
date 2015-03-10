@@ -33,7 +33,7 @@ class RatingsController < ApplicationController
   end
 
   def create
-    if @rateable.ratings.where(:user_id => @current_user.id).nil?
+    if @rateable.ratings.where(:user_id => @current_user.id).empty?
       @rating = @current_user.ratings.build
       @rating.rateable_id = @rateable.id
       @rating.rateable_type = @rateable.class.name.to_s
