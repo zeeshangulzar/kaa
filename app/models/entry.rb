@@ -302,7 +302,9 @@ UNION
       end
     }
     if publish
-      $redis.publish('userUpdated', self.user.as_json)
+      u = self.user
+      u.stats = u.stats()
+      $redis.publish('userUpdated', u.as_json.to_json)
     end
   end
   
