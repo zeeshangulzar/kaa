@@ -130,6 +130,10 @@ Go::Application.routes.draw do
   resources :shares
   match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
   match '*shareable_type/*shareable_id/shares' => 'shares#create', :via => :post
+
+  resources :ratings
+  match '*rateable_type/*rateable_id/ratings' => 'ratings#index', :via => :get
+  match '*rateable_type/*rateable_id/ratings' => 'ratings#create', :via => :post
   
   match '/flagged_posts' => 'posts#flagged_posts', :via => :get
 

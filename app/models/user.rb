@@ -97,6 +97,7 @@ class User < ApplicationModel
   can_post
   can_like
   can_share
+  can_rate
   has_notifications
 
   # relationships
