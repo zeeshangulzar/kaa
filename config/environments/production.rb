@@ -64,4 +64,9 @@ Go::Application.configure do
   # Log the query plan for queries taking more than this (works
   # with SQLite, MySQL, and PostgreSQL)
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
+
+  Go::Application.config.middleware.use ExceptionNotifier,
+    :email_prefix => "GoKP API Error: ",
+    :sender_address => %{"Developer" <developer@hesonline.com>},
+    :exception_recipients => %w{developer@hesonline.com}
 end

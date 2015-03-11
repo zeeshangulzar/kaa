@@ -159,9 +159,13 @@ class User < ApplicationModel
 
   has_many :groups, :foreign_key => "owner_id"
 
-  has_many :badges
-
+  
   has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
+  has_many :badges, :through => :badges_earned
+
+  # these two convoluted associations provide a means of getting the user's latest milestone badge earned
+  has_one :current_milestone_earned, :class_name => "UserBadge", :include => :badge, :order => "earned_date DESC, badges.sequence DESC", :conditions => proc { "badges.badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }
+  has_one :current_milestone, :class_name => "Badge", :through => :current_milestone_earned, :source => :badge, :foreign_key => "badge_id", :order => "earned_date DESC, badges.sequence DESC"
   
   accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events, :badges_earned
   attr_accessor :include_evaluation_definitions
@@ -521,18 +525,6 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     }
 
     return posters_array
-  end
-
-  def current_milestone
-    ub = self.badges_earned.where("badge_type = '#{Badge::TYPE[:milestones]}'", "YEAR(earned_date) = #{self.promotion.current_date.year}").order("earned_date DESC").limit(1)
-    if !ub.empty?
-      return ub.first.badge
-      # here's some ideas..
-      # return ub.first.badge.attributes.reject{|k,v| !['name','image','id'].include?(k)}
-      # has_one :milestone, :class_name => "Badge", :through => :badges_earned, :source => :badge, :conditions => proc { "badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }, :order => "sequence DESC"
-    else
-      return nil
-    end
   end
 
   def self.stats(user_ids,year)
