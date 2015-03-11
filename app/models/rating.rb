@@ -1,5 +1,9 @@
 # Like active record class for keeping track of likes that users have
 class Rating < ApplicationModel
+
+  MIN_SCORE = 0
+  MAX_SCORE = 5
+
   belongs_to :rateable, :polymorphic => true
   belongs_to :user, :in_json => true
 
