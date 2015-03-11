@@ -75,4 +75,8 @@ group :test do
   gem 'hes_route_docs'
 end
 
+group :production do
+  gem 'exception_notification', "3.0.1"
+end
+
 gem 'memcache-client'
