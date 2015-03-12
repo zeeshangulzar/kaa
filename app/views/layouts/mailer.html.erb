@@ -4,7 +4,7 @@
       <table style="width:100%; max-width:630px; padding:16px;" cellspacing="0" cellpadding="0">
         <tr>
           <td style="text-align:left">
-            <img src="http://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo-blue.png?" + Time.now.to_i.to_s %>" style="max-width:200px" />
+            <img src="http://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo.png?" + Time.now.to_i.to_s %>" style="max-width:200px" />
           </td>
           <td style="text-align:right">
             <img src="<%= @user.promotion.logo.url + '?' + Time.now.to_i.to_s %>" style="max-width:200px" />
@@ -32,7 +32,7 @@
         </tr>
         <tr>
           <td align="left">
-            <a href="http://<%= DomainConfig::DomainNames.first %>/emails/unsubscribe" style="color:#FFFFFF">Unsubscribe</a>
+            <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/emails/unsubscribe" style="color:#FFFFFF">Unsubscribe</a>
           </td>
           <td align="right" style="color:#FFFFFF">
             &copy; <%= Date.today.year %> Health Enhancement Systems

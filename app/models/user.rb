@@ -461,6 +461,7 @@ AND
     friendships.status IS NULL
     OR friendships.status = 'D'
   )
+  AND users.promotion_id = #{self.promotion_id}
 )
 GROUP BY users.id
 ORDER BY profiles.last_name
