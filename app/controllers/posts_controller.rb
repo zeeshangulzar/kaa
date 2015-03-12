@@ -58,6 +58,7 @@ class PostsController < ApplicationController
     end
     psize = params[:page_size].nil? || !params[:page_size].is_i? ? Post::PAGESIZE : params[:page_size]
     conditions = ''
+
     if !params[:has_photo].nil?
       if params[:has_photo] == 'true' || params[:has_photo] == true
         conditions = 'photo IS NOT NULL'
@@ -65,6 +66,13 @@ class PostsController < ApplicationController
         conditions = 'photo IS NULL'
       end
     end
+    
+    if !params[:friends_only].nil? && params[:friends_only]
+      # only get posts from friends
+      friends_argument = "user_id IN (" + @current_user.friends.collect{|f|f.id}.join(',') + ")"
+      conditions = conditions.empty? ? friends_argument : conditions + " AND " + friends_argument
+    end
+
     if params[:location].nil?
       @posts =
       if params[:max_id].nil? && params[:since_id].nil?
