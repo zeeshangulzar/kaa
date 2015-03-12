@@ -195,4 +195,6 @@ Go::Application.routes.draw do
     end
   end
 
+  match '/jawbones/:action', :controller => :jawbones
+
 end

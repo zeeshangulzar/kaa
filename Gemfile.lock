@@ -1,3 +1,11 @@
+PATH
+  remote: /home/johns/hes/gems/hes-jawbone
+  specs:
+    hes-jawbone (1.0.7)
+      hes-jawbone-api (= 0.4.3)
+      mime-types (~> 1.25.0)
+      rest-client (= 1.6.7)
+
 GEM
   remote: http://dev:dev@gems.staging.hesapps.com/
   remote: http://gems.github.com/
@@ -49,6 +57,8 @@ GEM
       hes-fitgem (= 1.0.0)
     hes-fitgem (1.0.0)
       oauth
+    hes-jawbone-api (0.4.3)
+      httparty (= 0.11.0)
     hes-many_to_many (0.0.3)
     hes-sequencer (0.0.1)
       hes-many_to_many
@@ -59,6 +69,9 @@ GEM
       i18n (< 7.0)
       rspec (>= 3.0.0)
     hike (1.2.3)
+    httparty (0.11.0)
+      multi_json (~> 1.0)
+      multi_xml (>= 0.5.2)
     i18n (0.6.11)
     journey (1.0.4)
     json (1.8.1)
@@ -69,6 +82,7 @@ GEM
     mime-types (1.25.1)
     mono_logger (1.1.0)
     multi_json (1.10.1)
+    multi_xml (0.5.5)
     multipart-post (2.0.0)
     mysql2 (0.3.16)
     oauth (0.4.7)
@@ -156,6 +170,7 @@ DEPENDENCIES
   hes-authorization
   hes-events
   hes-fitbit (= 1.0.15)
+  hes-jawbone (= 1.0.7)!
   hes-sequencer
   hes_route_docs
   json

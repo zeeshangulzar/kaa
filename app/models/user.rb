@@ -3,6 +3,7 @@ require 'bcrypt'
 class User < ApplicationModel
   include KpwalkUserAdditions
   include HESFitbitUserAdditions
+  include HESJawboneUserAdditions
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
