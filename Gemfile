@@ -70,6 +70,7 @@ gem "bluecloth", '2.2.0'
 gem "resque", "1.25.2"
 
 gem "hes-fitbit","1.0.15"
+gem "hes-jawbone","1.0.7"
 
 group :test do
   gem 'hes_route_docs'
