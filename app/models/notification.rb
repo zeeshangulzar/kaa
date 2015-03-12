@@ -17,7 +17,6 @@ class Notification < ApplicationModel
   scope :hidden, where(:hidden => true)
 
   after_create :publish_to_redis
-  # after_update :publish_to_redis
 
   # Deletes a group of notifications.
   def self.delete_group(notificationable, time)

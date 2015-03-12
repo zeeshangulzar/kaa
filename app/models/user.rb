@@ -518,6 +518,13 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       last = row
     end
 
+    # remove posters if they cannot possibly unlock them (poster visible date is earlier than backlog date)
+    posters_array.each_with_index{|poster,index|
+      if poster['visible_date'].to_date < self.profile.backlog_date && poster['unlocked'] < 1
+        posters_array.delete_at(index)
+      end
+    }
+
     loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
 
     posters_array.each_with_index{|poster,index|
