@@ -110,10 +110,20 @@ class PostsController < ApplicationController
     after = params[:after].nil? ? false : params[:after].to_i
     if after
       # get N posts immediately following params[:after]
-      p = @wallable.posts.includes(:root_post).after(after).order("created_at ASC").limit(psize).reverse
+      p = @wallable.posts.includes(:root_post).after(after).where("is_flagged <> 1").order("created_at ASC").limit(psize).reverse
     else
-      p = @wallable.posts.includes(:root_post).where("created_at >= ?", timestamp).order("created_at DESC").limit(psize)
+      p = @wallable.posts.includes(:root_post).where("created_at >= ? AND is_flagged <> 1", timestamp).order("created_at DESC").limit(psize)
     end
+
+    p.each_with_index{|post,index|
+      # remove posts where parent is deleted or flagged
+      if !post.parent_post_id.nil?
+        if post.parent_post.nil? || post.parent_post.is_flagged
+          p.delete_at(index)
+        end
+      end
+    }
+
     response = p.as_json(:methods => 'root_user')
     return HESResponder(response)
   end
