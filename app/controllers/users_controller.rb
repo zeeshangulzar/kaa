@@ -18,6 +18,10 @@ class UsersController < ApplicationController
     end
     HESSecurityMiddleware.set_current_user(user)
     if user && user.password == params[:password]
+
+      user.last_login = user.promotion.current_time
+      user.save!
+
       json = user.as_json
       json[:auth_basic_header] = user.auth_basic_header
       render :json => json and return
