@@ -19,8 +19,9 @@ class JawbonesController < ApplicationController
   def post_authorize
     if params[:message].nil?
       u = User.find(session[:jawbone_user_id])
-      HESSecurityMiddleware.set_current_user(u) 
+      HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
+      u.jawbone_user.reload
       u.update_column :active_device, 'JAWBONE'
 
       notification = u.notifications.find_by_key('JAWBONE') || u.notifications.build(:key=>'JAWBONE')
@@ -54,7 +55,7 @@ class JawbonesController < ApplicationController
       #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
       ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
     end
-    redirect_to "/users/#{@current_user.id}/edit"
+    head :ok 
   end
 
   def failed
