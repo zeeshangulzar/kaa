@@ -651,4 +651,8 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return [self.location_id,self.top_level_location_id]
   end
 
+  def email_with_name
+    return "#{self.profile.full_name} <#{self.email}>"
+  end
+
 end
