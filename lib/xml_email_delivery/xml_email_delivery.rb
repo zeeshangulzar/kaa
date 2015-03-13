@@ -41,8 +41,8 @@ class XmlEmailDelivery
     xmlRecipientRoot = REXML::Document.new "<recipients></recipients>"
 
     tmails.each_with_index do |tmail,idx|
-      html_body = tmail.parts.select{|part| part["content-type"].to_s =~ /text\/html/ }.first.body rescue ''
-      plain_body = tmail.parts.select{|part| part["content-type"].to_s =~ /text\/plain/ }.first.body rescue ''
+      html_body = tmail.body.raw_source rescue ''
+      plain_body = tmail.body.raw_source rescue ''
 
       xmlEmail = xmlEmailRoot.root.add_element "email"
       
@@ -53,10 +53,10 @@ class XmlEmailDelivery
       xmlSendDate.text = Time.now.strftime('%m/%d/%Y')
 
       xmlFromAddress = xmlEmail.add_element "from_address"
-      xmlFromAddress.text = tmail.from_addrs.first.address
+      xmlFromAddress.text = tmail.from_addrs.first
 
       xmlFromName = xmlEmail.add_element "from_name"
-      xmlFromName.text = tmail.from_addrs.first.name
+      xmlFromName.text = tmail.from
 
       xmlReplyTo = xmlEmail.add_element "reply_to"
       xmlReplyTo.text = tmail.reply_to.is_a?(Array) ? tmail.reply_to.first.to_s : xmlFromAddress.text
@@ -69,16 +69,15 @@ class XmlEmailDelivery
 
       xmlTextEmail = xmlEmail.add_element "plain"
       xmlTextEmail.add REXML::CData.new(plain_body)
-      
-      tmail.bcc_addrs.each do |bcc|
-        xmlRecipient = xmlRecipientRoot.root.add_element "recipient"
-        xmlRecipientEmailId = xmlRecipient.add_element "email_id"
-        xmlRecipientEmailId.text = xmlEmail.elements["id"].text
-        xmlRecipientEmailAddress = xmlRecipient.add_element "address"
-        xmlRecipientEmailAddress.text = bcc.address
-        xmlRecipientEmailAddress = xmlRecipient.add_element "encrypted_address"
-        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(bcc.address).chomp)
-      end
+  
+      # BM 2015-03-13, removed bcc_addrs each, because Rails3 ActionMailer doesnt appear to support bcc_addrs    
+      xmlRecipient = xmlRecipientRoot.root.add_element "recipient"
+      xmlRecipientEmailId = xmlRecipient.add_element "email_id"
+      xmlRecipientEmailId.text = xmlEmail.elements["id"].text
+      xmlRecipientEmailAddress = xmlRecipient.add_element "address"
+      xmlRecipientEmailAddress.text = tmail.bcc
+      xmlRecipientEmailAddress = xmlRecipient.add_element "encrypted_address"
+      xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(tmail.bcc.to_s).chomp)
     end
 
     # write it to a temp file, then rename the temp file

@@ -57,26 +57,22 @@ class GoMailer < ActionMailer::Base
 
 
 
-  def daily_email(day, promotion, to_name, to_email, base_url)
-    tip = promotion.tips.find_by_day(day)
-    tip = promotion.tips.last if tip.nil?
+  def daily_email(day, promotion, to_name, to_email, base_url, user)
+    @tip = Tip.for_promotion(promotion).find_by_day(day)
+    @recipe = Recipe.daily
+    @promotion = promotion
+    @user = user
 
-    ms = tip.markdownable_summary
-
-    rp = Recipe.daily
-
-    template 'daily_email'
-    recipients "#{to_name} <#{to_email}>"
-
-    from FormattedFromAddress
-    reply_to FromAddress
-
-    sent_on promotion.current_time
+    to = "#{to_name} <#{to_email}>"
+    from = FormattedFromAddress
+    reply_to = FromAddress
+    sent_on = promotion.current_time
     headers 'return-path'=>FromAddress
 
-    subject tip.email_subject
+    
+    mail(:to => to, :subject => "#{Constant::AppName}: #{@tip.email_subject}", :from => from, :reply_to => reply_to)
 
-    body :promotion => promotion, :organization => promotion.organization, :tip => tip, :recipe => rp, :base_url => base_url, :daily_email => true
+    #body :promotion => promotion, :organization => promotion.organization, :tip => tip, :recipe => rp, :base_url => base_url, :daily_email => true
     
   end
 

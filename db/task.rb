@@ -15,7 +15,6 @@ class Task
   end
   
   def self.send_daily_emails(p)
-    Promotion.each{ |p|
       if ![0,6].include?(p.current_date.wday)
         queue = true#true unless IS_STAGING #|| RAILS_ENV=='development'
 
@@ -47,16 +46,16 @@ class Task
             if queue
               case what_to_send
                 when 'daily_email'
-                    mails << Mailer.create_daily_email(day,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
-                    mails.last.bcc_addrs=[] # not sure why TMail doesn't just make this an empty array to begin with...
+                    mails << GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                    mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
                 when 'reminder'
                     d=which.to_s.split('reminder_').last.to_i
-                    mails << Mailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
-                    mails.last.bcc_addrs=[] # not sure why TMail doesn't just make this an empty array to begin with...
+                    mails << GoMailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
+                    mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
               else
               end
-              mails.last.bcc_addrs << TMail::Address.parse(u.contact.email_with_name)
-              to = mails.last.bcc_addrs.last.address
+              mails.last.bcc = u.email_with_name
+              to = mails.last.bcc
             end
             puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to}"
           rescue Exception => ex
@@ -71,8 +70,6 @@ class Task
         end
 
       end # end wday not 0,6
-
-    } # end each promotion
 
 
   end
