@@ -33,6 +33,9 @@ class User < ApplicationModel
   
   has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
+
+  has_many :email_reminders_sent, :order => "created_at DESC"
+  has_many :email_reminders, :class_name => "EmailReminder", :through => :email_reminders_sent, :order => "email_reminders_sent.created_at DESC"
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :welcome_email
