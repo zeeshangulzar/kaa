@@ -1,25 +1,48 @@
 <table cellspacing="0" cellpadding="0">
   <tr>
     <td colspan="2" style="text-align:center" align="center">
-      <img src="<%= @tip['email_image']['url'] %>" style="width:100%;max-height:500px"/>
+      <img src="<%= @tip.email_image.url %>" style="width:100%;max-height:500px"/>
     </td>
   </tr>
   <tr>
     <td align="left">
-      <div style="margin:16px">
-        <h1 style="color:#4A7628;font-weight:bold;font-size:14px;"><%= @tip.title %></h1>
+      <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;">
+        <span style="color:#4A7628;font-weight:bold;font-size:16px;"><%= @tip.title %></span>&nbsp;&nbsp;&nbsp;<span style="color:#aaa;font-size:14px">Daily Tip</span>
       </div>
     </td>
     <td align="right" valign="top">
-      <p style="margin:16px;color:#aaa;">
+      <p style="margin:16px;color:#aaa;font-family:Open Sans, Helvetica, Arial;">
         <%= @promotion.current_date.to_s %>
       </p>
     </td>
   </tr>
   <tr>
+    <td colspan="2">
+      <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;">
+        <%= raw @tip.summary_html %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tips/<%= @tip.id %>">More</a>
+      </div>
+    </td>
+  <tr>
     <td style="background-color:#f1f7f7" colspan="2">
       <div style="margin:16px">
-        <%= raw @tip['content_html'] %>
+        <img width="100px" height="100px" src="<%= @recipe.image_url %>" style="border-radius:50%;display:block;float:left;width:100px;height:100px;" alt="<%= @recipe.title %>">
+        <div style="float:left;margin-left:20px;width:75%;font-family:Open Sans, Helvetica, Arial;">
+          <span style="color:#f47b20;font-size:14px;font-weight:bold;">Recipe of the day</span><br/>
+          <span style="color:#4A7628;font-weight:bold;font-size:16px;"><%= @recipe.title %></span>
+          <p style="font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %></p>
+        </div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#f1f7f7">
+      <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;">
+        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="display:block;float:left">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a>
+      </div>
+    </td>
+    <td style="background-color:#f1f7f7;text-align:right;" align="right">
+      <div style="margin:16px;float:right;font-family:Open Sans, Helvetica, Arial;">
+        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><span style="display:inline-block;padding:7px;color:#fff;background-color:#006ba6;font-size:16px;border-radius:15px">Log Progess</span></a>
       </div>
     </td>
   </tr>
