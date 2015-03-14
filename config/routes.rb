@@ -197,9 +197,12 @@ Go::Application.routes.draw do
       get :post_authorize
       post :disconnect
       post :refresh_week
+      post :use_fitbit_data
       post :master_info
       post :notify
     end
   end
+
+  match '/jawbones/:action', :controller => :jawbones
 
 end

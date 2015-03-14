@@ -31,6 +31,7 @@ class Promotion < ApplicationModel
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
   flags :is_fitbit_enabled, :default => false
+  flags :is_jawbone_enabled, :default => false
   flags :is_manual_override_enabled, :default => false
 
   def current_date

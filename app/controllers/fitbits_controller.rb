@@ -51,9 +51,9 @@ class FitbitsController < ApplicationController
         notification = user.notifications.find_by_key('FITBIT') || user.notifications.build(:key=>'FITBIT')
         
         if user.profile.started_on >= user.promotion.current_date
-          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with Passport starting #{user.profile.started_on.strftime('%B %e')}."
+          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with GoKP starting #{user.profile.started_on.strftime('%B %e')}."
         else
-          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with Passport shortly."
+          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with GoKP shortly."
         end
         
         user.update_column :active_device, 'FITBIT'
@@ -188,18 +188,13 @@ class FitbitsController < ApplicationController
   def use_fitbit_data
     e = Entry.find(params[:entry_id])
 
-    @current_user.fitbit_user.retrieve_activities_on_date(e.logged_on)
-    fds = FitbitUserDailySummary.find(:first, :conditions => {:fitbit_user_id => @current_user.fitbit_user.id, :reported_on => e.logged_on})
-    
-    e.entry_recording_activities.each do |era|
-      if era.recording_activity.sync_with_device_steps
-        era.value = fds.steps
-        era.manually_recorded = false
-        era.save
-      end
-    end
+    # @current_user.fitbit_user.retrieve_activities_on_date(e.recorded_on)
+    fds = FitbitUserDailySummary.find(:first, :conditions => {:fitbit_user_id => @current_user.fitbit_user.id, :reported_on => e.recorded_on})
 
+    e.manually_recorded = false
+    e.exercise_steps = fds.steps
     e.save
+
     $redis.publish('fitbitEntrySaved', e.to_json)
 
     respond_to do |format|
