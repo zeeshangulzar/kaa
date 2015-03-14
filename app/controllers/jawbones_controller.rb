@@ -3,14 +3,23 @@ class JawbonesController < ApplicationController
   authorize :post_authorize, :notify, :public
 
   def authorize
-    devices_host = Rails.env.production? ? nil : "http://devices.js:3001" # change this in dev if necessary
-    session[:jawbone_user_id] = @current_user.id
-    unless params[:return_url].to_s.strip.empty?
-      redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => params[:return_url], :devices_host => devices_host)
-      render :json => {:url=>redirect_url}
-    else
-      render :json => {:url=>"missing return_url parameter"}, :status => 422
+    devices_host = Rails.env.production? ? nil : "http://devices.dev" # change this in dev if necessary
+    #session[:jawbone_user_id] = @current_user.id
+    #unless params[:return_url].to_s.strip.empty?
+
+   if @current_user.jawbone_user
+      @current_user.jawbone_user.disconnect
+      @current_user.update_column(:active_device,nil) if @current_user.active_device == 'JAWBONE'
+      #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
+      ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
     end
+   
+      return_url = "#{request.host_with_port}/jawbones/post_authorize?auth_key=#{@current_user.auth_key}"
+      redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => return_url, :devices_host => devices_host)
+      render :json => {:url=>redirect_url}
+    #else
+    #  render :json => {:url=>"missing return_url parameter"}, :status => 422
+    #end
   end
 
   def settings
@@ -18,7 +27,8 @@ class JawbonesController < ApplicationController
 
   def post_authorize
     if params[:message].nil?
-      u = User.find(session[:jawbone_user_id])
+      #u = User.find(session[:jawbone_user_id])
+      u = User.find_by_auth_key(params[:auth_key])
       HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
       u.jawbone_user.reload
@@ -41,11 +51,11 @@ class JawbonesController < ApplicationController
 
         notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>#{u.promotion.program_name}</i> shortly."
       end
-      redirect_to '/#jawbone-connected'
+      redirect_to 'http://www.go.dev:9000/#/settings'
     else
-      redirect_to '/#jawbone-failed'
+      redirect_to 'http://www.go.dev:9000/#/settings'
     end
-    session[:jawbone_user_id] = nil
+    #session[:jawbone_user_id] = nil
   end
 
   def disconnect 
