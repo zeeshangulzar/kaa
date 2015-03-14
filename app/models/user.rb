@@ -33,6 +33,9 @@ class User < ApplicationModel
   
   has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
+
+  has_many :email_reminders_sent, :order => "created_at DESC"
+  has_many :email_reminders, :class_name => "EmailReminder", :through => :email_reminders_sent, :order => "email_reminders_sent.created_at DESC"
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :welcome_email
@@ -461,6 +464,7 @@ AND
     friendships.status IS NULL
     OR friendships.status = 'D'
   )
+  AND users.promotion_id = #{self.promotion_id}
 )
 GROUP BY users.id
 ORDER BY profiles.last_name
@@ -516,6 +520,13 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       end
       last = row
     end
+
+    # remove posters if they cannot possibly unlock them (poster visible date is earlier than backlog date)
+    posters_array.each_with_index{|poster,index|
+      if poster['visible_date'].to_date < self.profile.backlog_date && poster['unlocked'] < 1
+        posters_array.delete_at(index)
+      end
+    }
 
     loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
 
@@ -638,6 +649,10 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     # right now it's just 2, but in theory it could be more
     # so this can return a flattened array of all ids
     return [self.location_id,self.top_level_location_id]
+  end
+
+  def email_with_name
+    return "#{self.profile.full_name} <#{self.email}>"
   end
 
 end

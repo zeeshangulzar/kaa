@@ -131,6 +131,9 @@ Go::Application.routes.draw do
   match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
   match '*shareable_type/*shareable_id/shares' => 'shares#create', :via => :post
 
+  match '*rateable_type/*rateable_id/user_rating' => 'ratings#user_rating_show', :via => :get
+  match '*rateable_type/*rateable_id/user_rating' => 'ratings#user_rating_create', :via => [:post, :put]
+  match '*rateable_type/*rateable_id/user_rating' => 'ratings#user_rating_destroy', :via => :delete
   resources :ratings
   match '*rateable_type/*rateable_id/ratings' => 'ratings#index', :via => :get
   match '*rateable_type/*rateable_id/ratings' => 'ratings#create', :via => :post

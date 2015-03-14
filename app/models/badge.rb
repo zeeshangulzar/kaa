@@ -190,11 +190,13 @@ class Badge < ActiveRecord::Base
     return unless post.depth == 0 && post.wallable.id == post.user.promotion.id
     enthusiast_badge = post.user.promotion.badges.where(:name => "Enthusiast").first rescue nil
     return if !enthusiast_badge
-    num = post.user.posts.where(:wallable_type => 'Promotion', :wallable_id => post.user.promotion.id, :depth => 0).where("created_at BETWEEN '#{post.created_at.beginning_of_week.to_time.to_s(:db)}' AND '#{post.created_at.end_of_week.to_time.to_s(:db)}'").size
-    if num > 2 && post.user.badges_earned.where(:earned_year => post.created_at.year, :badge_id => enthusiast_badge.id).size < 1
-      # TODO: notification and possibly destroy?
-      now = post.user.promotion.current_time.to_s(:db)
-      connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{post.user.id}, #{enthusiast_badge.id}, #{post.created_at.year}, '#{post.created_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
+    Badge.uncached do
+      num = post.user.posts.where(:wallable_type => 'Promotion', :wallable_id => post.user.promotion.id, :depth => 0).where("created_at BETWEEN '#{post.created_at.beginning_of_week.to_time.to_s(:db)}' AND '#{post.created_at.end_of_week.to_time.to_s(:db)}'").size
+      if num > 2 && post.user.badges_earned.where(:earned_year => post.created_at.year, :badge_id => enthusiast_badge.id).size < 1
+        # TODO: notification and possibly destroy?
+        now = post.user.promotion.current_time.to_s(:db)
+        connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{post.user.id}, #{enthusiast_badge.id}, #{post.created_at.year}, '#{post.created_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
+      end
     end
     return true
   end
@@ -202,23 +204,25 @@ class Badge < ActiveRecord::Base
   def self.do_sidekick(friendship)
     sidekick_badge = friendship.friender.promotion.badges.where(:name => "Sidekick").first rescue nil
     return if !sidekick_badge
-    now = friendship.friender.promotion.current_time.to_s(:db)
-    # friendee...
-    u = friendship.friendee
-    if friendship.friendee && friendship.friendee.friends.size > 9 && friendship.friendee.badges_earned.where(:earned_year => friendship.updated_at.year, :badge_id => sidekick_badge.id).size < 1
-      # TODO: notification
-      connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{u.id}, #{sidekick_badge.id}, #{friendship.updated_at.year}, '#{friendship.updated_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
-    else
-      connection.execute("DELETE FROM user_badges WHERE user_id = #{u.id} AND earned_year = #{friendship.updated_at.year} AND badge_id = #{sidekick_badge.id}")
-    end
-    # friender...
-    u = friendship.friender
-    if friendship.friender && friendship.friender.friends.size > 9 && friendship.friender.badges_earned.where(:earned_year => friendship.updated_at.year, :badge_id => sidekick_badge.id).size < 1
-      # TODO: notification
-      connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{u.id}, #{sidekick_badge.id}, #{friendship.updated_at.year}, '#{friendship.updated_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
-    else
-      # remove sidekick badge
-      connection.execute("DELETE FROM user_badges WHERE user_id = #{u.id} AND earned_year = #{friendship.updated_at.year} AND badge_id = #{sidekick_badge.id}")
+    Badge.uncached do
+      now = friendship.friender.promotion.current_time.to_s(:db)
+      # friendee...
+      u = friendship.friendee
+      if friendship.friendee && friendship.friendee.friends.size > 9 && friendship.friendee.badges_earned.where(:earned_year => friendship.updated_at.year, :badge_id => sidekick_badge.id).size < 1
+        # TODO: notification
+        connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{u.id}, #{sidekick_badge.id}, #{friendship.updated_at.year}, '#{friendship.updated_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
+      else
+        connection.execute("DELETE FROM user_badges WHERE user_id = #{u.id} AND earned_year = #{friendship.updated_at.year} AND badge_id = #{sidekick_badge.id}")
+      end
+      # friender...
+      u = friendship.friender
+      if friendship.friender && friendship.friender.friends.size > 9 && friendship.friender.badges_earned.where(:earned_year => friendship.updated_at.year, :badge_id => sidekick_badge.id).size < 1
+        # TODO: notification
+        connection.execute("INSERT INTO user_badges (user_id, badge_id, earned_year, earned_date, created_at, updated_at) VALUES (#{u.id}, #{sidekick_badge.id}, #{friendship.updated_at.year}, '#{friendship.updated_at.to_date.to_s(:db)}', '#{now}', '#{now}')")
+      else
+        # remove sidekick badge
+        connection.execute("DELETE FROM user_badges WHERE user_id = #{u.id} AND earned_year = #{friendship.updated_at.year} AND badge_id = #{sidekick_badge.id}")
+      end
     end
   end
 
@@ -226,11 +230,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     rookie_badge = challenge_received.user.promotion.badges.where(:name => "Rookie").first rescue nil
     return if !rookie_badge
-    u = challenge_received.user
-    completed = u.challenges_received.completed.size
-    rookie = u.badges_earned.where(:badges=>{:name=>"Rookie"},:earned_year => u.promotion.current_date).size
-    if rookie < 1 && completed > 0
-      u.badges_earned.create(:badge_id => rookie_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = challenge_received.user
+      completed = u.challenges_received.completed.size
+      rookie = u.badges_earned.where(:badges=>{:name=>"Rookie"},:earned_year => u.promotion.current_date).size
+      if rookie < 1 && completed > 0
+        u.badges_earned.create(:badge_id => rookie_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -238,11 +244,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     mvp_badge = challenge_received.user.promotion.badges.where(:name => "MVP").first rescue nil
     return if !mvp_badge
-    u = challenge_received.user
-    completed = u.challenges_received.completed.size
-    mvp = u.badges_earned.where(:badges=>{:name=>"MVP"},:earned_year => u.promotion.current_date).size
-    if mvp < 1 && completed > 9
-      u.badges_earned.create(:badge_id => mvp_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = challenge_received.user
+      completed = u.challenges_received.completed.size
+      mvp = u.badges_earned.where(:badges=>{:name=>"MVP"},:earned_year => u.promotion.current_date).size
+      if mvp < 1 && completed > 9
+        u.badges_earned.create(:badge_id => mvp_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -250,11 +258,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     applause_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
     return if !applause_badge
-    likes = like.likeable.likes.size
-    u = like.likeable.user
-    applause = u.badges_earned.where(:badges=>{:name=>"Applause"},:earned_year => u.promotion.current_date.year).size
-    if applause < 1 && likes > 9
-      u.badges_earned.create(:badge_id => applause_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      likes = like.likeable.likes.size
+      u = like.likeable.user
+      applause = u.badges_earned.where(:badges=>{:name=>"Applause"},:earned_year => u.promotion.current_date.year).size
+      if applause < 1 && likes > 9
+        u.badges_earned.create(:badge_id => applause_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -262,11 +272,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     high_five_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
     return if !high_five_badge
-    u = like.user
-    likes = u.likes.where(:likeable_type => "Post").where("YEAR(created_at) = #{u.promotion.current_date.year}").size
-    high_five = u.badges_earned.where(:badges=>{:name=>"High Five"},:earned_year => u.promotion.current_date.year).size
-    if high_five < 1 && likes > 9
-      u.badges_earned.create(:badge_id => high_five_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = like.user
+      likes = u.likes.where(:likeable_type => "Post").where("YEAR(created_at) = #{u.promotion.current_date.year}").size
+      high_five = u.badges_earned.where(:badges=>{:name=>"High Five"},:earned_year => u.promotion.current_date.year).size
+      if high_five < 1 && likes > 9
+        u.badges_earned.create(:badge_id => high_five_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -274,11 +286,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     coach_badge = challenge_sent.user.promotion.badges.where(:name => "Coach").first rescue nil
     return if !coach_badge
-    u = challenge_sent.user
-    challenges_sent = u.challenges_sent.where("YEAR(created_at) = #{u.promotion.current_date.year}").size
-    coach = u.badges_earned.where(:badges=>{:name=>"Coach"},:earned_year => u.promotion.current_date.year).size
-    if coach < 1 && challenges_sent > 9
-      u.badges_earned.create(:badge_id => coach_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = challenge_sent.user
+      challenges_sent = u.challenges_sent.where("YEAR(created_at) = #{u.promotion.current_date.year}").size
+      coach = u.badges_earned.where(:badges=>{:name=>"Coach"},:earned_year => u.promotion.current_date.year).size
+      if coach < 1 && challenges_sent > 9
+        u.badges_earned.create(:badge_id => coach_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -286,10 +300,12 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     all_star_badge = success_story.user.promotion.badges.where(:name => "All Star").first rescue nil
     return if !all_star_badge
-    u = success_story.user
-    all_star = u.badges_earned.where(:badges=>{:name=>"All Star"},:earned_year => u.promotion.current_date.year).size
-    if all_star < 1
-      u.badges_earned.create(:badge_id => all_star_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = success_story.user
+      all_star = u.badges_earned.where(:badges=>{:name=>"All Star"},:earned_year => u.promotion.current_date.year).size
+      if all_star < 1
+        u.badges_earned.create(:badge_id => all_star_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -297,11 +313,13 @@ class Badge < ActiveRecord::Base
     # TODO: notification and possibly destroy?
     time_to_shine_badge = success_story.user.promotion.badges.where(:name => "Time To Shine").first rescue nil
     return if !time_to_shine_badge
-    if success_story.featured
-      u = success_story.user
-      time_to_shine = u.badges_earned.where(:badges=>{:name=>"Time To Shine"},:earned_year => u.promotion.current_date.year).size
-      if time_to_shine < 1
-        u.badges_earned.create(:badge_id => time_to_shine_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      if success_story.featured
+        u = success_story.user
+        time_to_shine = u.badges_earned.where(:badges=>{:name=>"Time To Shine"},:earned_year => u.promotion.current_date.year).size
+        if time_to_shine < 1
+          u.badges_earned.create(:badge_id => time_to_shine_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+        end
       end
     end
   end
@@ -311,10 +329,12 @@ class Badge < ActiveRecord::Base
     chef_badge = share.user.promotion.badges.where(:name => "Chef").first rescue nil
     return if !chef_badge
     return if share.shareable_type != 'Recipe' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
-    u = share.user
-    chef =  u.badges_earned.where(:badges=>{:name=>"Chef"},:earned_year => u.promotion.current_date.year).size
-    if chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 0
-      u.badges_earned.create(:badge_id => chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = share.user
+      chef =  u.badges_earned.where(:badges=>{:name=>"Chef"},:earned_year => u.promotion.current_date.year).size
+      if chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 0
+        u.badges_earned.create(:badge_id => chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -323,10 +343,12 @@ class Badge < ActiveRecord::Base
     head_chef_badge = share.user.promotion.badges.where(:name => "Head Chef").first rescue nil
     return if !head_chef_badge
     return if share.shareable_type != 'Recipe' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
-    u = share.user
-    head_chef =  u.badges_earned.where(:badges=>{:name=>"Head Chef"},:earned_year => u.promotion.current_date.year).size
-    if head_chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 4
-      u.badges_earned.create(:badge_id => head_chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = share.user
+      head_chef =  u.badges_earned.where(:badges=>{:name=>"Head Chef"},:earned_year => u.promotion.current_date.year).size
+      if head_chef < 1 && u.shares.where(:shareable_type => 'Recipe').size > 4
+        u.badges_earned.create(:badge_id => head_chef_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -335,10 +357,12 @@ class Badge < ActiveRecord::Base
     tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
     return if !tipster_badge
     return if share.shareable_type != 'Tip' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
-    u = share.user
-    tipster =  u.badges_earned.where(:badges=>{:name=>"Tipster"},:earned_year => u.promotion.current_date.year).size
-    if tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 0
-      u.badges_earned.create(:badge_id => tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = share.user
+      tipster =  u.badges_earned.where(:badges=>{:name=>"Tipster"},:earned_year => u.promotion.current_date.year).size
+      if tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 0
+        u.badges_earned.create(:badge_id => tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
@@ -347,26 +371,30 @@ class Badge < ActiveRecord::Base
     uber_tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
     return if !uber_tipster_badge
     return if share.shareable_type != 'Tip' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
-    u = share.user
-    uber_tipster =  u.badges_earned.where(:badges=>{:name=>"Uber Tipster"},:earned_year => u.promotion.current_date.year).size
-    if uber_tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 4
-      u.badges_earned.create(:badge_id => uber_tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+    Badge.uncached do
+      u = share.user
+      uber_tipster =  u.badges_earned.where(:badges=>{:name=>"Uber Tipster"},:earned_year => u.promotion.current_date.year).size
+      if uber_tipster < 1 && u.shares.where(:shareable_type => 'Tip').size > 4
+        u.badges_earned.create(:badge_id => uber_tipster_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      end
     end
   end
 
   def self.do_weekender(entry)
     weekender_badge = entry.user.promotion.badges.where(:name => "Weekender").first rescue nil
     return if !weekender_badge
-    u = entry.user
+    Badge.uncached do
+      u = entry.user
 
-    # the query below may help you diagnose problems with weekend badges -- look for 5 consecutive weeks in the results
-    #   select week(recorded_on,1) week, min(recorded_on) from entries where user_id = 9 and weekday(recorded_on) in (5,6) group by week(recorded_on,1) order by recorded_on;
+      # the query below may help you diagnose problems with weekend badges -- look for 5 consecutive weeks in the results
+      #   select week(recorded_on,1) week, min(recorded_on) from entries where user_id = 9 and weekday(recorded_on) in (5,6) group by week(recorded_on,1) order by recorded_on;
 
-    # NOTE:  saturday,sunday is 0,6 in ruby. it is 5,6 in mysql when using mode=1 with the week argument
-    if [0,6].include?(entry.recorded_on.wday)
-      weekender = u.badges_earned.where(:badges=>{:name=>"Weekender"},:earned_year => u.promotion.current_date.year).size
-      if entry.is_recorded && weekender < 1
-        u.badges_earned.create(:badge_id => weekender_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+      # NOTE:  saturday,sunday is 0,6 in ruby. it is 5,6 in mysql when using mode=1 with the week argument
+      if [0,6].include?(entry.recorded_on.wday)
+        weekender = u.badges_earned.where(:badges=>{:name=>"Weekender"},:earned_year => u.promotion.current_date.year).size
+        if entry.is_recorded && weekender < 1
+          u.badges_earned.create(:badge_id => weekender_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+        end
       end
     end
   end
@@ -374,47 +402,51 @@ class Badge < ActiveRecord::Base
   def self.do_weekend_warrior(entry)
     weekend_warrior_badge = entry.user.promotion.badges.where(:name => "Weekend Warrior").first rescue nil
     return if !weekend_warrior_badge
-    u = entry.user
 
-    if [0,6].include?(entry.recorded_on.wday)
-      weekend_warrior = u.badges_earned.where(:badges=>{:name=>"Weekend Warrior"},:earned_year => u.promotion.current_date.year).size
-      if weekend_warrior < 1
-        sql = "
-          SELECT
-            COUNT(*)
-          FROM (
+    Badge.uncached do
+
+      u = entry.user
+
+      if [0,6].include?(entry.recorded_on.wday)
+        weekend_warrior = u.badges_earned.where(:badges=>{:name=>"Weekend Warrior"},:earned_year => u.promotion.current_date.year).size
+        if weekend_warrior < 1
+          sql = "
             SELECT
-              x.recorded_weekend,
-              COUNT(DISTINCT y.recorded_weekend) AS number_of_weekends_logged_in_past_5
+              COUNT(*)
             FROM (
               SELECT
-                WEEK(entries.recorded_on,1) AS recorded_weekend
-              FROM entries
-              WHERE
-                entries.user_id = #{u.id}
-                AND YEAR(entries.recorded_on) = #{entry.recorded_on.year}
-                AND WEEKDAY(entries.recorded_on) IN (5,6)
-                AND entries.is_recorded = 1
+                x.recorded_weekend,
+                COUNT(DISTINCT y.recorded_weekend) AS number_of_weekends_logged_in_past_5
+              FROM (
+                SELECT
+                  WEEK(entries.recorded_on,1) AS recorded_weekend
+                FROM entries
+                WHERE
+                  entries.user_id = #{u.id}
+                  AND YEAR(entries.recorded_on) = #{entry.recorded_on.year}
+                  AND WEEKDAY(entries.recorded_on) IN (5,6)
+                  AND entries.is_recorded = 1
+                  GROUP BY recorded_weekend
+              ) x
+              JOIN (
+                SELECT
+                  WEEK(entries.recorded_on,1) AS recorded_weekend
+                FROM entries
+                WHERE
+                  entries.user_id = #{u.id}
+                  AND YEAR(entries.recorded_on) = #{entry.recorded_on.year}
+                  AND WEEKDAY(entries.recorded_on) IN (5,6)
+                  AND entries.is_recorded = 1
                 GROUP BY recorded_weekend
-            ) x
-            JOIN (
-              SELECT
-                WEEK(entries.recorded_on,1) AS recorded_weekend
-              FROM entries
-              WHERE
-                entries.user_id = #{u.id}
-                AND YEAR(entries.recorded_on) = #{entry.recorded_on.year}
-                AND WEEKDAY(entries.recorded_on) IN (5,6)
-                AND entries.is_recorded = 1
-              GROUP BY recorded_weekend
-            ) y ON y.recorded_weekend BETWEEN (x.recorded_weekend - 4) AND x.recorded_weekend
-            GROUP BY x.recorded_weekend
-            HAVING number_of_weekends_logged_in_past_5 = 5
-          ) z
-        "
-        earned = Badge.count_by_sql(sql) > 0 ? true : false
-        if earned
-          u.badges_earned.create(:badge_id => weekend_warrior_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+              ) y ON y.recorded_weekend BETWEEN (x.recorded_weekend - 4) AND x.recorded_weekend
+              GROUP BY x.recorded_weekend
+              HAVING number_of_weekends_logged_in_past_5 = 5
+            ) z
+          "
+          earned = Badge.count_by_sql(sql) > 0 ? true : false
+          if earned
+            u.badges_earned.create(:badge_id => weekend_warrior_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
+          end
         end
       end
     end
