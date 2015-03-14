@@ -16,13 +16,13 @@
           <%= @user.profile.full_name %>,
         </p>
         <p>
-          Welcome to the alpha test of the all-new <%= Constant::AppName %> brought to you by KP's <a href="www.kp.org/healthyworkforce">healthyworkforce</a>. Each day you log activity you'll unlock vivid images, tips and stories that can help inspire you to achieve your health goals and improve your overall well-being. Connect with friends on the Wellness Wall and challenge them to a friendly health-related activity to earn additional points.
+          Welcome to the pilot of the all-new <%= Constant::AppName %> brought to you by KP's <a href="www.kp.org/healthyworkforce">healthyworkforce</a>. Each day you log activity you'll unlock vivid images, tips and stories that can help inspire you to achieve your health goals and improve your overall well-being. Connect with other <%= Constant::AppName  %> participants on the Wellness Wall and challenge them to a friendly health-related activity to earn additional points.
         </p>
         <p>
           Please enjoy the program and let us know if you have any questions. We wish you the best of luck on the wonderful and amazing journey that is your life!
         </p>
         <p>
-          <a href="http://www.healthyworkforce-gokp.org">http://www.healthyworkforce-gokp.org</a>
+          <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a>
         </p>
       </div>
     </td>

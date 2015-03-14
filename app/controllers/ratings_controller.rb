@@ -3,9 +3,9 @@ class RatingsController < ApplicationController
   respond_to :json
 
   # Get the user before each request
-  before_filter :get_rateable, :only => [:index, :create, :destroy]
+  before_filter :get_rateable
 
-  authorize :create, :user
+  authorize :create, :user_rating_show, :user_rating_create, :user_rating_destroy, :user
   authorize :index, :show, :coordinator
   
   # Extra authorization parameters
@@ -50,4 +50,51 @@ class RatingsController < ApplicationController
     @rating.destroy
     return HESResponder(@rating)
   end
+
+  def user_rating_show
+    rating = false
+    if @rateable
+      rating = @rateable.ratings.where(:user_id => @current_user.id).first if !@rateable.ratings.where(:user_id => @current_user.id).empty?
+      return HESResponder("Rating", "NOT_FOUND") if !rating
+      return HESResponder(rating)
+    else
+      return HESResponder("Rateable doesn't exist.", "ERROR")
+    end
+  end
+
+  def user_rating_create
+    rating = false
+    if @rateable
+      rating = @rateable.ratings.where(:user_id => @current_user.id).first if !@rateable.ratings.where(:user_id => @current_user.id).empty?
+      if !rating
+        rating = @current_user.ratings.build
+        rating.rateable_id = @rateable.id
+        rating.rateable_type = @rateable.class.name.to_s
+        rating.score = !params[:score].nil? && (Rating::MIN_SCORE..Rating::MAX_SCORE).include?(params[:score].to_i) ? params[:score].to_i : Rating::MAX_SCORE
+        rating.save
+      else
+        rating.score = !params[:score].nil? && (Rating::MIN_SCORE..Rating::MAX_SCORE).include?(params[:score].to_i) ? params[:score].to_i : Rating::MAX_SCORE
+        rating.save!
+      end
+      return HESResponder(rating)
+    else
+      return HESResponder("Rateable doesn't exist.", "ERROR")
+    end
+  end
+
+  def user_rating_destroy
+    rating = false
+    if @rateable
+      rating = @rateable.ratings.where(:user_id => @current_user.id).first if !@rateable.ratings.where(:user_id => @current_user.id).empty?
+      if !rating
+        return HESResponder("Rating", "NOT_FOUND") if !rating
+      else
+        rating.destroy
+        return HESResponder(rating)
+      end
+    else
+      return HESResponder("Rateable doesn't exist.", "ERROR")
+    end
+  end
+
 end

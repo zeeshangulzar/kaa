@@ -78,7 +78,7 @@ class ContactRequestsController < ApplicationController
     _ticket_args << ticket_description(@contact_request, info)                         # Description
     _ticket_args << "#{@contact_request.first_name} #{@contact_request.last_name}"     # Name (first and last)
     _ticket_args << @contact_request.email                                             # Email
-    _ticket_args << "#{HesCentral.application_repository_name} #{tags}"                # Tags
+    _ticket_args << "#{HesCentral.application_repository_name} gokp #{tags}"           # Tags
     _ticket_args
   end     
 

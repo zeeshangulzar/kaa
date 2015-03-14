@@ -24,6 +24,7 @@ class FitbitNotificationJob
   end
 
   def self.perform(array)
+    ActiveRecord::Base.verify_active_connections!
     array.each do |hash|
       start_time = Time.now
       begin

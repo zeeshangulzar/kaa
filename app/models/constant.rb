@@ -1,3 +1,3 @@
 class Constant
-  AppName = 'GoKP'
+  AppName = 'Go KP'
 end

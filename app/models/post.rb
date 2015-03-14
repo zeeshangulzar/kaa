@@ -50,6 +50,8 @@ class Post < ApplicationModel
 
   acts_as_notifier
 
+  after_update :notify_if_flagged
+
   scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
   scope :locationed, lambda { |location_id|
@@ -216,6 +218,12 @@ class Post < ApplicationModel
       options = options.merge({:methods => ["root_user"]})
     end
     super
+  end
+
+  def notify_if_flagged
+    if !self.is_flagged_was && self.is_flagged
+      notify(self.user, "Your post has been flagged.", "Your <a href='/#/wellness_wall/#{self.id}'>post</a> was flagged.", :from => self.user, :key => "post_" + self.id.to_s)
+    end
   end
 
 end

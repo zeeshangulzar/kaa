@@ -8,7 +8,7 @@ class Friendship < ApplicationModel
   attr_accessor :is_inverse
   attr_writer :url
 
-  Label = "Friend"
+  Label = "Connection"
   
   # Constant for keeping statuses only one character in database
   STATUS = {
