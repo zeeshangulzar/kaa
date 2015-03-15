@@ -18,6 +18,12 @@ class GoMailer < ActionMailer::Base
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
+  def friend_invite_email(invitee, inviter)
+    @invitee = invitee
+    @inviter = inviter
+    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request!")
+  end
+
   def event_invite_email(event, user)
     @event = event
     @user = user
