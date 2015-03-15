@@ -46,7 +46,7 @@
               </td>
             </tr>
           </table>
-          Click <a href="http://www.healthyworkforce-gokp.org/#/events/<%= @event.id %>">here</a> to respond.
+          Click <a href="<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/events/<%= @event.id %>">here</a> to respond.
         </div>
       </td>
     </tr>

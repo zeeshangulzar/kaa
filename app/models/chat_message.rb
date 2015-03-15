@@ -13,10 +13,17 @@ class ChatMessage < ApplicationModel
   end
 
   before_create :set_default_values
+  after_create :send_email
 
   def set_default_values
     self.seen ||= false
     nil
+  end
+
+  def send_email
+    if self.friend && self.friend.flags[:notify_email_messages]
+      Resque.enqueue(ChatMessageEmail, self)
+    end
   end
 
 end

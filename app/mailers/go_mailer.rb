@@ -22,7 +22,13 @@ class GoMailer < ActionMailer::Base
     @invitee = invitee
     @user = invitee # NOTE: always need a @user for email templates
     @inviter = inviter
-    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request!")
+    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request")
+  end
+
+  def chat_message_email(chat_message)
+    @chat_message = chat_message
+    @user = chat_message.friend
+    mail(:to => @user.email, :subject => "#{Constant::AppName}: New message from #{@chat_message.user.profile.full_name}")
   end
 
   def event_invite_email(event, user)
