@@ -20,6 +20,7 @@ class GoMailer < ActionMailer::Base
 
   def friend_invite_email(invitee, inviter)
     @invitee = invitee
+    @user = @inviter # NOTE: always need a @user for email templates
     @inviter = inviter
     mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request!")
   end
