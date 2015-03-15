@@ -22,7 +22,7 @@ class ChatMessage < ApplicationModel
 
   def send_email
     if self.friend && self.friend.flags[:notify_email_messages]
-      Resque.enqueue(ChatMessageEmail, self)
+      Resque.enqueue(ChatMessageEmail, ChatMessage.find(self.id))
     end
   end
 
