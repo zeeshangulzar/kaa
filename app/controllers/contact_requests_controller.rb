@@ -55,7 +55,7 @@ class ContactRequestsController < ApplicationController
       rescue
         HesContactRequests.backup_ticket.create(*ticket_args(@contact_request, info, extra_tags)) unless HesContactRequests.backup_ticket.nil?
       end
-      Resque.enqueue(ContactRequestEmail, params[:contact_request])
+      Resque.enqueue(ContactRequestEmail, params[:contact_request], extra_tags)
     else
       return HESResponder(@contact_request.errors.full_messasges, "ERROR")
     end

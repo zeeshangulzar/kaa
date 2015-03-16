@@ -18,9 +18,9 @@ class GoMailer < ActionMailer::Base
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
-  def contact_request_email(contact_request)
+  def contact_request_email(contact_request, subdomain)
     @contact_request = contact_request
-    @promotion = Promotion.find_by_subdomain(contact_request['extra_tags']) rescue Promotion.first
+    @promotion = Promotion.find_by_subdomain(subdomain) || Promotion.first
     @user = @promotion.users.first
     mail(:to => contact_request['email'], :subject => "#{Constant::AppName}: Contact Request")
   end
