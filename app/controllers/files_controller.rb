@@ -103,12 +103,12 @@ class FilesController < ApplicationController
     if params[:type].nil? || params[:type] == 'rect' then
       crop_to_rect(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path, blur_path)
     else 
-      crop_to_circle(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path)
+      crop_to_circle(img_path, new_img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], tn_path)
     end
     render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :blur_url => "/#{blur_path}".split('public').last, :name => new_name}, :status => 202
   end
 
-  def crop_to_circle(filename, x, y, w, h, out_filename, thumb_filename=nil)
+  def crop_to_circle(filename, out_filename, x = 0, y = 0, w = 0, h = 0, thumb_filename = nil)
     require 'RMagick'
 
     img_path = filename
