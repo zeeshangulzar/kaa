@@ -6,7 +6,7 @@
           <%= @user.profile.full_name %>,
         </p>
         <p>
-          You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.in_time_zone("America/Chicago").strftime("%A, %B #{x['created_at'].in_time_zone("America/Chicago").day.ordinalize}, %l:%M %p CST") %>:
+          You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.in_time_zone("America/Chicago").strftime("%A, %B #{@chat_message.created_at.in_time_zone("America/Chicago").day.ordinalize}, %l:%M %p CST") %>:
         </p>
         <p>
           <strong>"<%= @chat_message.message %>"</strong>
