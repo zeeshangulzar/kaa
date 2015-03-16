@@ -97,9 +97,11 @@ class GoMailer < ActionMailer::Base
 
     
     mail(:to => to, :subject => "#{Constant::AppName}: #{@tip.email_subject}", :from => from, :reply_to => reply_to)
-
-    #body :promotion => promotion, :organization => promotion.organization, :tip => tip, :recipe => rp, :base_url => base_url, :daily_email => true
     
+  end
+
+  def daily_tasks(b)
+    mail(:from => FormattedFromAddress, :to => "developer@hesonline.com", :subject => "Daily Tasks for #{Date.today}", :body => b)
   end
 
 
