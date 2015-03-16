@@ -19,7 +19,7 @@ class UsersController < ApplicationController
         user ||= @promotion.users.find_by_email(params[:email]) rescue nil
       end
       user = user && user.password == params[:password] ? user : nil
-    elsif @promotion.nil? && info[:subdomain] == 'api'
+    elsif @promotion.nil? && info[:subdomain] == 'api' && !params[:email].nil? && !params[:email].empty?
       users = User.find(:all,
                 :conditions => 
                   [
