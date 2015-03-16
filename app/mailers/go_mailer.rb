@@ -21,6 +21,7 @@ class GoMailer < ActionMailer::Base
   def contact_request_email(contact_request)
     @contact_request = contact_request
     @promotion = Promotion.find(contact_request['extra_tags']) rescue Promotion.first
+    @user = @promotion.users.first
     mail(:to => contact_request['email'], :subject => "#{Constant::AppName}: Contact Request")
   end
 
