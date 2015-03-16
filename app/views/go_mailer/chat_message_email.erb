@@ -6,11 +6,11 @@
           <%= @user.profile.full_name %>,
         </p>
         <p>
-          You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.to_s %>:
+          You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.in_time_zone("America/Chicago").strftime("%A, %B #{x['created_at'].in_time_zone("America/Chicago").day.ordinalize}, %l:%M %p CST") %>:
         </p>
         <p>
-          "<%= @chat_message.message %>"
-          <% if @chat_message.photo %>
+          <strong>"<%= @chat_message.message %>"</strong>
+          <% if !@chat_message['photo'].nil? %>
           <br/>
           <br/>
           <img src="<%= @chat_message.photo.url %>" alt="<%= @chat_message.message %>" style="max-width:600px;max-height:600px;" />
