@@ -11,13 +11,25 @@ class UsersController < ApplicationController
   end
 
   def authenticate
-    user = @promotion.users.find_by_username(params[:email]) rescue nil
-    unless params[:email].nil? || params[:email].empty?
-      user ||= @promotion.users.find_by_altid(params[:email]) rescue nil
-      user ||= @promotion.users.find_by_email(params[:email]) rescue nil
+    if @promotion
+      user = @promotion.users.find_by_username(params[:email]) rescue nil
+      unless params[:email].nil? || params[:email].empty?
+        user ||= @promotion.users.find_by_altid(params[:email]) rescue nil
+        user ||= @promotion.users.find_by_email(params[:email]) rescue nil
+      end
+      user = user && user.password == params[:password] ? user : nil
+    else if @promotion.nil && info[:subdomain] == 'api'
+      users = User.find(:all,
+                :conditions => 
+                  [
+                    "username = ? or altid = ? or email = ?",
+                    params[:email], params[:email], params[:email]
+                  ],
+                :order => "users.created_at DESC")
+      user = users.detect{|u| u.password == params[:password]}
     end
     HESSecurityMiddleware.set_current_user(user)
-    if user && user.password == params[:password]
+    if user
 
       user.last_login = user.promotion.current_time
       user.save!
