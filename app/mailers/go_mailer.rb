@@ -18,6 +18,12 @@ class GoMailer < ActionMailer::Base
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
+  def contact_request_email(contact_request)
+    @contact_request = contact_request
+    @promotion = Promotion.find(contact_request['extra_tags']) rescue Promotion.first
+    mail(:to => contact_request['email'], :subject => "#{Constant::AppName}: Contact Request")
+  end
+
   def friend_invite_email(invitee, inviter)
     @invitee = invitee
     @user = invitee # NOTE: always need a @user for email templates

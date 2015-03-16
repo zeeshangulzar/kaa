@@ -1,0 +1,37 @@
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="left">
+      <h1 style="color:#4A7628;margin:16px;font-weight:bold;font-size:16px;"><%=  Constant::AppName %> Contact Request</h1>
+    </td>
+    <td align="right">
+      <p style="margin:16px;color:#aaa;">
+        <%= @promotion.current_date.to_s %>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#f1f7f7" colspan="2">
+      <div style="margin:16px">
+        <p>
+          <%= @contact_request['first_name'] + ' ' + @contact_request['last_name'] %>,
+        </p>
+        <p>
+          We've received your contact request and will get back to you shortly (within 1 business day).
+        </p>
+        <p>
+          Regards,<br/>
+          The <%= Constant::AppName %> Team
+        </p>
+        <p>
+          You said:
+        </p>
+        <p>
+          <%= @contact_request['comments'] %>
+        </p>
+        <p>
+          <a href="http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>">http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a>
+        </p>
+      </div>
+    </td>
+  </tr>
+</table>
