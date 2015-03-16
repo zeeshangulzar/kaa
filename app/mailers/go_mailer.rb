@@ -31,6 +31,12 @@ class GoMailer < ActionMailer::Base
     mail(:to => @user.email, :subject => "#{Constant::AppName}: New message from #{@chat_message.user.profile.full_name}")
   end
 
+  def challenge_received_email(challenge_sent, receiver)
+    @challenge_sent = challenge_sent
+    @user = receiver
+    mail(:to => @user.email, :subject => "#{Constant::AppName}: New challenge from #{@challenge_sent.user.profile.full_name}")
+  end
+
   def event_invite_email(event, user)
     @event = event
     @user = user

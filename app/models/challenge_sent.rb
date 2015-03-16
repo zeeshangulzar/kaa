@@ -135,9 +135,15 @@ class ChallengeSent < ApplicationModel
         else
           rcc.save!
           notify(receiver, "Challenge Received", "#{self.user.profile.full_name} challenged you to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
+          if receiver.flags[:notify_email_challenges]
+            Resque.enqueue(ChallengeReceivedEmail, self.id, receiver.id)
+          end
         end
       else
         notify(receiver, "Challenge Received", "#{self.user.profile.full_name} has also challenged you to <a href='/#/challenges'>#{self.challenge.name}</a>.", :from => self.user, :key => "challenge_sent_#{id}")
+        if receiver.flags[:notify_email_challenges]
+          Resque.enqueue(ChallengeReceivedEmail, self.id, receiver.id)
+        end
       end
     end
     
