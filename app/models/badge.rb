@@ -364,7 +364,7 @@ class Badge < ActiveRecord::Base
 
   def self.do_uber_tipster(share)
     # TODO: possibly destroy?
-    uber_tipster_badge = share.user.promotion.badges.where(:name => "Tipster").first rescue nil
+    uber_tipster_badge = share.user.promotion.badges.where(:name => "Uber Tipster").first rescue nil
     return if !uber_tipster_badge
     return if share.shareable_type != 'Tip' || !Badge::SOCIAL_MEDIA_TYPES.include?(share.via)
     Badge.uncached do
