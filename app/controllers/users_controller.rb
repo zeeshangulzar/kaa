@@ -11,6 +11,7 @@ class UsersController < ApplicationController
   end
 
   def authenticate
+    info = DomainConfig.parse(request.host)
     if @promotion
       user = @promotion.users.find_by_username(params[:email]) rescue nil
       unless params[:email].nil? || params[:email].empty?
@@ -18,7 +19,7 @@ class UsersController < ApplicationController
         user ||= @promotion.users.find_by_email(params[:email]) rescue nil
       end
       user = user && user.password == params[:password] ? user : nil
-    else if @promotion.nil && info[:subdomain] == 'api'
+    elsif @promotion.nil? && info[:subdomain] == 'api'
       users = User.find(:all,
                 :conditions => 
                   [
