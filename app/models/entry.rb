@@ -39,7 +39,7 @@ class Entry < ApplicationModel
   }
 
   before_save :calculate_points
-  before_save :nullify_exercise_and_set_is_recorded
+  before_save :nullify_exercise_and_set_is_recorded_and_goals
 
   after_save :check_for_changes
   
@@ -64,6 +64,11 @@ class Entry < ApplicationModel
     self.exercise_steps = nil if self.exercise_steps.to_i == 0
     self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
     set_is_recorded
+    # update goals from profile
+    if self.exercise_steps_was != self.exercise_steps || self.exercise_minutes_was != self.exercise_minutes
+      self.goal_minutes = self.user.profile.goal_minutes
+      self.goal_steps = self.user.profile.goal_steps
+    end
   end
 
   def write_attribute_with_exercise(attr,val)

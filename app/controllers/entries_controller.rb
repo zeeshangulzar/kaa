@@ -127,9 +127,6 @@ class EntriesController < ApplicationController
     behaviors = params[:entry].delete(:entry_behaviors) || []
     @entry = @target_user.entries.find_by_recorded_on(params[:entry][:recorded_on]) || @target_user.entries.build(params[:entry])
     @entry.assign_attributes(params[:entry])
-    # update goals from profile for POST & PUT only
-    @entry.goal_minutes = @target_user.profile.goal_minutes
-    @entry.goal_steps = @target_user.profile.goal_steps
     if !@entry.valid?
       return HESResponder(@entry.errors.full_messages, "ERROR")
     else
@@ -227,11 +224,6 @@ class EntriesController < ApplicationController
       end 
 
       @entry.assign_attributes(scrub(params[:entry], Entry))
-
-      # update goals from profile for POST & PUT only
-      @entry.goal_minutes = @target_user.profile.goal_minutes
-      @entry.goal_steps = @target_user.profile.goal_steps
-      
       @entry.save!
     end
     return HESResponder(@entry)
