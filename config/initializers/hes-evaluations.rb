@@ -47,3 +47,6 @@ EvaluationQuestion.new(:average_days_active_per_week, "On average, how many days
 EvaluationQuestion.new(:average_minutes_per_day, "On average, about how many minutes per day are you active at this level?", :minutes_per_day)
 EvaluationQuestion.new(:find_out, "How did you find out about Go KP?", :find_out_answers)
 EvaluationQuestion.new(:focus, "What healthy activities do you most want to focus on? (select one)", :focus_options)
+EvaluationQuestion.new(:liked_most_gokp, "What do you like most about Go KP?")
+EvaluationQuestion.new(:liked_least_gokp, "What do you like least about Go KP?")
+EvaluationQuestion.new(:change_one_thing, "If you could change one thing to improve Go KP, what would it be?")
