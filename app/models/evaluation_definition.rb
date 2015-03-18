@@ -29,8 +29,6 @@ class EvaluationDefinition < ApplicationModel
     end
   end
 
-  maintain_sequence
-
   # Overrides serializable_hash so that questions and custom prompts can be included
   def serializable_hash(options = {})
     hash = super(options)
@@ -49,5 +47,8 @@ class EvaluationDefinition < ApplicationModel
 
     hash
   end
+
+  # TODO: figure out what this does and why the hell nothing defined after it sticks to the model...
+  maintain_sequence
 
 end
