@@ -196,7 +196,7 @@ class NotificationsController < ApplicationController
 	#      "url": "http://api.hesapps.com/notifications/1"
 	#    }
   def update
-    updateable_attrs = ['viewed']
+    updateable_attrs = ['hidden', 'viewed']
     attrs = scrub(params[:notification], updateable_attrs)
     # TODO: only allow recipient to update maybe??
     if params[:id]
