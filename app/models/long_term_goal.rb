@@ -11,4 +11,13 @@ class LongTermGoal < ApplicationModel
   has_one :personal_action_plan
   accepts_nested_attributes_for :personal_action_plan
 
+  scope :completed, where(:completed => true).order("completed_on ASC")
+
+  after_commit :do_badges, :on => [:create, :update]
+
+  def do_badges
+    Badge.do_willpower(self)
+    Badge.do_transformer(self)
+  end
+
 end

@@ -23,10 +23,9 @@ class Rating < ApplicationModel
   end
   
   after_create :do_badges
-  after_destroy :do_badges
 
   def do_badges
-    # critic badges or whatever..
+    Badge.do_food_critic(self)
   end
 
 end

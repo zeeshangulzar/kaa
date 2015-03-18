@@ -26,7 +26,7 @@ class UserBadge < ApplicationModel
       appendages.unshift
       appendage = appendages.sample
     end
-    msg = self.badge.name + " has been <a href='/#/summary?view=trophy_case'>earned</a>. " + appendage
+    msg = "You've earned the <a href='/#/summary?view=trophy_case'>" + self.badge.name + " #{name}</a>. " + appendage
     self.notify(self.user, name + " Earned", msg, :from => self.user, :key => "user_badge_#{self.id}")
   end
 

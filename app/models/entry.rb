@@ -282,8 +282,7 @@ UNION
   # badges....
 
 
-  after_save    :do_badges
-  after_destroy :do_badges
+  after_commit :do_badges, :on => [:create, :update, :destroy]
 
   def do_badges
     Badge.do_milestones(self)

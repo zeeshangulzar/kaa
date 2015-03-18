@@ -39,8 +39,7 @@ class User < ApplicationModel
   has_many :email_reminders, :class_name => "EmailReminder", :through => :email_reminders_sent, :order => "email_reminders_sent.created_at DESC"
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
-  after_create :welcome_email
-  #after_create :welcome_notification
+  after_commit :welcome_email, :on => :create
 
   after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
