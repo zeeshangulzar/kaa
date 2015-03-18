@@ -90,6 +90,7 @@ class EvaluationsController < ApplicationController
   #     "minutes_of_exercise_per_day": "15-30 min" // All questions that are turned in Evaluation Definition will be included in response
   #   }
   def create
+    params[:evaluation][:user_id] = @current_user.id
     @evaluation = @evaluation_definition.evaluations.create(params[:evaluation])
     if !@evaluation.valid?
       return HESResponder(@evalution.errors.full_messages, "ERROR")

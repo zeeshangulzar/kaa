@@ -658,7 +658,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def completed_evaluation_definition_ids
     unless @completed_evaluation_definition_ids
-      @completed_evaluation_definition_ids = self.evaluations.collect{|e|e.definition.id}
+      @completed_evaluation_definition_ids = self.evaluations.collect{|e|e.evaluation_definition_id}
     end
     return @completed_evaluation_definition_ids
   end
