@@ -306,7 +306,7 @@ class Badge < ActiveRecord::Base
 
   def self.do_high_five(like)
     # TODO: possibly destroy?
-    high_five_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
+    high_five_badge = like.user.promotion.badges.where(:name => "High Five").first rescue nil
     return if !high_five_badge
     Badge.uncached do
       u = like.user
