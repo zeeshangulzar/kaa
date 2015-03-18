@@ -4,7 +4,7 @@ class EvaluationDefinitionsController < ApplicationController
   respond_to :json
 
   authorize :index, :show, :public
-  authorize :create, :update, :destroy, :master
+  authorize :create, :update, :destroy, :coordinator
 
   # Returns the list of parameters which will be selected for wrapped.
   # Override this method since multiple ruby instances cannot easily be notified

@@ -29,6 +29,7 @@ redis.subscribe('newMessageCreated');
 redis.subscribe('newPostCreated');
 redis.subscribe('notificationPublished');
 redis.subscribe('userUpdated');
+redis.subscribe('promotionUpdated');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
@@ -65,6 +66,11 @@ redis.on('message', function(channel, data) {
 		case 'userUpdated':
 			userId = data.id.toString();
 			io.sockets.in('User' + userId).emit('userUpdated', data);
+			break;
+    case 'promotionUpdated':
+      console.log(data);
+			promotionId = data.id.toString();
+			io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
 			break;
 	}
 });

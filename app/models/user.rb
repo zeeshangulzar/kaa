@@ -219,6 +219,7 @@ class User < ApplicationModel
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
     user_json['stats'] = @stats if @stats
+    user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
     user_json
   end
 
@@ -653,6 +654,17 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def email_with_name
     return "#{self.profile.full_name} <#{self.email}>"
+  end
+
+  def completed_evaluation_definition_ids
+    unless @completed_evaluation_definition_ids
+      @completed_evaluation_definition_ids = self.evaluations.collect{|e|e.definition.id}
+    end
+    return @completed_evaluation_definition_ids
+  end
+
+  def completed_evaluation_definition_ids=(array)
+    @completed_evaluation_definition_ids = array
   end
 
 end

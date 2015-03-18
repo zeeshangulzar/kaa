@@ -1,13 +1,33 @@
 # Models a evaluation definition that is used to create an evaluation
 class EvaluationDefinition < ApplicationModel
-  attr_accessible :name, :days_from_start, :message, :visible_questions
-  attr_privacy :name, :days_from_start, :message, :visible_questions, :public
+
+  scope :active, where("start_date <= '#{Date.today}' AND end_date >= '#{Date.today}'").order("start_date ASC")
+
+  attr_accessible *column_names
+  attr_privacy :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :public
 
   belongs_to :promotion
 
   has_many :evaluations
 
   many_to_many :with => :custom_prompt, :primary => :evaluation_definition
+
+  after_save :promotion_updated
+
+  def promotion_updated
+    publish = false
+    columns_to_check = ['start_date', 'end_date']
+    columns_to_check.each{|column|
+      if self.send(column) != self.send(column + "_was")
+        publish = true
+        break
+      end
+    }
+    if publish
+      p = self.promotion.reload
+      $redis.publish('promotionUpdated', p.as_json.to_json)
+    end
+  end
 
   maintain_sequence
 
@@ -29,4 +49,5 @@ class EvaluationDefinition < ApplicationModel
 
     hash
   end
+
 end
