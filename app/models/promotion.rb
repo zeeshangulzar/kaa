@@ -20,6 +20,8 @@ class Promotion < ApplicationModel
 
   has_many :badges, :order => "sequence ASC"
 
+  has_custom_prompts :with => :evaluations
+
   has_many :locations, :order => "parent_location_id, sequence", :dependent => :destroy
 
   has_wall

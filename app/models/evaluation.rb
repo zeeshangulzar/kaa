@@ -24,7 +24,7 @@ class Evaluation < ApplicationModel
 
   # Overrides serializable_hash so that only questions that are turned on are returned
   def serializable_hash(options = {})
-    options = (options || {}).merge(:except => definition.flags.select{ |k, v| !v }.collect{ |x| x.first.to_s.gsub("is_", "").gsub("_displayed", "") })
+    #options = (options || {}).merge(:except => definition.flags.select{ |k, v| !v }.collect{ |x| x.first.to_s.gsub("is_", "").gsub("_displayed", "") })
   	super
   end
 

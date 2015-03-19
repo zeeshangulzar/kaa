@@ -1,9 +1,17 @@
 class Udf < ApplicationModel
   
-  set_table_name :schema_info  # this kludge is here just go get us out the gate, it will be set properly later on
+  set_table_name :nothing
   
   def udf_defs
     UdfDef.find(:all,:conditions=>["owner_type = ?", self.parent.class.to_s])
+  end
+  
+  def self.set_table_name(name)
+    super name
+  end
+
+  def self.reset_column_information
+    super
   end
 
   def method_missing(name,*args)
@@ -29,4 +37,5 @@ class Udf < ApplicationModel
       super(name,*args)
     end
   end
+
 end

@@ -7,7 +7,7 @@ module UserDefinedFields
     # otherwise, you might get a constant not found error when you refer to it
     ActiveRecord::Base.connection.tables.select{|t| t.downcase.include?("_udfs")}.each do |t|
       table = t[0..(t.index("_udfs")-1)].capitalize.singularize rescue nil
-      #puts "Found udfable class: #{table}"
+      puts "Found udfable class: #{table}"
       table.constantize rescue nil
     end
     #return true
@@ -79,24 +79,12 @@ module UserDefinedFields
       klass_new.send(:belongs_to, args[:class_symbol])
       klass_new.send(:alias_method, :parent, args[:class_symbol])
       klass = Object.const_set(klass_name,klass_new)
-      klass.table_name = udf_table_name
+      klass.set_table_name(udf_table_name)
       klass.reset_column_information
 
       # this class "has one" of the newly created class
       self.has_one :udfs, :class_name => klass_name, :dependent => :destroy
 
-      if self.to_s == 'Profile' || self.to_s == 'Evaluation'
-        klass_name = "Legacy#{args[:class_name]}Udf"
-        klass_new = Class.new(Udf)
-        klass_new.send(:belongs_to, args[:class_symbol])
-        klass_new.send(:alias_method, :parent, args[:class_symbol])
-        klass = Object.const_set(klass_name,klass_new)
-        klass.table_name = "#{udf_table_name}_backup_20140618"
-        klass.reset_column_information
-
-        # this class "has one" of the newly created class
-        self.has_one :legacy_udfs, :class_name => klass_name, :dependent => :destroy
-      end
     end
   end
 end
