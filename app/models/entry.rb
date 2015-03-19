@@ -60,7 +60,7 @@ class Entry < ApplicationModel
     end
   end
 
-  def nullify_exercise_and_set_is_recorded
+  def nullify_exercise_and_set_is_recorded_and_goals
     self.exercise_steps = nil if self.exercise_steps.to_i == 0
     self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
     set_is_recorded
