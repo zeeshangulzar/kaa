@@ -40,6 +40,18 @@ class LongTermGoalsController < ApplicationController
   end
 
   def update
+    if !params[:curated_image].nil?
+      # TODO: make more secure, check for size and errors, etc.
+      uri = URI.parse(params[:curated_image])
+      parts = uri.host.split('.')
+      if parts[-2] + '.' + parts[-1] == 'hesapps.com'
+        f = "public/tmp/uploaded_files/#{SecureRandom.hex(32)}.png"
+        open(f, 'wb') do |file|
+          file << open(uri).read
+        end
+      end
+      params[:long_term_goal][:image] = f
+    end
     ltg = @current_user.long_term_goals.find(params[:id]) rescue nil
     ltg.assign_attributes(params[:long_term_goal])
     return HESResponder(ltg.errors.full_messages, "ERROR") if !ltg.valid?
