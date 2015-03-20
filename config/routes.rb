@@ -25,6 +25,7 @@ Go::Application.routes.draw do
 
   match "/long_term_goals" => "long_term_goals#index", :via => :get
   match "/long_term_goals" => "long_term_goals#create", :via => :post
+  match "/long_term_goals/:id" => "long_term_goals#show", :via => :get
   match "/long_term_goals/:id" => "long_term_goals#update", :via => :put
 
   match "/long_term_goals/curated_images" => "long_term_goals#curated_images", :via => :get
