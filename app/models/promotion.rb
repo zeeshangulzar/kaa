@@ -135,7 +135,7 @@ class Promotion < ApplicationModel
   end
 
   def active_evaluation_definition_ids
-    return self.evaluation_definitions.active.collect{|ed|ed.id}
+    return self.evaluation_definitions.reload.active.reload.collect{|ed|ed.id}
   end
 
 end
