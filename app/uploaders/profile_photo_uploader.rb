@@ -1,24 +1,12 @@
-# encoding: utf-8
+class ProfilePhotoUploader < ApplicationUploader
 
-class ProfilePhotoUploader < CarrierWave::Uploader::Base
-
-  include CarrierWave::RMagick
-
-  storage :hes_cloud
-
-  def store_dir
-    "profiles/"
+  def self.store_dir
+    return "profiles/"
   end
 
   # Create different versions of your uploaded files:
   version :thumbnail do
     process :resize_to_fit => [40, 40]
-  end
-
-  # Add a white list of extensions which are allowed to be uploaded.
-  # For images you might use something like this:
-  def extension_white_list
-    %w(jpg jpeg gif png)
   end
 
   # Override the filename of the uploaded files:
