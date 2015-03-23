@@ -25,6 +25,7 @@ var users = {};
 // Subscribe to these specific Redis channels.
 redis.subscribe('entrySaved');
 redis.subscribe('fitbitEntrySaved');
+redis.subscribe('jawboneEntrySaved');
 redis.subscribe('newMessageCreated');
 redis.subscribe('newPostCreated');
 redis.subscribe('notificationPublished');
@@ -49,6 +50,10 @@ redis.on('message', function(channel, data) {
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('fitbitEntrySaved', data);
 			break;
+		case 'jawboneEntrySaved':
+			userId = data.user_id.toString();
+			io.sockets.in('User' + userId).emit('jawboneEntrySaved', data);
+			break;
 		case 'newMessageCreated':
 			userId = data.user_id.toString();
 			friendId = data.friend_id.toString();
@@ -68,7 +73,6 @@ redis.on('message', function(channel, data) {
 			io.sockets.in('User' + userId).emit('userUpdated', data);
 			break;
     case 'promotionUpdated':
-      console.log(data);
 			promotionId = data.id.toString();
 			io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
 			break;

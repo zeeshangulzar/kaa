@@ -22,7 +22,7 @@ class JawboneLogger
     dt = jbu.user.promotion.current_date.strftime("%B %e")
     tm = jbu.user.promotion.current_time.strftime("%I:%M %P %Z").gsub(/^0/, '')
 
-    user_notification.update_attributes :message=>"Your UP/UP24 was synchronized with GoKP on #{dt} at #{tm}"
+    user_notification.update_attributes :message=>"Your UP/UP24 was synchronized with Go KP on #{dt} at #{tm}"
 
     return entry
   end
