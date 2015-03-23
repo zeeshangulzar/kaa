@@ -1,5 +1,5 @@
 class JawbonesController < ApplicationController
-  authorize :authorize, :settings, :disconnect, :failed, :user
+  authorize :authorize, :settings, :disconnect, :failed, :use_jawbone_data, :user
   authorize :post_authorize, :notify, :public
 
   def authorize
@@ -9,7 +9,7 @@ class JawbonesController < ApplicationController
 
    if @current_user.jawbone_user
       @current_user.jawbone_user.disconnect
-      @current_user.update_column(:active_device,nil) if @current_user.active_device == 'JAWBONE'
+      @current_user.update_column(:active_device, nil) if @current_user.active_device == 'JAWBONE'
       #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
       ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
     end
@@ -31,12 +31,12 @@ class JawbonesController < ApplicationController
       u = User.find_by_auth_key(params[:auth_key])
       HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
-      u.jawbone_user.reload
+      u.reload.jawbone_user.reload
       u.update_column :active_device, 'JAWBONE'
 
       notification = u.notifications.find_by_key('JAWBONE') || u.notifications.build(:key=>'JAWBONE')
       if u.profile.started_on >= u.promotion.current_date
-        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>#{u.promotion.program_name}</i> starting #{u.profile.started_on.strftime('%B %e')}."
+        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>Go KP</i> starting #{u.profile.started_on.strftime('%B %e')}."
       else
         # backlog data... 
         daysBack = (u.promotion.current_date - u.profile.started_on).to_i
@@ -49,7 +49,7 @@ class JawbonesController < ApplicationController
         User.connection.execute "update jawbone_notifications set status = '#{JawboneNotification::Status[:new]}' where jawbone_user_id = #{u.jawbone_user.id}"
         Resque.enqueue(JawboneNotificationJob, [u.jawbone_user.xid])
 
-        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>#{u.promotion.program_name}</i> shortly."
+        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>Go KP</i> shortly."
       end
       redirect_to 'http://www.go.dev:9000/#/settings'
     else
@@ -140,4 +140,21 @@ class JawbonesController < ApplicationController
     head :ok
   end
 
+  def use_jawbone_data
+    e = Entry.find(params[:entry_id])
+
+    jmd = JawboneMoveData.find(:all, :conditions => {:jawbone_user_id => @current_user.jawbone_user.id, :on_date => e.recorded_on})
+
+    if jmd.count > 0
+      e.manually_recorded = false
+      e.exercise_steps = jmd.sum(&:steps)
+      e.save
+
+      $redis.publish('jawboneEntrySaved', e.to_json)
+
+      render :json => e
+    else
+      render :json => {:url=>"User not found"}, :status => 422 and return
+    end
+  end
 end
