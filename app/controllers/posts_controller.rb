@@ -55,6 +55,9 @@ class PostsController < ApplicationController
     if @wallable.class == Post
       # parent is Post.. so just grab the replies..
       return HESResponder(@wallable.replies)
+    elsif @wallable.class != Promotion
+      # not the wall.. grab posts
+      return HESResponder(@wallable.posts)
     else
       limit = params[:page_size].nil? ? 50 : params[:page_size].to_i
       offset = params[:offset].nil? ? 0 : params[:offset].to_i
