@@ -39,8 +39,8 @@ EvaluationQuestion.new(:liked_least, "What did you like least about this program
 
 
 #KP Answers
-EvaluationAnswerGroup.new :find_out_answers, ["Through an existing Healthy Workforce program (KP Walk!)", "Article", "Flyer", "Co-worker", "My manager", "Other"]
-EvaluationAnswerGroup.new :focus_options, ["Physical activity", "Healthy eating", "Weight management", "Stress-management", "Other"]
+EvaluationAnswerGroup.new :find_out_answers, ["Email", "Website", "Flyer/poster", "Word-of-mouth", "My manager", "Event", "Other"]
+EvaluationAnswerGroup.new :focus_options, ["Physical activity", "Healthy eating", "Weight management", "Stress management", "Other"]
 
 #KP Questions
 EvaluationQuestion.new(:average_days_active_per_week, "On average, how many days per week are you active at a moderate or strenuous level? (like a brisk walk)", :zero_seven)
