@@ -14,4 +14,10 @@ class ApplicationUploader < CarrierWave::Uploader::Base
     %w(jpg jpeg gif png)
   end
 
+  def self.default_url
+    # nice trick to statically call the child class's instance method default_url()
+    @c = new self.class unless @c
+    # @c is cached so shouldn't be much overhead
+    return @c.default_url
+  end
 end

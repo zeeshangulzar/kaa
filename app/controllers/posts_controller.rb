@@ -55,61 +55,52 @@ class PostsController < ApplicationController
     if @wallable.class == Post
       # parent is Post.. so just grab the replies..
       return HESResponder(@wallable.replies)
-    end
-    psize = params[:page_size].nil? || !params[:page_size].is_i? ? Post::PAGESIZE : params[:page_size]
-    conditions = ''
-
-    if !params[:has_photo].nil?
-      if params[:has_photo] == 'true' || params[:has_photo] == true
-        conditions = 'photo IS NOT NULL'
-      elsif params[:has_photo] == 'false' || params[:has_photo] == false
-        conditions = 'photo IS NULL'
-      end
-    end
-    
-    if !params[:friends_only].nil? && params[:friends_only]
-      # only get posts from friends
-      friends_argument = "user_id IN (" + @current_user.friends.collect{|f|f.id}.join(',') + ")"
-      conditions = conditions.empty? ? friends_argument : conditions + " AND " + friends_argument
-    end
-
-    if params[:location].nil?
-      @posts =
-      if params[:max_id].nil? && params[:since_id].nil?
-        @wallable.posts.top.where(conditions).limit(psize)
-      elsif params[:max_id]
-        @wallable.posts.top.where(conditions).limit(psize).before(params[:max_id])
-      else
-        @wallable.posts.top.where(conditions).limit(psize).after(params[:since_id])
-      end
     else
-      @posts =
-      if params[:max_id].nil? && params[:since_id].nil?
-        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize)
-      elsif params[:max_id]
-        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize).before(params[:max_id])
-      else
-        @wallable.posts.locationed(params[:location]).where(conditions).top.limit(psize).after(params[:since_id])
+      limit = params[:page_size].nil? ? 50 : params[:page_size].to_i
+      offset = params[:offset].nil? ? 0 : params[:offset].to_i
+      location_ids = []
+      if !params[:location].nil?
+        location_ids_submitted = params[:location].split(',')
+        location_ids_submitted.each{|l_id|
+          if l_id.is_i?
+            location_ids << l_id.to_i
+          end
+        }
       end
-    end
-
-    response = {
-      :data => @posts,
-      :meta => {
-        :page_size => psize,
-        :total_records => params[:location].nil? ? @wallable.posts.top.where(conditions).count : @wallable.posts.locationed(params[:location]).where(conditions).top.count
+      user_ids = (!params[:friends_only].nil? && params[:friends_only]) ? @current_user.friends.collect{|f|f.id} : []
+      has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
+      conditions = {
+        :offset       => offset,
+        :limit        => limit,
+        :user_ids     => user_ids,
+        :location_ids => location_ids,
+        :has_photo    => has_photo,
+        :current_year => @promotion.current_date.year
       }
-    }
-    if !@posts.empty?
-      if @posts.last.id != (@wallable || @postable).posts.top.last.id
-        response[:meta][:next] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&max_id=#{@posts.last.id}&page=#{(params[:page].to_i || 1) + 1}"
-      end
 
-      if @posts.first.id != (@wallable || @postable).posts.top.first.id
-        response[:meta][:prev] = "#{request.protocol}#{request.host_with_port}#{request.fullpath.split("?").first}?#{params.map{|k, v| "#{k}=#{v}" unless ["max_id", "page", "action", "index", "controller"].include?(k.to_s)}.compact.join('&')}&since_id=#{@posts.first.id}&page=#{(params[:page].to_i || 1) - 1}"
+      count = Post.wall(@wallable, conditions, true).to_i
+
+      posts = Post.wall(@wallable, conditions)
+
+      response = {
+        :data => posts,
+        :meta => {
+          :page_size => limit,
+          :total_records => count
+        }
+      }
+
+      if !posts.empty?
+        if offset + limit < count.to_i
+          response[:meta][:next] = url_replace(request.fullpath, :merge_query => {'offset' => offset + limit})
+        end
+        if offset - limit >= 0
+          response[:meta][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => offset - limit})
+        end
       end
+      return HESResponder(response)
+
     end
-    return HESResponder(response)
   end
 
   def recent_posts

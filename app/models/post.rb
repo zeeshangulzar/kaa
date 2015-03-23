@@ -226,4 +226,195 @@ class Post < ApplicationModel
     end
   end
 
+
+
+  # big ass method to get everything on the wall without active record junk
+  # it's ugly, but it's fast...
+  def self.wall(wall, conditions = {}, count = false)
+    conditions = {
+      :offset       => 0,
+      :limit        => 50,
+      :user_ids     => [],
+      :location_ids => [],
+      :has_photo    => nil,
+      :current_year => Date.today.year
+    }.merge(conditions)
+
+    if count
+      # handle count of top posts separately as we don't want to use ActiveRecord's yucky count method
+      posts_sql = "
+        SELECT
+        COUNT(posts.id) AS count
+        FROM
+        posts
+      "
+      if !conditions[:location_ids].empty? || !conditions[:user_ids].empty?
+        posts_sql = posts_sql + " JOIN users ON users.id = posts.user_id "
+        posts_sql = posts_sql + " AND ( users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}) )" if !conditions[:location_ids].empty?
+        posts_sql = posts_sql + " AND users.id IN (#{conditions[:user_ids].join(',')}) " if !conditions[:user_ids].empty?
+      end
+      posts_sql = posts_sql + "
+        WHERE
+        parent_post_id IS NULL AND wallable_id = #{wall.id}
+        #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
+        ORDER BY posts.created_at DESC
+      "
+      result = self.connection.exec_query(posts_sql)
+      return result.first['count'].to_s
+    end
+
+
+    posts_sql = "
+      SELECT
+      posts.id, posts.content, posts.photo, posts.is_flagged, posts.created_at, posts.user_id
+      FROM
+      posts
+    "
+    if !conditions[:location_ids].empty? || !conditions[:user_ids].empty?
+      posts_sql = posts_sql + " JOIN users ON users.id = posts.user_id "
+      posts_sql = posts_sql + " AND ( users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}) )" if !conditions[:location_ids].empty?
+      posts_sql = posts_sql + " AND users.id IN (#{conditions[:user_ids].join(',')}) " if !conditions[:user_ids].empty?
+    end
+    posts_sql = posts_sql + "
+      WHERE
+      parent_post_id IS NULL AND wallable_id = #{wall.id}
+      #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
+      ORDER BY posts.created_at DESC
+      LIMIT #{conditions[:offset]}, #{conditions[:limit]}
+    "
+
+    result = self.connection.exec_query(posts_sql)
+    posts = []
+    result.each{|row|
+      post = {}
+      post['id']         = row['id']
+      post['content']    = row['content']
+      post['photo']      = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
+      post['is_flagged'] = row['is_flagged']
+      post['flagged_by'] = row['flagged_by']
+      post['created_at'] = row['created_at']
+      post['user_id']    = row['user_id']
+      posts << post
+    }
+
+    return [] if posts.empty?
+
+    replies_sql = "
+      SELECT
+      posts.id, posts.content, posts.photo, posts.is_flagged, posts.created_at, posts.user_id, posts.parent_post_id
+      FROM
+      posts
+      WHERE
+      parent_post_id IN (#{posts.collect{|p|p['id']}.join(',')})
+      ORDER BY created_at ASC
+    "
+    result = self.connection.exec_query(replies_sql)
+    replies = []
+    result.each{|row|
+      reply = {}
+      reply['id']             = row['id']
+      reply['content']        = row['content']
+      reply['photo']          = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
+      reply['is_flagged']     = row['is_flagged']
+      reply['flagged_by']     = row['flagged_by']
+      reply['created_at']     = row['created_at']
+      reply['user_id']        = row['user_id']
+      reply['parent_post_id'] = row['parent_post_id']
+      replies << reply
+    }
+
+    likes_sql = "
+      SELECT
+      likes.id, likes.user_id, likes.likeable_id
+      FROM likes
+      WHERE
+      likeable_type = 'Post' AND likeable_id IN (#{(posts.collect{|p|p['id']} + replies.collect{|r|r['id']}).join(',')})
+    "
+
+    result = self.connection.exec_query(likes_sql)
+
+    likes = []
+
+    result.each{|row|
+      like = {}
+      like['id']          = row['id']
+      like['user_id']     = row['user_id']
+      like['likeable_id'] = row['likeable_id']
+      likes << like
+    }
+
+    users = []
+
+    users_sql = "
+      SELECT
+      users.id AS user_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
+      user_badge.id AS milestone_id, locations.id AS location_id, locations.name AS location_name
+      FROM users
+      JOIN profiles ON profiles.user_id = users.id
+      JOIN locations ON locations.id = users.top_level_location_id
+      LEFT JOIN (
+        SELECT
+        user_badges.user_id, badges.id
+        FROM user_badges
+        JOIN badges ON badges.id = user_badges.badge_id
+        JOIN (
+          SELECT
+          user_id, MAX(point_goal) as point_goal
+          FROM
+          user_badges
+          JOIN badges ON badges.id = user_badges.badge_id
+          WHERE
+          badges.badge_type = 'milestone'
+          AND user_badges.earned_year = #{conditions[:current_year]}
+          GROUP BY user_id
+        ) max_badge ON max_badge.user_id = user_badges.user_id AND max_badge.point_goal = badges.point_goal
+      ) user_badge ON user_badge.user_id = users.id
+      WHERE users.id IN (#{( posts.collect{|p|p['user_id']} + replies.collect{|r|r['user_id']} + likes.collect{|l|l['user_id']} ).join(',')})
+    "
+
+    result = self.connection.exec_query(users_sql)
+
+    users = []
+    users_idx = {}
+
+    result.each{|row|
+      user = {}
+      user['id']                      = row['user_id']
+      user['profile']                 = {}
+      user['profile']['image']        = {}
+      user['location']                = {}
+      user['profile']['id']           = row['profile_id']
+      user['profile']['first_name']   = row['first_name']
+      user['profile']['last_name']    = row['last_name']
+      user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
+      user['milestone_id']            = row['milestone_id']
+      user['location_id']             = row['location_id']
+      user['location']['id']          = row['location_id']
+      user['location']['name']        = row['location_name']
+
+      users_idx[row['user_id']] = user
+
+      users << user
+    }
+
+    
+    likes.each_with_index{|like, index|
+      likes[index]['user'] = users_idx[like['user_id']]
+    }
+
+
+    replies.each_with_index{|reply, index|
+      replies[index]['user'] = users_idx[reply['user_id']]
+      replies[index]['likes'] = likes.select{|like|like['likeable_id'] == reply['id']}
+    }
+
+    posts.each_with_index{|post, index|
+      posts[index]['user'] = users_idx[post['user_id']]
+      posts[index]['posts'] = replies.select{|reply|reply['parent_post_id'] == post['id']}
+    }
+
+    return posts
+
+  end
+
 end

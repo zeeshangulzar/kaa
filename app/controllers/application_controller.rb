@@ -78,25 +78,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def HESResponder2(body = 'AOK', status = 'OK')
-    response_body = nil
-    if status != 'OK'
-      # we have an error of some sort..
-      body = body.strip + " doesn't exist" if status == 'NOT_FOUND'
-      body = [body] if !body.is_a?(Array)
-      response = {:errors => body}
-    elsif body.is_a?(String)
-      # status is OK and body is a string..
-      response = {:message => body}
-    else
-      response = body
-    end
-
-    code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
-
-    render :json => response, :status => code and return
-  end
-
   # page_size of 0 = all records
   def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
     if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)

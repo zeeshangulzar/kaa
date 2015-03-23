@@ -16,6 +16,8 @@ class User < ApplicationModel
   flags :allow_daily_emails_monday, :default => true
   flags :allow_daily_emails_all_week, :default => true
 
+  flags :stay_logged_in, :default => true
+
   attr_privacy_no_path_to_user
 
   acts_as_notifier
