@@ -55,10 +55,7 @@ class PostsController < ApplicationController
     if @wallable.class == Post
       # parent is Post.. so just grab the replies..
       return HESResponder(@wallable.replies)
-    elsif @wallable.class != Promotion
-      # not the wall.. grab posts
-      return HESResponder(@wallable.posts)
-    else
+    elsif [Promotion].include?(@wallable.class)
       limit = params[:page_size].nil? ? 50 : params[:page_size].to_i
       offset = params[:offset].nil? ? 0 : params[:offset].to_i
       location_ids = []
@@ -72,6 +69,7 @@ class PostsController < ApplicationController
       end
       user_ids = (!params[:friends_only].nil? && params[:friends_only]) ? @current_user.friends.collect{|f|f.id} : []
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
+
       conditions = {
         :offset       => offset,
         :limit        => limit,
@@ -102,7 +100,11 @@ class PostsController < ApplicationController
         end
       end
       return HESResponder(response)
-
+    else
+      # not the wall, not a post.. grab posts
+      has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
+      posts = has_photo ? @wallable.posts.where("photo IS NOT NULL") : @wallable.posts.top
+      return HESResponder(posts)
     end
   end
 

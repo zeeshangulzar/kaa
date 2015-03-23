@@ -287,13 +287,14 @@ class Post < ApplicationModel
     posts = []
     result.each{|row|
       post = {}
-      post['id']         = row['id']
-      post['content']    = row['content']
-      post['photo']      = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
-      post['is_flagged'] = row['is_flagged']
-      post['flagged_by'] = row['flagged_by']
-      post['created_at'] = row['created_at']
-      post['user_id']    = row['user_id']
+      post['photo']        = {}
+      post['id']           = row['id']
+      post['content']      = row['content']
+      post['photo']['url'] = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
+      post['is_flagged']   = row['is_flagged']
+      post['flagged_by']   = row['flagged_by']
+      post['created_at']   = row['created_at']
+      post['user_id']      = row['user_id']
       posts << post
     }
 
@@ -312,9 +313,10 @@ class Post < ApplicationModel
     replies = []
     result.each{|row|
       reply = {}
+      reply['photo']          = {}
       reply['id']             = row['id']
       reply['content']        = row['content']
-      reply['photo']          = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
+      reply['photo']['url']   = row['photo'].nil? ? PostPhotoUploader::default_url : PostPhotoUploader::asset_host_url + row['photo'].to_s
       reply['is_flagged']     = row['is_flagged']
       reply['flagged_by']     = row['flagged_by']
       reply['created_at']     = row['created_at']
