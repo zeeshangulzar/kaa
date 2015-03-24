@@ -64,7 +64,7 @@ class FilesController < ApplicationController
 
         if params[:poster_canvas]
           background_img =  Magick::Image.new 1920,1080
-          background_img = background_img.color_floodfill(0,0,"#809f68") #"#4A7628")
+          background_img = background_img.color_floodfill(0,0,"#4A7628")
 
           img = Magick::Image.read(path).first
           # img.background_color = "blue"
