@@ -122,9 +122,8 @@ class User < ApplicationModel
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device
 
   # validation
-  validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :username, :password
+  validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
   validates_uniqueness_of :email, :scope => :promotion_id
-  validates_uniqueness_of :username, :scope => :promotion_id
   validates_uniqueness_of :altid, :scope => :promotion_id, :unless => Proc.new { |obj| obj.altid.nil? }
 
   
