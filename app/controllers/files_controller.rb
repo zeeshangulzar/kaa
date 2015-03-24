@@ -61,6 +61,20 @@ class FilesController < ApplicationController
           img = img.resize_to_fill(*params[:resize_to_fit].split(',').collect{|x| x.to_i})
           img.write(path)
         end
+
+        if params[:poster_canvas]
+          background_img =  Magick::Image.new 1920,1080
+          background_img = background_img.color_floodfill(0,0,"#809f68") #"#4A7628")
+
+          img = Magick::Image.read(path).first
+          # img.background_color = "blue"
+          # img = img.extent(1920, 1080)
+          # img.gravity = Magick::CenterGravity
+          background_img.composite!(img, Magick::CenterGravity, Magick::OverCompositeOp)
+          # convert img gravity center background white extent 1920x1080
+          # img.write(path)
+          background_img.write(path)
+        end
       rescue Magick::ImageMagickError => e
         # Do nothing, file is not an image so thumbnail does not need to be made
       end
