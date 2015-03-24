@@ -17,6 +17,7 @@ class User < ApplicationModel
   flags :allow_daily_emails_all_week, :default => true
 
   flags :stay_logged_in, :default => true
+  flags :hide_kpw_stats, :default => false
 
   attr_privacy_no_path_to_user
 
