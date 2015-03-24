@@ -116,7 +116,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :me
 
 
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device
