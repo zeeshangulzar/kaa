@@ -263,7 +263,7 @@ class Post < ApplicationModel
       return result.first['count'].to_s
     end
 
-
+    # get top posts, all of the various conditions are applied here
     posts_sql = "
       SELECT
       posts.id, posts.content, posts.photo, posts.is_flagged, posts.created_at, posts.user_id
@@ -283,6 +283,7 @@ class Post < ApplicationModel
       LIMIT #{conditions[:offset]}, #{conditions[:limit]}
     "
 
+    # grab replies..
     result = self.connection.exec_query(posts_sql)
     posts = []
     result.each{|row|
@@ -298,7 +299,7 @@ class Post < ApplicationModel
       posts << post
     }
 
-    return [] if posts.empty?
+    return [] if posts.empty? # this is a rather important line
 
     replies_sql = "
       SELECT
@@ -325,6 +326,7 @@ class Post < ApplicationModel
       replies << reply
     }
 
+    # grab likes of posts and replies..
     likes_sql = "
       SELECT
       likes.id, likes.user_id, likes.likeable_id
@@ -332,11 +334,8 @@ class Post < ApplicationModel
       WHERE
       likeable_type = 'Post' AND likeable_id IN (#{(posts.collect{|p|p['id']} + replies.collect{|r|r['id']}).join(',')})
     "
-
     result = self.connection.exec_query(likes_sql)
-
     likes = []
-
     result.each{|row|
       like = {}
       like['id']          = row['id']
@@ -345,8 +344,7 @@ class Post < ApplicationModel
       likes << like
     }
 
-    users = []
-
+    # grab users of posts, replies and likes..
     users_sql = "
       SELECT
       users.id AS user_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
@@ -373,12 +371,9 @@ class Post < ApplicationModel
       ) user_badge ON user_badge.user_id = users.id
       WHERE users.id IN (#{( posts.collect{|p|p['user_id']} + replies.collect{|r|r['user_id']} + likes.collect{|l|l['user_id']} ).join(',')})
     "
-
     result = self.connection.exec_query(users_sql)
-
     users = []
     users_idx = {}
-
     result.each{|row|
       user = {}
       user['id']                      = row['user_id']
@@ -399,24 +394,26 @@ class Post < ApplicationModel
       users << user
     }
 
-    
+    # attaching users to likes..
     likes.each_with_index{|like, index|
       likes[index]['user'] = users_idx[like['user_id']]
     }
 
-
+    # attaching likes and users to replies..
     replies.each_with_index{|reply, index|
       replies[index]['user'] = users_idx[reply['user_id']]
       replies[index]['likes'] = likes.select{|like|like['likeable_id'] == reply['id']}
     }
 
+    # attaching likes, users and replies to posts..
     posts.each_with_index{|post, index|
       posts[index]['user'] = users_idx[post['user_id']]
+      posts[index]['likes'] = likes.select{|like|like['likeable_id'] == post['id']}
       posts[index]['posts'] = replies.select{|reply|reply['parent_post_id'] == post['id']}
     }
 
+    # all done!
     return posts
-
   end
 
 end
