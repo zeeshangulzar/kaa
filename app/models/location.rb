@@ -23,6 +23,8 @@ class Location < ApplicationModel
 
   mount_uploader :logo, LocationLogoUploader
 
+  has_one :resource
+
   def depth
     d=0
     unless new_record?
