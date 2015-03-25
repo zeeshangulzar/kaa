@@ -5,7 +5,7 @@ class Location < ApplicationModel
   has_many :contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is null'
   has_many :truncated_contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is not null'
   attr_accessible *column_names
-  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :depth, :created_at, :updated_at, :public
+  attr_privacy :promotion_id, :name, :sequence, :root_location_id, :parent_location_id, :depth, :created_at, :updated_at, :logo, :public
   attr_privacy_no_path_to_user
 
   has_many :users, :conditions => proc { "users.location_id = #{self.id} OR users.location_id IN (SELECT id FROM locations WHERE parent_location_id = #{self.id})" }
@@ -20,6 +20,8 @@ class Location < ApplicationModel
 
   after_create :clear_cache
   after_update :clear_cache
+
+  mount_uploader :logo, LocationLogoUploader
 
   def depth
     d=0

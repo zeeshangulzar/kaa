@@ -13,10 +13,11 @@ class UsersController < ApplicationController
   def authenticate
     info = DomainConfig.parse(request.host)
     if @promotion
-      user = @promotion.users.find_by_username(params[:email]) rescue nil
+      user = @promotion.users.find_by_altid(params[:email]) rescue nil
       unless params[:email].nil? || params[:email].empty?
-        user ||= @promotion.users.find_by_altid(params[:email]) rescue nil
-        user ||= @promotion.users.find_by_email(params[:email]) rescue nil
+        # they don't want users to log in with user name (OK) or email (WTF)
+        #user ||= @promotion.users.find_by_username(params[:email]) rescue nil
+        #user ||= @promotion.users.find_by_email(params[:email]) rescue nil
       end
       user = user && user.password == params[:password] ? user : nil
     elsif @promotion.nil? && info[:subdomain] == 'api' && !params[:email].nil? && !params[:email].empty?
