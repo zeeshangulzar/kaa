@@ -1,7 +1,7 @@
-<table cellspacing="0" cellpadding="0">
+r<table cellspacing="0" cellpadding="0">
   <tr>
     <td align="left">
-      <h1 style="color:#4A7628;margin:16px;font-weight:bold;font-size:14px;">Welcome to <em><%=  Constant::AppName %></em>!</h1>
+      <h1 style="color:#4A7628;margin:16px;font-weight:bold;font-size:14px;">Welcome to <%= Constant::AppName %>!</h1>
     </td>
     <td align="right">
       <p style="margin:16px;color:#aaa;">
@@ -15,12 +15,27 @@
         <p>
           <%= @user.profile.full_name %>,
         </p>
+        
         <p>
-          Welcome to the pilot of the all-new <%= Constant::AppName %> brought to you by KP's <a href="www.kp.org/healthyworkforce">healthyworkforce</a>. Each day you log activity you'll unlock vivid images, tips and stories that can help inspire you to achieve your health goals and improve your overall well-being. Connect with other <%= Constant::AppName  %> participants on the Wellness Wall and challenge them to a friendly health-related activity to earn additional points.
+          Get ready to move more, eat well, and have fun! Go KP will help you track your healthy activities and the changes you make to feel your best as you work toward your wellness goals.
         </p>
+        
         <p>
-          Please enjoy the program and let us know if you have any questions. We wish you the best of luck on the wonderful and amazing journey that is your life!
+          <strong>Get started:</strong>
         </p>
+
+        <ul>
+          <li style='margin-bottom: 10px;'><strong>Set your daily exercise goal.</strong> Set it once or change it as often as you'd like. Earn points, badges, and other awards each time you achieve it.</li>
+          <li style='margin-bottom: 10px;'><strong>Create a long-term goal.</strong> Whether you're managing your weight, drinking more water, eating more vegetables, or training for a race, reaching your long-term goal will motivate you to continually aim higher.</li>
+          <li style='margin-bottom: 10px;'><strong>Challenge your co-workers.</strong> Give and get support by challenging yourself and your colleagues to try different activities.</li>
+          <li style='margin-bottom: 10px;'><strong>Get social.</strong> Build connections with your colleagues, rate recipies, share tips using Facebook and Twitter, and more.</li>
+          <li><strong>Set up your steps-tracking device (optional).</strong> Have a Fitbit<sup>&reg;</sup> or Jawbone<sup>&trade;</sup> device? Sync it with your Go KP account and watch your steps add up... automatically.</li>
+        </ul>
+        
+        <p>
+          Ready? Then get set and <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>">Let's Go KP</a>!
+        </p>
+
         <p>
           <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a>
         </p>
