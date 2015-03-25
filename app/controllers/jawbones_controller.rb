@@ -51,9 +51,9 @@ class JawbonesController < ApplicationController
 
         notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>Go KP</i> shortly."
       end
-      redirect_to Rails.env.production? 'http://#{u.promotion.subdomain}.healthyworkforce-gokp.org/#/settings' : 'http://www.go.dev:9000/#/settings'
+      redirect_to Rails.env.production? ? 'http://#{u.promotion.subdomain}.healthyworkforce-gokp.org/#/settings' : 'http://www.go.dev:9000/#/settings'
     else
-      redirect_to Rails.env.production? 'http://#{@current_user.promotion.subdomain}.healthyworkforce-gokp.org/#/settings' : 'http://www.go.dev:9000/#/settings'
+      redirect_to Rails.env.production? ? 'http://#{@current_user.promotion.subdomain}.healthyworkforce-gokp.org/#/settings' : 'http://www.go.dev:9000/#/settings'
     end
     #session[:jawbone_user_id] = nil
   end
