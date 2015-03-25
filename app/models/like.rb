@@ -41,8 +41,10 @@ class Like < ApplicationModel
   after_destroy :do_badges
 
   def do_badges
-    Badge.do_applause(self)
-    Badge.do_high_five(self)
+    if self.likeable_type == "Post"
+      Badge.do_applause(self)
+      Badge.do_high_five(self)
+    end
   end
 
 end
