@@ -224,6 +224,10 @@ class FriendshipsController < ApplicationController
       if !@friendship.valid?
         return HESResponder(@friendship.errors.full_messages, "ERROR")
       end
+      if @friendship.accepted?
+        stats = User.stats(@friendship.friendee_id,@promotion.current_date.year)
+        @friendship.friendee.stats = stats[@friendship.friendee_id]
+      end
       return HESResponder(@friendship)
     end
   end
