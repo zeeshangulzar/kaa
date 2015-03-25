@@ -13,7 +13,7 @@ class LongTermGoal < ApplicationModel
 
   scope :completed, where(:completed => true).order("completed_on ASC")
 
-  after_commit :do_badges, :on => [:create, :update]
+  after_commit :do_badges
 
   def do_badges
     Badge.do_willpower(self)
