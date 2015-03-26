@@ -160,8 +160,9 @@ Go::Application.routes.draw do
   match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
 	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
 	resources :wall_expert_posts
-
+  
   # hes-recipes
+  match "/recipes/favorites" => "recipes#user_favorites", :via => :get
   match "/recipes/daily" => "recipes#show", :daily => true
   match "/recipes/first" => "recipes#show", :first => true
   match "/recipes/last" => "recipes#show", :last => true

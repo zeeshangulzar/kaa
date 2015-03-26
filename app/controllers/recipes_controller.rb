@@ -1,5 +1,6 @@
 class RecipesController < ApplicationController
   authorize :index, :show, :search, :browse, :public
+  authorize :user_favorites, :user
   
   before_filter :page_settings
   def page_settings
@@ -67,6 +68,13 @@ class RecipesController < ApplicationController
   #         although this may likely be a spot to improve speed at a later date if/when necessary
   def search
     recipes = Recipe.find_by_search_text(params[:search]).uniq.sort{|a,b|a.rank <=> b.rank }.reverse
+    return HESResponder(recipes)
+  end
+
+  def user_favorites
+    likes = @current_user.likes.where(:likeable_type => "Recipe")
+    return HESResponder([]) if likes.empty?
+    recipes = Recipe.where(:id => likes.collect{|like|like.likeable_id})
     return HESResponder(recipes)
   end
 end

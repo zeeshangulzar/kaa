@@ -2,7 +2,7 @@
 class Like < ApplicationModel
 
   attr_privacy_path_to_user :user
-  attr_privacy :id, :user_id, :likeable_type, :likeable_id, :user, :likeable, :any_user
+  attr_privacy :id, :user_id, :likeable_type, :likeable_id, :user, :any_user
 
   belongs_to :likeable, :polymorphic => true
   belongs_to :user
