@@ -672,7 +672,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
   def process_last_accessed
     self.update_attributes(:last_accessed => self.promotion.current_time) if !self.last_accessed || self.last_accessed.to_date < self.promotion.current_date
     days_since_last_accessed = self.promotion.current_date - self.last_accessed.to_date
-    reminder = self.promotion.email_reminders.asc.where("days >= #{days_since_last_accessed}").first
+    reminder = self.promotion.email_reminders.asc.where("days <= #{days_since_last_accessed}").first
     if reminder && !reminder.welcome_back_notification.nil? && !reminder.welcome_back_message.nil?
       notify(self, "Welcome Back", reminder.welcome_back_notification, :from => self, :key => "user_#{id}")
       $redis.publish('welcomeBackMessage', {:message => reminder.welcome_back_message, :user_id => self.id}.to_json)
