@@ -1,7 +1,11 @@
 # Like active record class for keeping track of likes that users have
 class Like < ApplicationModel
+
+  attr_privacy_path_to_user :user
+  attr_privacy :id, :user_id, :likeable_type, :likeable_id, :user, :likeable, :any_user
+
   belongs_to :likeable, :polymorphic => true
-  belongs_to :user, :in_json => true
+  belongs_to :user
 
   scope :typed, lambda{|likeable_type| where(:likeable_type => likeable_type)}
 

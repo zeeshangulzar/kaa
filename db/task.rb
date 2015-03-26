@@ -28,7 +28,7 @@ class Task
 
           what_to_send = 'daily_email'
 
-          p.email_reminders.each{|reminder|
+          p.email_reminders.desc.each{|reminder|
             if ( u.last_login < (p.current_time - (reminder.days).days) ) && !u.email_reminders.include?(reminder)
               what_to_send = 'reminder'
               email_reminder = reminder

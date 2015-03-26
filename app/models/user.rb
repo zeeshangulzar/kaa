@@ -116,10 +116,10 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :last_accessed, :me
 
 
-  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
@@ -667,6 +667,16 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def completed_evaluation_definition_ids=(array)
     @completed_evaluation_definition_ids = array
+  end
+
+  def process_last_accessed
+    self.update_attributes(:last_accessed => self.promotion.current_time) if !self.last_accessed || self.last_accessed.to_date < self.promotion.current_date
+    days_since_last_accessed = self.promotion.current_date - self.last_accessed.to_date
+    reminder = self.promotion.email_reminders.asc.where("days >= #{days_since_last_accessed}").first
+    if reminder && !reminder.welcome_back_notification.nil? && !reminder.welcome_back_message.nil?
+      notify(self, "Welcome Back", reminder.welcome_back_notification, :from => self, :key => "user_#{id}")
+      $redis.publish('welcomeBackMessage', {:message => reminder.welcome_back_message, :user_id => self.id}.to_json)
+    end
   end
 
 end

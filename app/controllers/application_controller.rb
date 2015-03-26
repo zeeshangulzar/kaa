@@ -66,6 +66,8 @@ class ApplicationController < ActionController::Base
           @promotion = other_promotion 
         end
       end
+      # last accessed & welcome back messages
+      @current_user.process_last_accessed
     else
       # what if promotion does not exist or is not active????
       info = DomainConfig.parse(request.host)

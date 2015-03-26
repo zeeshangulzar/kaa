@@ -2,7 +2,7 @@ class Badge < ActiveRecord::Base
 
   attr_privacy_no_path_to_user
   attr_accessible *column_names
-  attr_privacy :promotion_id, :name, :description, :completion_message, :image, :badge_type, :point_goal, :sequence, :any_user
+  attr_privacy :promotion_id, :name, :description, :completion_message, :image, :unearned_image, :badge_type, :point_goal, :sequence, :any_user
 
   validates_presence_of :badge_type, :promotion_id, :name
 
