@@ -1,6 +1,8 @@
 class TipsController < ContentController
   # if you don't see code, or don't see much code
   # it's because lib/content/content_controller.rb is working :-)
+  wrap_parameters :tip
+
   def index
     if !@current_user || @current_user.user? || (!params[:type].nil? && params[:type] == 'widget')
       # average joe does not need the markdown -- because we can just give him HTML
