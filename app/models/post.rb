@@ -266,7 +266,7 @@ class Post < ApplicationModel
     # get top posts, all of the various conditions are applied here
     posts_sql = "
       SELECT
-      posts.id, posts.content, posts.photo, posts.is_flagged, posts.created_at, posts.user_id
+      posts.id, posts.content, posts.photo, posts.is_flagged, posts.flagged_by, posts.created_at, posts.user_id
       FROM
       posts
     "
@@ -303,7 +303,7 @@ class Post < ApplicationModel
 
     replies_sql = "
       SELECT
-      posts.id, posts.content, posts.photo, posts.is_flagged, posts.created_at, posts.user_id, posts.parent_post_id
+      posts.id, posts.content, posts.photo, posts.is_flagged, posts.flagged_by, posts.created_at, posts.user_id, posts.parent_post_id
       FROM
       posts
       WHERE
