@@ -29,7 +29,7 @@ class ContentController < ApplicationController
   def update
     @obj = @content_model_class_name.for_promotion(@promotion).find(params[:id])
     @content_model_class_name.transaction do
-      @obj.update_attributes(params[@content_model_class_name.name.downcase.underscore.to_sym])
+      @obj.update_attributes(params[@content_model_class_name.name.underscore])
     end
     if @obj.valid?
       return HESResponder(@obj)

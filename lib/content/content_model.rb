@@ -2,6 +2,9 @@ class ContentModel < ActiveRecord::Base
   self.abstract_class = true
   self.before_save :resync_markdown_columns
 
+  self.after_save :clear_hes_cache
+  self.after_destroy :clear_hes_cache
+
   def self.initialize_content_model(options={})
     @@config ||= {}
     @@config[self] ||= {:defined_columns=>[],:cached_columns=>[],:markdown_columns=>[],:table_name=>self.name.underscore.pluralize, :routed=>false}
@@ -179,5 +182,9 @@ class ContentModel < ActiveRecord::Base
       html = Markdown.new(self.send(original_column_name)).to_html
       self.send("#{markdown_column_name}=",html)
     end
+  end
+
+  def clear_hes_cache
+    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
   end
 end
