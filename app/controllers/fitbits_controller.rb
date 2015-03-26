@@ -51,9 +51,9 @@ class FitbitsController < ApplicationController
         notification = user.notifications.find_by_key('FITBIT') || user.notifications.build(:key=>'FITBIT')
         
         if user.profile.started_on >= user.promotion.current_date
-          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with <i>Go KP</i> starting #{user.profile.started_on.strftime('%B %e')}."
+          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with #{Constant::AppName} starting #{user.profile.started_on.strftime('%B %e')}."
         else
-          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with <i>Go KP</i> shortly."
+          notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with #{Constant::AppName} shortly."
         end
         
         user.update_column :active_device, 'FITBIT'

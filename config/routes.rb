@@ -126,6 +126,10 @@ Go::Application.routes.draw do
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
   match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
 
+  
+  match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_show', :via => :get
+  match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_create', :via => [:post, :put]
+  match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_destroy', :via => :delete
   resources :likes
   match '*likeable_type/*likeable_id/likes' => 'likes#index', :via => :get
   match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post

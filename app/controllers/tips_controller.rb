@@ -24,8 +24,17 @@ class TipsController < ContentController
       end
       return HESResponder(tips)
     else
-      # non-average joe may need the markdown -- because master is the editor of the markdown... maybe others are, too
-      return HESResponder(Tip.for_promotion(@promotion).desc.all)
+      if !params[:start].nil? && !params[:end].nil?
+        # handle date range for dashboard
+        start_date = params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date
+        end_date = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
+        s = Tip.get_day_number_from_date(start_date)
+        e = Tip.get_day_number_from_date(end_date)
+        tips = Tip.for_promotion(@promotion).asc.where("day BETWEEN #{s} AND #{e}")
+      else
+        tips = Tip.for_promotion(@promotion).desc.all
+      end
+      return HESResponder(tips)
     end
   end
 end

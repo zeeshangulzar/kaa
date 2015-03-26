@@ -36,7 +36,7 @@ class JawbonesController < ApplicationController
 
       notification = u.notifications.find_by_key('JAWBONE') || u.notifications.build(:key=>'JAWBONE')
       if u.profile.started_on >= u.promotion.current_date
-        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>Go KP</i> starting #{u.profile.started_on.strftime('%B %e')}."
+        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} starting #{u.profile.started_on.strftime('%B %e')}."
       else
         # backlog data... 
         daysBack = (u.promotion.current_date - u.profile.started_on).to_i
@@ -49,7 +49,7 @@ class JawbonesController < ApplicationController
         User.connection.execute "update jawbone_notifications set status = '#{JawboneNotification::Status[:new]}' where jawbone_user_id = #{u.jawbone_user.id}"
         Resque.enqueue(JawboneNotificationJob, [u.jawbone_user.xid])
 
-        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with <i>Go KP</i> shortly."
+        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} shortly."
       end
       redirect_to Rails.env.production? ? 'http://#{u.promotion.subdomain}.healthyworkforce-gokp.org/#/settings' : 'http://www.go.dev:9000/#/settings'
     else
