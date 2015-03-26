@@ -78,19 +78,23 @@ Go::Application.routes.draw do
     resources :facts
     resources :articles
     resources :resources
+    resources :banners
   end
 
   # CONTENT MODELS
   resources :tips
   resources :articles
   resources :facts
+
   resources :resources
+  resources :banners
 
   # locations...
   resources :locations do
     resources :locations, :only => [:index, :show]
     resources :forums
     resources :resources
+    resources :banners
   end
 
   resources :forums

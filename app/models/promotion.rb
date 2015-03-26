@@ -21,6 +21,7 @@ class Promotion < ApplicationModel
   has_many :badges, :order => "sequence ASC"
 
   has_many :resources
+  has_many :banners
 
   has_custom_prompts :with => :evaluations
 
