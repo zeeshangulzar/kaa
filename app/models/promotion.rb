@@ -39,6 +39,9 @@ class Promotion < ApplicationModel
   flags :is_jawbone_enabled, :default => false
   flags :is_manual_override_enabled, :default => false
 
+  self.after_save :clear_hes_cache
+  self.after_destroy :clear_hes_cache
+
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
   end
@@ -139,6 +142,10 @@ class Promotion < ApplicationModel
 
   def active_evaluation_definition_ids
     return self.evaluation_definitions.reload.active.reload.collect{|ed|ed.id}
+  end
+
+  def clear_hes_cache
+    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
   end
 
 end

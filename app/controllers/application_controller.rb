@@ -80,6 +80,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
+    cache_miss = false
+    if block_given?
+      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(yield, status, page_size) }
+    else
+      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(payload, status, page_size) }
+    end
+    render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
+  end
+
   # page_size of 0 = all records
   def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
     if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
@@ -164,7 +174,8 @@ class ApplicationController < ActionController::Base
       end
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
-    render :json => MultiJson.dump(response), :status => code and return
+    payload_hash = MultiJson.dump(response)
+    render :json => payload_hash, :status => code and return payload_hash
   end
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be
@@ -192,6 +203,40 @@ class ApplicationController < ActionController::Base
     }
     new_uri = URI::Generic.build(components.merge(new_components))
     URI.decode(new_uri.to_s)
+  end
+
+  def hes_cache_fetch(category_key,options=nil,item_key=params_to_cache_key)
+    timestamp_key = "HESCacheTimestamp_#{category_key}"
+    cached_timestamp = Rails.cache.read(timestamp_key)
+    cache_key = "HESCache_#{category_key}_#{item_key}"
+
+    if cached_timestamp
+      item = Rails.cache.read(cache_key)
+      if item && item.is_a?(Hash) && item[:timestamp] == cached_timestamp
+        Rails.logger.warn "cache hit for #{cache_key}"
+        return item[:data]
+      end
+    end
+
+    Rails.logger.warn "cache miss for #{cache_key}"
+    timestamp =  Time.now.utc
+    Rails.cache.write timestamp_key, timestamp
+    data = yield
+    Rails.cache.write cache_key, {:timestamp=>timestamp, :data=>data}, options
+    data
+  end
+
+  def self.hes_cache_clear(category_key)
+    timestamp_key = "HESCacheTimestamp_#{category_key}"
+    Rails.cache.delete(timestamp_key)
+  end
+
+
+  def params_to_cache_key
+    params.
+        keys.sort{|x,y| x.to_s<=>y.to_s}.
+          collect{|k,v|"#{k}_#{params[k]}"}.
+            join('_')
   end
 
 end

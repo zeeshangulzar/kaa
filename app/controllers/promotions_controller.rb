@@ -27,7 +27,8 @@ class PromotionsController < ApplicationController
   end
 
   def current
-    return HESResponder(@promotion)
+    params[:id] = @promotion.id
+    return HESCachedResponder('promotions',@promotion)
   end
 
   def create
