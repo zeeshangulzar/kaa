@@ -37,7 +37,7 @@ class BannersController < ApplicationController
   end
 
   def update
-    banner = banner.find(params[:id]) rescue nil
+    banner = Banner.find(params[:id]) rescue nil
     return HESResponder("Banner", "NOT_FOUND") if !banner
     # can't change a banner's location or promotion, for now..
     params[:banner].delete!(:location_id)
