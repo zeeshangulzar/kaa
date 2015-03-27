@@ -40,8 +40,8 @@ class BannersController < ApplicationController
     banner = Banner.find(params[:id]) rescue nil
     return HESResponder("Banner", "NOT_FOUND") if !banner
     # can't change a banner's location or promotion, for now..
-    params[:banner].delete!(:location_id)
-    params[:banner].delete!(:promotion_id)
+    params[:banner].delete(:location_id)
+    params[:banner].delete(:promotion_id)
     if (@current_user.location_coordinator? && @current_user.location_ids.include?(banner.location_id)) || (@current_user.sub_promotion_coordinator_or_above? && @current_user.promotion_id == banner.promotion_id) || @current_user.master?
       banner.assign_attributes(params[:banner])
       return HESResponder(banner.errors.full_messages, "ERROR") if !banner.valid?
