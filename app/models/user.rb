@@ -221,6 +221,7 @@ class User < ApplicationModel
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
     user_json['stats'] = @stats if @stats
+    user_json['recent_activities'] = @recent_activities if @recent_activities
     user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
     user_json
   end
@@ -677,6 +678,34 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       notify(self, "Welcome Back", reminder.welcome_back_notification, :from => self, :key => "user_#{id}")
       $redis.publish('welcomeBackMessage', {:message => reminder.welcome_back_message, :user_id => self.id}.to_json)
     end
+  end
+
+  def recent_activities(id_only = false, limit = 5)
+    sql = "
+      SELECT
+        DISTINCT(exercise_activities.id) AS id
+      FROM entries
+      JOIN rel_entries_exercises_activities ON rel_entries_exercises_activities.entry_id = entries.id
+      JOIN exercise_activities ON exercise_activities.id = rel_entries_exercises_activities.exercise_activity_id
+      WHERE
+        entries.user_id = #{self.id}
+        AND entries.recorded_on <= '#{self.promotion.current_date}'
+      ORDER BY rel_entries_exercises_activities.updated_at DESC
+      LIMIT #{limit}
+    "
+    result = self.connection.exec_query(sql)
+    ids = []
+    result.each{ |row|
+      ids << row['id']
+    }
+    if id_only  
+      return ids
+    end
+    return ExerciseActivity.find(ids)
+  end
+
+  def recent_activities=(hash)
+    @recent_activities = hash
   end
 
 end

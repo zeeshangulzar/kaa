@@ -53,6 +53,7 @@ class UsersController < ApplicationController
   def show
     if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
       @target_user.stats = @target_user.stats
+      @target_user.recent_activities = @target_user.recent_activities
       if @target_user.id == @current_user.id || @current_user.sub_promotion_coordinator_or_above?
         @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
       end

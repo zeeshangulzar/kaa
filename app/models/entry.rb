@@ -305,6 +305,15 @@ UNION
         break
       end
     }
+
+    # check for changed exercise activities
+    eas = self.exercise_activities.collect{|ea|ea.id}
+    ras = self.user.recent_activities(true)
+    new_ras = eas.reject{ |ea| ras.include?(ea) }
+    if !new_ras.empty?
+      publish = true
+    end
+
     if publish
       u = self.user
       u.stats = u.stats()
