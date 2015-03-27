@@ -1,6 +1,7 @@
 class TipsController < ContentController
   # if you don't see code, or don't see much code
   # it's because lib/content/content_controller.rb is working :-)
+  wrap_parameters :tip
   def index
     tips = hes_cache_fetch('tips') {
       if !@current_user || @current_user.user? || (!params[:type].nil? && params[:type] == 'widget')
