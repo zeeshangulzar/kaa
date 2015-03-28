@@ -80,16 +80,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
-    cache_miss = false
-    if block_given?
-      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(yield, status, page_size) }
-    else
-      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(payload, status, page_size) }
-    end
-    render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
-  end
-
   # page_size of 0 = all records
   def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
     if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
@@ -203,6 +193,18 @@ class ApplicationController < ActionController::Base
     }
     new_uri = URI::Generic.build(components.merge(new_components))
     URI.decode(new_uri.to_s)
+  end
+
+
+  
+  def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
+    cache_miss = false
+    if block_given?
+      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(yield, status, page_size) }
+    else
+      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(payload, status, page_size) }
+    end
+    render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
   end
 
   def hes_cache_fetch(category_key,options=nil,item_key=params_to_cache_key)
