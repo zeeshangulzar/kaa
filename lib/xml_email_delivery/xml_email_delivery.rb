@@ -56,7 +56,7 @@ class XmlEmailDelivery
       xmlFromAddress.text = tmail.from_addrs.first
 
       xmlFromName = xmlEmail.add_element "from_name"
-      xmlFromName.text = tmail.from
+      xmlFromName.text = Mail::Address.new(tmail.header[:from].decoded).name
 
       xmlReplyTo = xmlEmail.add_element "reply_to"
       xmlReplyTo.text = tmail.reply_to.is_a?(Array) ? tmail.reply_to.first.to_s : xmlFromAddress.text
