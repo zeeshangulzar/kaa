@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :static_tiles, :dynamic_tiles, :backlog_days, :badges, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :static_tiles, :dynamic_tiles, :backlog_days, :badges, :resources_title, :any_user
 
   belongs_to :organization
 
@@ -133,7 +133,8 @@ class Promotion < ApplicationModel
   def as_json(options={})
     options[:meta] ||= false
     options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids"]})
-    super
+    promotion_obj = super(options)
+    return promotion_obj
   end
 
   def milestone_goals
@@ -146,6 +147,20 @@ class Promotion < ApplicationModel
 
   def clear_hes_cache
     ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
+  end
+  
+  def logo_for_user(user=nil)
+    if user && user.location && !user.location.parent_location.logo.nil?
+      return user.location.parent_location.logo.as_json[:logo]
+    end
+    return self.logo
+  end
+
+  def resources_title_for_user(user=nil)
+    if user && user.location && !user.location.parent_location.resources_title.nil?
+      return user.location.parent_location.resources_title
+    end
+    return self.resources_title
   end
 
 end
