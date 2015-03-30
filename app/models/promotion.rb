@@ -150,14 +150,14 @@ class Promotion < ApplicationModel
   end
   
   def logo_for_user(user=nil)
-    if user && user.location && !user.location.parent_location.logo.nil?
+    if user && user.location && user.location.parent_location && !user.location.parent_location.logo.nil?
       return user.location.parent_location.logo.as_json[:logo]
     end
     return self.logo
   end
 
   def resources_title_for_user(user=nil)
-    if user && user.location && !user.location.parent_location.resources_title.nil?
+    if user && user.location && user.location.parent_location && !user.location.parent_location.resources_title.nil?
       return user.location.parent_location.resources_title
     end
     return self.resources_title
