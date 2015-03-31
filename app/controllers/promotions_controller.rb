@@ -28,8 +28,8 @@ class PromotionsController < ApplicationController
 
   def current
     params[:id] = @promotion.id
-    @promotion.logo = @promotion.logo_for_user(@current_user)
-    @promotion.resources_title = @promotion.resources_title_for_user(@current_user)
+    @promotion.logo = @promotion.logo_for_user(@current_user) if @current_user
+    @promotion.resources_title = @promotion.resources_title_for_user(@current_user) if @current_user
     return HESResponder(@promotion)
   end
 
