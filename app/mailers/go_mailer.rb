@@ -102,6 +102,46 @@ class GoMailer < ActionMailer::Base
     mail(:from => FormattedFromAddress, :to => "developer@hesonline.com", :subject => "Daily Tasks for #{Date.today}", :body => b)
   end
 
+  def password_reset(user, base_url)
+    subject = "#{AppName}: Password Reset"
+    recipients = "#{user.contact.email}"
+    from = AppEmailWithName
+    reply_to = AppEmail
+
+    @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/contact"
+    @user = user
+    @host = "#{base_url}"
+
+    mail(:to => recipients,
+      :subject => subject,
+      :from => from,
+      :reply_to => reply_to)
+  end
+
+  def forgot_password(user, base_url)
+    subject = "#{AppName}: Forgot Password"
+    recipients = "#{user.contact.email}"
+    from = AppEmailWithName
+    reply_to = AppEmail
+
+    user.initialize_aes_iv_and_key_if_blank!
+    key="#{SecureRandom.hex(16)}~#{user.id}~#{Time.now.utc.to_f}~#{user.updated_at.to_f}"
+    encrypted_key = user.aes_encrypt(key)
+    encoded_encrypted_key = PerModelEncryption.url_base64_encode(encrypted_key).chomp
+    encrypted_id_link = Encryption.encrypt("#{user.id}~#{encoded_encrypted_key}")
+    encoded_encrypted_id_link = PerModelEncryption.url_base64_encode(encrypted_id_link).chomp
+
+    @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/password_reset/#{CGI.escape(encoded_encrypted_id_link)}"
+    @user = user
+
+    @host = "#{base_url}"
+
+    mail(:to => recipients,
+      :subject => subject,
+      :from => from,
+      :reply_to => reply_to)
+  end
+
 
 
 end

@@ -195,4 +195,71 @@ class UsersController < ApplicationController
     return HESResponder(user.stats(year))
   end
 
+  def forgot
+    user = User.find(:first, :conditions => ["email = ?", params[:email]])
+    unless user.nil?
+      GoMailer.forgot_password(user, get_host).deliver
+    end
+    return HESResponder()
+  end
+
+  # Reset the user password to the new password
+  # Check is done to make sure the password is allowed to be changed for the user
+  def password_reset
+    password_changed = false;
+    if allow_password_reset()
+      unless params[:password].to_s.strip.empty?
+        @password_reset_user.password = params[:password]
+        @password_reset_user.save!
+        @password_reset_user.initialize_aes_iv_and_key
+        @password_reset_user.save!
+        GoMailer.password_reset(@password_reset_user, get_host).deliver
+        password_changed=true
+      end
+    end
+
+    return HESResponder({:password_changed => password_changed})
+  end
+
+  #Verify the password reset is allowed
+  def verify_password_reset
+    return HESResponder({:allow => allow_password_reset()})
+  end
+
+  def allow_password_reset()
+    # link in email is a big string separated by ~ and it is encrypted *with the app's AES key* and base-64 encoded
+    # example: 983~BmpnaBfzyLgfVltNMyPvVG4SFB2%0AcKuwHwkP8sKk%2BqDt2DYvWE33uT6tr
+    # element 0 is the user's ID
+    # element 1 is a big string separated by ~ and it is encrypted *with the user's AES key* and base-64 encoded
+    # element 1,0 is random hex for padding
+    # element 1,1 is the user's id
+    # element 1,2 the date/time the link was created
+    #
+    # the link must be less than 60 minutes old (i.e. element 1,2 is a timestamp that must not be older than 60 minutes)
+    allow_password_reset=false
+    if params[:id]
+      key = params[:id]
+      decoded_key = PerModelEncryption.url_base64_decode(key)
+      string = Encryption.decrypt(decoded_key) rescue nil
+      if string
+        user_id,encrypted_information = string.split('~')
+        if user_id && encrypted_information
+          @password_reset_user = User.find(user_id)
+          if @password_reset_user
+            decrypted_information = @password_reset_user.aes_decrypt(PerModelEncryption.url_base64_decode(encrypted_information))
+            pieces = decrypted_information.split('~')
+            if pieces.size==4 && @password_reset_user.id == pieces[1].to_i
+              link_timestamp = Time.at(pieces[2].to_i).utc
+              age = Time.now.utc - link_timestamp
+              if age < 3600
+                allow_password_reset = true
+              end
+            end
+          end
+        end
+      end
+    end
+    return allow_password_reset
+  end
+
 end
