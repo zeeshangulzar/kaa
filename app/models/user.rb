@@ -25,12 +25,12 @@ class User < ApplicationModel
   
   Role = {
     :user                       => "User",
-    :master                     => "Master",
-    :reseller                   => "Reseller",
-    :coordinator                => "Coordinator",
-    :sub_promotion_coordinator  => "Sub Promotion Coordinator",
     :location_coordinator       => "Location Coordinator",
-    :poster                     => "Poster"
+    :regional_coordinator       => "Regional Coordinator",
+    :coordinator                => "Coordinator",
+    :reseller                   => "Reseller",
+    :poster                     => "Poster",
+    :master                     => "Master",
   }
   
   # pulling in friendships..
@@ -690,7 +690,8 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       WHERE
         entries.user_id = #{self.id}
         AND entries.recorded_on <= '#{self.promotion.current_date}'
-      ORDER BY rel_entries_exercises_activities.updated_at DESC
+      GROUP BY exercise_activities.id
+      ORDER BY MAX(rel_entries_exercises_activities.updated_at) DESC
       LIMIT #{limit}
     "
     result = self.connection.exec_query(sql)
