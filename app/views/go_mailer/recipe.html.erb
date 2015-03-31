@@ -1,13 +1,38 @@
-<% @url = get_url -%>
-
-<p>
-	<i><%=@message%></i>
-</p>
-
-<h2><%=@tip.title.html_safe%></h2>
-
-<%= RDiscount.new(@tip.content).to_html.html_safe %>
-
-<!-- <p class="view-more">
-	<a href="<%=@url%>/public/tips/<%=@tip.id%>">View more...</a>
-<p> -->
+<%
+@tip = @object
+%>
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td colspan="2" style="text-align:center" align="center">
+      <img src="<%= @tip['email_image']['url'] %>" style="width:100%;max-height:500px"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+      <div style="margin:16px">
+        <h1 style="color:#4A7628;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this Go KP Tip</h1>
+        <% unless @message.empty? %>
+        <p>
+           <%= @user.profile.first_name %> says:<br/>
+          <%= @message %>
+        </p>
+        <% end %> 
+        <p>
+          <strong><%= @tip['title'] %></strong>
+        </p>
+      </div>
+    </td>
+    <td align="right" valign="top">
+      <p style="margin:16px;color:#aaa;">
+        <%= @user.promotion.current_date.to_s %>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#f1f7f7" colspan="2">
+      <div style="margin:16px">
+        <%= raw @tip['content_html'] %>
+      </div>
+    </td>
+  </tr>
+</table>

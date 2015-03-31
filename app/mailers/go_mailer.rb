@@ -58,7 +58,6 @@ class GoMailer < ActionMailer::Base
     @message = message
     subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
 
-
     mail(:to => emails, :subject => subject, :from => @user.email, :reply_to => @user.email) do |format|
       format.text { render model.underscore.downcase }
       format.html { render model.underscore.downcase }
