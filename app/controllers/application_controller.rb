@@ -241,4 +241,13 @@ class ApplicationController < ActionController::Base
             join('_')
   end
 
+  def get_host
+    if request.port != 80
+      host = request.host_with_port
+    else
+      host = request.host
+    end
+    return host
+  end
+
 end

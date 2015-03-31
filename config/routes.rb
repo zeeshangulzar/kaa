@@ -36,10 +36,13 @@ Go::Application.routes.draw do
   resources :profiles, :only => [:update]
 
   resources :users do
+    post 'forgot', :on => :collection
     collection do
       get 'search/:search_string', :to=>'users#search'
       get 'search', :to=>'users#search'
       post 'authenticate', :to => 'users#authenticate'
+      post 'verify_password_reset' => 'users#verify_password_reset', :via => :post
+      put 'password_reset' => 'users#password_reset', :via => :put
     end
     resources :profiles, :only => [:update]
     resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
