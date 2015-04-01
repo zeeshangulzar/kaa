@@ -1,0 +1,11 @@
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <p><%= @invitee.profile.full_name %>,</p>
+        <p><%= @inviter.profile.full_name %> has requested to be your <%= Friendship::Label %> on <%= Constant::AppName %>. Click <a href="http://<%= @inviter.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/connections" style="color:#006ba6">here</a> to respond to their request.</p>
+        <p><a href="http://<%= @inviter.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @inviter.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+      </div>
+    </td>
+  </tr>
+</table>
