@@ -32,7 +32,7 @@ class ChallengesController < ApplicationController
       return HESResponder("Challenge", "NOT_FOUND")
     elsif (challenge.promotion != @current_user.promotion) && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
-    elsif (!challenge.location_id.nil? && !@current_user.location_ids.include?(challenge.location_id)) && !@current_user.sub_promotion_coordinator_or_above?
+    elsif (!challenge.location_id.nil? && !@current_user.location_ids.include?(challenge.location_id)) && !@current_user.coordinator_or_above?
       return HESResponder("You may not view this challenge.", "DENIED")
     elsif !challenge.is_active? && !@current_user.location_coordinator_or_above?
       # respect the visible from/to dates..
@@ -55,7 +55,7 @@ class ChallengesController < ApplicationController
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
     else
-      if (!challenge.location_id.nil? && @current_user.location_ids.include?(challenge.location_id) && @current_user.location_coordinator_or_above?) || (@current_user.sub_promotion_coordinator_or_above? && @current_user.promotion_id == challenge.promotion_id) || @current_user.master?
+      if (!challenge.location_id.nil? && @current_user.location_ids.include?(challenge.location_id) && @current_user.location_coordinator_or_above?) || (@current_user.coordinator_or_above? && @current_user.promotion_id == challenge.promotion_id) || @current_user.master?
         Challenge.transaction do
           challenge.update_attributes(params[:challenge])
         end
@@ -74,7 +74,7 @@ class ChallengesController < ApplicationController
     challenge = Challenge.find(params[:id]) rescue nil
     if !challenge
       return HESResponder("Challenge", "NOT_FOUND")
-    elsif (@current_user.location_coordinator_or_above? && !challenge.location_id.nil? && @current_user.location_ids.include?(challenge.location_id)) || (challenge.promotion_id == @current_user.promotion_id && @current_user.sub_promotion_coordinator_or_above?) || @current_user.master?
+    elsif (@current_user.location_coordinator_or_above? && !challenge.location_id.nil? && @current_user.location_ids.include?(challenge.location_id)) || (challenge.promotion_id == @current_user.promotion_id && @current_user.coordinator_or_above?) || @current_user.master?
       challenge.destroy
       return HESResponder(challenge)
     else

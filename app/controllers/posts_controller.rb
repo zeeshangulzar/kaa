@@ -168,7 +168,7 @@ class PostsController < ApplicationController
     if parent_obj.class == Forum
 =begin
       # Forum "topic" permissions
-      if (@current_user.sub_promotion_coordinator_or_above? && parent_obj.location.promotion_id == @current_user.promotion_id) || @current_user.location_ids.include?(parent_obj.location_id) || @current_user.master?
+      if (@current_user.coordinator_or_above? && parent_obj.location.promotion_id == @current_user.promotion_id) || @current_user.location_ids.include?(parent_obj.location_id) || @current_user.master?
         # good to post, was too difficult to write the opposite of these tests, hence the else..
       else
         return HESResponder("Cannot post forum topic.", "DENIED")

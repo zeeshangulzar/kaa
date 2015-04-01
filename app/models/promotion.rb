@@ -9,7 +9,7 @@ class Promotion < ApplicationModel
 
   has_many :users
   has_many :behaviors
-  has_many :exercise_activities
+  has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :posters, :order => 'visible_date DESC'
   has_many :success_stories, :order => 'created_at DESC'
