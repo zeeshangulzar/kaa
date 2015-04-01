@@ -1,0 +1,15 @@
+<%
+@tip = @object
+%>
+<%= @user.profile.full_name %> sent you this Go KP Tip
+<% unless @message.empty? %>
+   <%= @user.profile.first_name %> says:
+  <%= @message %>
+<% end %>
+
+<%= @tip['title'] %>
+
+<%= raw @tip['content_html'] %>
+
+------
+http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>

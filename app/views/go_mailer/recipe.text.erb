@@ -1,0 +1,16 @@
+<%
+@recipe = @object
+%>
+<%= @user.profile.full_name %> sent you this Go KP Recipe
+<% unless @message.empty? %>
+   <%= @user.profile.first_name %> says:
+  <%= @message %>
+<% end %>
+<%= @recipe['title'] %>
+
+<%= raw @recipe['description'] %>
+
+View more at: http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe/<%= @recipe.id %>
+
+------
+http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>
