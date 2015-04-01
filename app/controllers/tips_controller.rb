@@ -37,6 +37,7 @@ class TipsController < ContentController
         # non-average joe may need the markdown -- because master is the editor of the markdown... maybe others are, too
         tips = Tip.for_promotion(@promotion).desc.all
       end
+    end
     return HESResponder(tips)
   end
 end
