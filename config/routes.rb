@@ -202,6 +202,7 @@ Go::Application.routes.draw do
   mount Resque::Server.new, :at => "/resque"
 
   match "/emails/content" => "emails#content", :via => :post
+  match "/emails/invite" => "emails#invite", :via => :post
 
   resources :contact_requests, :only => [:show, :create]
 

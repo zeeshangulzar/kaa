@@ -51,6 +51,14 @@ class GoMailer < ActionMailer::Base
     mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}")
   end
 
+  def invite_email(emails, user, message = nil)
+    @user = user
+    @promotion = @user.promotion
+    @message = message
+    subject = "#{@user.profile.full_name} invited you to join #{Constant::AppName}"
+    mail(:to => emails, :subject => subject)
+  end
+  
   def content_email(model, object, emails, user, message)
     @model = model.constantize
     @object = object
@@ -80,8 +88,6 @@ class GoMailer < ActionMailer::Base
     @message = message
     mail(:to => emails, :subject => "#{Constant::AppName} Recipe: #{recipe.title}", :from => @user.email, :reply_to => @user.email)
   end
-
-
 
   def daily_email(day, promotion, to_name, to_email, base_url, user)
     @tip = Tip.for_promotion(promotion).find_by_day(day)

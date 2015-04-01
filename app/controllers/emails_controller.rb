@@ -26,4 +26,10 @@ class EmailsController < ApplicationController
     return HESResponder()
   end
 
+  def invite
+    return HESResponder("Must include at least 1 email address.", "ERROR") if params[:emails].nil?
+    message = params[:message] rescue nil
+    Resque.enqueue(InviteEmail, params[:emails], @current_user.id, message)
+    return HESResponder()
+  end
 end
