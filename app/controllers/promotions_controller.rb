@@ -29,13 +29,7 @@ class PromotionsController < ApplicationController
   def current
     #@promotion.logo = @promotion.logo_for_user(@current_user) if @current_user
     #@promotion.resources_title = @promotion.resources_title_for_user(@current_user) if @current_user
-    cache_key = "promotion_#{@promotion.id}"
-    promotion = Rails.cache.fetch(cache_key){
-      Rails.logger.warn("CACHE MISS: #{cache_key}")
-      p = @promotion.as_json()
-      p
-    }
-    return HESResponder([promotion])
+    return HESResponder(@promotion)
   end
 
   def create
