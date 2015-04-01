@@ -9,10 +9,10 @@ class User < ApplicationModel
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
   
-  flags :notify_email_friend_requests, :default => false
+  flags :notify_email_friend_requests, :default => true
   flags :notify_email_messages, :default => false
-  flags :notify_email_challenges, :default => false
-  flags :notify_email_events, :default => false
+  flags :notify_email_challenges, :default => true
+  flags :notify_email_events, :default => true
 
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true
