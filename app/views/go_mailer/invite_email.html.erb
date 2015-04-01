@@ -1,0 +1,14 @@
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <p><%= @user.profile.full_name %> has invited you to join <%= Constant::AppName %>. Click <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/register" style="color:#006ba6">here</a> to register.</p>
+        <% if !@message.nil? %>
+          <p>"<%= @message %>"</p>
+          <p>- <%= @user.profile.full_name %></p>
+        <% end %>
+        <p><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+      </div>
+    </td>
+  </tr>
+</table>

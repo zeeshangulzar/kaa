@@ -38,7 +38,7 @@ class UsersController < ApplicationController
       json[:auth_basic_header] = user.auth_basic_header
       render :json => json and return
     else
-      return HESResponder("NUID, email or password is incorrect.", 401)
+      return HESResponder("NUID or password is incorrect.", 401)
     end
   end
 
@@ -54,7 +54,7 @@ class UsersController < ApplicationController
     if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
       @target_user.stats = @target_user.stats
       @target_user.recent_activities = @target_user.recent_activities
-      if @target_user.id == @current_user.id || @current_user.sub_promotion_coordinator_or_above?
+      if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
       end
     end

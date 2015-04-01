@@ -7,23 +7,27 @@
             <img src="http://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo.png?" + Time.now.to_i.to_s %>" style="width:175px; max-width:80%" />
           </td>
           <td style="text-align:right">
-            <img src="<%= @user.promotion.logo.url + '?' + Time.now.to_i.to_s %>" style="width:203px; max-width:90%" />
+            <img src="http://<%= DomainConfig::DomainNames.first + "/images/email/logo.jpg?" + Time.now.to_i.to_s %>" style="width:158px; max-width:90%" />
           </td>
         </tr>
       </table>
     </td>
-
   </tr>
   <tr>
-    <td style="background-color:#006BA6" align="center">
+    <td style="background-color:#f2f2f2" align="center">
       <table style="width:100%; width:630px; padding:16px;" cellspacing="0" cellpadding="0">
         <tr>
           <td colspan="2">
-            <table style="display:block;background-color:#FFF;box-shadow:0px 5px 5px #666;margin-bottom:10px" cellspacing="0" cellpadding="0">
+            <table style="display:block;background-color:#FFF;margin-bottom:10px" cellspacing="0" cellpadding="0">
               <tbody style="width:100%;display:block;">
                 <tr style="width:100%;display:block;">
-                  <td style="text-align:left;width:100%;display:block;">
+                  <td style="text-align:left;width:100%;display:block;font-family:Open Sans, Helvetica, Arial;">
                     <%= yield %>
+                  </td>
+                </tr>
+                <tr style="width:100%;display:block;height:6px;max-height:6px;padding:0px;margin:0px;">
+                  <td style="height:6px;max-height:6px;margin:0px;padding:0px">
+                    <img src="http://<%= DomainConfig::DomainNames.first %>/images/email/rainbow.jpg" style="margin:0px;width:600px;height:6px;padding:0px" />
                   </td>
                 </tr>
               </tbody>
@@ -34,8 +38,8 @@
           <td align="left">
             <!--<a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/emails/unsubscribe" style="color:#FFFFFF;font-family:Open Sans, Helvetica, Arial;">Unsubscribe</a>-->
           </td>
-          <td align="right" style="color:#FFFFFF;font-family:Open Sans, Helvetica, Arial;">
-            &copy; <%= Date.today.year %> Health Enhancement Systems
+          <td align="right" style="color:#838383;font-family:Open Sans, Helvetica, Arial;">
+            <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;">&copy; <%= Date.today.year %> Health Enhancement Systems</p>
           </td>
         </tr>
       </table>

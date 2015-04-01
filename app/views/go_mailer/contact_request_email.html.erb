@@ -1,36 +1,23 @@
 <table cellspacing="0" cellpadding="0" style="width:100%">
   <tr>
     <td align="left">
-      <h1 style="color:#4A7628;margin:16px;font-weight:bold;font-size:16px;"><%=  Constant::AppName %> Contact Request</h1>
+      <h1 style="font-family:Open Sans, Helvetica, Arial;color:#57a635;margin:17px;font-weight:bold;font-size:14px;"><%= Constant::AppName %>: Contact Request</h1>
     </td>
     <td align="right">
-      <p style="margin:16px;color:#aaa;">
-        <%= @promotion.current_date.to_s %>
+      <p style="margin:18px;color:#aaa;font-family:Open Sans, Helvetica, Arial;font-size:12px;">
+        <%= @user.promotion.current_date.strftime("%A, %B %-d") %>
       </p>
     </td>
   </tr>
   <tr>
-    <td style="background-color:#f1f7f7" colspan="2">
-      <div style="margin:16px">
-        <p>
-          <%= @contact_request['first_name'] + ' ' + @contact_request['last_name'] %>,
-        </p>
-        <p>
-          We've received your contact request and will get back to you shortly (within 1 business day).
-        </p>
-        <p>
-          Regards,<br/>
-          The <%= Constant::AppName %> Team
-        </p>
-        <p>
-          You said:
-        </p>
-        <p>
-          <%= @contact_request['comments'] %>
-        </p>
-        <p>
-          <a href="http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>">http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a>
-        </p>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <p><%= @contact_request['first_name'] + ' ' + @contact_request['last_name'] %>,</p>
+        <p>We've received your contact request and will get back to you shortly (within 1 business day).</p>
+        <p>Regards,<br/>The <%= Constant::AppName %> Team</p>
+        <p>You said:</p>
+        <p><%= @contact_request['comments'] %></p>
+        <p><a href="http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
       </div>
     </td>
   </tr>

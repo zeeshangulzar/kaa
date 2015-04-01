@@ -9,7 +9,7 @@ class Promotion < ApplicationModel
 
   has_many :users
   has_many :behaviors
-  has_many :exercise_activities
+  has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :posters, :order => 'visible_date DESC'
   has_many :success_stories, :order => 'created_at DESC'
@@ -41,6 +41,8 @@ class Promotion < ApplicationModel
 
   self.after_save :clear_hes_cache
   self.after_destroy :clear_hes_cache
+
+  after_commit :clear_cache
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -161,6 +163,11 @@ class Promotion < ApplicationModel
       return user.location.parent_location.resources_title
     end
     return self.resources_title
+  end
+
+  def clear_cache
+    cache_key = "promotion_#{self.id}"
+    Rails.cache.delete(cache_key)
   end
 
 end

@@ -1,0 +1,9 @@
+<%= @user.profile.full_name %> has invited you to join <%= Constant::AppName %>. Go to http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/register to register.
+
+<% if !@message.nil? %>
+"<%= @message %>"
+- <%= @user.profile.full_name %>
+<% end %>
+
+------
+http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>

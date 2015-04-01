@@ -1,0 +1,16 @@
+<%= Constant::AppName %>: Contact Request
+<%= @user.promotion.current_date.strftime("%A, %B %-d") %>
+
+<%= @contact_request['first_name'] + ' ' + @contact_request['last_name'] %>,
+
+We've received your contact request and will get back to you shortly (within 1 business day).
+
+Regards,
+The <%= Constant::AppName %> Team
+
+You said:
+
+<%= @contact_request['comments'] %>
+
+------
+http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>

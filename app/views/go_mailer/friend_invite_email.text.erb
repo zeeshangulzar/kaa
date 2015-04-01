@@ -1,0 +1,6 @@
+<%= @invitee.profile.full_name %>,
+
+<%= @inviter.profile.full_name %> has requested to be your <%= Friendship::Label %> on <%= Constant::AppName %>. Go to http://<%= @inviter.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/connections to respond to their request.
+
+------
+http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>
