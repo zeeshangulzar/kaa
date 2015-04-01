@@ -42,6 +42,8 @@ class Promotion < ApplicationModel
   self.after_save :clear_hes_cache
   self.after_destroy :clear_hes_cache
 
+  after_commit :clear_cache
+
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
   end
@@ -161,6 +163,11 @@ class Promotion < ApplicationModel
       return user.location.parent_location.resources_title
     end
     return self.resources_title
+  end
+
+  def clear_cache
+    cache_key = "promotion_#{self.id}"
+    Rails.cache.delete(cache_key)
   end
 
 end
