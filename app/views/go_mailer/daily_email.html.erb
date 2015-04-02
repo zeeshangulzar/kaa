@@ -19,7 +19,7 @@
   <tr>
     <td colspan="2">
       <div style="margin:3px 16px;font-family:Open Sans, Helvetica, Arial;">
-        <%= raw @tip.summary_html %> <strong><a style="color:#57a635;" href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tips/<%= @tip.id %>">More</a></strong>
+        <p><%= strip_tags(@tip.summary_html) %> <strong><a style="color:#57a635;" href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tips/<%= @tip.id %>">More</a></strong></p>
       </div>
     </td>
   <tr>
@@ -37,7 +37,7 @@
   <tr>
     <td>
       <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;font-size:14px">
-        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="display:block;float:left;color:#57a635;"><em>http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></em></a>
+        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="display:block;float:left;color:#57a635;"><em>http://kp.org/gokp</em></a>
       </div>
     </td>
     <td style="text-align:right;" align="right">
