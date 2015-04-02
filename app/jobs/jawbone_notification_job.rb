@@ -82,11 +82,11 @@ class JawboneNotificationJob
                                   # to the last JawboneUser created per xid. Most likely these are done promotions, but 
                                   # it's possible they are still going OR used by QA/DEV
                                   otherJbus.each do |otherJbu|
-                                    #if otherJbu.user.promotion.is_active && (validUserTrip(jbu))
+                                    if otherJbu.user
                                       JawboneLogger.log_entry(jmd.date,otherJbu,jmd,true)
-                                    #else
-                                    #  log "JawboneUser##{otherJbu.id} is not part of an active promotion",1
-                                    #end
+                                    else
+                                      log "JawboneUser##{otherJbu.id} does not have a User associated with it", 1
+                                    end
                                   end 
 
                                   notification.update_attributes :status=>JawboneNotification::Status[:processed]

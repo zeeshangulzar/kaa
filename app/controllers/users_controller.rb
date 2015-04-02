@@ -5,6 +5,9 @@ class UsersController < ApplicationController
   authorize :index, :coordinator
   authorize :destroy, :master
   authorize :authenticate, :public
+  authorize :forgot, :public
+  authorize :verify_password_reset, :public
+  authorize :password_reset, :public
 
   def index
     return HESResponder(@promotion.users.find(:all,:include=>:profile))
@@ -207,6 +210,7 @@ class UsersController < ApplicationController
   # Check is done to make sure the password is allowed to be changed for the user
   def password_reset
     password_changed = false;
+
     if allow_password_reset()
       unless params[:password].to_s.strip.empty?
         @password_reset_user.password = params[:password]
@@ -237,8 +241,8 @@ class UsersController < ApplicationController
     #
     # the link must be less than 60 minutes old (i.e. element 1,2 is a timestamp that must not be older than 60 minutes)
     allow_password_reset=false
-    if params[:id]
-      key = params[:id]
+    if params[:thing]
+      key = params[:thing]
       decoded_key = PerModelEncryption.url_base64_decode(key)
       string = Encryption.decrypt(decoded_key) rescue nil
       if string
@@ -259,6 +263,7 @@ class UsersController < ApplicationController
         end
       end
     end
+
     return allow_password_reset
   end
 
