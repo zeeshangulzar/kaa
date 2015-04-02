@@ -1,7 +1,7 @@
 class Location < ApplicationModel
   belongs_to :promotion
   belongs_to :parent_location, :class_name=>'Location'
-  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'sequence'
+  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'name'
   has_many :contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is null'
   has_many :truncated_contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is not null'
   attr_accessible *column_names

@@ -25,7 +25,7 @@ class Promotion < ApplicationModel
 
   has_custom_prompts :with => :evaluations
 
-  has_many :locations, :order => "parent_location_id, sequence", :dependent => :destroy
+  has_many :locations, :order => "parent_location_id, name", :dependent => :destroy
 
   has_wall
   has_evaluations
