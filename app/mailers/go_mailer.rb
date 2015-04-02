@@ -105,25 +105,22 @@ class GoMailer < ActionMailer::Base
 
   def password_reset(user, base_url)
     subject = "#{AppName}: Password Reset"
-    recipients = "#{user.contact.email}"
-    from = AppEmailWithName
-    reply_to = AppEmail
+    recipient = "#{user.email}"
+    from = FormattedFromAddress
+    reply_to = FromAddress
 
     @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/contact"
     @user = user
     @host = "#{base_url}"
 
-    mail(:to => recipients,
-      :subject => subject,
-      :from => from,
-      :reply_to => reply_to)
+    mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
 
   def forgot_password(user, base_url)
-    subject = "#{AppName}: Forgot Password"
-    recipients = "#{user.contact.email}"
-    from = AppEmailWithName
-    reply_to = AppEmail
+    subject = "#{AppName}: Forgotten Password"
+    recipient = "#{user.email}"
+    from = FormattedFromAddress
+    reply_to = FromAddress
 
     user.initialize_aes_iv_and_key_if_blank!
     key="#{SecureRandom.hex(16)}~#{user.id}~#{Time.now.utc.to_f}~#{user.updated_at.to_f}"
@@ -134,15 +131,8 @@ class GoMailer < ActionMailer::Base
 
     @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/password_reset/#{CGI.escape(encoded_encrypted_id_link)}"
     @user = user
-
     @host = "#{base_url}"
 
-    mail(:to => recipients,
-      :subject => subject,
-      :from => from,
-      :reply_to => reply_to)
+    mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
-
-
-
 end
