@@ -31,7 +31,7 @@ module KpwalkUserAdditions
         Rails.logger.warn "tying to kpwalk User##{kpwalk_data['user_id']} with token: #{self.kpwalk_token}"
         self.kpwalk_user_id = kpwalk_data['user_id']
         self.kpwalk_total_stars = kpwalk_data['total_stars_earned']
-        m = kpwalk_data['total_exercise_minutes']
+        m = kpwalk_data['total_exercise_minutes'] || 0
         self.kpwalk_total_minutes = m
         if m >= 75000
           self.kpwalk_level = 'diamond'
