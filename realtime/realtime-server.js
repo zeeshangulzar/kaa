@@ -5,9 +5,9 @@ try{
 	var fs = require('fs');
 	
 	var options = {
-		// key: fs.readFileSync('/etc/httpd/conf/apps/ssl/passport.key'),
-		// cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/passport.crt'),
-		// ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/geotrust_ca_bundle.crt')
+		key: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.key'),
+		cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.crt'),
+		ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.ca_bundle.crt')
 	};
 
 	app = require('https').createServer(options);
