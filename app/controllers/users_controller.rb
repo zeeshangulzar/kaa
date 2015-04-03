@@ -199,7 +199,7 @@ class UsersController < ApplicationController
   end
 
   def forgot
-    user = User.find(:first, :conditions => ["email = ?", params[:email]])
+    user = @promotion.users.find(:first, :conditions => ["email = ?", params[:email]])
     unless user.nil?
       GoMailer.forgot_password(user, get_host).deliver
     end
