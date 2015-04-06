@@ -123,7 +123,7 @@ class GoMailer < ActionMailer::Base
   end
 
   def forgot_password(user, base_url)
-    subject = "#{AppName}: Forgotten Password"
+    subject = "#{AppName}: Forgot Password"
     recipient = "#{user.email}"
     from = FormattedFromAddress
     reply_to = FromAddress

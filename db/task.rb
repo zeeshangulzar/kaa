@@ -36,9 +36,9 @@ class Task
             end
           }
 
-          if p.current_date.wday == 1 && !u.flags[:allow_daily_emails_monday]
+          if !u.flags[:allow_daily_emails_all_week]
             what_to_send = 'nothing'
-          elsif p.current_date.wday != 1 && !u.flags[:allow_daily_emails_all_week]
+          elsif p.current_date.wday != 1 && u.flags[:allow_daily_emails_monday]
             what_to_send = 'nothing'
           end
 
