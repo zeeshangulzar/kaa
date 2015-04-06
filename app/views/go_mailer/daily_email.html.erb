@@ -19,7 +19,7 @@
   <tr>
     <td colspan="2">
       <div style="margin:3px 16px;font-family:Open Sans, Helvetica, Arial;">
-        <p><%= strip_tags(@tip.summary_html) %> <strong><a style="color:#57a635;" href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tips/<%= @tip.id %>">More</a></strong></p>
+        <p><%= strip_tags(@tip.summary_html) %> <strong><a style="color:#57a635;" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tip/<%= @tip.id %>">More</a></strong></p>
       </div>
     </td>
   <tr>
@@ -29,7 +29,7 @@
         <div style="float:left;margin-left:20px;width:75%;font-family:Open Sans, Helvetica, Arial;">
           <span style="color:#777;font-size:14px;font-weight:bold;">Recipe of the day</span><br/>
           <span style="color:#006BA6;font-weight:bold;font-size:16px;"><%= @recipe.title %></span>
-          <p style="font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <strong><a style="color:#57a635;" href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe/<%= @recipe.id %>">More</a></strong></p>
+          <p style="font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <strong><a style="color:#57a635;" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe/<%= @recipe.id %>">More</a></strong></p>
         </div>
       </div>
     </td>
@@ -37,12 +37,12 @@
   <tr>
     <td>
       <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;font-size:14px">
-        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="display:block;float:left;color:#57a635;"><em>http://kp.org/gokp</em></a>
+        <a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="display:block;float:left;color:#57a635;"><em>http://kp.org/gokp</em></a>
       </div>
     </td>
     <td style="text-align:right;" align="right">
       <div style="margin:16px;float:right;font-family:Open Sans, Helvetica, Arial;">
-        <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><img src="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/images/email/log_progress.png" alt="Log Progress" /></a>
+        <a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><img src="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/images/email/log_progress.png" alt="Log Progress" /></a>
       </div>
     </td>
   </tr>
