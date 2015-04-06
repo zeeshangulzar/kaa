@@ -109,7 +109,7 @@ class Event < ApplicationModel
       recipients = self.user.friends
     end
     recipients.each{|recipient|
-      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/events/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
+      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
       if recipient.flags[:notify_email_events]
         Resque.enqueue(EventInviteEmail, self.id, recipient.id)
       end
@@ -125,13 +125,13 @@ class Event < ApplicationModel
     if !self.is_canceled && self.start_was != self.start || self.end_was != self.end || self.place_was != self.place
       n = {
         :title   => "Event Updated",
-        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/events/#{self.id}'>#{self.name}</a>\", has been updated."
+        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\", has been updated."
       }
     end
     if self.is_canceled && self.is_canceled_was != self.is_canceled
       n = {
         :title   => "Event Canceled",
-        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/events/#{self.id}'>#{self.name}</a>\", has been canceled."
+        :message => "#{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\", has been canceled."
       }
     end
     return unless n

@@ -8,8 +8,8 @@
     </td>
   </tr>
   <tr>
-    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
-      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+    <td align="left">
+      <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
         <h1 style="color:#4A7628;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this Go KP Recipe</h1>
         <% unless @message.empty? %>
         <p>
@@ -29,9 +29,9 @@
     </td>
   </tr>
   <tr>
-    <td style="background-color:#f1f7f7" colspan="2">
-      <div style="margin:16px">
-        <%= raw @recipe['description'] %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe/<%= @recipe.id %>" style="color:#FFFFFF;">View More</a>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <%= raw @recipe['description'] %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe?id=<%= @recipe.id %>" style="color:#006BA6;">View More</a>
       </div>
     </td>
   </tr>
