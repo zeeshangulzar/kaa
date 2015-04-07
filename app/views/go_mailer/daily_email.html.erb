@@ -19,7 +19,7 @@
   <tr>
     <td colspan="2">
       <div style="margin:3px 16px;font-family:Open Sans, Helvetica, Arial;">
-        <p><%= strip_tags(@tip.summary_html) %> <strong><a style="color:#57a635;" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tip/<%= @tip.id %>">More</a></strong></p>
+        <p><%= raw strip_tags(@tip.summary_html) %> <strong><a style="color:#57a635;" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tip/<%= @tip.id %>">More</a></strong></p>
       </div>
     </td>
   <tr>
