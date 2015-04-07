@@ -75,7 +75,7 @@ class PromotionsController < ApplicationController
       locations[index][:user_count] = User.where(:location_id => [location['id']] + location[:locations].collect{|l|l['id']}).count
       locations[index].delete(:locations)
     }
-    render :json => locations.to_json and return
+    render :json => {:data => locations} and return
   end
 
 end
