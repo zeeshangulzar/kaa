@@ -26,6 +26,8 @@ class Location < ApplicationModel
   has_one :resource
   has_many :banners
 
+  scope :top, lambda { where("parent_location_id IS NULL")}
+
   def depth
     d=0
     unless new_record?

@@ -1,7 +1,7 @@
 class PromotionsController < ApplicationController
   authorize :index, :create, :update, :destroy, :master
 
-  authorize :show, :current, :public
+  authorize :show, :current, :top_location_stats, :public
   authorize :index, :poster
   authorize :create, :update, :destroy, :master
 
@@ -67,6 +67,15 @@ class PromotionsController < ApplicationController
     else
       return HESResponder("Error deleting.", "ERROR")
     end
+  end
+
+  def top_location_stats
+    locations = @promotion.nested_locations
+    locations.each_with_index{|location, index|
+      locations[index][:user_count] = User.where(:location_id => [location['id']] + location[:locations].collect{|l|l['id']}).count
+      locations[index].delete(:locations)
+    }
+    render :json => locations.to_json and return
   end
 
 end

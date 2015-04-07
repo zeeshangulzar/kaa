@@ -185,7 +185,7 @@ class UsersController < ApplicationController
     end
     f = f.to_sym
     v = params[:value]
-    if @promotion.users.where(f=>v).count > 0
+    if @promotion.users.where("LOWER(#{f}) = ?", v.downcase).count > 0
       return HESResponder(f.to_s.titleize + " is not unique within promotion.", "ERROR")
     else
       return HESResponder()

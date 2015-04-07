@@ -4,10 +4,10 @@
       <table style="width:100%; width:630px; padding:16px;" cellspacing="0" cellpadding="0">
         <tr>
           <td style="text-align:left">
-            <img src="http://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo.png?" + Time.now.to_i.to_s %>" style="width:175px; max-width:80%" />
+            <img src="https://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo.png?" + Time.now.to_i.to_s %>" style="width:175px; max-width:80%" />
           </td>
           <td style="text-align:right">
-            <img src="http://<%= DomainConfig::DomainNames.first + "/images/email/logo.jpg?" + Time.now.to_i.to_s %>" style="width:158px; max-width:90%" />
+            <img src="https://<%= DomainConfig::DomainNames.first + "/images/email/logo.jpg?" + Time.now.to_i.to_s %>" style="width:158px; max-width:90%" />
           </td>
         </tr>
       </table>
@@ -27,7 +27,7 @@
                 </tr>
                 <tr style="width:100%;display:block;height:6px;max-height:6px;padding:0px;margin:0px;">
                   <td style="height:6px;max-height:6px;margin:0px;padding:0px">
-                    <img src="http://<%= DomainConfig::DomainNames.first %>/images/email/rainbow.jpg" style="margin:0px;width:600px;height:6px;padding:0px" />
+                    <img src="https://<%= DomainConfig::DomainNames.first %>/images/email/rainbow.jpg" style="margin:0px;width:600px;height:6px;padding:0px" />
                   </td>
                 </tr>
               </tbody>
@@ -36,7 +36,7 @@
         </tr>
         <tr>
           <td align="left" style="font-family:Open Sans, Helvetica, Arial;">
-            <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;"><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/settings" style="color:#006ba6;font-family:Open Sans, Helvetica, Arial;">Email Preferences</a></p>
+            <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;"><a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/settings" style="color:#006ba6;font-family:Open Sans, Helvetica, Arial;">Email Preferences</a></p>
           </td>
           <td align="right" style="color:#838383;font-family:Open Sans, Helvetica, Arial;">
             <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;">&copy; <%= Date.today.year %> Health Enhancement Systems</p>

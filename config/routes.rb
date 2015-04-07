@@ -222,4 +222,6 @@ Go::Application.routes.draw do
 
   match '/jawbones/:action', :controller => :jawbones
 
+  match 'numbers' => "promotions#top_location_stats", :via => :get
+
 end
