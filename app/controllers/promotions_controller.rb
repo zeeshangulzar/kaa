@@ -1,7 +1,7 @@
 class PromotionsController < ApplicationController
   authorize :index, :create, :update, :destroy, :master
 
-  authorize :show, :current, :top_location_stats, :public
+  authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :public
   authorize :index, :poster
   authorize :create, :update, :destroy, :master
 
@@ -76,6 +76,11 @@ class PromotionsController < ApplicationController
       locations[index].delete(:locations)
     }
     render :json => {:data => locations} and return
+  end
+
+  def verify_users_for_achievements
+    Profile.do_nuid_verification
+    render :text=>'OK',:layout=>nil
   end
 
 end
