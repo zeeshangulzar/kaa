@@ -29,6 +29,9 @@ class PromotionsController < ApplicationController
   def current
     #@promotion.logo = @promotion.logo_for_user(@current_user) if @current_user
     #@promotion.resources_title = @promotion.resources_title_for_user(@current_user) if @current_user
+    if @current_user && @current_user.user?
+      return HESCachedResponder('promotions', @promotion)
+    end
     return HESResponder(@promotion)
   end
 
