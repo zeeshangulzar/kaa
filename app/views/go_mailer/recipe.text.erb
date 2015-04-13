@@ -2,7 +2,7 @@
 @recipe = @object
 %>
 <%= @user.profile.full_name %> sent you this Go KP Recipe
-<% unless @message.empty? %>
+<% unless !@message || @message.empty? %>
    <%= @user.profile.first_name %> says:
   <%= @message %>
 <% end %>

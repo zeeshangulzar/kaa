@@ -55,7 +55,7 @@ class BannersController < ApplicationController
   end
 
   def destroy
-    banner = banner.find(params[:id]) rescue nil
+    banner = Banner.find(params[:id]) rescue nil
     return HESResponder("Banner", "NOT_FOUND") if !banner
     if (@current_user.coordinator_or_above? && @current_user.promotion_id == banner.promotion_id) || @current_user.master?
       Banner.transaction do

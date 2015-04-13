@@ -1,7 +1,7 @@
 class PostersController < ApplicationController
   authorize :current, :public
   authorize :index, :show, :user
-  authorize :create, :update, :delete, :coordinator
+  authorize :create, :update, :delete, :location_coordinator
 
   def current
     return HESResponder(@promotion.posters.where("posters.visible_date <= '#{@promotion.current_date}'").limit(1))
@@ -12,7 +12,7 @@ class PostersController < ApplicationController
       # /promotions/:id/posters
       p = Promotion.find(params[:promotion_id]) rescue nil
       return HESresponder("Promotion", "NOT_FOUND") if !p
-      if @current_user.master? || (@current_user.coordinator? && @current_user.promotion_id == p.id)
+      if @current_user.master? || (@current_user.location_coordinator_or_above? && @current_user.promotion_id == p.id)
         start_date = false
         end_date = false
         if !params[:start].nil?

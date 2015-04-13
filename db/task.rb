@@ -42,20 +42,24 @@ class Task
             what_to_send = 'nothing'
           end
 
+          skip = false
           begin
             if queue
               case what_to_send
                 when 'daily_email'
-                    mails << GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
-                    mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
+                  mails << GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                  mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
                 when 'reminder'
-                    d=which.to_s.split('reminder_').last.to_i
-                    mails << GoMailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
-                    mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
+                  d=which.to_s.split('reminder_').last.to_i
+                  mails << GoMailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
+                  mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
               else
+                skip = true
               end
-              mails.last.bcc = u.email_with_name
-              to = mails.last.bcc
+              unless skip
+                mails.last.bcc = u.email_with_name
+                to = mails.last.bcc
+              end
             end
             puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to}"
           rescue Exception => ex

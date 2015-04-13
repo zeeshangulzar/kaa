@@ -7,19 +7,26 @@ class EventsController < ApplicationController
     options = {}
     options[:start] = params[:start].nil? ? @promotion.current_time.beginning_of_month : (params[:start].is_i? ? Time.at(params[:start].to_i).to_datetime : params[:start].to_datetime)
     options[:end] = params[:end].nil? ? (!params[:start].nil? ? options[:start].end_of_month : @promotion.current_time.end_of_month) : (params[:end].is_i? ? Time.at(params[:end.to_i]).to_datetime : params[:end].to_datetime)
-
-    if !params[:status].nil?
-      if Invite::STATUS.stringify_keys.keys.include?(params[:status])
-        # ?status=[unresponded, maybe, attending, declined]
-        e = @target_user.send(params[:status] + "_events", options)
-      elsif params[:status].is_i? && Invite::STATUS.values.include?(params[:status].to_i)
-        # ?status=[0, 1, 2, 3]
-        e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events", options)
-      else
-        return HESResponder("No such status.", "ERROR")
-      end
+    options[:include_canceled] = (!params[:include_canceled].nil? && params[:include_canceled]) ? true : false
+    if params[:type] && params[:type] == "C" && @current_user.location_coordinator_or_above? && params[:location_id] && params[:location_id].is_i?
+      location = Location.find(params[:location_id]) rescue nil
+      return HESResponder("Location", "NOT_FOUND") if !location
+      location_ids = !location.top? ? [location.id] : [location.id] + location.locations.collect{|l|l.id}
+      e = Event.where(:event_type => "C", :location_id => location_ids).where("events.start >= '#{options[:start]}' AND events.end <= '#{options[:end]}' #{"AND events.is_canceled = 0" unless options[:include_canceled]}")
     else
-      e = @target_user.subscribed_events(options)
+      if !params[:status].nil?
+        if Invite::STATUS.stringify_keys.keys.include?(params[:status])
+          # ?status=[unresponded, maybe, attending, declined]
+          e = @target_user.send(params[:status] + "_events", options)
+        elsif params[:status].is_i? && Invite::STATUS.values.include?(params[:status].to_i)
+          # ?status=[0, 1, 2, 3]
+          e = @target_user.send(Invite::STATUS.index(params[:status].to_i).to_s + "_events", options)
+        else
+          return HESResponder("No such status.", "ERROR")
+        end
+      else
+        e = @target_user.subscribed_events(options)
+      end
     end
     events_hash = []
     e.each{|event|
