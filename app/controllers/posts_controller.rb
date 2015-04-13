@@ -67,7 +67,13 @@ class PostsController < ApplicationController
           end
         }
       end
-      user_ids = (!params[:friends_only].nil? && params[:friends_only]) ? @current_user.friends.collect{|f|f.id} : []
+      user_ids = []
+      if !params[:friends_only].nil? && params[:friends_only]
+        user_ids = @current_user.friends.collect{|f|f.id}
+        user_ids = user_ids.empty? ? [0] : user_ids
+      elsif !params[:user_id].nil? && params[:user_id].is_i?
+        user_ids = [params[:user_id].to_i]
+      end
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
 
       conditions = {
