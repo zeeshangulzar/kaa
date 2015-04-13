@@ -11,7 +11,9 @@ class ChallengesController < ApplicationController
       challenges = @promotion.challenges.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
     end
     if params[:type]
-      if Challenge::TYPE.stringify_keys.keys.include?(params[:type])
+      if params[:type] == 'regional_coordinator'
+        challenges = challenges.send('regional')
+      elsif Challenge::TYPE.stringify_keys.keys.include?(params[:type])
         # ?type=[peer,regional,etc.]
         if params[:type] == 'regional'
           # only return regional challenges that the user isn't currently working towards
