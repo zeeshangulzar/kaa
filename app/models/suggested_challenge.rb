@@ -1,5 +1,5 @@
 class SuggestedChallenge < ApplicationModel
-  attr_privacy :promotion_id, :description, :user_id, :status, :name, :any_user
+  attr_privacy :promotion_id, :description, :user_id, :status, :name, :created_at, :any_user
   attr_privacy_path_to_user :user
   attr_accessible *column_names
   

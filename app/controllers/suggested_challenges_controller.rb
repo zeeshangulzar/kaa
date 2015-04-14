@@ -5,7 +5,7 @@ class SuggestedChallengesController < ApplicationController
   
   def index
     if params[:promotion_id]
-      return HESResponder(@promotion.suggested_challenges)
+      return HESResponder(@promotion.suggested_challenges.order('created_at DESC'))
     elsif @current_user.id == @target_user.id || @current_user.location_coordinator?
       return HESResponder(@target_user.suggested_challenges)
     else

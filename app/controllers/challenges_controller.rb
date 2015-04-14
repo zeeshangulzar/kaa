@@ -12,7 +12,7 @@ class ChallengesController < ApplicationController
     end
     if params[:type]
       if params[:type] == 'regional_coordinator'
-        challenges = challenges.send('regional')
+        challenges = challenges.send('regional').order('visible_from DESC')
       elsif Challenge::TYPE.stringify_keys.keys.include?(params[:type])
         # ?type=[peer,regional,etc.]
         if params[:type] == 'regional'
