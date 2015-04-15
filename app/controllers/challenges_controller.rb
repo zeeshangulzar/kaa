@@ -1,7 +1,7 @@
 class ChallengesController < ApplicationController
   
   authorize :index, :show, :user
-  authorize :create, :update, :destroy, :coordinator
+  authorize :create, :update, :destroy, :coordinator, :location_coordinator
   
   def index
     if @current_user.location_coordinator_or_above?
