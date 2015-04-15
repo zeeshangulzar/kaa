@@ -129,7 +129,7 @@ class GoMailer < ActionMailer::Base
     reply_to = FromAddress
 
     user.initialize_aes_iv_and_key_if_blank!
-    key="#{SecureRandom.hex(16)}~#{user.id}~#{Time.now.utc.to_f}~#{user.updated_at.to_f}"
+    key="#{SecureRandom.hex(4)}~#{user.id}~#{Time.now.utc.to_f}~#{user.updated_at.to_f}"
     encrypted_key = user.aes_encrypt(key)
     encoded_encrypted_key = PerModelEncryption.url_base64_encode(encrypted_key).chomp
     encrypted_id_link = Encryption.encrypt("#{user.id}~#{encoded_encrypted_key}")
