@@ -31,6 +31,9 @@ class ChallengesSentController < ApplicationController
       if challenge_sent.user.id != @current_user.id && !@current_user.master?
         return HESResponder("Warning: Attempting impersonation. Activity logged.", "ERROR")
       end
+      if @current_user.challenges_sent_this_week.count >= 4
+        return HESResponder("Can't send anymore challenges.", "ERROR")
+      end
       ChallengeSent.transaction do
         challenge_sent.save!
         # TODO: any point in validate groups and users? challenge_sent.validate_users_and_groups()

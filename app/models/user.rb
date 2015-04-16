@@ -710,4 +710,8 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     @recent_activities = hash
   end
 
+  def challenges_sent_this_week
+    return self.challenges_sent.where("created_at >= ?", self.promotion.current_time.beginning_of_week)
+  end
+
 end
