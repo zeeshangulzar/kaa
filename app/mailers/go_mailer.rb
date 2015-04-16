@@ -101,7 +101,7 @@ class GoMailer < ActionMailer::Base
     sent_on = promotion.current_time
     headers 'return-path'=>FromAddress
 
-    mail(:to => to, :subject => "#{Constant::AppName}: #{@tip.email_subject}", :from => from, :reply_to => reply_to)
+    mail(:to => to, :subject => "#{Constant::AppName}: #{@tip.title}", :from => from, :reply_to => reply_to)
     
   end
 

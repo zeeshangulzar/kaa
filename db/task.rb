@@ -43,11 +43,14 @@ class Task
           end
 
           skip = false
+          daily_email = false
           begin
             if queue
               case what_to_send
                 when 'daily_email'
-                  mails << GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                  # cache rendered daily email..
+                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u) if !daily_email
+                  mails << daily_email
                   mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
                 when 'reminder'
                   d=which.to_s.split('reminder_').last.to_i
