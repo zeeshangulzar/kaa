@@ -351,7 +351,7 @@ class Post < ApplicationModel
       user_badge.id AS milestone_id, locations.id AS location_id, locations.name AS location_name
       FROM users
       JOIN profiles ON profiles.user_id = users.id
-      JOIN locations ON locations.id = users.top_level_location_id
+      JOIN locations ON locations.id = users.location_id
       LEFT JOIN (
         SELECT
         user_badges.user_id, badges.id
