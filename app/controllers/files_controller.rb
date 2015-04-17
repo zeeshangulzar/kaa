@@ -27,7 +27,7 @@ class FilesController < ApplicationController
 
       unless FileTest::directory?(DIRNAME)
         Dir::mkdir(Rails.root.join("public")) unless File.exists?(Rails.root.join("public"))
-        Dir::mkdir(Rails.root.join("public/tmp"))
+        Dir::mkdir(Rails.root.join("public/tmp")) unless File.exists?(Rails.root.join("public/tmp"))
         Dir::mkdir(DIRNAME)
       end
 
