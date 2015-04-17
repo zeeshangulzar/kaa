@@ -12,7 +12,7 @@ class Post < ApplicationModel
 
   belongs_to :root_post, :class_name => Post, :foreign_key => :root_post_id
 
-  has_many :replies, :class_name => Post, :foreign_key => :parent_post_id, :order => "created_at DESC"
+  has_many :posts, :class_name => Post, :foreign_key => :parent_post_id, :order => "created_at DESC"
 
   has_many :child_posts, :class_name => Post, :foreign_key => :root_post_id
 
@@ -52,14 +52,14 @@ class Post < ApplicationModel
 
   after_update :notify_if_flagged
 
-  scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
+  scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:posts => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
   scope :locationed, lambda { |location_id|
     locations = Location.find(location_id).children.collect{|l|l.id}.push(location_id)
-    where(:depth => 0, :users => {:location_id => locations}).includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC")
+    where(:depth => 0, :users => {:location_id => locations}).includes([:user, {:likes => :user}, {:posts => [:user, {:likes => :user}]}] ).order("posts.created_at DESC")
   }
   
-  scope :reply, lambda { where("depth > 0").includes([:user, {:likes => :user}, {:replies => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
+  scope :reply, lambda { where("depth > 0").includes([:user, {:likes => :user}, {:posts => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
   scope :before, lambda { |post_id| where("`posts`.id < :post_id", {:post_id => post_id || 10000000}) }
 
