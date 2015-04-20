@@ -54,7 +54,7 @@ class PostsController < ApplicationController
   def index
     if @wallable.class == Post
       # parent is Post.. so just grab the replies..
-      return HESResponder(@wallable.replies)
+      return HESResponder(@wallable.posts)
     elsif [Promotion].include?(@wallable.class)
       limit = params[:page_size].nil? ? 50 : params[:page_size].to_i
       offset = params[:offset].nil? ? 0 : params[:offset].to_i
@@ -140,7 +140,7 @@ class PostsController < ApplicationController
 
   def popular_posts
     # Popular weight determined by: (reply_weight + like_weight) * days_old_weight
-    @popular_posts = @wallable.posts.top.sort_by {|post| ((post.replies.size * HesPosts.reply_weight) + post.likes.size * HesPosts.like_weight) * post.days_old_weight}.reverse
+    @popular_posts = @wallable.posts.top.sort_by {|post| ((post.posts.size * HesPosts.reply_weight) + post.likes.size * HesPosts.like_weight) * post.days_old_weight}.reverse
     @popular_posts = @popular_posts[0..19]
 
     return HESResponder(@popular_posts)

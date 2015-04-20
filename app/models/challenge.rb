@@ -1,6 +1,6 @@
 class Challenge < ApplicationModel
   self.inheritance_column = 'column_that_is_not_type'
-  attr_privacy :promotion_id, :name, :description, :type, :location_id, :location, :visible_from, :visible_to, :creator, :image, :any_user
+  attr_privacy :promotion_id, :name, :description, :type, :location_id, :location, :visible_from, :visible_to, :creator, :image, :status, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
   
@@ -22,6 +22,19 @@ class Challenge < ApplicationModel
 
   TYPE.each_pair do |key, value|
     self.send(:define_method, "#{key}?", Proc.new { self.type == value })
+  end
+  
+  STATUS = {
+    :not_deleted  => 1,
+    :deleted      => 0
+  }
+
+  STATUS.each_pair do |key, value|
+    self.send(:scope, key, where(:status => value))
+  end
+
+  STATUS.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.status == value })
   end
 
   # Define scopes for prompt type

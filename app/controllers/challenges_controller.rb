@@ -5,21 +5,21 @@ class ChallengesController < ApplicationController
   
   def index
     if @current_user.location_coordinator_or_above?
-      challenges = @promotion.challenges
+      challenges = @promotion.challenges.not_deleted
     else
       # regular user should only see active challenges
-      challenges = @promotion.challenges.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
+      challenges = @promotion.challenges.not_deleted.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
     end
     if params[:type]
       if params[:type] == 'regional_coordinator'
-        challenges = challenges.send('regional').where(:location_id => @current_user.top_level_location_id).order('visible_from DESC')
+        challenges = challenges.send('regional').not_deleted.where(:location_id => @current_user.top_level_location_id).order('visible_from DESC')
       elsif Challenge::TYPE.stringify_keys.keys.include?(params[:type])
         # ?type=[peer,regional,etc.]
         if params[:type] == 'regional'
           # only return regional challenges that the user isn't currently working towards
-          challenges = challenges.regional.select{|challenge| !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id) }
+          challenges = challenges.regional.not_deleted.select{|challenge| !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id) }
         else
-          challenges = challenges.send(params[:type])
+          challenges = challenges.send(params[:type]).not_deleted
         end
       else
         return HESResponder("No such type.", "ERROR")
@@ -30,7 +30,7 @@ class ChallengesController < ApplicationController
 
   def show
     challenge = Challenge.find(params[:id]) rescue nil
-    if !challenge
+    if !challenge || challenge.deleted?
       return HESResponder("Challenge", "NOT_FOUND")
     elsif (challenge.promotion != @current_user.promotion) && !@current_user.master?
       return HESResponder("You may not view this challenge.", "DENIED")
