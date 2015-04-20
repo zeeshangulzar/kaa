@@ -24,6 +24,7 @@ class Task
 
         mails=[]
 
+        daily_email = false
         users.each{ |u|
 
           what_to_send = 'daily_email'
@@ -43,7 +44,6 @@ class Task
           end
 
           skip = false
-          daily_email = false
           begin
             if queue
               case what_to_send
@@ -59,7 +59,9 @@ class Task
               else
                 skip = true
               end
-              unless skip
+              if skip
+                to = u.email_with_name
+              else
                 mails.last.bcc = u.email_with_name
                 to = mails.last.bcc
               end
