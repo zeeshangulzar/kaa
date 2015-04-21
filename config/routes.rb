@@ -43,6 +43,7 @@ Go::Application.routes.draw do
       get 'search', :to=>'users#search'
       post 'authenticate', :to => 'users#authenticate'
       post 'verify_password_reset' => 'users#verify_password_reset', :via => :post
+      post 'impersonate' => 'users#impersonate', :via => :post
       put 'password_reset' => 'users#password_reset', :via => :put
     end
     resources :profiles, :only => [:update]
@@ -51,6 +52,8 @@ Go::Application.routes.draw do
     resources :long_term_goals, :only => [:index, :show]
     resources :personal_action_plans, :only => [:index, :show]
   end
+
+  match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
 
   match 'badges' => 'badges#user_badges_earned', :via => 'get'
   match 'users/:user_id/badges' => 'badges#user_badges_earned', :via => 'get'
