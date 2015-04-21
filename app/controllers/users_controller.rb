@@ -267,4 +267,11 @@ class UsersController < ApplicationController
     return allow_password_reset
   end
 
+  def track
+    if !params[:uri].nil?
+      @current_user.requests.create(:uri => params[:uri], :ip => request.remote_ip)
+    end
+    return HESResponder()
+  end
+
 end

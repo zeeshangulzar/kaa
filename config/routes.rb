@@ -9,6 +9,7 @@ Go::Application.routes.draw do
     resources :organizations, :only => [:index, :show]
   end
 
+  match "/track" => "users#track", :via => :post
   match "/users/validate" => "users#validate", :via => :post
   match "/users/:user_id/profile" => "profiles#show", :via => :get
   match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get

@@ -35,6 +35,8 @@ class User < ApplicationModel
   }
   
   # pulling in friendships..
+
+  has_many :requests, :order => "created_at DESC"
   
   has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships

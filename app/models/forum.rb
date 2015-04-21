@@ -16,7 +16,7 @@ class Forum < ApplicationModel
   end
 
   def post_count
-    return self.posts.count
+    return self.posts.top.count
   end
 
 end
