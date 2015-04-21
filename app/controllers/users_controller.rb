@@ -8,9 +8,34 @@ class UsersController < ApplicationController
   authorize :forgot, :public
   authorize :verify_password_reset, :public
   authorize :password_reset, :public
+  authorize :impersonate, :master
+  authorize :get_user_from_auth_key, :public
+
+  def impersonate
+    impersonate_user = User.find(params[:impersonate_id])
+
+    json = impersonate_user.as_json
+    json[:auth_key] = impersonate_user.auth_key
+    render :json => json and return
+    
+    return HESResponder(impersonate_user)
+  end
+
+  def get_user_from_auth_key
+    impersonated_user = User.where(:auth_key => params[:auth_key]).first
+
+    json = impersonated_user.as_json
+    json[:auth_basic_header] = impersonated_user.auth_basic_header
+    
+    render :json => json and return
+  end
 
   def index
-    return HESResponder(@promotion.users.find(:all,:include=>:profile))
+    sql = "SELECT users.id, first_name, last_name, email, name FROM users LEFT JOIN profiles ON users.id = profiles.user_id LEFT JOIN locations ON users.top_level_location_id = locations.id WHERE users.promotion_id = #{@promotion.id};"
+
+    rows = ActiveRecord::Base.connection.select_all(sql)
+
+    return HESResponder(rows)
   end
 
   def authenticate
