@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  authorize :create, :validate, :public
+  authorize :create, :validate, :track, :public
   authorize :search, :show, :user
   authorize :update, :user
   authorize :index, :coordinator
@@ -269,7 +269,14 @@ class UsersController < ApplicationController
 
   def track
     if !params[:uri].nil?
-      @current_user.requests.create(:uri => params[:uri], :ip => request.remote_ip)
+      if @current_user && @current_user.user_or_above?
+        @current_user.requests.create(:uri => params[:uri], :ip => request.remote_ip)
+      else
+        r = Request.new(:uri => params[:uri], :ip => request.remote_ip)
+        if r.valid?
+          r.save!
+        end
+      end
     end
     return HESResponder()
   end
