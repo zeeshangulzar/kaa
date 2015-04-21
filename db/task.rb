@@ -23,10 +23,10 @@ class Task
         day = Tip.get_day_number_from_date(p.current_date)
 
         mails=[]
+        addresses=[]
 
         daily_email = false
         users.each{ |u|
-
           what_to_send = 'daily_email'
 
           p.email_reminders.desc.each{|reminder|
@@ -49,33 +49,28 @@ class Task
               case what_to_send
                 when 'daily_email'
                   # cache rendered daily email..
-                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u) if !daily_email
+                  if !daily_email
+                    daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                  end
                   mails << daily_email
-                  mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
                 when 'reminder'
                   d=which.to_s.split('reminder_').last.to_i
                   mails << GoMailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
-                  mails.last.bcc='' # not sure why TMail doesn't just make this an empty array to begin with...
               else
                 skip = true
               end
-              if skip
-                to = u.email_with_name
-              else
-                mails.last.bcc = u.email_with_name
-                to = mails.last.bcc
-              end
+              to = u.email_with_name
+              addresses << CGI.unescapeHTML(to) unless skip
             end
             puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to}"
           rescue Exception => ex
             puts "ERROR processing user #{u.id} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
           end
         } # end each user
-
         if queue
           # make the XML file for this promotion
           tag = "gokp-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
-          XmlEmailDelivery.deliver_many(mails,tag) unless mails.empty?
+          XmlEmailDelivery.deliver_many(mails,tag,addresses) unless mails.empty?
         end
 
       end # end wday not 0,6

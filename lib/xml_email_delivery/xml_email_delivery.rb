@@ -26,7 +26,7 @@ class XmlEmailDelivery
     self.deliver_many [tmail],tag
   end
   
-  def self.deliver_many(tmails,tag)
+  def self.deliver_many(tmails,tag,addresses=nil)
     base_path = ''
     if File.exists?('/var/xml')  # production
       base_path = "/var/xml"
@@ -75,9 +75,17 @@ class XmlEmailDelivery
       xmlRecipientEmailId = xmlRecipient.add_element "email_id"
       xmlRecipientEmailId.text = xmlEmail.elements["id"].text
       xmlRecipientEmailAddress = xmlRecipient.add_element "address"
-      xmlRecipientEmailAddress.text = tmail.bcc
+      if addresses.nil?
+        xmlRecipientEmailAddress.text = tmail.bcc.to_s
+      else
+        xmlRecipientEmailAddress.text = CGI.unescapeHTML(addresses[idx])
+      end
       xmlRecipientEmailAddress = xmlRecipient.add_element "encrypted_address"
-      xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(tmail.bcc.to_s).chomp)
+      if addresses.nil?
+        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(tmail.bcc.to_s).chomp)
+      else
+        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(addresses[idx]).chomp)
+      end
     end
 
     # write it to a temp file, then rename the temp file
