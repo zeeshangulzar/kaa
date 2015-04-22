@@ -54,12 +54,14 @@ module HESControllerMixins
       [ :coordinator, :reseller, :master ].include?(role)
     elsif rule == :sub_promotion_coordinator
       [ :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
+    elsif rule == :regional_coordinator
+      [ :regional_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     elsif rule == :location_coordinator
-      [ :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
+      [ :location_coordinator, :regional_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     elsif rule == :user
-      [ :user, :poster, :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
+      [ :user, :poster, :location_coordinator, :regional_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     elsif rule == :public
-      [ :public, :user, :poster, :location_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
+      [ :public, :user, :poster, :location_coordinator, :regional_coordinator, :sub_promotion_coordinator, :coordinator, :reseller, :master ].include?(role)
     else
       false
     end
