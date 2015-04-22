@@ -6,7 +6,7 @@ class Fact < ContentModel
 
   customize_by :promotion
 
-  default_scope :order => "date ASC"
+  default_scope :order => "date DESC"
   
   markdown :content
 
