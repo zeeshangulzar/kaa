@@ -26,7 +26,7 @@ class ResourcesController < ApplicationController
   def create
     resource = @promotion.resources.build(params[:resource])
     return HESResponder(resource.errors.full_messages, "ERROR") if !resource.valid?
-    if (@current_user.location_coordinator? && @current_user.location_ids.include?(resource.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
+    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && @current_user.location_ids.in?(resource.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
       Resource.transaction do
         resource.save!
       end
@@ -42,7 +42,7 @@ class ResourcesController < ApplicationController
     # can't change a resource's location or promotion, for now..
     params[:resource].delete(:location_id)
     params[:resource].delete(:promotion_id)
-    if (@current_user.location_coordinator? && @current_user.location_ids.include?(resource.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == resource.promotion_id) || @current_user.master?
+    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && @current_user.location_ids.in?(resource.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == resource.promotion_id) || @current_user.master?
       resource.assign_attributes(params[:resource])
       return HESResponder(resource.errors.full_messages, "ERROR") if !resource.valid?
       Resource.transaction do

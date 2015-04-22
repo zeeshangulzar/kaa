@@ -1,6 +1,6 @@
 class BannersController < ApplicationController
 
-  authorize :create, :update, :destroy, :location_coordinator
+  authorize :create, :update, :destroy, :regional_coordinator
   authorize :index, :show, :public
   
   def index
@@ -26,7 +26,7 @@ class BannersController < ApplicationController
   def create
     banner = @promotion.banners.build(params[:banner])
     return HESResponder(banner.errors.full_messages, "ERROR") if !banner.valid?
-    if (@current_user.location_coordinator? && @current_user.location_ids.include?(banner.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
+    if (@current_user.regional_coordinator? && @current_user.location_ids.include?(banner.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
       Banner.transaction do
         banner.save!
       end
@@ -42,7 +42,7 @@ class BannersController < ApplicationController
     # can't change a banner's location or promotion, for now..
     params[:banner].delete(:location_id)
     params[:banner].delete(:promotion_id)
-    if (@current_user.location_coordinator? && @current_user.location_ids.include?(banner.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == banner.promotion_id) || @current_user.master?
+    if (@current_user.regional_coordinator? && @current_user.location_ids.include?(banner.location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == banner.promotion_id) || @current_user.master?
       banner.assign_attributes(params[:banner])
       return HESResponder(banner.errors.full_messages, "ERROR") if !banner.valid?
       Banner.transaction do
