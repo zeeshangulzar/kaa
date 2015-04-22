@@ -51,6 +51,7 @@ Go::Application.routes.draw do
     resources :success_stories, :only => [:index, :show]
     resources :long_term_goals, :only => [:index, :show]
     resources :personal_action_plans, :only => [:index, :show]
+    resources :team_invites
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
@@ -86,6 +87,8 @@ Go::Application.routes.draw do
     resources :articles
     resources :resources
     resources :banners
+    resources :locations
+    resources :competitions
   end
 
   # CONTENT MODELS
@@ -227,5 +230,15 @@ Go::Application.routes.draw do
   match '/jawbones/:action', :controller => :jawbones
 
   match '/numbers' => "promotions#top_location_stats", :via => :get
+
+  resources :teams do
+    resources :team_members, :path => "members"
+    resources :team_invites, :path => "invites"
+    resources :team_photos, :path => "photos"
+  end
+
+  resources :competitions do
+    resources :teams
+  end
 
 end

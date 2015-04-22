@@ -716,4 +716,32 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return self.challenges_sent.where("created_at >= ?", self.promotion.current_time.beginning_of_week)
   end
 
+  def current_team
+    return nil if self.promotion.current_competition.nil?
+    current_competition_id = self.promotion.current_competition.id
+    sql = "
+SELECT teams.id
+FROM teams
+JOIN team_members ON team_members.team_id = teams.id
+WHERE
+team_members.user_id = #{self.id}
+AND team_members.competition_id = #{current_competition_id}
+AND teams.competition_id = #{current_competition_id}
+    "
+    return Team.find_by_sql(sql)
+  end
+
+  def team_invites
+    return nil if self.promotion.current_competition.nil?
+    current_competition_id = self.promotion.current_competition.id
+    sql = "
+SELECT team_invites.id
+FROM team_invites
+WHERE
+team_invites.user_id = #{self.id}
+AND team_invites.competition_id = #{current_competition_id}
+    "
+    return TeamInvite.find_by_sql(sql)
+  end
+
 end
