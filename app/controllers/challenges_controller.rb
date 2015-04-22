@@ -4,12 +4,8 @@ class ChallengesController < ApplicationController
   authorize :create, :update, :destroy, :coordinator, :location_coordinator
   
   def index
-    if @current_user.location_coordinator_or_above?
-      challenges = @promotion.challenges.not_deleted
-    else
-      # regular user should only see active challenges
-      challenges = @promotion.challenges.not_deleted.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
-    end
+    # regular user should only see active challenges
+    challenges = @promotion.challenges.not_deleted.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
     if params[:type]
       if params[:type] == 'regional_coordinator'
         challenges = challenges.send('regional').not_deleted.where(:location_id => @current_user.top_level_location_id).order('visible_from DESC')
