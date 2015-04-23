@@ -1,7 +1,7 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :members, :any_user
+  attr_privacy :id, :name, :motto, :members, :image, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user
@@ -10,6 +10,8 @@ class Team < ApplicationModel
   validates_presence_of :name
 
   validates_uniqueness_of :name, :scope => :competition_id
+
+  mount_uploader :image, TeamImageUploader
 
   def leader
     unless self.team_members.where(:is_leader => 1).empty?

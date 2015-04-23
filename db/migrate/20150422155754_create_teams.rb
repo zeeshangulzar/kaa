@@ -5,7 +5,7 @@ class CreateTeams < ActiveRecord::Migration
       t.string :name, :limit => 40
       t.string :motto
       t.integer :status, :default => 0
-
+      t.string :image
       t.timestamps
     end
     add_index :teams, [:competition_id,:status], :name => 'by_competition_id_and_status'
