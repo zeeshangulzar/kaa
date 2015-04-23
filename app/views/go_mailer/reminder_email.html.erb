@@ -1,0 +1,23 @@
+<table cellspacing="0" cellpadding="0" style="background-color:#fff">
+  <tr>
+    <td align="left">
+      <div style="margin:10px 16px 5px;font-family:Open Sans, Helvetica, Arial;">
+        <span style="color:#006BA6;font-weight:bold;font-size:16px;"><%= @reminder.subject %></span>
+      </div>
+    </td>
+    <td align="right">
+      <p style="margin:16px;color:#aaa;font-family:Open Sans,Helvetica,Arial">
+        <%= Date.today.to_s %>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#fff" colspan="2">
+      <div style="margin:16px;font-family:Open Sans,Helvetica,Arial">
+        <p><%= @user.profile.full_name %>,</p>
+        <%= raw @reminder.body %>
+        <p><a href="https://www.healthyworkforce-gokp.org" style="color:#57a635;font-family:Open Sans,Helvetica,Arial">https://www.healthyworkforce-gokp.og</a></p>
+      </div>
+    </td>
+  </tr>
+</table>
