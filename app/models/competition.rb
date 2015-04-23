@@ -1,4 +1,8 @@
 class Competition < ApplicationModel
+
+  attr_accessible *column_names
+  attr_privacy_no_path_to_user
+  attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :public
   
   # Associations
   belongs_to :promotion

@@ -136,7 +136,7 @@ class Promotion < ApplicationModel
 
   def as_json(options={})
     options[:meta] ||= false
-    options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids"]})
+    options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids", "current_competition"]})
     promotion_obj = super(options)
     return promotion_obj
   end

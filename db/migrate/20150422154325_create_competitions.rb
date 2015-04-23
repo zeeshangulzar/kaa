@@ -2,7 +2,7 @@ class CreateCompetitions < ActiveRecord::Migration
   def change
     create_table :competitions do |t|
       t.references    :promotion
-      t.string        :name
+      t.string        :name,                          :limit => 50
       t.date          :enrollment_starts_on
       t.date          :enrollment_ends_on
       t.date          :competition_starts_on
