@@ -227,7 +227,8 @@ class User < ApplicationModel
     user_json['stats'] = @stats if @stats
     user_json['recent_activities'] = @recent_activities if @recent_activities
     user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
-    user_json
+    user_json['team_id'] = @team_id if @team_id
+    return user_json
   end
 
   def auth_basic_header
@@ -720,30 +721,19 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
   def current_team
     return nil if self.promotion.current_competition.nil?
     current_competition_id = self.promotion.current_competition.id
-    sql = "
-SELECT teams.id
-FROM teams
-JOIN team_members ON team_members.team_id = teams.id
-WHERE
-team_members.user_id = #{self.id}
-AND team_members.competition_id = #{current_competition_id}
-AND teams.competition_id = #{current_competition_id}
-    "
-    return Team.find_by_sql(sql)
+    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id}")
+    return teams.first
   end
 
   def team_invites(type = nil)
     return nil if self.promotion.current_competition.nil?
     current_competition_id = self.promotion.current_competition.id
-    sql = "
-SELECT team_invites.id
-FROM team_invites
-WHERE
-team_invites.user_id = #{self.id}
-AND team_invites.competition_id = #{current_competition_id}
-#{ "AND team_invites.invite_type = '#{TeamInvite::TYPE[type.to_sym]}'" if !type.nil?}
-    "
-    return TeamInvite.find_by_sql(sql)
+    invites = TeamInvite.where("team_invites.user_id = #{self.id} AND team_invites.competition_id = #{current_competition_id} #{ "AND team_invites.invite_type = '#{TeamInvite::TYPE[type.to_sym]}'" if !type.nil?}")
+    return invites
+  end
+
+  def team_id=(team_id)
+    @team_id = team_id
   end
 
 end
