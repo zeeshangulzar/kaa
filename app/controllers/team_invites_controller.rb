@@ -17,7 +17,15 @@ class TeamInvitesController < ApplicationController
         return HESResponder("You don't have access to the user's invites.", "DENIED")
       end
     end
-    invites = type_obj.team_invites
+    if !params[:type].nil? && TeamInvite::TYPE.stringify_keys.keys.include?(params[:type])
+      if type == "Team"
+        invites = type_obj.team_invites.send(params[:type])
+      else
+        invites = type_obj.team_invites(params[:type])
+      end
+    else
+      invites = type_obj.team_invites
+    end
     return HESResponder(invites)
   end
 

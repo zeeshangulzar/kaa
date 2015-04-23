@@ -732,7 +732,7 @@ AND teams.competition_id = #{current_competition_id}
     return Team.find_by_sql(sql)
   end
 
-  def team_invites
+  def team_invites(type = nil)
     return nil if self.promotion.current_competition.nil?
     current_competition_id = self.promotion.current_competition.id
     sql = "
@@ -741,6 +741,7 @@ FROM team_invites
 WHERE
 team_invites.user_id = #{self.id}
 AND team_invites.competition_id = #{current_competition_id}
+#{ "AND team_invites.invite_type = '#{TeamInvite::TYPE[type.to_sym]}'" if !type.nil?}
     "
     return TeamInvite.find_by_sql(sql)
   end

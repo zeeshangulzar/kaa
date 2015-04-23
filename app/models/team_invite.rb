@@ -22,6 +22,22 @@ class TeamInvite < ApplicationModel
     :declined => 'D'
   }
 
+  TYPE.each_pair do |key, value|
+    self.send(:scope, key, where(:type => value))
+  end
+
+  TYPE.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.type == value })
+  end
+
+  STATUS.each_pair do |key, value|
+    self.send(:scope, key, where(:status => value))
+  end
+
+  STATUS.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.status == value })
+  end
+
   validates_uniqueness_of :user_id, :scope => :team_id, :message => 'already requested/invited.'
 
   acts_as_notifier
