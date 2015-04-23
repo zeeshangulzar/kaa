@@ -105,6 +105,21 @@ class GoMailer < ActionMailer::Base
     
   end
 
+  def reminder_email(reminder, promotion, to_name, to_email, base_url, user)
+    @promotion = promotion
+    @user = user
+    @reminder = reminder
+    to = "#{to_name} <#{to_email}>"
+    from = FormattedFromAddress
+    reply_to = FromAddress
+    sent_on = promotion.current_time
+    headers 'return-path'=>FromAddress
+
+    mail(:to => to, :subject => "#{Constant::AppName}: #{@reminder.subject}", :from => from, :reply_to => reply_to)
+    
+  end
+
+
   def daily_tasks(b)
     mail(:from => FormattedFromAddress, :to => "developer@hesonline.com", :subject => "Daily Tasks for #{Date.today}", :body => b)
   end

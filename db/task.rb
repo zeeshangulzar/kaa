@@ -26,16 +26,10 @@ class Task
         addresses=[]
 
         daily_email = false
+
         users.each{ |u|
           what_to_send = 'daily_email'
-
-          p.email_reminders.desc.each{|reminder|
-            if ( u.last_login < (p.current_time - (reminder.days).days) ) && !u.email_reminders.include?(reminder)
-              what_to_send = 'reminder'
-              email_reminder = reminder
-              break
-            end
-          }
+          email_reminder = false
 
           if !u.flags[:allow_daily_emails_all_week]
             what_to_send = 'nothing'
@@ -43,25 +37,35 @@ class Task
             what_to_send = 'nothing'
           end
 
-          skip = false
-          begin
-            if queue
-              case what_to_send
-                when 'daily_email'
-                  # cache rendered daily email..
-                  if !daily_email
-                    daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
-                  end
-                  mails << daily_email
-                when 'reminder'
-                  d=which.to_s.split('reminder_').last.to_i
-                  mails << GoMailer.create_no_activity_reminder_email(d,p,Mailer::AppName,"admin@#{DomainConfig::DomainNames.first}","#{p.subdomain}.#{DomainConfig::DomainNames.first}")
-              else
-                skip = true
+          unless u.requests.count < 1
+            p.email_reminders.desc.each{ |reminder|
+              if ( u.requests.first.created_at < (p.current_time - (reminder.days).days) ) && !u.email_reminders.include?(reminder)
+                what_to_send = 'reminder'
+                email_reminder = reminder
+                u.email_reminders_sent.create(:email_reminder_id => reminder.id)
+                break
               end
-              to = u.email_with_name
-              addresses << CGI.unescapeHTML(to) unless skip
+            }
+          end
+
+          skip = false
+
+          begin
+            case what_to_send
+              when 'daily_email'
+                # cache rendered daily email..
+                if !daily_email
+                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                end
+                mails << daily_email
+              when 'reminder'
+                reminder_email = GoMailer.reminder_email(email_reminder, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                mails << reminder_email
+            else
+              skip = true
             end
+            to = u.email_with_name
+            addresses << CGI.unescapeHTML(to) unless skip
             puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to}"
           rescue Exception => ex
             puts "ERROR processing user #{u.id} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
@@ -71,11 +75,14 @@ class Task
           # make the XML file for this promotion
           tag = "gokp-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
           XmlEmailDelivery.deliver_many(mails,tag,addresses) unless mails.empty?
+        else
+          mails.each_with_index{ |mail, idx|
+            mail.bcc = addresses[idx]
+            mail.deliver
+          }
         end
 
       end # end wday not 0,6
-
-
   end
 
 end
