@@ -22,77 +22,85 @@ class TeamInvitesController < ApplicationController
   end
 
   def show
-    team_user = TeamPhoto.find(params[:id]) rescue nil
-    if !team_user
-      return HESResponder("Team Photo", "NOT_FOUND")
-    elsif team_user.team.owner.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not view this team user.", "DENIED")
+    team_invite = TeamInvite.find(params[:id]) rescue nil
+    if !team_invite
+      return HESResponder("Team Invite", "NOT_FOUND")
+    elsif team_invite.user_id != @current_user.id && team_invite.team.leader.id != @current_user.id && !@current_user.master?
+      return HESResponder("You may not view this invite.", "DENIED")
     else
-      return HESResponder(team_user)
+      return HESResponder(team_invite)
     end
   end
 
   def create
-    if params[:team_user].nil? || params[:team_user][:team_id].nil? || params[:team_user][:user_id].nil?
+    if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || params[:team_invite][:user_id].nil?
       return HESResponder('Must include team and user id.', "ERROR")
     end
-    team = Team.find(params[:team_user][:team_id]) rescue nil
-    user = Photo.find(params[:team_user][:user_id]) rescue nil
+    team = Team.find(params[:team_invite][:team_id]) rescue nil
+    user = User.find(params[:team_invite][:user_id]) rescue nil
     if !team
       return HESResponder("Team", "NOT_FOUND")
     elsif !user
-      return HESResponder("Photo", "NOT_FOUND")
+      return HESResponder("User", "NOT_FOUND")
     end
-    if team.owner.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not edit this team.", "DENIED")
+    if team.leader.id != @current_user.id && !@current_user.master?
+      return HESResponder("You may not invite people for this team.", "DENIED")
     end
-    if !team.owner.friends.include?(user)
-      return HESResponder("You are not friends with user.", "DENIED")
+    team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id)
+    if !team_invite.valid?
+      return HESResponder(team_invite.errors.full_messages, "ERROR")
     end
-    team_user = team.team_users.build(:user_id => user.id)
-    TeamPhoto.transaction do
-      team_user.save!
+    TeamInvite.transaction do
+      team_invite.save!
     end
-    if !team_user.valid?
-      return HESResponder(team_user.errors.full_messages, "ERROR")
-    end
-    return HESResponder(team_user)
+    return HESResponder(team_invite)
   end
 
   def update
-    team_user = TeamPhoto.find(params[:id]) rescue nil
-    team = team_user.team rescue nil
-    user = Photo.find(params[:team][:user_id]) rescue nil
+    team_invite = TeamInvite.find(params[:id]) rescue nil
+    return HESResponder("Team Invite", "NOT_FOUND") if !team_invite
+    
+    team = team_invite.team rescue nil
+    user = team_invite.user rescue nil
+
     if !team
       return HESResponder("Team", "NOT_FOUND")
-    elsif !team_user
-      return HESResponder("Team Photo", "NOT_FOUND")
     elsif !user
-      return HESResponder("Photo", "NOT_FOUND")
+      return HESResponder("User", "NOT_FOUND")
     end
-    if team.owner.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not edit this team.", "DENIED")
+    if team_invite.invite_type == TeamInvite::TYPE[:invited]
+      if team_invite.user_id != @current_user.id && !@current_user.master?
+        # this is an invite and @current_user is not the invited user
+        return HESResponder("Cannot modify this invitation.", "DENIED")
+      end
+    elsif team_invite.invite_type == TeamInvite::TYPE[:requested]
+      if team_invite.team.leader.id != @current_user.id && !@current_user.master?
+        # this is a request and @current_user is not the team leader
+        return HESResponder("Cannot modify this invitation.", "DENIED")
+      end
     end
-    if !team.owner.friends.include?(user)
-      return HESResponder("You are not friends with user.", "DENIED")
+    team_invite.assign_attributes(scrub(params[:team_invite], ['status']))
+    if !team_invite.valid?
+      return HESResponder(team_invite.errors.full_messages, "ERROR")
     end
-    TeamPhoto.transaction do
-      team_user.update_attributes(params[:team_user])
+    TeamInvite.transaction do
+      team_invite.save!
     end
-    if !team_user.valid?
-      return HESResponder(team_user.errors.full_messages, "ERROR")
-    end
-    return HESResponder(team_user)
+    return HESResponder(team_invite)
   end
 
   def destroy
-    team_user = TeamPhoto.find(params[:id]) rescue nil
-    if !team_user
-      return HESResponder("Team Photo", "NOT_FOUND")
-    elsif (team_user.team.owner.id == @current_user.id || @current_user.master?) && team_user.destroy
-      return HESResponder(team_user)
+    team_invite = TeamInvite.find(params[:id]) rescue nil
+    if !team_invite
+      return HESResponder("Team Invite", "NOT_FOUND")
+    elsif (team_invite.user_id == @current_user.id || team_invite.team.leader.id == @current_user.id || @current_user.master?)
+      if team_invite.destroy
+        return HESResponder(team_invite)
+      else
+        return HESResponder("Error deleting.", "ERROR")
+      end
     else
-      return HESResponder("Error deleting.", "ERROR")
+      return HESResponder("Cannot modify this invitation.", "DENIED")
     end
   end
 

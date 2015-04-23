@@ -2,7 +2,7 @@ class CreateTeamInvites < ActiveRecord::Migration
   def self.up
     create_table :team_invites do |t|
       t.references :team, :user, :competition
-      t.integer :status, :default => 0
+      t.string :status, :limit => 1
       t.string :invite_type, :limit => 1
       t.string :email
       t.integer :invited_by

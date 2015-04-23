@@ -13,6 +13,7 @@ class User < ApplicationModel
   flags :notify_email_messages, :default => false
   flags :notify_email_challenges, :default => true
   flags :notify_email_events, :default => true
+  flags :notify_email_teams, :default => true
 
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true

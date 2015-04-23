@@ -241,4 +241,8 @@ Go::Application.routes.draw do
     resources :teams
   end
 
+  resources :team_invites
+  resources :team_photos
+  resources :team_members
+
 end
