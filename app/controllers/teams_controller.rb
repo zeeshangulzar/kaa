@@ -6,7 +6,7 @@ class TeamsController < ApplicationController
 
   def index
     teams = []
-    teams = @promotion.current_competition.teams unless @promotion.current_competition.nil?
+    teams = @promotion.current_competition.leaderboard unless @promotion.current_competition.nil?
 
     return HESResponder(teams)
   end

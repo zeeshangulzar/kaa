@@ -13,6 +13,11 @@ class Team < ApplicationModel
 
   mount_uploader :image, TeamImageUploader
 
+  STATUS = {
+    :pending => 0,
+    :official => 1
+  }
+
   def leader
     unless self.team_members.where(:is_leader => 1).empty?
       return self.team_members.where(:is_leader => 1).first.user
