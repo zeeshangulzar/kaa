@@ -1,5 +1,4 @@
 class CompetitionsController < ApplicationController
-  ssl_required :all
 
   # GET /competitions
   # GET /competitions.xml

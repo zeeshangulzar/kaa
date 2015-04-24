@@ -27,17 +27,6 @@ class Competition < ApplicationModel
     dte > competition_ends_on
   end
 
-  def competition_ends_on
-    competition_ends_at.to_date #always return as a date
-  end
-  
-  def competition_ends_at 
-    #this method does not return a Time object
-    ends_on = competition_starts_on + length_of_competition - 1
-    ends_on += 0.hours # not really necessary, but this allows us to include the time and follows the 5on5 pattern (e.g. add 48 hours to extend Friday end dates, etc)
-    ends_on
-  end
-  
   def freeze_team_scores_on
     competition_ends_on + freeze_team_scores
   end
