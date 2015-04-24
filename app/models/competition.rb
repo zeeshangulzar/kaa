@@ -91,7 +91,7 @@ class Competition < ApplicationModel
       team['motto']        = row['motto']
       team['total_points'] = row['total_points']
       team['avg_points']   = row['avg_points']
-      team['status']       = row['status'] # TODO: shouldn't need this, should we?
+      team['status']       = row['status']
       team['member_count'] = row['member_count']
       teams << team
     }

@@ -20,8 +20,6 @@ class TeamMembersController < ApplicationController
   end
 
   def create
-    # TODO: i'm not sure if we can straight up create team members as opposed to them being created through an invite?
-    # maybe so, for masters' sakes
     if params[:team_member].nil? || params[:team_member][:team_id].nil? || params[:team_member][:user_id].nil?
       return HESResponder('Must include team and user id.', "ERROR")
     end
@@ -69,10 +67,14 @@ class TeamMembersController < ApplicationController
     team_member = TeamMember.find(params[:id]) rescue nil
     if !team_member
       return HESResponder("Team Member", "NOT_FOUND")
-    elsif (team_member.user_id == @current_user.id || @current_user.master?) && team_member.destroy
-      return HESResponder(team_member)
+    elsif @current_user.master?
+      if team_member.destroy
+        return HESResponder(team_member)
+      else
+        return HESResponder("Error deleting.", "ERROR")
+      end
     else
-      return HESResponder("Error deleting.", "ERROR")
+      return HESResponder("You may not delete this user.", "DENIED")
     end
   end
 
