@@ -1,17 +1,20 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :members, :image, :any_user
+  attr_privacy :id, :name, :motto, :members, :image, :leader, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user
   has_many :team_invites
+  has_one :leader, :through => :team_members, :source => :user, :conditions => "is_leader = 1"
 
   validates_presence_of :name
 
   validates_uniqueness_of :name, :scope => :competition_id
 
   mount_uploader :image, TeamImageUploader
+
+  has_wall
 
   STATUS = {
     :pending => 0,

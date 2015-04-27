@@ -5,8 +5,17 @@ class TeamsController < ApplicationController
   wrap_parameters :team
 
   def index
+    conditions = {
+      :offset       => params[:offset],
+      :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
+      :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
+      :status       => params[:status],
+      :sort         => params[:sort],
+      :sort_dir     => params[:sort_dir]
+    }
+
     teams = []
-    teams = @promotion.current_competition.leaderboard unless @promotion.current_competition.nil?
+    teams = @promotion.current_competition.leaderboard(conditions) unless @promotion.current_competition.nil?
 
     return HESResponder(teams)
   end

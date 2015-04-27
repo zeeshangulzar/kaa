@@ -296,12 +296,19 @@ UNION
     Badge.do_weekend_warrior(self)
   end
 
+  # whether or not we should publish the user object to redis & update team scores
   def check_for_changes
     publish = false
-    columns_to_check = ['exercise_minutes', 'exercise_steps', 'exercise_points', 'challenge_points', 'timed_behavior_points']
+    activity_columns = ['exercise_minutes', 'exercise_steps']
+    points_columns = ['exercise_points', 'challenge_points', 'timed_behavior_points']
+    columns_to_check = activity_columns + points_columns
     columns_to_check.each{|column|
       if self.send(column).to_i != self.send(column + "_was").to_i
         publish = true
+        if points_columns.include?(column)
+          # update user's team member points if they're on a team in an active competition, see user model
+          self.user.update_team_member_points()
+        end
         break
       end
     }

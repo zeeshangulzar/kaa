@@ -725,6 +725,11 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return teams.first
   end
 
+  def current_team_member
+    return nil if !self.current_team
+    return current_team.team_members.where(:user_id => self.id)
+  end
+
   def team_invites(type = nil)
     return nil if self.promotion.current_competition.nil?
     current_competition_id = self.promotion.current_competition.id
@@ -734,6 +739,12 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def team_id=(team_id)
     @team_id = team_id
+  end
+
+  def update_team_member_points
+    if !current_team_member.nil?
+      self.current_team_member.update_points
+    end
   end
 
 end
