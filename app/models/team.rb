@@ -1,7 +1,7 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :members, :image, :leader, :any_user
+  attr_privacy :id, :name, :motto, :members, :image, :leader, :total_points, :avg_points, :member_count, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user
@@ -34,6 +34,42 @@ class Team < ApplicationModel
       member.add_notification("#{team.name} has been disbanded.  You can join or start a different team.")
       reset_user_app_menu(member) #redraw menu so that user can access team links
     end
+  end
+
+  def stats
+    return @stats if !@stats.nil?
+    @stats = {}
+    sql = "
+      SELECT
+        SUM(members.total_points) AS total_points,
+        SUM(members.total_points)/COUNT(DISTINCT(members.user_id)) AS avg_points,
+        COUNT(DISTINCT(members.user_id)) AS member_count
+      FROM teams
+        JOIN competitions ON competitions.id = teams.competition_id
+        JOIN team_members AS members ON members.team_id = teams.id
+      WHERE
+        teams.id = #{self.id}
+    "
+    result = self.connection.exec_query(sql)
+    result.first.each{|k,v|
+      @stats[k.to_sym] = v
+    }
+    return @stats
+  end
+
+  def member_count
+    @stats = self.stats if !@stats
+    return @stats[:member_count]
+  end
+
+  def total_points
+    @stats = self.stats if !@stats
+    return @stats[:total_points]
+  end
+
+  def avg_points
+    @stats = self.stats if !@stats
+    return @stats[:avg_points]
   end
 
 end

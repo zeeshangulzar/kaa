@@ -82,7 +82,7 @@ class UsersController < ApplicationController
     if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
       @target_user.stats = @target_user.stats
       @target_user.recent_activities = @target_user.recent_activities
-      @target_user.team_id = @target_user.current_team.id
+      @target_user.team_id = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
       end
