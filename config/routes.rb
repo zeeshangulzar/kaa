@@ -86,6 +86,7 @@ Go::Application.routes.draw do
     resources :articles
     resources :resources
     resources :banners
+    resources :locations
   end
 
   # CONTENT MODELS
