@@ -21,6 +21,10 @@ class Team < ApplicationModel
     :official => 1
   }
 
+  def as_json(options={})
+    super(options.merge(:do_not_paginate=>['team_members']))
+  end
+
   def leader
     unless self.team_members.where(:is_leader => 1).empty?
       return self.team_members.where(:is_leader => 1).first.user

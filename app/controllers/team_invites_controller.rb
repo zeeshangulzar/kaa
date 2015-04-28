@@ -41,8 +41,8 @@ class TeamInvitesController < ApplicationController
   end
 
   def create
-    if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || params[:team_invite][:user_id].nil?
-      return HESResponder('Must include team and user id.', "ERROR")
+    if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || params[:team_invite][:user_id].nil? || params[:team_invite][:invite_type].nil?
+      return HESResponder('Must include invite type and team and user id.', "ERROR")
     end
     team = Team.find(params[:team_invite][:team_id]) rescue nil
     user = User.find(params[:team_invite][:user_id]) rescue nil
@@ -51,10 +51,21 @@ class TeamInvitesController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
-    if team.leader.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not invite people for this team.", "DENIED")
+    if params[:team_invite][:invite_type] == TeamInvite::TYPE[:requested]
+      if @current_user.id != user.id
+        return HESResponder("Impersonation attempt logged.", "ERROR")
+      else
+        team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invite_type => TeamInvite::TYPE[:requested])
+      end
+    elsif params[:team_invite][:invite_type] == TeamInvite::TYPE[:invited]
+      if team.leader.id != @current_user.id && !@current_user.master?
+        return HESResponder("You may not invite people for this team.", "DENIED")
+      else
+        team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+      end
+    else
+      return HESResponder("Invalid invite type.", "ERROR")
     end
-    team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id)
     if !team_invite.valid?
       return HESResponder(team_invite.errors.full_messages, "ERROR")
     end
