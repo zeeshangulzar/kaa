@@ -17,7 +17,7 @@ class TeamInvite < ApplicationModel
   }
 
   STATUS = {
-    :new => 'N',
+    :unresponded => 'U',
     :accepted => 'A',
     :declined => 'D'
   }
@@ -44,11 +44,10 @@ class TeamInvite < ApplicationModel
 
   def set_defaults
     self.invite_type ||= TeamInvite::TYPE[:invited]
-    self.status ||= TeamInvite::STATUS[:new]
+    self.status ||= TeamInvite::STATUS[:unresponded]
   end
   
   after_create :send_notifications
-  after_update :process
   after_update :send_notifications
   after_destroy :delete_notifications
 
@@ -63,7 +62,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify requesting user his request was accepted
           notify(self.user, "You're team request was accepted", "You're request to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
-        elsif self.status == TeamInvite::STATUS[:new]
+        elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
           notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has requested to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
         end
@@ -72,7 +71,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify team leader his invite was accepted
           notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
-        elsif self.status == TeamInvite::STATUS[:new]
+        elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify user he's been invited to a team
           notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_invite_#{self.id}")
         end

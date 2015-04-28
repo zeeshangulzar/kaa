@@ -51,6 +51,7 @@ class TeamInvitesController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
+    
     if params[:team_invite][:invite_type] == TeamInvite::TYPE[:requested]
       if @current_user.id != user.id
         return HESResponder("Impersonation attempt logged.", "ERROR")
@@ -68,9 +69,10 @@ class TeamInvitesController < ApplicationController
     end
     if !team_invite.valid?
       return HESResponder(team_invite.errors.full_messages, "ERROR")
-    end
-    TeamInvite.transaction do
-      team_invite.save!
+    else
+      TeamInvite.transaction do
+        team_invite.save!
+      end
     end
     return HESResponder(team_invite)
   end
