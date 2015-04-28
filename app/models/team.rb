@@ -1,7 +1,7 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :team_members, :image, :leader, :total_points, :avg_points, :member_count, :any_user
+  attr_privacy :id, :name, :motto, :image, :leader, :total_points, :avg_points, :member_count, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user
@@ -22,7 +22,9 @@ class Team < ApplicationModel
   }
 
   def as_json(options={})
-    super(options.merge(:do_not_paginate=>['team_members']))
+    team_json = super(options.merge(:do_not_paginate=>['team_members']))
+    team_json['team_members'] = self.team_members.as_json if @include_team_members
+    return team_json
   end
 
   def leader
@@ -74,6 +76,10 @@ class Team < ApplicationModel
   def avg_points
     @stats = self.stats if !@stats
     return @stats[:avg_points]
+  end
+
+  def include_team_members
+    @include_team_members = true
   end
 
 end

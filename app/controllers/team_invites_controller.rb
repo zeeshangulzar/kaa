@@ -52,6 +52,10 @@ class TeamInvitesController < ApplicationController
       return HESResponder("User", "NOT_FOUND")
     end
     
+    if !user.current_team.nil?
+      return HESResponder("User is already on a team", "ERROR")
+    end
+
     if params[:team_invite][:invite_type] == TeamInvite::TYPE[:requested]
       if @current_user.id != user.id
         return HESResponder("Impersonation attempt logged.", "ERROR")
@@ -89,6 +93,11 @@ class TeamInvitesController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
+
+    if !user.current_team.nil?
+      return HESResponder("User is already on a team", "ERROR")
+    end
+
     if team_invite.invite_type == TeamInvite::TYPE[:invited]
       if team_invite.user_id != @current_user.id && !@current_user.master?
         # this is an invite and @current_user is not the invited user
@@ -100,6 +109,7 @@ class TeamInvitesController < ApplicationController
         return HESResponder("Cannot modify this invitation.", "DENIED")
       end
     end
+
     team_invite.assign_attributes(scrub(params[:team_invite], ['status']))
     if !team_invite.valid?
       return HESResponder(team_invite.errors.full_messages, "ERROR")

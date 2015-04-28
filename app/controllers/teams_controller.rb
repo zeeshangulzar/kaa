@@ -23,6 +23,7 @@ class TeamsController < ApplicationController
   def show
     team = Team.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") if !team
+    team.include_team_members
     return HESResponder(team)
   end
   
