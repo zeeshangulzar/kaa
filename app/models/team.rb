@@ -1,7 +1,7 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :members, :image, :leader, :total_points, :avg_points, :member_count, :any_user
+  attr_privacy :id, :name, :motto, :team_members, :image, :leader, :total_points, :avg_points, :member_count, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user

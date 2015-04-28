@@ -1,9 +1,14 @@
 class Profile < ApplicationModel
   # attrs
-  attr_accessible :gender,:first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :image, :backlog_date, :default_logging_type, :employee_group, :shirt_size, :shirt_style, :ethnicity, :age, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :employee_group, :shirt_size, :shirt_style, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity, :me
-  attr_privacy :first_name,:last_name,:image,:public_comment
   attr_privacy_path_to_user :user
+  
+  attr_accessible :gender,:first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :image, :backlog_date, :default_logging_type, :employee_group, :shirt_size, :shirt_style, :ethnicity, :age, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity
+
+  attr_privacy :first_name,:last_name,:image,:public_comment
+
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :employee_group, :shirt_size, :shirt_style, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :me
+
+
 
   # validation
   validates_presence_of :first_name, :last_name
@@ -66,21 +71,7 @@ class Profile < ApplicationModel
   end
 
   def backlog_date
-    # TODO: delete me after pilot
-    # pilot-specific hard-coded backlog date
-    if self.user.promotion.subdomain == "pilot"
-      if self.started_on < "2015-03-16".to_date
-        return "2015-03-13".to_date
-      else
-        return "2015-03-16".to_date
-      end
-    end
     return (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
-  end
-
-  def as_json(options={})
-    options = options.merge({:methods => ["backlog_date"]})
-    super
   end
 
   def self.do_nuid_verification

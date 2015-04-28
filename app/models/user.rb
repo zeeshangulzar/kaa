@@ -727,7 +727,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def current_team_member
     return nil if !self.current_team
-    return current_team.team_members.where(:user_id => self.id)
+    return current_team.team_members.where(:user_id => self.id).first
   end
 
   def team_invites(type = nil)
@@ -745,6 +745,35 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     if !current_team_member.nil?
       self.current_team_member.update_points
     end
+  end
+
+  def ids_of_connections
+    sql = "
+      SELECT
+        DISTINCT(connection_id) AS id
+      FROM (
+        SELECT
+          DISTINCT(friendships.friendee_id) AS connection_id
+        FROM friendships
+        WHERE
+          friendships.friender_id = #{self.id} AND friendships.status = 'A'
+
+        UNION
+
+        SELECT
+          DISTINCT(team_members.user_id) AS connection_id
+        FROM team_members
+        JOIN teams ON teams.id = team_members.team_id
+        WHERE
+          team_members.team_id = #{self.current_team.id} AND teams.competition_id = #{self.current_team.competition_id}
+      ) AS connections
+    "
+    result = self.connection.exec_query(sql)
+    ids = []
+    result.each{ |row|
+      ids << row['id']
+    }
+    return ids
   end
 
 end

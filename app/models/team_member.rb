@@ -1,7 +1,7 @@
 class TeamMember < ApplicationModel
   attr_accessible *column_names
-  attr_privacy_no_path_to_user
-  attr_privacy :id, :team_id, :user_id, :user, :user
+  attr_privacy_path_to_user :user
+  attr_privacy :id, :team_id, :user_id, :user, :total_points, :total_exercise_points, :total_timed_behavior_points, :total_challenge_points, :connections
   
   # Associations
   belongs_to :user
@@ -14,14 +14,21 @@ class TeamMember < ApplicationModel
       UPDATE team_members
       JOIN (
         SELECT
-          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points, user_id
+          user_id
+          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points,
+          SUM(entries.exercise_points) AS total_exercise_points,
+          SUM(entries.timed_behavior_points) AS total_timed_behavior_points,
+          SUM(entries.challenge_points) AS total_challenge_points
         FROM entries
         WHERE
           user_id = #{self.user_id}
           AND entries.recorded_on BETWEEN '#{self.team.competition.competition_starts_on}' AND '#{self.team.competition.competition_ends_on}'
         ) stats on stats.user_id = team_members.user_id
       SET
-        team_members.total_points = stats.total_points
+        team_members.total_points = stats.total_points,
+        team_members.total_exercise_points = stats.total_exercise_points,
+        team_members.total_timed_behavior_points = stats.total_timed_behavior_points,
+        team_members.total_challenge_points = stats.total_challenge_points
     "
     self.connection.execute(sql)
   end
