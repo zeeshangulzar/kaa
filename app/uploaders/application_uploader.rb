@@ -5,7 +5,8 @@ class ApplicationUploader < CarrierWave::Uploader::Base
   storage :hes_cloud
 
   def self.asset_host_url
-    return 'http://assets1.' + HesCloudStorage.configuration[:domain] + '/' + HesCloudStorage.configuration[:app_folder] + '/' + self.store_dir
+    protocol = Rails.env == "development" ? "http" : "https"
+    return protocol + '://assets1.' + HesCloudStorage.configuration[:domain] + '/' + HesCloudStorage.configuration[:app_folder] + '/' + self.store_dir
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
