@@ -128,7 +128,7 @@ class LocationsUtility
         'Other'
       ],
       'IT (all locations)' => [
-        'IT (all locations)'
+        '(all locations)'
       ],
       'Mid-Atlantic States' => [
         'Annapolis Medical Center',
