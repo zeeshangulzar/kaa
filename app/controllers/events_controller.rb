@@ -63,6 +63,7 @@ class EventsController < ApplicationController
 
   def create
     invites = params[:event][:invites].nil? ? [] : params[:event].delete(:invites)
+    params[:event].delete(:invites)
     event = @current_user.events.build(params[:event])
     if !event.valid?
       return HESResponder(event.errors.full_messages, "ERROR")

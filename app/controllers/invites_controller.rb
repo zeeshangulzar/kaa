@@ -98,6 +98,7 @@ class InvitesController < ApplicationController
         Invite.transaction do
           invite.save!
         end
+        invite.event.send_invited_notification(invite.user)
         return HESResponder(invite)
       end
     end

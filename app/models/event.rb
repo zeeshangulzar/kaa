@@ -97,9 +97,7 @@ class Event < ApplicationModel
     return JSON.parse(hash.to_json)
   end
 
-
-
-  # TODO: add emails
+  # NOTICE THE PLURAL
   def send_invited_notifications
     return if self.event_type != Event::TYPE[:user]
     recipients = []
@@ -109,13 +107,17 @@ class Event < ApplicationModel
       recipients = self.user.friends
     end
     recipients.each{|recipient|
-      notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
-      if recipient.flags[:notify_email_events]
-        Resque.enqueue(EventInviteEmail, self.id, recipient.id)
-      end
+      self.send_invited_notification(recipient)
     }
   end
 
+  # NOTICE THE SINGULAR
+  def send_invited_notification(recipient)
+    notify(recipient, "You're invite to an event", "You've been invited to #{self.user.profile.full_name}'s event, \"<a href='/#/event/#{self.id}'>#{self.name}</a>\".", :from => self.user, :key => "event_#{self.id}")
+    if recipient.flags[:notify_email_events]
+      Resque.enqueue(EventInviteEmail, self.id, recipient.id)
+    end
+  end
 
   # TODO: add emails
   # TODO: make this run in the background.. resque or something?
