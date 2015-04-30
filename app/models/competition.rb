@@ -127,12 +127,12 @@ class Competition < ApplicationModel
     # grab users of posts, replies and likes..
     users_sql = "
       SELECT
-        users.id AS user_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
+        users.id AS user_id, users.top_level_location_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
         locations.id AS location_id, locations.name AS location_name, team_members.team_id
       FROM users
         JOIN profiles ON profiles.user_id = users.id
-        JOIN locations ON locations.id = users.location_id
         JOIN team_members ON team_members.user_id = users.id
+        LEFT JOIN locations ON locations.id = users.location_id
       WHERE
         team_members.team_id IN (#{(teams.collect{|t|t['id']}).join(',')}) AND team_members.is_leader = 1
     "
@@ -142,6 +142,7 @@ class Competition < ApplicationModel
     result.each{|row|
       user = {}
       user['id']                      = row['user_id']
+      user['top_level_location_id']   = row['top_level_location_id']
       user['profile']                 = {}
       user['profile']['image']        = {}
       user['location']                = {}
