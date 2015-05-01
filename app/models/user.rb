@@ -789,7 +789,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       SELECT
         team_members.user_id, teams.id
       FROM teams
-      JOIN team_members ON teams.id = team_members.id
+      JOIN team_members ON teams.id = team_members.team_id
       WHERE
         team_members.user_id IN (#{user_ids.join(',')})
     "
