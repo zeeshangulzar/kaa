@@ -201,7 +201,7 @@ class UsersController < ApplicationController
       conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
       p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
       users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
-      users.each_with_index{ |user|
+      users.each_with_index{ |user, idx|
         users[idx].team_id = !user.current_team.nil? ? user.current_team.id : nil
       }
     else
