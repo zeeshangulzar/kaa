@@ -201,12 +201,15 @@ class UsersController < ApplicationController
       conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
       p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
       users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
-      users.each_with_index{ |user, idx|
-        users[idx].team_id = !user.current_team.nil? ? user.current_team.id : nil
-      }
     else
       limit = !params[:limit].nil? ? params[:limit].to_i : 50
       users = @current_user.unassociated_search(search_string, limit)
+    end
+    unless users.empty?
+      team_ids = User::get_team_ids(users.collect{|user|user.id})
+      users.each_with_index{ |user, idx|
+        users[idx].team_id = team_ids[user.id]
+      }
     end
     return HESResponder(users, "OK", limit)
   end

@@ -776,4 +776,25 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return ids
   end
 
+  def self.get_team_ids(user_ids = [])
+    return {} if user_ids.empty?
+    sql = "
+      SELECT
+        team_members.user_id, teams.id
+      FROM teams
+      JOIN team_members ON teams.id = team_members.id
+      WHERE
+        team_members.user_id IN (#{user_ids.join(',')})
+    "
+    result = self.connection.exec_query(sql)
+    ids = {}
+    user_ids.each{|id|
+      ids[id.to_i] = nil
+    }
+    result.each{ |row|
+      ids[row['user_id']] = row['id']
+    }
+    return ids
+  end
+
 end
