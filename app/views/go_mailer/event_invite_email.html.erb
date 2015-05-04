@@ -18,7 +18,7 @@
             </td>
           </tr>
           <tr>
-            <td/> colspan="2" style="text-align:center">
+            <td colspan="2" style="text-align:center">
               <img src="<%= @event.photo.file.nil? ? "https://#{@event.user.promotion.subdomain}.#{DomainConfig::DomainNames.first.to_s + @event.photo.url.to_s}" : @event.photo.url %>" alt="<%= @event.name %>" />
             </td>
           </tr>
