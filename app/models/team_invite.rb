@@ -23,11 +23,11 @@ class TeamInvite < ApplicationModel
   }
 
   TYPE.each_pair do |key, value|
-    self.send(:scope, key, where(:type => value))
+    self.send(:scope, key, where(:invite_type => value))
   end
 
   TYPE.each_pair do |key, value|
-    self.send(:define_method, "#{key}?", Proc.new { self.type == value })
+    self.send(:define_method, "#{key}?", Proc.new { self.invite_type == value })
   end
 
   STATUS.each_pair do |key, value|
