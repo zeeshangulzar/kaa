@@ -87,7 +87,12 @@ Go::Application.routes.draw do
     resources :resources
     resources :banners
     resources :locations
+    resources :reports
+		resources :report_fields
+		resources :report_joins
   end
+
+  match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
 
   # CONTENT MODELS
   resources :tips

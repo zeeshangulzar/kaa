@@ -1,0 +1,825 @@
+--- 
+- !ruby/object:ReportSetup 
+  id: 1
+  fields: 
+    "143": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: DATE_FORMAT(evaluations.created_at, '%c/%d/%Y') `Completed Evaluation On`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Completed Evaluation On
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "144": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.liked_least `Liked Least (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Liked Least
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "145": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.liked_most `Liked Most (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Liked Most
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "130": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.vegetable_servings, 0) `Vegetable Servings (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Vegetable Servings
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "131": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.fruit_vegetable_servings, 0) `Fruit Vegetable Servings (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Fruit Vegetable Servings
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "132": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.whole_grains, 0) `Whole Grains Servings (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Whole Grains Servings
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "133": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.breakfast, 0) `Breakfast Per Week (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Breakfast Per Week
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "134": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.stress, 0) `Stress Coping Ability (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Stress Coping Ability
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "135": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.sleep_hours, 0) `Sleep Hours Per Night (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Sleep Hours Per Night
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "136": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.social, 0) `Social Connections Quality (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Social Connections Quality
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "137": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.water_glasses, 0) `Glasses of Water Per Day (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Glasses of Water Per Day
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "138": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.kindness, 0) `Acts of Kindness Per Week (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Acts of Kindness Per Week
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "139": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.energy, 0) `Energy Level (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :join: evaluations
+      :display_name: Energy Level
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "142": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.perception, 0) `Perception Level (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :join: evaluations
+      :display_name: Perception
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "141": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.exercise_per_day, 0) `Exercise Per Day (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :join: evaluations
+      :display_name: Exercise Per Day
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "52": 
+      :aggregate: false
+      :sequence: 13
+      :sql_phrase: COALESCE(eligibilities.identifier, 0) `Eligibility Id`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Eligibility Id
+      :join: eligibilities
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "50": 
+      :aggregate: true
+      :sequence: 52
+      :sql_phrase: COALESCE(ROUND(avg(stats.total_recorded_activities), 2), 0) `Average Recorded Activities`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Recorded Activities
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "51": 
+      :aggregate: true
+      :sequence: 53
+      :sql_phrase: CAST(sum(stats.total_recorded_activities) as UNSIGNED) `Total Recorded Activities`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Recorded Activities
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "100": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: COALESCE(teams_competitions.status, 0) `Status`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Status
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "101": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: COALESCE(teams_competitions.locations_earned, 0) `Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Attractions Earned
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "102": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: COALESCE(teams_competitions.bus_locations_earned, 0) `Bus Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Bus Attractions Earned
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "103": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: COALESCE(teams_competitions.patches_earned, 0) `Patches Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Patches Earned
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "20": 
+      :aggregate: false
+      :sequence: 30
+      :sql_phrase: COALESCE(stats.consecutive_days_logged, 0) `Consecutive Days Logged`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Consecutive Days Logged
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "21": 
+      :aggregate: false
+      :sequence: 34
+      :sql_phrase: if(stats.logged_today=1, 'Yes', 'No') `Logged Today?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Logged Today?
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "128": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.days_active_per_week, 0) `Days Active Per Week (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Days Active Per Week
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "129": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: COALESCE(evaluations.fruit_servings, 0) `Fruit Servings (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Fruit Servings
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "44": 
+      :aggregate: true
+      :sequence: 46
+      :sql_phrase: COALESCE(ROUND(avg(stats.total_earned_locations), 2), 0) `Average Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Attractions Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "45": 
+      :aggregate: true
+      :sequence: 47
+      :sql_phrase: CAST(sum(stats.total_earned_locations) as UNSIGNED) `Total Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Attractions Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "46": 
+      :aggregate: true
+      :sequence: 48
+      :sql_phrase: COALESCE(ROUND(avg(stats.total_earned_tour_bus_attractions), 2), 0) `Average Bus Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Bus Attractions Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "110": 
+      :aggregate: true
+      :sequence: 49
+      :sql_phrase: CAST(sum(stats.total_earned_tour_bus_attractions) as UNSIGNED) `Total Bus Attractions Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Bus Attractions Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "48": 
+      :aggregate: true
+      :sequence: 50
+      :sql_phrase: COALESCE(ROUND(avg(stats.total_patches), 2), 0) `Average Patches Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Patches Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "49": 
+      :aggregate: true
+      :sequence: 51
+      :sql_phrase: COALESCE(max(stats.total_patches), 0) `Total Patches Earned`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Patches Earned
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "47": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: teams_competitions.name `Team Name`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Name
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "16": 
+      :aggregate: false
+      :sequence: 17
+      :sql_phrase: users.registered_on `Registered On`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Registered On
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "18": 
+      :aggregate: false
+      :sequence: 25
+      :sql_phrase: COALESCE(stats.total_days, 0) `Total Program Days`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Program Days
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "19": 
+      :aggregate: true
+      :sequence: 28
+      :sql_phrase: CAST(sum(stats.logged_today) as UNSIGNED) `Days Logged`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Days Logged
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "10": 
+      :aggregate: false
+      :sequence: 33
+      :sql_phrase: organizations.name `Organization`
+      :filterable: true
+      :role: Reseller
+      :display_name: Organization
+      :join: organizations
+      :identification: false
+      :sensitive: false
+      :category: Program Fields
+      :visible: true
+    "14": 
+      :aggregate: false
+      :sequence: 8
+      :sql_phrase: users.started_on `Started On`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Started On
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "12": 
+      :aggregate: false
+      :sequence: 2
+      :sql_phrase: locations.name `Location Name`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Location Name
+      :join: locations
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "91": 
+      :aggregate: false
+      :sequence: 5
+      :sql_phrase: addresses.line1 `Address`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Address
+      :join: addresses
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "92": 
+      :aggregate: false
+      :sequence: 7
+      :sql_phrase: addresses.line2 `Address Line 2`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Address Line 2
+      :join: addresses
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "93": 
+      :aggregate: false
+      :sequence: 12
+      :sql_phrase: addresses.city `City`
+      :filterable: false
+      :role: Coordinator
+      :display_name: City
+      :join: addresses
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "94": 
+      :aggregate: false
+      :sequence: 15
+      :sql_phrase: addresses.state_province `State/Province`
+      :filterable: false
+      :role: Coordinator
+      :display_name: State/Province
+      :join: addresses
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "95": 
+      :aggregate: false
+      :sequence: 20
+      :sql_phrase: addresses.postal_code `Postal Code`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Postal Code
+      :join: addresses
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: false
+    "97": 
+      :aggregate: false
+      :sequence: 31
+      :sql_phrase: users_team_memberships_leader_competitions.first_name `Team Leader First Name`, users_team_memberships_leader_competitions.last_name `Team Leader Last Name`, users_team_memberships_leader_competitions.email `Team Leader Email`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Team Leader
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "98": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: teams_competitions.made_official_at `Made Official At`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Made Official At
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "99": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: COALESCE(teams_competitions.points, 0) `Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Points
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "140": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.overall_health `Overall Health (Nth Evaluation)`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Overall Health
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "8": 
+      :aggregate: true
+      :sequence: 6
+      :sql_phrase: COALESCE(count(distinct stats.user_id), 0) `Count Each Participant`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Count Each Participant
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "9": 
+      :aggregate: false
+      :sequence: 10
+      :sql_phrase: resellers.name `Reseller`
+      :filterable: true
+      :role: Master
+      :display_name: Reseller
+      :join: resellers
+      :identification: false
+      :sensitive: false
+      :category: Program Fields
+      :visible: true
+    "1": 
+      :aggregate: false
+      :sequence: 24
+      :sql_phrase: users.first_name `First Name`, users.last_name `Last Name`, users.email `Email`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Each Participant
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "2": 
+      :aggregate: false
+      :sequence: 26
+      :sql_phrase: stats.reported_on `Reported On`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Reported On
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "3": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: users.first_name `First Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: First Name
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "4": 
+      :aggregate: false
+      :sequence: 32
+      :sql_phrase: users.last_name `Last Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Last Name
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "6": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: users.email `Email`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Email
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "7": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: COALESCE(users.gender, 'Unspecified') `Gender`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Gender
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "37": 
+      :aggregate: false
+      :sequence: 14
+      :sql_phrase: if(users.allows_email=1,'Yes','No') `Allows Email`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Allows Email
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "39": 
+      :aggregate: false
+      :sequence: 23
+      :sql_phrase: if(stats.is_active=1,'Yes','No') `Is Active`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Is Active
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "40": 
+      :aggregate: true
+      :sequence: 24
+      :sql_phrase: CAST(COALESCE(MAX(stats.answer_points), 0) as UNSIGNED) `Quiz Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Quiz Points
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "41": 
+      :aggregate: true
+      :sequence: 25
+      :sql_phrase: CAST(COALESCE(sum(stats.bus_points), 0) as UNSIGNED) `Bus Activity Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Bus Activity Points
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "42": 
+      :aggregate: true
+      :sequence: 26
+      :sql_phrase: CAST(COALESCE(sum(stats.daily_points), 0) as UNSIGNED) `Activity Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Activity Points
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "43": 
+      :aggregate: true
+      :sequence: 26
+      :sql_phrase: CAST(COALESCE(sum(stats.points), 0) as UNSIGNED) `Total Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Points
+      :join: stats
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+  joins: 
+    "23": 
+      :nest_level: 1
+      :sql: left join eligibilities on (eligibilities.user_id = users.id)
+      :alias: eligibilities
+      :childof: users
+    "21": 
+      :nest_level: 0
+      :sql: 
+      :alias: users
+    "11": 
+      :nest_level: 0
+      :sql: inner join stats on (stats.SINGULAR_id = PLURAL.id)
+      :alias: stats
+      :childof: 
+      - resellers
+      - organizations
+      - promotions
+      - users
+      - entries
+    "15": 
+      :nest_level: 2
+      :sql: inner join entries on (entries.id = stats.entry_id)
+      :alias: entries
+      :childof: stats
+    "10": 
+      :nest_level: 1
+      :sql: left join addresses on (addresses.user_id = users.id)
+      :alias: addresses
+      :childof: users
+    "12": 
+      :nest_level: 1
+      :sql: |
+        left join locations locationsN on (users.promotion_id = locationsN.locationable_id and locationsN.depth = locationN) 
+        left join rel_users_locations user_locationsN on (users.id = user_locationsN.user_id and user_locationsN.location_id = locationsN.id)
+
+      :alias: locations
+      :childof: users
+    "18": 
+      :nest_level: 1
+      :sql: |
+        inner join team_memberships team_memberships_competitionsN on (team_memberships_competitionsN.user_id = users.id)
+        inner join team_memberships team_memberships_leader_competitionsN on (team_memberships_leader_competitionsN.team_id = team_memberships_competitionsN.team_id)
+        inner join users users_team_memberships_leader_competitionsN on (users_team_memberships_leader_competitionsN.id = team_memberships_leader_competitionsN.user_id and team_memberships_leader_competitionsN.is_leader=1)
+        inner join teams teams_competitionsN on (team_memberships_competitionsN.team_id = teams_competitionsN.id)
+        inner join competitions competitionsN on (users.promotion_id = competitionsN.competitionable_id AND competitionsN.competitionable_type = 'Promotion' AND competitionsN.sequence = competitionN)
+
+      :alias: competitions
+      :childof: users
+    "7": 
+      :nest_level: -2
+      :sql: inner join organizations on (organizations.id = promotions.organization_id)
+      :alias: organizations
+      :parentof: promotions
+    "8": 
+      :nest_level: -3
+      :sql: inner join resellers on (resellers.id = organizations.reseller_id)
+      :alias: resellers
+      :parentof: organizations
+    "5": 
+      :nest_level: -1
+      :sql: inner join promotions on (promotions.id = users.promotion_id)
+      :alias: promotions
+      :parentof: users
+    "3": 
+      :nest_level: 1
+      :sql: |
+        inner join evaluation_definitions pevevaluationsN on (users.promotion_id = pevevaluationsN.eval_definitionable_id and pevevaluationsN.sequence = evaluationN) 
+        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and pevevaluationsN.id = evaluationsN.evaluation_definition_id)
+
+      :alias: evaluations
+      :childof: users
+    "20": 
+      :alias: evaluationsN_udfs
+      :nest_level: 3
+      :childof: evaluations
+      :sql: left join evaluation_udfs evaluationsN_udfs on (evaluationsN_udfs.evaluation_id = evaluationsN.id)

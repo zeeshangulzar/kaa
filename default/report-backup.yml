@@ -1,0 +1,1146 @@
+---
+- !ruby/object:Report 
+  id: 8
+  report_type: Simple
+  name: Gender
+  fields: 
+  - "7"
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Gender
+- !ruby/object:Report 
+  id: 12
+  report_type: Simple
+  name: Active Participants
+  fields: 
+  - "2"
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Active Participants
+- !ruby/object:Report 
+  id: 34
+  report_type: SQL
+  name: Total Participants
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select dates.reported_on `Reported On`, count(users.id) `Total Participants`
+    from (select distinct(stats.reported_on) reported_on from stats where reported_on between :reported_on_min and :reported_on_max) dates
+    left join users on (users.registered_on <= dates.reported_on)
+    where :conditions
+    group by dates.reported_on
+
+  created_by_master: false
+  friendly_url_key: Total Participants
+- !ruby/object:Report 
+  id: 51
+  report_type: Simple
+  name: Days Logged
+  fields: 
+  - "1"
+  - "19"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Days Logged
+- !ruby/object:Report 
+  id: 52
+  report_type: Simple
+  name: Patches Earned
+  fields: 
+  - "1"
+  - "49"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Patches Earned
+- !ruby/object:Report 
+  id: 52
+  report_type: Simple
+  name: Average Patches Earned
+  fields: 
+  - "1"
+  - "48"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Average Patches Earned
+- !ruby/object:Report 
+  id: 53
+  report_type: Simple
+  name: Locations Earned
+  fields: 
+  - "1"
+  - "45"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Locations Earned
+- !ruby/object:Report 
+  id: 54
+  report_type: Simple
+  name: Average Locations Earned
+  fields: 
+  - "1"
+  - "44"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Average Locations Earned
+- !ruby/object:Report 
+  id: 55
+  report_type: Simple
+  name: Bus Locations Earned
+  fields: 
+  - "1"
+  - "43"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Bus Locations Earned
+- !ruby/object:Report 
+  id: 56
+  report_type: Simple
+  name: Average Bus Locations Earned
+  fields: 
+  - "1"
+  - "46"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Average Bus Locations Earned
+- !ruby/object:Report 
+  id: 57
+  report_type: Simple
+  name: Recorded Activities
+  fields: 
+  - "1"
+  - "51"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Recorded Activities
+- !ruby/object:Report 
+  id: 58
+  report_type: Simple
+  name: Average Recorded Activities
+  fields: 
+  - "1"
+  - "50"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Average Recorded Activities
+- !ruby/object:Report 
+  id: 59
+  report_type: SQL
+  name: Days Active Per Week (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.days_active_per_week,y.days_active_per_week) `Days Active Per Week`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.days_active_per_week
+      from evaluations e
+      where e.days_active_per_week is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.days_active_per_week
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.days_active_per_week is not null
+      group by evaluations.days_active_per_week
+    ) y on y.days_active_per_week = x.days_active_per_week
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.days_active_per_week
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.days_active_per_week is not null
+        group by evaluations.days_active_per_week
+      ) z on z.days_active_per_week = x.days_active_per_week
+    where y.days_active_per_week is not null or z.days_active_per_week is not null
+    group by `Days Active Per Week`
+
+  created_by_master: true
+  friendly_url_key: Days Active Per Week (Completed Participants)
+- !ruby/object:Report 
+  id: 63
+  report_type: Simple
+  name: Days Active Per Week at Registration
+  fields: 
+  - 128|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Days Active Per Week at Registration
+- !ruby/object:Report 
+  id: 64
+  report_type: Simple
+  name: Days Active Per Week at Evaluation
+  fields: 
+  - 128|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Days Active Per Week at Evaluation
+- !ruby/object:Report 
+  id: 65
+  report_type: SQL
+  name: Fruit Servings (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.fruit_servings,y.fruit_servings) `Fruit Servings`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.fruit_servings
+      from evaluations e
+      where e.fruit_servings is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.fruit_servings
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.fruit_servings is not null
+      group by evaluations.fruit_servings
+    ) y on y.fruit_servings = x.fruit_servings
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.fruit_servings
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.fruit_servings is not null
+        group by evaluations.fruit_servings
+      ) z on z.fruit_servings = x.fruit_servings
+    where y.fruit_servings is not null or z.fruit_servings is not null
+    group by `Fruit Servings`
+
+  created_by_master: true
+  friendly_url_key: Fruit Servings (Completed Participants)
+- !ruby/object:Report 
+  id: 66
+  report_type: Simple
+  name: Fruit Servings at Registration
+  fields: 
+  - 129|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Fruit Servings at Registration
+- !ruby/object:Report 
+  id: 67
+  report_type: Simple
+  name: Fruit Servings at Evaluation
+  fields: 
+  - 129|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Fruit at Evaluation
+- !ruby/object:Report 
+  id: 68
+  report_type: SQL
+  name: Vegetable Servings (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.vegetable_servings,y.vegetable_servings) `Vegetable Servings`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.vegetable_servings
+      from evaluations e
+      where e.vegetable_servings is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.vegetable_servings
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.vegetable_servings is not null
+      group by evaluations.vegetable_servings
+    ) y on y.vegetable_servings = x.vegetable_servings
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.vegetable_servings
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.vegetable_servings is not null
+        group by evaluations.vegetable_servings
+      ) z on z.vegetable_servings = x.vegetable_servings
+    where y.vegetable_servings is not null or z.vegetable_servings is not null
+    group by `Vegetable Servings`
+
+  created_by_master: true
+  friendly_url_key: Vegetable Servings (Completed Participants)
+- !ruby/object:Report 
+  id: 69
+  report_type: Simple
+  name: Vegetable Servings at Registration
+  fields: 
+  - 130|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Vegetable Servings at Registration
+- !ruby/object:Report 
+  id: 70
+  report_type: Simple
+  name: Vegetable Servings at Evaluation
+  fields: 
+  - 130|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Vegetable Servings at Evaluation
+- !ruby/object:Report 
+  id: 71
+  report_type: SQL
+  name: Fruit/Vegetable Servings (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.fruit_vegetable_servings,y.fruit_vegetable_servings) `Fruit/Vegetable Servings`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.fruit_vegetable_servings
+      from evaluations e
+      where e.fruit_vegetable_servings is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.fruit_vegetable_servings
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.fruit_vegetable_servings is not null
+      group by evaluations.fruit_vegetable_servings
+    ) y on y.fruit_vegetable_servings = x.fruit_vegetable_servings
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.fruit_vegetable_servings
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.fruit_vegetable_servings is not null
+        group by evaluations.fruit_vegetable_servings
+      ) z on z.fruit_vegetable_servings = x.fruit_vegetable_servings
+    where y.fruit_vegetable_servings is not null or z.fruit_vegetable_servings is not null
+    group by `Fruit/Vegetable Servings`
+
+  created_by_master: true
+  friendly_url_key: Fruit/Vegetable Servings (Completed Participants)
+- !ruby/object:Report 
+  id: 72
+  report_type: Simple
+  name: Fruit/Vegetable Servings at Registration
+  fields: 
+  - 131|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Fruit/Vegetable Servings at Registration
+- !ruby/object:Report 
+  id: 73
+  report_type: Simple
+  name: Fruit/Vegetable Servings at Evaluation
+  fields: 
+  - 131|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Fruit/Vegetable Servings at Evaluation
+- !ruby/object:Report 
+  id: 74
+  report_type: SQL
+  name: Whole Grain Servings (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.whole_grains,y.whole_grains) `Whole Grain Servings`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.whole_grains
+      from evaluations e
+      where e.whole_grains is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.whole_grains
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.whole_grains is not null
+      group by evaluations.whole_grains
+    ) y on y.whole_grains = x.whole_grains
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.whole_grains
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.whole_grains is not null
+        group by evaluations.whole_grains
+      ) z on z.whole_grains = x.whole_grains
+    where y.whole_grains is not null or z.whole_grains is not null
+    group by `Whole Grain Servings`
+
+  created_by_master: true
+  friendly_url_key: Whole Grain Servings (Completed Participants)
+- !ruby/object:Report 
+  id: 75
+  report_type: Simple
+  name: Whole Grain Servings at Registration
+  fields: 
+  - 132|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Whole Grain Servings at Registration
+- !ruby/object:Report 
+  id: 76
+  report_type: Simple
+  name: Whole Grain Servings at Evaluation
+  fields: 
+  - 132|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Whole Grain Servings at Evaluation
+- !ruby/object:Report 
+  id: 77
+  report_type: SQL
+  name: Breakfast Per Week (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.breakfast,y.breakfast) `Breakfast Per Week`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.breakfast
+      from evaluations e
+      where e.breakfast is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.breakfast
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.breakfast is not null
+      group by evaluations.breakfast
+    ) y on y.breakfast = x.breakfast
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.breakfast
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.breakfast is not null
+        group by evaluations.breakfast
+      ) z on z.breakfast = x.breakfast
+    where y.breakfast is not null or z.breakfast is not null
+    group by `Breakfast Per Week`
+
+  created_by_master: true
+  friendly_url_key: Breakfast Per Week (Completed Participants)
+- !ruby/object:Report 
+  id: 78
+  report_type: Simple
+  name: Breakfast Per Week at Registration
+  fields: 
+  - 133|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Breakfast Per Week at Registration
+- !ruby/object:Report 
+  id: 79
+  report_type: Simple
+  name: Breakfast Per Week at Evaluation
+  fields: 
+  - 133|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Breakfast Per Week at Evaluation
+- !ruby/object:Report 
+  id: 80
+  report_type: SQL
+  name: Stress Coping Ability (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.stress,y.stress) `Stress Coping Ability`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.stress
+      from evaluations e
+      where e.stress is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.stress
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.stress is not null
+      group by evaluations.stress
+    ) y on y.stress = x.stress
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.stress
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.stress is not null
+        group by evaluations.stress
+      ) z on z.stress = x.stress
+    where y.stress is not null or z.stress is not null
+    group by `Stress Coping Ability`
+
+  created_by_master: true
+  friendly_url_key: Stress Coping Ability (Completed Participants)
+- !ruby/object:Report 
+  id: 81
+  report_type: Simple
+  name: Stress Coping Ability at Registration
+  fields: 
+  - 134|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Stress Coping Ability at Registration
+- !ruby/object:Report 
+  id: 82
+  report_type: Simple
+  name: Stress Coping Ability at Evaluation
+  fields: 
+  - 134|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Stress Coping Ability at Evaluation
+- !ruby/object:Report 
+  id: 83
+  report_type: SQL
+  name: Sleep Hours Per Night (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.sleep_hours,y.sleep_hours) `Sleep Hours Per Night`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.sleep_hours
+      from evaluations e
+      where e.sleep_hours is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.sleep_hours
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.sleep_hours is not null
+      group by evaluations.sleep_hours
+    ) y on y.sleep_hours = x.sleep_hours
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.sleep_hours
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.sleep_hours is not null
+        group by evaluations.sleep_hours
+      ) z on z.sleep_hours = x.sleep_hours
+    where y.sleep_hours is not null or z.sleep_hours is not null
+    group by `Sleep Hours Per Night`
+
+  created_by_master: true
+  friendly_url_key: Sleep Hours Per Night (Completed Participants)
+- !ruby/object:Report 
+  id: 84
+  report_type: Simple
+  name: Sleep Hours Per Night at Registration
+  fields: 
+  - 135|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Sleep Hours Per Night at Registration
+- !ruby/object:Report 
+  id: 85
+  report_type: Simple
+  name: Sleep Hours Per Night at Evaluation
+  fields: 
+  - 135|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Sleep Hours Per Night at Evaluation
+- !ruby/object:Report 
+  id: 86
+  report_type: SQL
+  name: Social Connections Quality (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.social,y.social) `Social Connections Quality`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.social
+      from evaluations e
+      where e.social is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.social
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.social is not null
+      group by evaluations.social
+    ) y on y.social = x.social
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.social
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.social is not null
+        group by evaluations.social
+      ) z on z.social = x.social
+    where y.social is not null or z.social is not null
+    group by `Social Connections Quality`
+
+  created_by_master: true
+  friendly_url_key: Social Connections Quality (Completed Participants)
+- !ruby/object:Report 
+  id: 87
+  report_type: Simple
+  name: Social Connections Quality at Registration
+  fields: 
+  - 136|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Social Connections Quality at Registration
+- !ruby/object:Report 
+  id: 88
+  report_type: Simple
+  name: Social Connections Quality at Evaluation
+  fields: 
+  - 136|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Social Connections Quality at Evaluation
+- !ruby/object:Report 
+  id: 89
+  report_type: SQL
+  name: Glasses of Water Per Day (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.water_glasses,y.water_glasses) `Glasses of Water Per Day`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.water_glasses
+      from evaluations e
+      where e.water_glasses is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.water_glasses
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.water_glasses is not null
+      group by evaluations.water_glasses
+    ) y on y.water_glasses = x.water_glasses
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.water_glasses
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.water_glasses is not null
+        group by evaluations.water_glasses
+      ) z on z.water_glasses = x.water_glasses
+    where y.water_glasses is not null or z.water_glasses is not null
+    group by `Glasses of Water Per Day`
+
+  created_by_master: true
+  friendly_url_key: Glasses of Water Per Day (Completed Participants)
+- !ruby/object:Report 
+  id: 90
+  report_type: Simple
+  name: Glasses of Water Per Day at Registration
+  fields: 
+  - 137|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Glasses of Water Per Day at Registration
+- !ruby/object:Report 
+  id: 91
+  report_type: Simple
+  name: Glasses of Water Per Day at Evaluation
+  fields: 
+  - 137|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Glasses of Water Per Day at Evaluation
+- !ruby/object:Report 
+  id: 92
+  report_type: SQL
+  name: Acts of Kindness Per Week (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.kindness,y.kindness) `Acts of Kindness Per Week`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.kindness
+      from evaluations e
+      where e.kindness is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.kindness
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.kindness is not null
+      group by evaluations.kindness
+    ) y on y.kindness = x.kindness
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.kindness
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.kindness is not null
+        group by evaluations.kindness
+      ) z on z.kindness = x.kindness
+    where y.kindness is not null or z.kindness is not null
+    group by `Acts of Kindness Per Week`
+
+  created_by_master: true
+  friendly_url_key: Acts of Kindness Per Week (Completed Participants)
+- !ruby/object:Report 
+  id: 93
+  report_type: Simple
+  name: Acts of Kindness Per Week at Registration
+  fields: 
+  - 138|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Acts of Kindness Per Week at Registration
+- !ruby/object:Report 
+  id: 94
+  report_type: Simple
+  name: Acts of Kindness Per Week at Evaluation
+  fields: 
+  - 138|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Acts of Kindness Per Week at Evaluation
+- !ruby/object:Report 
+  id: 95
+  report_type: SQL
+  name: Energy Level (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.energy,y.energy) `Energy Level`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.energy
+      from evaluations e
+      where e.energy is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.energy
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.energy is not null
+      group by evaluations.energy
+    ) y on y.energy = x.energy
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.energy
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.energy is not null
+        group by evaluations.energy
+      ) z on z.energy = x.energy
+    where y.energy is not null or z.energy is not null
+    group by `Energy Level`
+
+  created_by_master: true
+  friendly_url_key: Energy Level (Completed Participants)
+- !ruby/object:Report 
+  id: 96
+  report_type: Simple
+  name: Energy Level at Registration
+  fields: 
+  - 139|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Energy Level at Registration
+- !ruby/object:Report 
+  id: 97
+  report_type: Simple
+  name: Energy Level at Evaluation
+  fields: 
+  - 139|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Energy Level at Evaluation
+- !ruby/object:Report 
+  id: 98
+  report_type: SQL
+  name: Overall Health (Completed Participants)
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select coalesce(z.overall_health,y.overall_health) `Overall Health`, coalesce(y.count,0) `At Registration`, coalesce(z.count,0) `At Evaluation` from
+    (
+      select e.overall_health
+      from evaluations e
+      where e.overall_health is not null
+    ) x
+    LEFT join
+    (
+      select count(evaluations.id) count, evaluations.overall_health
+      from evaluations
+      inner join users on users.id = evaluations.user_id
+      inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+      where pev.days_from_start = 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.overall_health is not null
+      group by evaluations.overall_health
+    ) y on y.overall_health = x.overall_health
+    LEFT join
+      (
+        select count(evaluations.id) count, evaluations.overall_health
+        from evaluations
+        inner join users on users.id = evaluations.user_id
+        inner join evaluation_definitions pev on pev.eval_definitionable_id = users.promotion_id and evaluations.evaluation_definition_id = pev.id
+        where pev.days_from_start != 0 AND users.promotion_id = :promotion_id and :hash_conditions_with_and_unless_empty evaluations.created_at is not null and evaluations.overall_health is not null
+        group by evaluations.overall_health
+      ) z on z.overall_health = x.overall_health
+    where y.overall_health is not null or z.overall_health is not null
+    group by `Overall Health`
+
+  created_by_master: true
+  friendly_url_key: Overall Health (Completed Participants)
+- !ruby/object:Report 
+  id: 99
+  report_type: Simple
+  name: Overall Health at Registration
+  fields: 
+  - 140|1
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Overall Health at Registration
+- !ruby/object:Report 
+  id: 100
+  report_type: Simple
+  name: Overall Health at Evaluation
+  fields: 
+  - 140|2
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: Overall Health at Evaluation
+- !ruby/object:Report 
+  id: 101
+  report_type: 
+  name: Test Report
+  fields: 
+  - 46
+  - 92
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+    - !map:ActiveSupport::HashWithIndifferentAccess 
+      value: "45"
+      field: 129
+      sign: !map:ActiveSupport::HashWithIndifferentAccess 
+        value: "="
+        text: is
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: 
+- !ruby/object:Report 
+  id: 102
+  report_type: 
+  name: Test Report
+  fields: 
+  - 46
+  - 92
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+    - !map:ActiveSupport::HashWithIndifferentAccess 
+      value: "45"
+      field: 129
+      sign: !map:ActiveSupport::HashWithIndifferentAccess 
+        text: is
+        value: "="
+    - !map:ActiveSupport::HashWithIndifferentAccess 
+      value: "35"
+      field: 139
+      sign: !map:ActiveSupport::HashWithIndifferentAccess 
+        value: <>
+        text: is not
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: 
+- !ruby/object:Report 
+  id: 103
+  report_type: 
+  name: test 3
+  fields: 
+  - 131
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+    - !map:ActiveSupport::HashWithIndifferentAccess 
+      value: "45"
+      field: 139
+      sign: <=
+  limit: 
+  sql: 
+  created_by_master: true
+  friendly_url_key: 
+- !ruby/object:Report 
+  id: 104
+  report_type:
+  name: Participation By Gender
+  fields: 
+  - "7"
+  - "19"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Participation By Gender
+- !ruby/object:Report
+  id: 105
+  report_type:
+  name: Participants Per Day
+  fields: 
+  - "2"
+  - "19"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Participants Per Day

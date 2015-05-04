@@ -1,0 +1,64 @@
+--- 
+- !ruby/object:Report 
+  id: 8
+  report_type: Simple
+  name: Gender
+  fields: 
+  - "7"
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Gender
+- !ruby/object:Report 
+  id: 12
+  report_type: Simple
+  name: Active Participants
+  fields: 
+  - "2"
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Active Participants
+- !ruby/object:Report 
+  id: 34
+  report_type: SQL
+  name: Total Participants
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select dates.reported_on `Reported On`, count(profiles.id) `Total Participants`
+    from (select distinct(stats.reported_on) reported_on from stats where reported_on between :reported_on_min and :reported_on_max) dates
+    left join users on (users.registered_on <= dates.reported_on)
+    where :conditions
+    group by dates.reported_on
+
+  created_by_master: false
+  friendly_url_key: Total Participants
+- !ruby/object:Report 
+  id: 51
+  report_type: Simple
+  name: Days Logged
+  fields: 
+  - "1"
+  - "42"
+  - "12"
+  - "19"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Days Logged
