@@ -62,7 +62,7 @@ class TeamInvite < ApplicationModel
         # user requested to be on team
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify requesting user his request was accepted
-          notify(self.user, "You're team request was accepted", "You're request to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
+          notify(self.user, "Your team request was accepted", "Your request to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
           self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
