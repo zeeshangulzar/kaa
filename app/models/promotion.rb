@@ -30,6 +30,8 @@ class Promotion < ApplicationModel
   has_wall
   has_evaluations
 
+  has_reports
+
   mount_uploader :logo, PromotionLogoUploader
 
   after_create :create_evaluations
