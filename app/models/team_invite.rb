@@ -63,6 +63,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify requesting user his request was accepted
           notify(self.user, "You're team request was accepted", "You're request to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
+          self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
           notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has requested to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
@@ -73,6 +74,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify team leader his invite was accepted
           notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
+          self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify user he's been invited to a team
           notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_invite_#{self.id}")
@@ -96,6 +98,11 @@ class TeamInvite < ApplicationModel
         self.team.team_members.create(:user_id => self.user_id, :competition_id => self.team.competition_id, :is_leader => 0)
       end
     end
+    self.user.team_invites.each{ |invite|
+      TeamInvite.transaction do
+        invite.destroy
+      end
+    }
   end
 
 end
