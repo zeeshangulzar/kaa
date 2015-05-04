@@ -41,35 +41,52 @@ class TeamInvitesController < ApplicationController
   end
 
   def create
-    if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || params[:team_invite][:user_id].nil? || params[:team_invite][:invite_type].nil?
-      return HESResponder('Must include invite type and team and user id.', "ERROR")
+    return HESResponder("Bad request.", "ERROR") if params[:team_invite].nil?
+    return HESResponder("Invite type required.", "ERROR") if params[:team_invite][:invite_type].nil?
+    if params[:team_invite][:invite_type] == TeamInvite::TYPE[:requested]
+      invite_type = TeamInvite::TYPE[:requested]
+      if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || params[:team_invite][:user_id].nil?
+        return HESResponder('Must include team and user id.', "ERROR")
+      end
+    elsif params[:team_invite][:invite_type] == TeamInvite::TYPE[:invited]
+      invite_type = TeamInvite::TYPE[:invited]
+      if params[:team_invite].nil? || params[:team_invite][:team_id].nil? || (params[:team_invite][:user_id].nil? && params[:team_invite][:email].nil?)
+        return HESResponder('Must include team id, and user id or email.', "ERROR")
+      end
+    else
+      return HESResponder("Invalid invite type.", "ERROR")
     end
+    email = params[:team_invite][:email] rescue nil
     team = Team.find(params[:team_invite][:team_id]) rescue nil
     user = User.find(params[:team_invite][:user_id]) rescue nil
     if !team
       return HESResponder("Team", "NOT_FOUND")
-    elsif !user
+    elsif !user && invite_type == TeamInvite::TYPE[:requested]
       return HESResponder("User", "NOT_FOUND")
+    elsif !user && !email && invite_type == TeamInvite::TYPE[:invited]
+      return HESResponder("Email or valid user required.", "ERROR")
     end
     
-    if !user.current_team.nil?
+    if user && !user.current_team.nil?
       return HESResponder("User is already on a team", "ERROR")
     end
 
-    if params[:team_invite][:invite_type] == TeamInvite::TYPE[:requested]
+    if invite_type == TeamInvite::TYPE[:requested]
       if @current_user.id != user.id
         return HESResponder("Impersonation attempt logged.", "ERROR")
       else
         team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invite_type => TeamInvite::TYPE[:requested])
       end
-    elsif params[:team_invite][:invite_type] == TeamInvite::TYPE[:invited]
+    elsif invite_type == TeamInvite::TYPE[:invited]
       if team.leader.id != @current_user.id && !@current_user.master?
         return HESResponder("You may not invite people for this team.", "DENIED")
       else
-        team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+        if user
+          team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+        else
+          team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+        end
       end
-    else
-      return HESResponder("Invalid invite type.", "ERROR")
     end
     if !team_invite.valid?
       return HESResponder(team_invite.errors.full_messages, "ERROR")
