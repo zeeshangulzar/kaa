@@ -62,22 +62,22 @@ class TeamInvite < ApplicationModel
         # user requested to be on team
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify requesting user his request was accepted
-          notify(self.user, "You're team request was accepted", "You're request to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
+          notify(self.user, "You're team request was accepted", "You're request to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_invite_#{self.id}")
           self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
-          notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has requested to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
+          notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has <a href='/#/team?tab=invites'>requested</a> to join \"#{self.team.name}\".", :from => self.user, :key => "team_invite_#{self.id}")
           Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id)
         end
       elsif self.invite_type == TeamInvite::TYPE[:invited]
         # user was invited by team leader to be on team
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           # notify team leader his invite was accepted
-          notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
+          notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_invite_#{self.id}")
           self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify user he's been invited to a team
-          notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team/#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_invite_#{self.id}")
+          notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_invite_#{self.id}")
           Resque.enqueue(TeamInviteEmail, 'invited', self.user.id, self.inviter.id)
         end
       end
