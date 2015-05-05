@@ -73,12 +73,8 @@ class PromotionsController < ApplicationController
   end
 
   def top_location_stats
-    locations = @promotion.nested_locations
-    locations.each_with_index{|location, index|
-      locations[index][:user_count] = User.where(:location_id => [location['id']] + location[:locations].collect{|l|l['id']}).count
-      locations[index].delete(:locations)
-    }
-    render :json => {:data => locations} and return
+    users = ActiveRecord::Base.connection.select_all("SELECT COUNT(*) AS 'user_count', locations.name FROM users INNER JOIN locations ON users.top_level_location_id = locations.id WHERE users.promotion_id = #{@promotion.id} GROUP BY locations.name;")
+    render :json => {:data => users} and return
   end
 
   def verify_users_for_achievements
