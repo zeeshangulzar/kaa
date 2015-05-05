@@ -30,8 +30,7 @@ class PromotionsController < ApplicationController
     #@promotion.logo = @promotion.logo_for_user(@current_user) if @current_user
     #@promotion.resources_title = @promotion.resources_title_for_user(@current_user) if @current_user
     if @current_user && @current_user.user?
-      params[:id] = @promotion.id
-      return HESCachedResponder('promotions', @promotion)
+      return HESCachedResponder('promotions_' + @promotion.id.to_s, @promotion)
     end
     return HESResponder(@promotion)
   end
