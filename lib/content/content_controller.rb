@@ -26,6 +26,21 @@ class ContentController < ApplicationController
     return HESResponder(@content_model_class_name.for_promotion(@promotion).find(params[:id]))
   end
 
+  def create
+    @obj = @content_model_class_name.for_promotion(@promotion).new(params[@content_model_class_name.name.downcase.underscore.to_sym])
+    if @obj.valid?
+      @content_model_class_name.transaction do
+        @obj.save!
+      end
+      return HESResponder(@obj)
+    elsif @obj.errors
+      return HESResponder(@obj.errors.full_messages, "ERROR")
+    else
+      return HESResponder("General error.", "ERROR")
+    end
+  end
+
+
   def update
     @obj = @content_model_class_name.for_promotion(@promotion).find(params[:id])
     @content_model_class_name.transaction do
@@ -36,7 +51,7 @@ class ContentController < ApplicationController
     elsif @obj.errors
       return HESResponder(@obj.errors.full_messages, "ERROR")
     else
-      return HESResponder("Error updating profile.", "ERROR")
+      return HESResponder("General error.", "ERROR")
     end
   end
  
