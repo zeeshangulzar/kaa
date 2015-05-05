@@ -21,10 +21,10 @@ module HesReportsYaml
 	# Engine to initialize HesReportsYaml
 	class Engine < ::Rails::Engine
 
-		initializer "HesReportsYaml" do |app|
+		#initializer "HesReportsYaml" do |app|
 			ActiveRecord::Base.send(:include, HesReportsYaml::HasYamlContent)
 			ActiveRecord::Base.send(:extend, HesReportsYaml::HasReports)
-		end
+	#	end
 
 #		config.generators do |g|
 #			g.test_framework :rspec, :view_specs => false
