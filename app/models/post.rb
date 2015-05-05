@@ -176,7 +176,7 @@ class Post < ApplicationModel
   def create_post_owner_notification_of_reply(reply)
     return if reply.user.id == self.user.id # don't notify user of his own replies..
     unless self.user.role == "Poster"
-      notify(self.user, "Your post was replied to!", "#{reply.user.profile.full_name} replied to your <a href='/#/wellness_wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
+      notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/wellness_wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
     else
       self.postable.notify(self.postable.user, HesPosts.post_replied_notification_title.call(self.postable, reply), HesPosts.expert_post_replied_notification_message.call(self.postable, reply), :from_user => reply.user, :key => post_reply_notification_key(reply))
     end
@@ -351,7 +351,7 @@ class Post < ApplicationModel
       user_badge.id AS milestone_id, locations.id AS location_id, locations.name AS location_name
       FROM users
       JOIN profiles ON profiles.user_id = users.id
-      JOIN locations ON locations.id = users.location_id
+      LEFT JOIN locations ON locations.id = users.location_id
       LEFT JOIN (
         SELECT
         user_badges.user_id, badges.id

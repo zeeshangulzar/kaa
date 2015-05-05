@@ -68,14 +68,19 @@ class Profile < ApplicationModel
   def backlog_date
     # TODO: delete me after pilot
     # pilot-specific hard-coded backlog date
-    if self.user.promotion.subdomain == "pilot"
+    if self.user && self.user.promotion.subdomain == "pilot"
       if self.started_on < "2015-03-16".to_date
         return "2015-03-13".to_date
       else
         return "2015-03-16".to_date
       end
     end
-    return (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
+
+    if self.user
+      return (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
+    else 
+      return nil
+    end
   end
 
   def as_json(options={})

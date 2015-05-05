@@ -200,9 +200,9 @@ class ApplicationController < ActionController::Base
   def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
     cache_miss = false
     if block_given?
-      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(yield, status, page_size) }
+      response = hes_cache_fetch(category_key) { cache_miss = true; HESResponder(yield, status, page_size) }
     else
-      response = hes_cache_fetch('promotions') { cache_miss = true; HESResponder(payload, status, page_size) }
+      response = hes_cache_fetch(category_key) { cache_miss = true; HESResponder(payload, status, page_size) }
     end
     render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
   end

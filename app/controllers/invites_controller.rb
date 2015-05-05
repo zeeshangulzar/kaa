@@ -135,6 +135,7 @@ class InvitesController < ApplicationController
           return HESResponder(i.errors.full_messages, "ERROR")
         end
         i.save!
+        event.send_invited_notification(i.user)
         invites.push(i)
       }
     end
