@@ -172,4 +172,8 @@ class Promotion < ApplicationModel
     Rails.cache.delete(cache_key)
   end
 
+  def custom_content_path
+    "#{Rails.root}/content/#{subdomain}#{id}"
+  end
+
 end
