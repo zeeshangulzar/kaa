@@ -18,6 +18,8 @@ class Promotion < ApplicationModel
   has_many :challenges
   has_many :suggested_challenges
 
+  has_many :unsubscribe_list
+
   has_many :badges, :order => "sequence ASC"
 
   has_many :resources

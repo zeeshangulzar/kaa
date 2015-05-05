@@ -53,34 +53,60 @@ class Competition < ApplicationModel
     end
   end
 
-
-  # big ass method to get everything on the wall without active record junk
-  # it's ugly, but it's fast...
   def leaderboard(conditions = {}, count = false)
-    conditions = {
-      :offset       => 0,
-      :limit        => 50,
-      :location_ids => []
-    }.merge(conditions)
 
-    # get top posts, all of the various conditions are applied here
+    # filter junk out...
+    sort_columns = ['teams.name', 'teams.status', 'avg_points', 'total_points', 'member_count']
+    conditions.delete(:sort) if !conditions[:sort].nil? && !sort_columns.include?(conditions[:sort])
+    conditions.delete(:sort_dor) if !conditions[:sort_dir].nil? && !['ASC', 'DESC'].include?(conditions[:sort_dir].upcase)
+    conditions.delete(:offset) if !ApplicationHelper::is_i?(conditions[:offset])
+    conditions.delete(:limit) if !ApplicationHelper::is_i?(conditions[:limit])
+    conditions.delete(:status) if !conditions[:status].nil? && !Team::STATUS.keys.include?(conditions[:status].downcase.to_sym)
+
+    conditions = {
+      :offset       => nil,
+      :limit        => 99999999999, # if we have more teams than this, we've got bigger problems to worry about
+      :location_ids => [],
+      :status       => nil,
+      :sort         => "avg_points",
+      :sort_dir     => "DESC"
+    }.nil_merge!(conditions)
+
     teams_sql = "
       SELECT
+    "
+    if count
+      teams_sql = teams_sql + " COUNT(DISTINCT(teams.id)) AS team_count"
+    else
+      teams_sql = teams_sql + "
         teams.id, teams.name, teams.image, teams.motto, teams.status,
-        SUM(exercise_points + challenge_points + timed_behavior_points) AS total_points,
-        SUM(exercise_points + challenge_points + timed_behavior_points)/COUNT(DISTINCT(team_members.user_id)) AS avg_points,
-        COUNT(DISTINCT(team_members.user_id)) AS member_count
+        SUM(members.total_points) AS total_points,
+        SUM(members.total_points)/COUNT(DISTINCT(members.user_id)) AS avg_points,
+        COUNT(DISTINCT(members.user_id)) AS member_count
+      "
+    end
+    teams_sql = teams_sql + "
       FROM teams
         JOIN competitions ON competitions.id = teams.competition_id
-        JOIN team_members ON team_members.team_id = teams.id
-        LEFT JOIN entries ON team_members.user_id = entries.user_id AND competitions.competition_starts_on <= entries.recorded_on AND competitions.competition_ends_on >= entries.recorded_on
+        #{"JOIN team_members AS members ON members.team_id = teams.id" if !count}
+        #{"JOIN team_members AS leader_member ON leader_member.team_id = teams.id AND leader_member.is_leader = 1 JOIN users AS leader ON leader.id = leader_member.user_id" if !conditions[:location_ids].empty?}
       WHERE
         teams.competition_id = #{self.id}
-        AND teams.status = #{Team::STATUS[:official]}
-      GROUP BY teams.id
-      ORDER BY avg_points DESC
+        #{"AND teams.status = #{Team::STATUS[conditions[:status].to_sym]}" if !conditions[:status].nil?}
+        #{"AND (leader.location_id IN (#{conditions[:location_ids].join(',')}) OR leader.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
     "
+    if !count
+      teams_sql = teams_sql + "
+        GROUP BY teams.id
+        ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
+        #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
+        #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
+      "
+    end
     result = self.connection.exec_query(teams_sql)
+    if count
+      return result.first['team_count']
+    end
     teams = []
     result.each{|row|
       team = {}
@@ -91,7 +117,7 @@ class Competition < ApplicationModel
       team['motto']        = row['motto']
       team['total_points'] = row['total_points']
       team['avg_points']   = row['avg_points']
-      team['status']       = row['status'] # TODO: shouldn't need this, should we?
+      team['status']       = row['status']
       team['member_count'] = row['member_count']
       teams << team
     }
@@ -101,12 +127,12 @@ class Competition < ApplicationModel
     # grab users of posts, replies and likes..
     users_sql = "
       SELECT
-        users.id AS user_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
+        users.id AS user_id, users.top_level_location_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
         locations.id AS location_id, locations.name AS location_name, team_members.team_id
       FROM users
         JOIN profiles ON profiles.user_id = users.id
-        JOIN locations ON locations.id = users.location_id
         JOIN team_members ON team_members.user_id = users.id
+        LEFT JOIN locations ON locations.id = users.location_id
       WHERE
         team_members.team_id IN (#{(teams.collect{|t|t['id']}).join(',')}) AND team_members.is_leader = 1
     "
@@ -116,6 +142,7 @@ class Competition < ApplicationModel
     result.each{|row|
       user = {}
       user['id']                      = row['user_id']
+      user['top_level_location_id']   = row['top_level_location_id']
       user['profile']                 = {}
       user['profile']['image']        = {}
       user['location']                = {}
@@ -141,4 +168,21 @@ class Competition < ApplicationModel
     # all done!
     return teams
   end
+
+  def update_all_team_member_points
+    sql = "
+      UPDATE team_members
+      JOIN (
+        SELECT
+          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points, user_id
+        FROM entries
+        WHERE entries.recorded_on BETWEEN '#{self.competition_starts_on}' AND '#{self.competition_ends_on}'
+        GROUP BY user_id
+        ) stats on stats.user_id = team_members.user_id
+      SET
+        team_members.total_points = stats.total_points
+    "
+    self.connection.execute(sql)
+  end
+  
 end
