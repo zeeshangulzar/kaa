@@ -234,4 +234,20 @@ Go::Application.routes.draw do
 
   match '/numbers' => "promotions#top_location_stats", :via => :get
 
+  resources :teams do
+    resources :team_members, :path => "members"
+    resources :team_invites, :path => "invites"
+    resources :team_photos, :path => "photos"
+  end
+
+  resources :competitions do
+    resources :teams
+  end
+
+  resources :team_invites
+  resources :team_photos
+  resources :team_members
+
+  match "/unsubscribe" => "emails#unsubscribe", :via => :post
+
 end

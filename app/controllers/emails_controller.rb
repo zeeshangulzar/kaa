@@ -1,5 +1,6 @@
 class EmailsController < ApplicationController
   respond_to :json
+  authorize :unsubscribe, :public
   authorize :all, :user
 
   # Sends content, like tips, articles and recipes, in an email to someone inside or outside the promotion
@@ -31,5 +32,24 @@ class EmailsController < ApplicationController
     message = params[:message] rescue nil
     Resque.enqueue(InviteEmail, params[:emails], @current_user.id, message)
     return HESResponder()
+  end
+
+  def unsubscribe
+    return HESResponder("Must provide email.", "ERROR") if params[:email].nil?
+    user = @promotion.users.where(:email => params[:email]).first rescue nil
+    if !user
+      unsubscribe = @promotion.unsubscribe_list.build(:email => params[:email])
+    elsif user && !@current_user || @current_user.id != user.id
+      return HESResponder("Please login to unsubscribe.", "DENIED")
+    elsif user && @current_user && @current_user.id == user.id
+      unsubscribe = @promotion.unsubscribe_list.build(:email => params[:email], :user_id => @current_user.id)
+    else
+      return HESResponder("General failure.", "ERROR")
+    end
+    return HESResponder(unsubscribe.errors.full_messages, "ERROR") if !unsubscribe.valid?
+    UnsubscribeList.transaction do
+      unsubscribe.save!
+    end
+    return HESResponder(unsubscribe)
   end
 end
