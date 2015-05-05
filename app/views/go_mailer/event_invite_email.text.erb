@@ -15,7 +15,7 @@ end_formatted = (event_start.day != event_end.day) && (event_end.hour > 4) ? eve
 
 <%= @event.description %>
 
-Go to http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/events/<%= @event.id %> to respond.
+Go to http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/event/<%= @event.id %> to respond.
 
 ------
 http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>
