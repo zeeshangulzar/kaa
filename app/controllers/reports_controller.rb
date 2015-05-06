@@ -39,7 +39,7 @@ class ReportsController < ApplicationController
   def index
     @reports = Report.find(:all)
     @reports = @reports.concat(@promotion.reports) if @promotion.reports.is_cloned?
-    return HESResponder(@reports)
+    return HESResponder({:data => @reports.as_json, :meta => nil})
   end
 
   def show
@@ -52,7 +52,6 @@ class ReportsController < ApplicationController
       # prevent non-master from posting SQL
       @report.sql = params[:report][:sql] if @report.new_record? && @user.role == 'Master'
     else
-
       @result_fields = params[:field].sort{|x, y| x <=> y}.collect{|x| x} if params[:field]
       @report.fields = @result_fields if @result_fields
     end
@@ -144,8 +143,8 @@ class ReportsController < ApplicationController
     
     filter_promo = p == @promotion.id ? @promotion : p != "*" ? Promotion.find(p) : nil
     
-    rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).stats.minimum(:reported_on) || Date.today,Date.today].min
-    rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).stats.maximum(:reported_on) || Date.today,Date.today].min
+    rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).users.entries.minimum(:recorded_on) || Date.today,Date.today].min
+    rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).users.entries.maximum(:recorded_on) || Date.today,Date.today].min
     
     # if filter_promo && filter_promo.flags[:is_location_displayed] && !h[:top_level_location].to_s.strip.empty?
     #   rh[:top_level_location] = h[:top_level_location]

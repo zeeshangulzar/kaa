@@ -581,11 +581,11 @@
     "8": 
       :aggregate: true
       :sequence: 6
-      :sql_phrase: COALESCE(count(distinct stats.user_id), 0) `Count Each Participant`
+      :sql_phrase: COALESCE(count(distinct users.id), 0) `Count Each Participant`
       :filterable: false
       :role: Coordinator
       :display_name: Count Each Participant
-      :join: stats
+      :join: users
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -665,11 +665,11 @@
     "7": 
       :aggregate: false
       :sequence: 4
-      :sql_phrase: COALESCE(users.gender, 'Unspecified') `Gender`
+      :sql_phrase: COALESCE(IF(demographics.gender<>'',demographics.gender,NULL), 'Unspecified') `Gender`
       :filterable: true
       :role: Coordinator
       :display_name: Gender
-      :join: users
+      :join: demographics
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -823,3 +823,13 @@
       :nest_level: 3
       :childof: evaluations
       :sql: left join evaluation_udfs evaluationsN_udfs on (evaluationsN_udfs.evaluation_id = evaluationsN.id)
+    "24":
+      :nest_level: 1
+      :sql: join profiles on (profiles.user_id = users.id)
+      :alias: profiles
+      :childof: users
+    "25":
+      :nest_level: 1
+      :sql: left join demographics on (demographics.user_id = users.id)
+      :alias: demographics
+      :childof: users

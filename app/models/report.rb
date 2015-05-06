@@ -43,11 +43,11 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
   # Method to override the default YAML settings
   def to_yaml_properties
-    ['@id','@report_type','@name','@fields','@filters','@limit','@sql','@created_by_master','@friendly_url_key']
+    return ['@id','@report_type','@name','@fields','@filters','@limit','@sql','@created_by_master','@friendly_url_key']
   end
 
   def attributes
-    { :report_type => report_type, :name => name, :fields => fields, :filters => filters, :limit => limit, :sql => sql, :created_by_master => created_by_master, :friendly_url_key => friendly_url_key }
+    return { :report_type => report_type, :name => name, :fields => fields, :filters => filters, :limit => limit, :sql => sql, :created_by_master => created_by_master, :friendly_url_key => friendly_url_key }
   end
 
   def attributes=(attributes)
@@ -86,13 +86,13 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     filter_promo = p==promotion.id ? promotion : p!="*" ? Promotion.find(p) : nil
 
-    rh[:reported_on_min] = h[:reported_on_min] ? Date.parse(h[:reported_on_min]) : [(filter_promo||promotion).stats.minimum(:reported_on)||Date.today,Date.today].min
-    rh[:reported_on_max] = h[:reported_on_max] ? Date.parse(h[:reported_on_max]) : [(filter_promo||promotion).stats.maximum(:reported_on)||Date.today,Date.today].min
+    rh[:reported_on_min] = h[:reported_on_min] ? Date.parse(h[:reported_on_min]) : [(filter_promo||promotion).users.entries.minimum(:recorded_on)||Date.today,Date.today].min
+    rh[:reported_on_max] = h[:reported_on_max] ? Date.parse(h[:reported_on_max]) : [(filter_promo||promotion).users.entries.maximum(:recorded_on)||Date.today,Date.today].min
 
     self.filters[:hashes] = []
     self.filters[:special] = rh
     self.use_setup(promotion.report_setup)
-    self.get_data
+    return self.get_data
   end
 
   def get_data
@@ -111,11 +111,11 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     #data = Stat.connection.execute(reportSql)
     #puts "Time.now.to_s (#{Time.now-now} seconds elapsed)"
     #puts "================================================================================"
-    data
+    return data
   end
 
   def get_setup
-    @setup
+    return @setup
   end
   def use_setup(setup)
     @setup = setup
@@ -185,9 +185,9 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
         new_sql.gsub!(':having'," HAVING #{having} ")
       end
 
-      new_sql
+      return new_sql
     else
-      make_sql
+      return make_sql
     end
   end
 
@@ -281,11 +281,11 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   end
 
   def o2m(table_name)
-    self.class.o2m(table_name)
+    return self.class.o2m(table_name)
   end
 
   def sql_fields(fields)
-    fields.collect{|f| tn=o2m(@setup.fields[f.to_s][:join]); tn ? @setup.fields[f.to_s][:sql_phrase].gsub(/#{tn}\./,"#{tn}#{f.to_s.split('|')[1]||1}.") : @setup.fields[f.to_s][:sql_phrase]}.join(',')
+    return fields.collect{|f| tn=o2m(@setup.fields[f.to_s][:join]); tn ? @setup.fields[f.to_s][:sql_phrase].gsub(/#{tn}\./,"#{tn}#{f.to_s.split('|')[1]||1}.") : @setup.fields[f.to_s][:sql_phrase]}.join(',')
   end
 
   def sql_joins(fields,filters)
@@ -404,7 +404,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
-    o2m_joins.join(' ')
+    return o2m_joins.join(' ')
   end
 
   def sql_where(filters)
@@ -421,7 +421,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       where << "#{where_hashes} "
     end
 
-    where
+    return where
   end
 
   def special_conditions(special)
@@ -433,38 +433,25 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     if special[:reported_on_min] && special[:reported_on_max]
       i,a = special[:reported_on_min], special[:reported_on_max]
-      if is_joined('stats')
-        sc << "stats.reported_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'"
-      else
-        sc << "
-              (
-               users.started_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'
-               or
-               users.ends_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'
-               or
-               (users.started_on <= '#{i.strftime('%Y-%m-%d')}' and users.ends_on >= '#{a.strftime('%Y-%m-%d')}')
-               #{"or users.registered_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'"}
-              )
-             "
-        sc << "entries.logged_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'" if is_joined('entries')
-      end
+      sc << "
+            (
+             users.created_at between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'
+            )
+           "
+      sc << "entries.recorded_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'" if is_joined('entries')
     end
 
     lj =
     if self.report_type == ReportType_SQL
       :users
     else
-      if is_joined('stats')
-        :stats
-      else
-        :users
-      end
+      :users
     end
 
     sc << "#{lj}.top_level_location_id = '#{special[:top_level_location]}'" if special[:top_level_location]
     sc << "#{lj}.location_id = '#{special[:location]}'" if special[:location]
 
-    sc
+    return sc
   end
 
   def is_joined(lookfor)
@@ -500,14 +487,14 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     a << more_a
     a.flatten!
-    a.include?(lookfor)
+    return a.include?(lookfor)
   end
 
   # returns a WHERE clause for non-aggregate fields
   def sql_where_from_hashes(filters)
     clause=filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}.collect{|f| tn=o2m(@setup.fields[f[:field].to_s][:join]); " #{strip_aliases(tn ? @setup.fields[f[:field].to_s][:sql_phrase].gsub(/#{tn}\./,"#{tn}#{f[:field].to_s.split('|')[1]||1}.").gsub(/#{tn.singularize.titleize}/,"#{(f[:field].to_s.split('|')[1]||1).to_i.ordinalize} #{tn.singularize.titleize}") : @setup.fields[f[:field].to_s][:sql_phrase])} #{f[:sign]} ? #{'AND ?' if f[:sign]=='between'}"}.join(" AND ")
     values=filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}.collect{|f| f[:sign] == 'between' ? f[:value] : f[:value].to_s.downcase == 'true' ? true : f[:value].to_s.downcase == 'false' ? false : "#{f[:value]}#{'%' if f[:sign]=='like'}"}
-    clause.nil?||clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause,values].flatten)} "
+    return clause.nil? || clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause,values].flatten)} "
   end
 
   # returns a HAVING clause for aggregate fields which may not appear in a WHERE clause
@@ -547,15 +534,15 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       end
     end
 
-    clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause.join(' AND '),values].flatten)} "
+    return clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause.join(' AND '),values].flatten)} "
   end
 
   def aggregate_fields(filters)
-    filters.select{|f| @setup.fields[f[:field].to_s][:aggregate]}
+    return filters.select{|f| @setup.fields[f[:field].to_s][:aggregate]}
   end
 
   def non_aggregate_fields(filters)
-    filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}
+    return filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}
   end
 
   def sql_groups(fields)
@@ -564,7 +551,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       non_aggregate_fields = fields.select{|f| !@setup.fields[f.to_s][:aggregate] }
       g = strip_aliases(non_aggregate_fields.collect{|f|tn=o2m(@setup.fields[f.to_s][:join]); tn ? @setup.fields[f.to_s][:sql_phrase].gsub(/#{tn}\./,"#{tn}#{f.to_s.split('|')[1]||1}.").gsub(/#{tn.singularize.titleize}/,"#{(f.to_s.split('|')[1]||1).to_i.ordinalize} #{tn.singularize.titleize}") : @setup.fields[f.to_s][:sql_phrase]}.join(', '))
     end
-    g
+    return g
   end
 
   def strip_aliases(s)
@@ -577,6 +564,6 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       s.each_char {|c|keep=!keep if c=='`'; new_s<<c if keep && c!='`';}
       s=new_s
     end
-    s
+    return s
   end
 end
