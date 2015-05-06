@@ -12,7 +12,7 @@
   <tr>
     <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
       <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <% if @invited_type == 'requested' %>
+        <% if @invite_type == 'requested' %>
           <p><%= @from_user.profile.full_name %> has requested to join your team on  <%= Constant::AppName %>. Click <a style="color:#006ba6" href="https://<%= DomainConfig::DomainNames.first %>/#/team">here</a> to respond to their request.</p>
         <% else %>
           <p><%= @from_user.profile.full_name %> has invited you to join their team, "<%= @from_user.current_team.name %>" on  <%= Constant::AppName %>. Click <a style="color:#006ba6" href="https://<%= DomainConfig::DomainNames.first %>/#/team">here</a> to respond to their invitation.</p>
