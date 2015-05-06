@@ -9,7 +9,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
   end
 
   def joins
-    @_joins || get_joins
+    return @_joins || get_joins
   end
 
   def joins=(_joins)
@@ -21,8 +21,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     @joins.each_pair do |k, v|
       @_joins << ReportJoin.new(v.merge(:id => k.to_i))
     end
-
-    @_joins
+    return @_joins
   end
   private :get_joins
 
@@ -33,9 +32,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
   
   def add_join(join)
     get_joins if @_joins.nil?
-    
     join.id = @_joins.collect{|x| x.id}.sort{|x, y| x.to_i <=> y.to_i}.last + 1
-
     @joins[join.id.to_s] = join.symbolize  
     save
   end
@@ -46,11 +43,11 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
   end
   
   def report_fields
-    @_fields || get_fields
+    return @_fields || get_fields
   end
   
   def fields
-    @fields
+    return @fields
   end
   
   def fields=(_fields)
@@ -63,8 +60,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     @fields.each_pair do |k, v|
       @_fields << ReportField.new(v.merge(:id => k.to_i))
     end
-    
-    @_fields
+    return @_fields
   end
   private :get_fields
   
@@ -86,11 +82,11 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     
   # Method to override the default YAML settings
   def to_yaml_properties
-    ['@id','@fields','@joins']
+    return ['@id','@fields','@joins']
   end
   
   def attributes
-    { :fields => fields.symbolize, :joins => joins }
+    return { :fields => fields.symbolize, :joins => joins }
   end
   
   def attributes=(attributes)
@@ -114,7 +110,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     self.joins.each_value{|v| other_joins << "#{v[:sql]}" unless internal_joins.include?(v[:alias])}
     all_fields_sql = "select * from stats inner join evaluations ev on (ev.trip_id = stats.trip_id) #{other_joins.join(' ')} where 1=2"
     r = ActiveRecord::Base.connection.execute(all_fields_sql)
-    r.fetch_fields.collect{|f|f.name}
+    return r.fetch_fields.collect{|f|f.name}
   end
   
   def add_other_promotion_specific_fields(fields,promotion)
@@ -187,7 +183,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #       end
     #   end
     # end
-    fields
+    return fields
   end
   
   def visible_fields(role, promotion)
@@ -197,11 +193,11 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     f = add_other_promotion_specific_fields(@fields, promotion)
     o2m = add_one_to_many_fields(f.reject {|k,v| !roles.include?(v[:role]) || !v[:visible]}, promotion)
     add_custom_prompts(o2m, promotion)
-    add_other_promotion_specific_fields(o2m, promotion)
+    return add_other_promotion_specific_fields(o2m, promotion)
   end
   
   def filterable_fields(role,promotion)
-    visible_fields(role,promotion).reject{|k,v|!v[:filterable]}
+    return visible_fields(role,promotion).reject{|k,v|!v[:filterable]}
   end
 
   #def categories
@@ -253,8 +249,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
-
-    fields.merge(new_fields)
+    return fields.merge(new_fields)
   end
 
   def add_custom_prompts(fields, promotion)
@@ -294,6 +289,6 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
-    fields
+    return fields
   end
 end
