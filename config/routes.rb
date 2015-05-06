@@ -51,6 +51,7 @@ Go::Application.routes.draw do
     resources :success_stories, :only => [:index, :show]
     resources :long_term_goals, :only => [:index, :show]
     resources :personal_action_plans, :only => [:index, :show]
+    resources :team_invites
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
@@ -88,8 +89,9 @@ Go::Application.routes.draw do
     resources :banners
     resources :locations
     resources :reports
-		resources :report_fields
-		resources :report_joins
+    resources :report_fields
+    resources :report_joins
+    resources :competitions
   end
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post

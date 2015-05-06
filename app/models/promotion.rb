@@ -18,10 +18,14 @@ class Promotion < ApplicationModel
   has_many :challenges
   has_many :suggested_challenges
 
+  has_many :unsubscribe_list
+
   has_many :badges, :order => "sequence ASC"
 
   has_many :resources
   has_many :banners
+
+  has_many :competitions
 
   has_custom_prompts :with => :evaluations
 
@@ -136,7 +140,7 @@ class Promotion < ApplicationModel
 
   def as_json(options={})
     options[:meta] ||= false
-    options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids"]})
+    options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids", "current_competition"]})
     promotion_obj = super(options)
     return promotion_obj
   end
@@ -174,6 +178,23 @@ class Promotion < ApplicationModel
 
   def custom_content_path
     "#{Rails.root}/content/#{subdomain}#{id}"
+  end
+
+  def current_competition(today = self.current_date)
+    if today != current_date
+      #if you pass in some other date, i don't want it to affect the class variable
+      #(i.e. i don't want to cache "some other" competition and call it current)
+      comp = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= enrollment_ends_on", {:today=>today}])
+    else
+      # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
+      if @current_competition.nil?
+        # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
+        comp = @current_competition = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= enrollment_ends_on", {:today=>today}])
+      else
+        comp = @current_competition
+      end
+    end
+    comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => today } ] )
   end
 
 end

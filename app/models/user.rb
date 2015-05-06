@@ -13,6 +13,7 @@ class User < ApplicationModel
   flags :notify_email_messages, :default => false
   flags :notify_email_challenges, :default => true
   flags :notify_email_events, :default => true
+  flags :notify_email_teams, :default => true
 
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true
@@ -119,7 +120,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :last_accessed, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :last_accessed, :allows_email, :me
   attr_privacy :nuid_verified, :master
 
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :nuid_verified
@@ -226,7 +227,8 @@ class User < ApplicationModel
     user_json['stats'] = @stats if @stats
     user_json['recent_activities'] = @recent_activities if @recent_activities
     user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
-    user_json
+    user_json['team_id'] = @team_id if @team_id
+    return user_json
   end
 
   def auth_basic_header
@@ -451,31 +453,38 @@ events.*
     return @result
   end
 
-  def unassociated_search(search, limit = 0)
+  def search(search, unassociated = false, limit = 0)
     sql = "
-SELECT users.*
-FROM users
-JOIN profiles ON profiles.user_id = users.id
-LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
-WHERE
-(
-  users.email LIKE '%#{search}%'
-  OR profiles.first_name like '#{search}%'
-  OR profiles.last_name like '%#{search}%'
-  OR CONCAT(profiles.first_name, ' ', profiles.last_name) LIKE '#{search}%'
-)
-AND
-(
-  users.id <> #{self.id}
-  AND (
-    friendships.status IS NULL
-    OR friendships.status = 'D'
-  )
-  AND users.promotion_id = #{self.promotion_id}
-)
-GROUP BY users.id
-ORDER BY profiles.last_name
-#{'LIMIT ' + limit.to_s if limit > 0}
+      SELECT
+        users.*
+      FROM users
+      JOIN profiles ON profiles.user_id = users.id
+      LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
+      WHERE
+      (
+        users.email LIKE '%#{search}%'
+        OR profiles.first_name like '#{search}%'
+        OR profiles.last_name like '%#{search}%'
+        OR CONCAT(profiles.first_name, ' ', profiles.last_name) LIKE '#{search}%'
+      )
+      AND
+      (
+        users.id <> #{self.id}
+    "
+    if unassociated
+      sql = sql + "
+        AND (
+          friendships.status IS NULL
+          OR friendships.status = 'D'
+        )
+      "
+    end
+    sql = sql + "
+        AND users.promotion_id = #{self.promotion_id}
+      )
+      GROUP BY users.id
+      ORDER BY profiles.last_name
+      #{'LIMIT ' + limit.to_s if limit > 0}
     "
     users = User.find_by_sql(sql)
     ActiveRecord::Associations::Preloader.new(users, :profile).run
@@ -714,6 +723,85 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def challenges_sent_this_week
     return self.challenges_sent.where("created_at >= ?", self.promotion.current_time.beginning_of_week)
+  end
+
+  def current_team
+    return nil if self.promotion.current_competition.nil?
+    current_competition_id = self.promotion.current_competition.id
+    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id}")
+    return teams.first
+  end
+
+  def current_team_member
+    return nil if !self.current_team
+    return current_team.team_members.where(:user_id => self.id).first
+  end
+
+  def team_invites(type = nil)
+    return nil if self.promotion.current_competition.nil?
+    current_competition_id = self.promotion.current_competition.id
+    invites = TeamInvite.where("team_invites.user_id = #{self.id} AND team_invites.competition_id = #{current_competition_id} #{ "AND team_invites.invite_type = '#{TeamInvite::TYPE[type.to_sym]}'" if !type.nil?}")
+    return invites
+  end
+
+  def team_id=(team_id)
+    @team_id = team_id
+  end
+
+  def update_team_member_points
+    if !current_team_member.nil?
+      self.current_team_member.update_points
+    end
+  end
+
+  def ids_of_connections
+    sql = "
+      SELECT
+        DISTINCT(connection_id) AS id
+      FROM (
+        SELECT
+          DISTINCT(friendships.friendee_id) AS connection_id
+        FROM friendships
+        WHERE
+          friendships.friender_id = #{self.id} AND friendships.status = 'A'
+
+        UNION
+
+        SELECT
+          DISTINCT(team_members.user_id) AS connection_id
+        FROM team_members
+        JOIN teams ON teams.id = team_members.team_id
+        WHERE
+          team_members.team_id = #{self.current_team.id} AND teams.competition_id = #{self.current_team.competition_id}
+      ) AS connections
+    "
+    result = self.connection.exec_query(sql)
+    ids = []
+    result.each{ |row|
+      ids << row['id']
+    }
+    return ids
+  end
+
+  def self.get_team_ids(user_ids = [])
+    return {} if user_ids.empty?
+    sql = "
+      SELECT
+        team_members.user_id, teams.id
+      FROM teams
+      JOIN team_members ON teams.id = team_members.team_id
+      WHERE
+        team_members.user_id IN (#{user_ids.join(',')})
+    "
+    result = self.connection.exec_query(sql)
+    ids = {}
+    user_ids.each{|id|
+      ids[id.to_i] = nil
+    }
+    result.each{ |row|
+      ids[row['user_id']] = row['id']
+    }
+    return ids
   end
 
 end
