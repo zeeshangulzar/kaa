@@ -113,7 +113,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     other_joins = []
     self.joins.each_value{|v| other_joins << "#{v[:sql]}" unless internal_joins.include?(v[:alias])}
     all_fields_sql = "select * from stats inner join evaluations ev on (ev.trip_id = stats.trip_id) #{other_joins.join(' ')} where 1=2"
-    r = ActiveRecord::Base.connection.execute all_fields_sql
+    r = ActiveRecord::Base.connection.execute(all_fields_sql)
     r.fetch_fields.collect{|f|f.name}
   end
   
@@ -138,15 +138,15 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     # end
     # fields.merge!(new_fields)
 
-    if promotion.requires_eligibility?
-      fields.each_key do |k|
-          if fields[k][:join] == 'eligibilities'
-            fields[k][:visible] = true
-            fields[k][:display_name] = promotion.detail.eligibility_label.to_s.empty? ? 'Eligibility Id' : promotion.detail.eligibility_label
-            fields[k][:sql_phrase] = "eligibilities.identifier `#{fields[k][:display_name]}`"
-          end
-      end
-    end
+    # if promotion.requires_eligibility?
+    #   fields.each_key do |k|
+    #     if fields[k][:join] == 'eligibilities'
+    #       fields[k][:visible] = true
+    #       fields[k][:display_name] = promotion.detail.eligibility_label.to_s.empty? ? 'Eligibility Id' : promotion.detail.eligibility_label
+    #       fields[k][:sql_phrase] = "eligibilities.identifier `#{fields[k][:display_name]}`"
+    #     end
+    #   end
+    # end
 
     # if promotion.flags[:is_location_displayed]
     #   location_labels = promotion.location_labels
