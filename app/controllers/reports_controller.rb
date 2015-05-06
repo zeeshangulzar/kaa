@@ -21,6 +21,7 @@ class ReportsController < ApplicationController
 
   def get_promotion
     @promotion ||= Promotion.find(params[:promotion_id])
+    return @promotion
   end
 
   def set_report
@@ -32,18 +33,18 @@ class ReportsController < ApplicationController
   def authorization_parameters
     @promotion = Promotion.find(params[:promotion_id])
     @report ||= @promotion.reports.find(params[:id]) || @promotion.reports.build
-    [@promotion, @report]
+    return [@promotion, @report]
   end
 
   def index
     @reports = Report.find(:all)
     @reports = @reports.concat(@promotion.reports) if @promotion.reports.is_cloned?
-    respond_with @reports
+    return HESResponder(@reports)
   end
 
   def show
     @report = Report.find(params[:id]) || @promotion.reports.find(params[:id])
-    respond_with @report
+    return HESResponder(@report)
   end
 
   def run
@@ -70,9 +71,9 @@ class ReportsController < ApplicationController
       data = @report.get_data
     rescue Exception => err
       if err.message.include?('sensitive')
-        render :json => {:errors => 'sensitive_message'}, :status => 401 and return
+        return HESResponder("Sensitive information.", "DENIED")
       else
-        raise err
+        return HESResponder(err, "ERROR")
       end
     end
 
@@ -81,7 +82,7 @@ class ReportsController < ApplicationController
     respond_to do |wants|
       wants.csv { render :text => @rows.collect{|r|r.to_csv}.join }
       wants.json do
-        render :json => @rows.to_json
+        return HESResponder(@rows)
       end
     end
   end
@@ -97,7 +98,7 @@ class ReportsController < ApplicationController
 
     @report = @promotion.reports.create(params[:report])
 
-    respond_with @report
+    return HESResponder(@report)
   end
 
   def update
@@ -118,12 +119,12 @@ class ReportsController < ApplicationController
     params[:report][:created_by_master] = @user.master?
 
     @report.update_attributes(params[:report])
-    respond_with @report
+    return HESResponder(@report)
   end
   
   def destroy
     @report.destroy
-    respond_with @report
+    return HESResponder(@report)
   end
 
   def report_filters_to_special_hash(h = params[:report_filter] || {})
@@ -162,10 +163,10 @@ class ReportsController < ApplicationController
     #   session[:report_filter_location] = nil
     # end
     
-    rh
+    return rh
   end
 
   def report_url(report)
-    "/promotions/#{@promotion.id}/reports/#{report.id}"
+    return "/promotions/#{@promotion.id}/reports/#{report.id}"
   end
 end

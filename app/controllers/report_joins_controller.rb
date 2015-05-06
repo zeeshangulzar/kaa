@@ -8,6 +8,7 @@ class ReportJoinsController < ApplicationController
   def get_report_setup
     @promotion = Promotion.find(params[:promotion_id])
     @report_setup = @promotion.report_setup
+    return @report_setup
   end
   private :get_report_setup
   
@@ -16,7 +17,7 @@ class ReportJoinsController < ApplicationController
   def index
     @report_joins = @report_setup.joins
 
-    respond_with @report_joins
+    return HESResponder(@report_joins)
   end
 
   # POST /report_joins
@@ -24,7 +25,7 @@ class ReportJoinsController < ApplicationController
   def create
     @report_join = @report_setup.joins.build(params[:report_join])
     @report_setup.add_join(@report_join)
-    respond_with @report_join
+    return HESResponder(@report_join)
   end
 
   # PUT /report_joins/1
@@ -34,7 +35,7 @@ class ReportJoinsController < ApplicationController
     
     @report_join.update_attributes(params[:report_join]) && @report_setup.update_join(@report_join)
     
-    respond_with @report_join
+    return HESResponder(@report_join)
   end
 
   # DELETE /report_joins/1
@@ -44,14 +45,14 @@ class ReportJoinsController < ApplicationController
     @report_join = @report_setup.joins.find(params[:id])
     @report_setup.remove_join(@report_join)
 
-    respond_with @report_join
+    return HESResponder(@report_join)
   end
 
   def report_joins_url
-    "/report_joins"
+    return "/report_joins"
   end
 
   def report_join_url(report_join)
-    "/report_joins/#{report_join.id}"
+    return "/report_joins/#{report_join.id}"
   end
 end

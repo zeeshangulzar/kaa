@@ -33,7 +33,7 @@ class ReportFieldsController < ApplicationController
 
     end
 
-    respond_with @report_fields
+    return HESResponder(@report_fields)
   end
 
   # POST /report_fields
@@ -41,7 +41,7 @@ class ReportFieldsController < ApplicationController
   def create
     @report_field = @report_setup.report_fields.build(params[:report_field])
     @report_setup.add_field(@report_field)
-    respond_with @report_field
+    return HESResponder(@report_field)
   end
 
   # PUT /report_fields/1
@@ -51,7 +51,7 @@ class ReportFieldsController < ApplicationController
     
     @report_field.update_attributes(params[:report_field]) && @report_setup.update_field(@report_field)
     
-    respond_with @report_field
+    return HESResponder(@report_field)
   end
 
   # DELETE /report_fields/1
@@ -61,14 +61,14 @@ class ReportFieldsController < ApplicationController
     @report_field = @report_setup.report_fields.find(params[:id])
     @report_setup.remove_field(@report_field)
 
-    respond_with @report_field
+    return HESResponder(@report_field)
   end
 
   def report_fields_url
-    "/report_fields"
+    return "/report_fields"
   end
 
   def report_field_url(report_field)
-    "/report_fields/#{report_field.id}"
+    return "/report_fields/#{report_field.id}"
   end
 end
