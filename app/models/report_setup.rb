@@ -1,7 +1,7 @@
 class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
   attr_accessor :joins
   
-  BuiltInJoins = {1=>{:alias=>'stats',:sql=>''},2=>{:alias=>'evaluations',:sql=>''}} unless defined?(BuiltInJoins)
+  BuiltInJoins = {1=>{:alias=>'users',:sql=>''},2=>{:alias=>'evaluations',:sql=>''}} unless defined?(BuiltInJoins)
   
   def initialize(a={})
     super
@@ -108,7 +108,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     internal_joins = BuiltInJoins.keys.collect{|k| BuiltInJoins[k][:alias]}
     other_joins = []
     self.joins.each_value{|v| other_joins << "#{v[:sql]}" unless internal_joins.include?(v[:alias])}
-    all_fields_sql = "select * from stats inner join evaluations ev on (ev.trip_id = stats.trip_id) #{other_joins.join(' ')} where 1=2"
+    all_fields_sql = "select * from users left join evaluations ev on (ev.user_id = users.id) #{other_joins.join(' ')} where 1=2"
     r = ActiveRecord::Base.connection.execute(all_fields_sql)
     return r.fetch_fields.collect{|f|f.name}
   end

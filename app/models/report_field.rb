@@ -10,7 +10,7 @@ class ReportField
     attributes = attributes.inject({}){|attribute,(k,v)| attribute[k.to_sym] = v; attribute}
 
     defaults = {:display_name => "New Field",
-              :sql_phrase => "stats.",
+              :sql_phrase => "entries.",
               :join => "",
               :sensitive => false,
               :filterable => true,

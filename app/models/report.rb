@@ -260,13 +260,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     #{" group by #{groups}" unless groups.empty?}"
     statement << " HAVING #{having}" unless having.empty?
 
-    #quick performance fix: if USERS table is not required, don't join it
-    stat_join_sql = @setup.joins.detect{|v|v.alias == 'stats'}.sql.gsub("SINGULAR",'user').gsub('PLURAL','users')
-    if is_joined('stats') && !statement.gsub(stat_join_sql,'').include?('users.')
-      statement.gsub("FROM_TABLE_GOES_HERE",'stats').gsub(stat_join_sql,'')
-    else
-      statement.gsub("FROM_TABLE_GOES_HERE",'users')
-    end
+    statement.gsub("FROM_TABLE_GOES_HERE",'users')
   end
 
   def self.o2m(table_name)
@@ -364,7 +358,6 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     # aliases << "trips" if self.filters[:strings].select{|s|s.include?'trips.'}.first
     aliases << "promotions" if self.filters[:strings].select{|s|s.include?'promotions.'}.first
     aliases << "organizations" if self.filters[:strings].select{|s|s.include?'organizations.'}.first
-    aliases << "stats" if self.filters[:strings].select{|s|s.include?'stats.'}.first
 
     aliases.flatten!
 

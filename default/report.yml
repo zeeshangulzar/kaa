@@ -140,8 +140,8 @@
   limit: 
   sql: |
     select dates.reported_on `Reported On`, count(users.id) `Total Participants`
-    from (select distinct(stats.reported_on) reported_on from stats where reported_on between :reported_on_min and :reported_on_max) dates
-    left join users on (users.registered_on <= dates.reported_on)
+    from (select distinct(entries.recorded_on) reported_on from entries where recorded_on between :reported_on_min and :reported_on_max) dates
+    left join users on (DATE(users.created_at) <= dates.reported_on)
     where :conditions
     group by dates.reported_on
 

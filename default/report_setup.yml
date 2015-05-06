@@ -326,42 +326,6 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "45": 
-      :aggregate: true
-      :sequence: 47
-      :sql_phrase: CAST(sum(stats.total_earned_locations) as UNSIGNED) `Total Attractions Earned`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Total Attractions Earned
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
-    "46": 
-      :aggregate: true
-      :sequence: 48
-      :sql_phrase: COALESCE(ROUND(avg(stats.total_earned_tour_bus_attractions), 2), 0) `Average Bus Attractions Earned`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Average Bus Attractions Earned
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
-    "110": 
-      :aggregate: true
-      :sequence: 49
-      :sql_phrase: CAST(sum(stats.total_earned_tour_bus_attractions) as UNSIGNED) `Total Bus Attractions Earned`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Total Bus Attractions Earned
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
     "48": 
       :aggregate: true
       :sequence: 50
@@ -768,30 +732,24 @@
       - entries
     "15": 
       :nest_level: 2
-      :sql: inner join entries on (entries.id = stats.entry_id)
+      :sql: inner join entries on (entries.user_id = users.id)
       :alias: entries
-      :childof: stats
-    "10": 
-      :nest_level: 1
-      :sql: left join addresses on (addresses.user_id = users.id)
-      :alias: addresses
       :childof: users
     "12": 
       :nest_level: 1
       :sql: |
-        left join locations locationsN on (users.promotion_id = locationsN.locationable_id and locationsN.depth = locationN) 
-        left join rel_users_locations user_locationsN on (users.id = user_locationsN.user_id and user_locationsN.location_id = locationsN.id)
+        left join locations locationsN on (users.promotion_id = locationsN.promotion_id and locationsN.depth = locationN)
 
       :alias: locations
       :childof: users
     "18": 
       :nest_level: 1
       :sql: |
-        inner join team_memberships team_memberships_competitionsN on (team_memberships_competitionsN.user_id = users.id)
-        inner join team_memberships team_memberships_leader_competitionsN on (team_memberships_leader_competitionsN.team_id = team_memberships_competitionsN.team_id)
-        inner join users users_team_memberships_leader_competitionsN on (users_team_memberships_leader_competitionsN.id = team_memberships_leader_competitionsN.user_id and team_memberships_leader_competitionsN.is_leader=1)
-        inner join teams teams_competitionsN on (team_memberships_competitionsN.team_id = teams_competitionsN.id)
-        inner join competitions competitionsN on (users.promotion_id = competitionsN.competitionable_id AND competitionsN.competitionable_type = 'Promotion' AND competitionsN.sequence = competitionN)
+        inner join team_members team_members_competitionsN on (team_members_competitionsN.user_id = users.id)
+        inner join team_members team_members_leader_competitionsN on (team_members_leader_competitionsN.team_id = team_memberships_competitionsN.team_id)
+        inner join users users_team_members_leader_competitionsN on (users_team_members_leader_competitionsN.id = team_members_leader_competitionsN.user_id and team_members_leader_competitionsN.is_leader=1)
+        inner join teams teams_competitionsN on (team_members_competitionsN.team_id = teams_competitionsN.id)
+        inner join competitions competitionsN on (users.promotion_id = competitionsN.promotion_id)
 
       :alias: competitions
       :childof: users
