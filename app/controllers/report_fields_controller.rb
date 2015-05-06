@@ -33,7 +33,7 @@ class ReportFieldsController < ApplicationController
 
     end
 
-    return HESResponder(@report_fields)
+    return HESResponder({:data => @report_fields.as_json, :meta => nil})
   end
 
   # POST /report_fields
