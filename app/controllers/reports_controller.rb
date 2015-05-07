@@ -145,6 +145,9 @@ class ReportsController < ApplicationController
     
     rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).users.entries.minimum(:recorded_on) || Date.today,Date.today].min
     rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).users.entries.maximum(:recorded_on) || Date.today,Date.today].min
+
+    rh[:location] = params[:location] ? params[:location] : nil
+    rh[:top_level_location] = params[:top_level_location] ? params[:top_level_location] : nil
     
     # if filter_promo && filter_promo.flags[:is_location_displayed] && !h[:top_level_location].to_s.strip.empty?
     #   rh[:top_level_location] = h[:top_level_location]
