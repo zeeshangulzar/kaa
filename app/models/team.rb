@@ -15,6 +15,7 @@ class Team < ApplicationModel
   mount_uploader :image, TeamImageUploader
 
   has_wall
+  belongs_to :competition
 
   STATUS = {
     :pending => 0,
