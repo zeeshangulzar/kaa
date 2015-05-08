@@ -81,3 +81,4 @@ group :production do
 end
 
 gem 'memcache-client'
+gem 'fastercsv'

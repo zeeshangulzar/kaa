@@ -90,18 +90,14 @@ class Profile < ApplicationModel
 
   def self.do_nuid_verification
     #by nuid 
-    connection.execute "update profiles 
-     inner join users on users.id = profiles.user_id
-     inner join kp_verified on kp_verified.type = 'nuid' and kp_verified.value = users.altid
-     set profiles.is_eligible_for_rewards = 1
-     where profiles.is_reward_participant = 1 and kp_verified.value is not null and trim(kp_verified.value) <> ''"
-
-    #by email -- Not sure if we need this, take from KPwalk
-    # connection.execute "update profiles 
-    #  inner join users on users.id = profiles.user_id and users.role = 'User'
-    #  inner join kp_verified on kp_verified.type = 'email' and kp_verified.value = contacts.email
-    #  set profiles.is_eligible_for_rewards = 1
-    #  where profiles.wants_to_be_eligible_for_rewards = 1 and (profiles.nuid is null or trim(profiles.nuid) = '')"
+    connection.execute "update users
+    inner join profiles on profiles.user_id = users.id
+    inner join kp_verified on kp_verified.type ='nuid' and kp_verified.value = users.altid
+    set users.nuid_verified = 1
+    where profiles.is_reward_participant = 1 
+    and users.nuid_verified = 0
+    and kp_verified.value is not null 
+    and trim(kp_verified.value) <> '';"
   end
 
 

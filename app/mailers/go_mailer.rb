@@ -156,4 +156,23 @@ class GoMailer < ActionMailer::Base
 
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
+
+  def kp_verification(promotion, base_url, file_names, email_recipients, email_subject)
+    p = promotion
+    @user = p.users.first
+    subject = "#{'Empty ' if file_names.empty?}#{email_subject}"
+    recipient = email_recipients 
+    from = FormattedFromAddress
+    reply_to = "#{AppName}<kpfulfillment@hesonline.com>"
+    sent_on = p.current_time
+    headers 'return-path'=>FromAddress
+
+    file_names.each do |fn|
+      attachments["#{File.basename(fn)}"] = File.read(fn)
+    end
+
+    @message = file_names.empty? ? "There are no verification files today." : "The verification files are attached.  Please only fill in the columns labeled 'Eligible?' and 'Comments'. Please send the completed files to kpfulfillment@hesonline.com"
+
+    mail(:to => recipient, :subject => subject, :from => from, :subject => subject, :reply_to => reply_to)  
+  end
 end
