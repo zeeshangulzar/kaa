@@ -112,7 +112,7 @@ class Competition < ApplicationModel
       team = {}
       team['image']        = {}
       team['id']           = row['id']
-      team['image']['url'] = row['image'].nil? ? TeamImageUploader::default_url : TeamImageUploader::asset_host_url + row['photo'].to_s
+      team['image']['url'] = row['image'].nil? ? TeamImageUploader::default_url : TeamImageUploader::asset_host_url + row['image'].to_s
       team['name']         = row['name']
       team['motto']        = row['motto']
       team['total_points'] = row['total_points']
