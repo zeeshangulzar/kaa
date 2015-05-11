@@ -28,6 +28,7 @@ class ReportsController < ApplicationController
     @report_setup = @promotion.report_setup
     @report ||= @promotion.reports.find(params[:id]) || @promotion.reports.build
     @report.promotionize(@promotion)
+    @report.report_type = Report::ReportType_SQL if params[:sql]
   end
 
   def authorization_parameters
@@ -50,7 +51,7 @@ class ReportsController < ApplicationController
   def run
     if @report.report_type == Report::ReportType_SQL
       # prevent non-master from posting SQL
-      @report.sql = params[:report][:sql] if @report.new_record? && @user.role == 'Master'
+      @report.sql = params[:report][:sql] if @report.new_record? && @current_user.role == 'Master'
     else
       @result_fields = params[:field].sort{|x, y| x <=> y}.collect{|x| x} if params[:field]
       @report.fields = @result_fields if @result_fields
@@ -87,13 +88,13 @@ class ReportsController < ApplicationController
   end
 
   def create
-    @promotion.reports.clone_default unless @promotion.default?
+    @promotion.reports.clone_default unless @promotion.subdomain == 'dashboard'
 
     # Filters have to be set on hashes key?
     params[:report][:filters] = {:hashes => params[:report][:filters]}
     
     # Set this to true so the coordinator can't accidentally delete a report that they paid us to develop
-    params[:report][:created_by_master] = @user.master?
+    params[:report][:created_by_master] = @current_user.master?
 
     @report = @promotion.reports.create(params[:report])
 
@@ -101,27 +102,21 @@ class ReportsController < ApplicationController
   end
 
   def update
-
-    unless @promotion.default?
-      @report = Report.find(params[:id])
-      @promotion.reports.clone_default
-      @report = @promotion.reports.build(@report.attributes)
-      @report.id = nil
-    else
-      @report = @promotion.reports.find(params[:id])
-    end
+    @report = @promotion.reports.find(params[:id])
 
     # Filters have to be set on hashes key?
     params[:report][:filters] = {:hashes => params[:report][:filters]}
     
     # Set this to true so the coordinator can't accidentally delete a report that they paid us to develop
-    params[:report][:created_by_master] = @user.master?
+    params[:report][:created_by_master] = @current_user.master?
 
     @report.update_attributes(params[:report])
     return HESResponder(@report)
   end
   
   def destroy
+    @report = @promotion.reports.find(params[:id])
+
     @report.destroy
     return HESResponder(@report)
   end
@@ -148,7 +143,7 @@ class ReportsController < ApplicationController
 
     rh[:location] = params[:location] ? params[:location] : nil
     rh[:top_level_location] = params[:top_level_location] ? params[:top_level_location] : nil
-    
+
     # if filter_promo && filter_promo.flags[:is_location_displayed] && !h[:top_level_location].to_s.strip.empty?
     #   rh[:top_level_location] = h[:top_level_location]
     #   session[:report_filter_top_level_location] = h[:top_level_location]

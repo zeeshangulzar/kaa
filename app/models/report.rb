@@ -100,7 +100,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     #now = Time.now
     #puts Time.now.to_s
     reportSql = to_sql
-    
+
     # data = []
     # ActiveRecord::Base.connection.execute(reportSql).each do |row|
     #   data << row
@@ -487,7 +487,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   def sql_where_from_hashes(filters)
     clause=filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}.collect{|f| tn=o2m(@setup.fields[f[:field].to_s][:join]); " #{strip_aliases(tn ? @setup.fields[f[:field].to_s][:sql_phrase].gsub(/#{tn}\./,"#{tn}#{f[:field].to_s.split('|')[1]||1}.").gsub(/#{tn.singularize.titleize}/,"#{(f[:field].to_s.split('|')[1]||1).to_i.ordinalize} #{tn.singularize.titleize}") : @setup.fields[f[:field].to_s][:sql_phrase])} #{f[:sign]} ? #{'AND ?' if f[:sign]=='between'}"}.join(" AND ")
     values=filters.select{|f|!@setup.fields[f[:field].to_s][:aggregate]}.collect{|f| f[:sign] == 'between' ? f[:value] : f[:value].to_s.downcase == 'true' ? true : f[:value].to_s.downcase == 'false' ? false : "#{f[:value]}#{'%' if f[:sign]=='like'}"}
-    return clause.nil? || clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause,values].flatten)} "
+    return clause.nil? || clause.empty? ? "" : " #{User.send(:sanitize_conditions,[clause,values].flatten)} "
   end
 
   # returns a HAVING clause for aggregate fields which may not appear in a WHERE clause
