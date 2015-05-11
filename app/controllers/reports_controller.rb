@@ -4,7 +4,7 @@ class ReportsController < ApplicationController
   before_filter :get_promotion
   before_filter :set_report, :only => [:run, :show]
   
-  authorize :index, :show, :run, :coordinator
+  authorize :index, :show, :run, :location_coordinator
 
   authorize :create, :update, lambda {|user, promotion, report, params| 
     return true if user.master?
