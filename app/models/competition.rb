@@ -172,15 +172,22 @@ class Competition < ApplicationModel
   def update_all_team_member_points
     sql = "
       UPDATE team_members
-      JOIN (
+      LEFT JOIN (
         SELECT
-          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points, user_id
+          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points, 
+          SUM(entries.exercise_points) AS total_exercise_points, 
+          SUM(entries.timed_behavior_points) AS total_timed_behavior_points,
+          SUM(entries.challenge_points) AS total_challenge_points, 
+          user_id
         FROM entries
         WHERE entries.recorded_on BETWEEN '#{self.competition_starts_on}' AND '#{self.competition_ends_on}'
         GROUP BY user_id
         ) stats on stats.user_id = team_members.user_id
       SET
-        team_members.total_points = stats.total_points
+        team_members.total_points = COALESCE(stats.total_points, 0),
+        team_members.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
+        team_members.total_timed_behavior_points = COALESCE(stats.total_timed_behavior_points, 0),
+        team_members.total_challenge_points = COALESCE(stats.total_challenge_points, 0)
     "
     self.connection.execute(sql)
   end

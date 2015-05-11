@@ -26,10 +26,10 @@ class TeamMember < ApplicationModel
           AND entries.recorded_on BETWEEN '#{self.team.competition.competition_starts_on}' AND '#{self.team.competition.competition_ends_on}'
         ) stats on stats.user_id = team_members.user_id
       SET
-        team_members.total_points = stats.total_points,
-        team_members.total_exercise_points = stats.total_exercise_points,
-        team_members.total_timed_behavior_points = stats.total_timed_behavior_points,
-        team_members.total_challenge_points = stats.total_challenge_points
+        team_members.total_points = COALESCE(stats.total_points, 0),
+        team_members.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
+        team_members.total_timed_behavior_points = COALESCE(stats.total_timed_behavior_points, 0),
+        team_members.total_challenge_points = COALESCE(stats.total_challenge_points, 0)
     "
     self.connection.execute(sql)
   end
