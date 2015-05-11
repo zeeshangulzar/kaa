@@ -3,7 +3,7 @@ class ReportFieldsController < ApplicationController
   wrap_parameters :report_field, :include => [:category, :sql_phrase, :sensitive, :sequence, :join, :filterable, :visible, :role, :display_name, :aggregate, :identification]
   before_filter :get_report_setup
 
-  authorize :index, :coordinator
+  authorize :index, :location_coordinator
   
   def get_report_setup
     @promotion = Promotion.find(params[:promotion_id])

@@ -3,7 +3,7 @@ class ReportJoinsController < ApplicationController
   wrap_parameters :report_join, :include => [:alias, :childof, :parentof, :nest_level, :sql]
   before_filter :get_report_setup
 
-  authorize :index, :coordinator
+  authorize :index, :location_coordinator
   
   def get_report_setup
     @promotion = Promotion.find(params[:promotion_id])
