@@ -230,14 +230,17 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
               new_fields[newk][:category] = (Report::Categories.detect{|x|x.downcase.include? o2m.singularize}||'Uncategorized').gsub(/ N /," #{index} ")
             end
           end
-        elsif o2m == 'locations'
-          promotion.location_labels.each_with_index do |location_label, index|
-            newk = "#{k}|#{index + 1}"
-            new_fields[newk] = v.dup
-            new_fields[newk][:sequence] += (index+1)/10.0  # heh heh heh sort trick
-            new_fields[newk][:sql_phrase] = new_fields[newk][:sql_phrase].gsub(/#{o2m}\./, "#{o2m}#{index+1}.").gsub(/LN/, "#{location_label}")
-            new_fields[newk][:category] = 'Participant Fields'
-          end
+        # elsif o2m == 'locations'
+        #   Rails.logger.warn "\n\n\nLOCATION LABELS:\n#{promotion.location_labels_as_array.inspect}\n\n\n"
+        #   promotion.location_labels_as_array.each_with_index do |location_label, index|
+        #     newk = "#{k}|#{index + 1}"
+        #     new_fields[newk] = v.dup
+        #     new_fields[newk][:sequence] += (index+1)/10.0  # heh heh heh sort trick
+        #     new_fields[newk][:sql_phrase] = new_fields[newk][:sql_phrase].gsub(/#{o2m}\./, "#{o2m}#{index+1}.").gsub(/LN/, "#{location_label}")
+        #     new_fields[newk][:display_name] = location_label
+        #     new_fields[newk][:category] = 'Participant Fields'
+        #     new_fields[newk][:join] = "locations#{index+1}"
+        #   end
         elsif o2m == 'competitions'
           promotion.competitions.each_with_index do |competition, index|
             newk = "#{k}|#{index + 1}"

@@ -1,8 +1,34 @@
 --- 
 - !ruby/object:Report 
-  id: 8
+  id: 1
+  report_type: SQL
+  name: Number of Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT COUNT(*) AS 'Number of Users' FROM users WHERE email NOT LIKE '%hesonline%' AND email NOT LIKE '%hesapps.com%';
+  created_by_master: true
+  friendly_url_key:
+
+- !ruby/object:Report 
+  id: 2
+  report_type: SQL
+  name: Total Device Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE active_device = 'FITBIT' OR active_device = 'JAWBONE' GROUP BY active_device;
+  created_by_master: true
+  friendly_url_key: Total Device Users
+
+- !ruby/object:Report 
+  id: 3
   report_type: Simple
-  name: Gender
+  name: Number of Users by Gender
   fields: 
   - "7"
   - "8"
@@ -12,56 +38,12 @@
   limit: 
   sql: 
   created_by_master: false
-  friendly_url_key: Gender
-- !ruby/object:Report 
-  id: 109
-  report_type: Simple
-  name: Participants
-  fields: 
-  - "1"
-  - "19"
-  - "12|1"
-  - "43"
-  - "40"
-  filters: 
-    :hashes: []
+  friendly_url_key: Number of Users by Gender
 
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Participants
 - !ruby/object:Report 
-  id: 110
-  report_type: Simple
-  name: Participants (Simple)
-  fields: 
-  - "1"
-  - "100|1"
-  filters: 
-    :hashes: []
-
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Participants (Simple)
-- !ruby/object:Report 
-  id: 12
-  report_type: Simple
-  name: Active Participants
-  fields: 
-  - "2"
-  - "8"
-  filters: 
-    :hashes: []
-
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Active Participants
-- !ruby/object:Report 
-  id: 34
+  id: 4
   report_type: SQL
-  name: Total Participants
+  name: Total Participants by Day
   fields: []
 
   filters: 
@@ -69,18 +51,19 @@
 
   limit: 
   sql: |
-    select dates.reported_on `Reported On`, count(users.id) `Total Participants`
+    select dates.reported_on `Recorded On`, count(users.id) `Total Participants`
     from (select distinct(entries.recorded_on) reported_on from entries where recorded_on between :reported_on_min and :reported_on_max) dates
     left join users on (DATE(users.created_at) <= dates.reported_on)
     where :conditions
     group by dates.reported_on
 
   created_by_master: false
-  friendly_url_key: Total Participants
+  friendly_url_key: Total Participants by Day
+
 - !ruby/object:Report 
-  id: 51
+  id: 5
   report_type: Simple
-  name: Days Logged
+  name: Days Logged by User
   fields: 
   - "1"
   - "19"
@@ -90,11 +73,12 @@
   limit: 
   sql: 
   created_by_master: false
-  friendly_url_key: Days Logged
+  friendly_url_key: Days Logged by User
+
 - !ruby/object:Report 
-  id: 52
+  id: 6
   report_type: Simple
-  name: Badges Earned
+  name: Badges Earned by User
   fields: 
   - "1"
   - "49"
@@ -104,74 +88,30 @@
   limit: 
   sql: 
   created_by_master: false
-  friendly_url_key: Badges Earned
-- !ruby/object:Report 
-  id: 52
-  report_type: Simple
-  name: Average Badges Earned
-  fields: 
-  - "1"
-  - "48"
-  filters: 
-    :hashes: []
+  friendly_url_key: Badges Earned by User
 
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Average Badges Earned
 - !ruby/object:Report 
-  id: 57
-  report_type: Simple
-  name: Recorded Activities
-  fields: 
-  - "1"
-  - "51"
-  filters: 
-    :hashes: []
+  id: 7
+  report_type: SQL
+  name: Total Fitbit Users
+  fields: []
 
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
   limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Recorded Activities
+  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE active_device = 'FITBIT';
+  created_by_master: true
+  friendly_url_key: Total Fitbit Users
+
 - !ruby/object:Report 
-  id: 58
-  report_type: Simple
-  name: Average Recorded Activities
-  fields: 
-  - "1"
-  - "50"
-  filters: 
-    :hashes: []
+  id: 8
+  report_type: SQL
+  name: Total Jawbone Users
+  fields: []
 
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
   limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Average Recorded Activities
-- !ruby/object:Report 
-  id: 104
-  report_type: 
-  name: Participation By Gender
-  fields: 
-  - "7"
-  - "19"
-  filters: 
-    :hashes: []
-
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Participation By Gender
-- !ruby/object:Report 
-  id: 105
-  report_type: 
-  name: Participants Per Day
-  fields: 
-  - "2"
-  - "19"
-  filters: 
-    :hashes: []
-
-  limit: 
-  sql: 
-  created_by_master: false
-  friendly_url_key: Participants Per Day
+  sql: SELECT COUNT(*) AS 'Number of Jawbone Users' FROM users WHERE active_device = 'JAWBONE';
+  created_by_master: true
+  friendly_url_key: Total Jawbone Users
