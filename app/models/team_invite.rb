@@ -2,7 +2,7 @@ class TeamInvite < ApplicationModel
 
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :team_id, :user_id, :competition_id, :invite_type, :status, :email, :invited_by, :user, :team, :any_user
+  attr_privacy :id, :team_id, :user_id, :competition_id, :invite_type, :status, :email, :invited_by, :user, :team, :message, :any_user
 
   before_create :set_defaults
 
@@ -55,7 +55,7 @@ class TeamInvite < ApplicationModel
   def send_notifications
     if self.user_id.nil? && !self.email.nil?
       # unregistered user, send them an e-mail to join
-      Resque.enqueue(UnregisteredTeamInviteEmail, self.email, self.inviter.id)
+      Resque.enqueue(UnregisteredTeamInviteEmail, self.email, self.inviter.id, self.message)
     else
       # registered user, normal process..
       if self.invite_type == TeamInvite::TYPE[:requested]
@@ -68,7 +68,7 @@ class TeamInvite < ApplicationModel
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
           notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has <a href='/#/team?tab=invites'>requested</a> to join \"#{self.team.name}\".", :from => self.user, :key => "team_invite_#{self.id}")
-          Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id)
+          Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id, self.message)
         end
       elsif self.invite_type == TeamInvite::TYPE[:invited]
         # user was invited by team leader to be on team
@@ -80,7 +80,7 @@ class TeamInvite < ApplicationModel
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify user he's been invited to a team
           notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_invite_#{self.id}")
-          Resque.enqueue(TeamInviteEmail, 'invited', self.user.id, self.inviter.id)
+          Resque.enqueue(TeamInviteEmail, 'invited', self.user.id, self.inviter.id, self.message)
         end
       end
     end

@@ -6,6 +6,7 @@ class CreateTeamInvites < ActiveRecord::Migration
       t.string :invite_type, :limit => 1
       t.string :email
       t.integer :invited_by
+      t.string :message
       t.timestamps
     end
     add_index :team_invites, :team_id, :name=>'by_team_id'

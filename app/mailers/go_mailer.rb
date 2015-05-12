@@ -157,7 +157,7 @@ class GoMailer < ActionMailer::Base
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
 
-  def team_invite_email(invite_type, to_user, from_user)
+  def team_invite_email(invite_type, to_user, from_user, message = nil)
     if invite_type == 'requested'
       subject = "#{from_user.profile.full_name} has requested to join your team on #{Constant::AppName}"
     else
@@ -167,12 +167,14 @@ class GoMailer < ActionMailer::Base
     @from_user = from_user
     @to_user = to_user
     @invite_type = invite_type
+    @message = message
     mail(:to => to_user.email, :subject => subject)
   end
 
-  def unregistered_team_invite_email(email, inviter)
+  def unregistered_team_invite_email(email, inviter, message = nil)
     @user = inviter
     @inviter = inviter
+    @message = message
     mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}")
   end
 

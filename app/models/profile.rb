@@ -71,7 +71,11 @@ class Profile < ApplicationModel
   end
 
   def backlog_date
-    return (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
+    sans_team = (self.user.promotion.backlog_days && self.user.promotion.backlog_days > 0) ? [self.user.promotion.current_date - self.user.promotion.backlog_days, self.started_on].max : self.started_on
+    if !self.user.current_team
+      return sans_team
+    end
+    return [self.user.current_team.competition.competition_starts_on, sans_team].min
   end
 
   def self.do_nuid_verification
