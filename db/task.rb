@@ -92,8 +92,8 @@ class Task
     if (c.enrollment_ends_on - p.current_date < 8)
       c.teams.pending.each{ |team|
         needed = c.team_size_min - team.members.count
-        unless team.leader.notifications.find(:first, :conditions => [:key => "enrollment_ends_#{c.id}"]) || needed < 1
-          notify(team.leader, "Enrollment Ends Soon", "Team enrollment ends on #{c.enrollment_ends_on} and your team still needs #{needed} more member#{ "s" if needed > 1} to be official. <a href=\"/#/team\">Invite</a> or remind your co-workers to join today!", :from => team.leader, :key => "enrollment_ends_#{c.id}")
+        unless team.leader.notifications.find(:first, :conditions => ["`key` = :key", {:key => "enrollment_ends_#{c.id}"}]) || needed < 1
+          team.leader.notify(team.leader, "Enrollment Ends Soon", "Team enrollment ends on #{c.enrollment_ends_on} and your team still needs #{needed} more member#{ "s" if needed > 1} to be official. <a href=\"/#/team\">Invite</a> or remind your co-workers to join today!", :from => team.leader, :key => "enrollment_ends_#{c.id}")
         end
       }
     end
