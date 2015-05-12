@@ -19,7 +19,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   # these tables are one-to-manys
   # they repeat in the dropdown, such as Completed 1st Evaluation On or Team Name (1st Competition)
   # the table probably needs to have a sequence column to order the records (see competitions and/or promotion_evaluations)
-  OneToManyTables = ['evaluations','competitions', 'locations']
+  OneToManyTables = ['evaluations','competitions']
 
   # Categories
   Categories = ['Participant Fields', 'Program Fields', 'Registration Fields', 'Evaluation N Fields', 'Competition N Fields']

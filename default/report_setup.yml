@@ -2,50 +2,38 @@
 - !ruby/object:ReportSetup 
   id: 1
   fields: 
-    "50": 
-      :aggregate: true
-      :sequence: 52
-      :sql_phrase: COALESCE(ROUND(avg(stats.total_recorded_activities), 2), 0) `Average Recorded Activities`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Average Recorded Activities
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
-    "51": 
-      :aggregate: true
-      :sequence: 53
-      :sql_phrase: CAST(sum(stats.total_recorded_activities) as UNSIGNED) `Total Recorded Activities`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Total Recorded Activities
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
-    "100": 
+    "24": 
       :aggregate: false
-      :sequence: 9
-      :sql_phrase: COALESCE(teams_competitions.status, 0) `Status`
+      :sequence: 17
+      :sql_phrase: users.kpwalk_level `KP Walk! Level`
       :filterable: true
       :role: Coordinator
-      :display_name: Team Status
-      :join: competitions
+      :display_name: KP Walk! Level
+      :join: users
       :identification: false
       :sensitive: false
-      :category: Competition N Fields
+      :category: Participant Fields
       :visible: true
-    "20": 
+    "25": 
       :aggregate: false
-      :sequence: 30
-      :sql_phrase: COALESCE(stats.consecutive_days_logged, 0) `Consecutive Days Logged`
+      :sequence: 17
+      :sql_phrase: users.kpwalk_total_minutes `KP Walk! Total Minutes`
       :filterable: true
       :role: Coordinator
-      :display_name: Consecutive Days Logged
-      :join: stats
+      :display_name: KP Walk! Total Minutes
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "28": 
+      :aggregate: false
+      :sequence: 17
+      :sql_phrase: users.kpwalk_total_Stars `KP Walk! Total Stars`
+      :filterable: true
+      :role: Coordinator
+      :display_name: KP Walk! Total Stars
+      :join: users
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -62,42 +50,18 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "48": 
-      :aggregate: true
-      :sequence: 50
-      :sql_phrase: COALESCE(ROUND(avg(stats.total_patches), 2), 0) `Average Achievements Earned`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Average Achievements Earned
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: false
     "49": 
       :aggregate: true
       :sequence: 51
-      :sql_phrase: COALESCE(max(stats.total_patches), 0) `Total Achievements Earned`
+      :sql_phrase: COUNT(*) `Total Badges Earned`
       :filterable: true
       :role: Coordinator
-      :display_name: Total Achievements Earned
-      :join: stats
+      :display_name: Total Badges Earned
+      :join: badges
       :identification: false
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "47": 
-      :aggregate: false
-      :sequence: 9
-      :sql_phrase: teams_competitions.name `Team Name`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Team Name
-      :join: competitions
-      :identification: false
-      :sensitive: false
-      :category: Competition N Fields
-      :visible: true
     "16": 
       :aggregate: false
       :sequence: 17
@@ -110,26 +74,14 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "18": 
-      :aggregate: false
-      :sequence: 25
-      :sql_phrase: COALESCE(stats.total_days, 0) `Total Program Days`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Total Program Days
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
     "19": 
       :aggregate: true
       :sequence: 28
-      :sql_phrase: CAST(sum(stats.logged_today) as UNSIGNED) `Days Logged`
+      :sql_phrase: COUNT(*) `Days Logged`
       :filterable: true
       :role: Coordinator
       :display_name: Days Logged
-      :join: stats
+      :join: entries
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -194,18 +146,42 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "12": 
+    "27": 
       :aggregate: false
-      :sequence: 2
-      :sql_phrase: locations.name `Location Name`
+      :sequence: 8
+      :sql_phrase: if(users.nuid_verified=1,'Yes','No') `NUID Verified`
       :filterable: true
       :role: Coordinator
-      :display_name: Location Name
-      :join: locations
+      :display_name: NUID Verified?
+      :join: users
       :identification: false
       :sensitive: false
       :category: Participant Fields
-      :visible: false
+      :visible: true
+    "12|1": 
+      :aggregate: false
+      :sequence: 2
+      :sql_phrase: locations1.name `Location`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Location
+      :join: locations1
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "12|2": 
+      :aggregate: false
+      :sequence: 2
+      :sql_phrase: locations2.name `Region`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Region
+      :join: locations2
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
     "91": 
       :aggregate: false
       :sequence: 5
@@ -266,42 +242,6 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "97": 
-      :aggregate: false
-      :sequence: 31
-      :sql_phrase: users_team_memberships_leader_competitions.first_name `Team Leader First Name`, users_team_memberships_leader_competitions.last_name `Team Leader Last Name`, users_team_memberships_leader_competitions.email `Team Leader Email`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Team Leader
-      :join: competitions
-      :identification: false
-      :sensitive: false
-      :category: Competition N Fields
-      :visible: true
-    "98": 
-      :aggregate: false
-      :sequence: 9
-      :sql_phrase: teams_competitions.made_official_at `Made Official At`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Made Official At
-      :join: competitions
-      :identification: false
-      :sensitive: false
-      :category: Competition N Fields
-      :visible: true
-    "99": 
-      :aggregate: false
-      :sequence: 9
-      :sql_phrase: COALESCE(teams_competitions.points, 0) `Points`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Team Points
-      :join: competitions
-      :identification: false
-      :sensitive: false
-      :category: Competition N Fields
-      :visible: true
     "8": 
       :aggregate: true
       :sequence: 6
@@ -423,13 +363,21 @@
       :sql: inner join entries on (entries.user_id = users.id)
       :alias: entries
       :childof: users
-    "12": 
-      :nest_level: 1
-      :sql: |
-        left join locations locationsN on (users.promotion_id = locationsN.promotion_id and locationsN.depth = locationN)
-
-      :alias: locations
+    "50": 
+      :nest_level: 2
+      :sql: inner join user_badges on (user_badges.user_id = users.id)
+      :alias: badges
       :childof: users
+    "13|1": 
+      :nest_level: 1
+      :sql: inner join locations locations1 on (users.location_id = locations1.id)
+      :alias: locations1
+      :childof: promotions
+    "13|2": 
+      :nest_level: 1
+      :sql: inner join locations locations2 on (users.top_level_location_id = locations2.id)
+      :alias: locations2
+      :childof: promotions
     "18": 
       :nest_level: 1
       :sql: |

@@ -66,6 +66,8 @@ class ReportsController < ApplicationController
     @report.filters[:hashes] = hash_filters
     @report.filters[:special] = report_filters_to_special_hash
 
+    # raise @report.get_data.inspect
+
     # get the data
     begin
       data = @report.get_data
@@ -78,6 +80,8 @@ class ReportsController < ApplicationController
     end
 
     @rows = data.empty? ? [] : data
+
+    # raise @rows.inspect
 
     respond_to do |wants|
       wants.csv { render :text => @rows.collect{|r|r.to_csv}.join }
