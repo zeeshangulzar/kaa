@@ -22,6 +22,14 @@ class Team < ApplicationModel
     :official => 1
   }
 
+  STATUS.each_pair do |key, value|
+    self.send(:scope, key, where(:status => value))
+  end
+
+  STATUS.each_pair do |key, value|
+    self.send(:define_method, "#{key}?", Proc.new { self.status == value })
+  end
+
   def as_json(options={})
     team_json = super(options.merge(:do_not_paginate=>['team_members']))
     team_json['team_members'] = self.team_members.as_json if @include_team_members

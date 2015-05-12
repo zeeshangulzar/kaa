@@ -6,6 +6,7 @@ class Task
       begin
         body<<"===================================================================================================\n"
         send_daily_emails(p) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
+        team_notifications(p) unless p.current_competition.nil?
       rescue Exception => ex
         body<<"ERROR processing promotion #{p.subdomain} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
       end
@@ -85,7 +86,17 @@ class Task
       end # end wday not 0,6
   end
 
+  def self.team_notifications(p)
+    c = p.current_competition
+    return unless c
+    if (c.enrollment_ends_on - p.current_date < 8)
+      c.teams.pending.each{ |team|
+        needed = c.team_size_min - team.members.count
+        unless team.leader.notifications.find(:first, :conditions => [:key => "enrollment_ends_#{c.id}"]) || needed < 1
+          notify(team.leader, "Enrollment Ends Soon", "Team enrollment ends on #{c.enrollment_ends_on} and your team still needs #{needed} more member#{ "s" if needed > 1} to be official. <a href=\"/#/team\">Invite</a> or remind your co-workers to join today!", :from => team.leader, :key => "enrollment_ends_#{c.id}")
+        end
+      }
+    end
+  end
+
 end
-
-
-

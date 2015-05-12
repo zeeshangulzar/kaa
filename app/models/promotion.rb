@@ -189,7 +189,7 @@ class Promotion < ApplicationModel
       # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
       if @current_competition.nil?
         # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
-        comp = @current_competition = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= enrollment_ends_on", {:today=>today}])
+        comp = @current_competition = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= competition_ends_on", {:today=>today}])
       else
         comp = @current_competition
       end
