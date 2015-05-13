@@ -107,9 +107,10 @@ class Task
     return unless c
     if (c.enrollment_ends_on - p.current_date < 0)
       c.teams.pending.each{ |team|
-        team.members.each{|member|
-          member.notify(member, "Team Deleted", "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_min_size} min.). Your team has been removed but you can still follow the action <a href=\"/#/team\">here</a>.", :from => team.leader, :key => "enrollment_ended_#{c.id}")
-        end
+        team.team_members.each{|team_member|
+          team_member.user.notify(team_member.user, "Team Deleted", "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_size_min} min.). Your team has been removed but you can still follow the action <a href=\"/#/team\">here</a>.", :from => team.leader, :key => "enrollment_ended_#{c.id}")
+          team_member.destroy
+        }
         team.destroy
       }
     end
