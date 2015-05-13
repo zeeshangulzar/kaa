@@ -78,7 +78,7 @@
 - !ruby/object:Report 
   id: 6
   report_type: Simple
-  name: Badges Earned by User
+  name: Achievements Earned by User
   fields: 
   - "1"
   - "49"
@@ -88,7 +88,7 @@
   limit: 
   sql: 
   created_by_master: false
-  friendly_url_key: Badges Earned by User
+  friendly_url_key: Achievements Earned by User
 
 - !ruby/object:Report 
   id: 7
