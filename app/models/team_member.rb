@@ -34,4 +34,12 @@ class TeamMember < ApplicationModel
     self.connection.execute(sql)
   end
 
+  after_create :update_team
+  after_save :update_team
+  after_destroy :update_team
+
+  def update_team
+    self.team.update_status()
+  end
+
 end

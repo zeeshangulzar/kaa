@@ -91,4 +91,13 @@ class Team < ApplicationModel
     @include_team_members = true
   end
 
+  after_save :update_status
+
+  def update_status
+    s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
+    if self.status != s
+      self.status = s
+      self.save!
+    end
+  end
 end

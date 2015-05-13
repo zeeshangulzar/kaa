@@ -52,4 +52,11 @@ class EmailsController < ApplicationController
     end
     return HESResponder(unsubscribe)
   end
+
+  def send_mail
+    return HESResponder("Message, recipient and type required.", "ERROR") if params[:message].nil? || params[:recipient_id].nil? || params[:email_type].nil?
+    # todo: do me
+    return HESResponder()
+  end
+
 end

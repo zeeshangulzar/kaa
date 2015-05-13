@@ -251,4 +251,6 @@ Go::Application.routes.draw do
   resources :team_members
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
+
+  match "/send_mail" => "#emails#send", :via => :post
 end
