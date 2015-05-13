@@ -1,7 +1,91 @@
 --- 
 - !ruby/object:ReportSetup 
   id: 1
-  fields: 
+  fields:
+    "50": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.exercise_steps) `Total Steps`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Steps
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "51": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.exercise_minutes) `Total Minutes`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Minutes
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "52": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.challenge_points) `Challenge Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Challenge Points
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "53": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.exercise_points) `Exercise Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Exercise Points
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "54": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.timed_behavior_points) `Timed Behavior Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Timed Behavior Points
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "56": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: COUNT(*) `Challenges Sent`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Challenges Sent
+      :join: challenges_sent
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "58": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: COUNT(*) `Challenges Received`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Challenges Received
+      :join: challenges_received
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
     "24": 
       :aggregate: false
       :sequence: 17
@@ -38,25 +122,13 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "21": 
-      :aggregate: false
-      :sequence: 34
-      :sql_phrase: if(stats.logged_today=1, 'Yes', 'No') `Logged Today?`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Logged Today?
-      :join: stats
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
     "49": 
       :aggregate: true
       :sequence: 51
-      :sql_phrase: COUNT(*) `Total Badges Earned`
+      :sql_phrase: COUNT(*) `Total Achievements Earned`
       :filterable: true
       :role: Coordinator
-      :display_name: Total Badges Earned
+      :display_name: Total Achievements Earned
       :join: badges
       :identification: false
       :sensitive: false
@@ -348,20 +420,20 @@
       :nest_level: 0
       :sql: 
       :alias: users
-    "11": 
-      :nest_level: 0
-      :sql: inner join stats on (stats.SINGULAR_id = PLURAL.id)
-      :alias: stats
-      :childof: 
-      - resellers
-      - organizations
-      - promotions
-      - users
-      - entries
     "15": 
       :nest_level: 2
       :sql: inner join entries on (entries.user_id = users.id)
       :alias: entries
+      :childof: users
+    "55": 
+      :nest_level: 2
+      :sql: inner join challenges_sent on (challenges_sent.user_id = users.id)
+      :alias: challenges_sent
+      :childof: users
+    "57": 
+      :nest_level: 2
+      :sql: inner join challenges_received on (challenges_received.user_id = users.id)
+      :alias: challenges_received
       :childof: users
     "50": 
       :nest_level: 2
