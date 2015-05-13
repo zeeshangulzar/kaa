@@ -6,7 +6,10 @@ class Task
       begin
         body<<"===================================================================================================\n"
         send_daily_emails(p) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
-        team_notifications(p) unless p.current_competition.nil?
+        unless p.current_competition.nil?
+          delete_pending_teams(p)
+          team_notifications(p)
+        end
       rescue Exception => ex
         body<<"ERROR processing promotion #{p.subdomain} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
       end
@@ -95,6 +98,19 @@ class Task
         unless team.leader.notifications.find(:first, :conditions => ["`key` = :key", {:key => "enrollment_ends_#{c.id}"}]) || needed < 1
           team.leader.notify(team.leader, "Enrollment Ends Soon", "Team enrollment ends on #{c.enrollment_ends_on} and your team still needs #{needed} more member#{ "s" if needed > 1} to be official. <a href=\"/#/team\">Invite</a> or remind your co-workers to join today!", :from => team.leader, :key => "enrollment_ends_#{c.id}")
         end
+      }
+    end
+  end
+
+  def self.delete_pending_teams(p)
+    c = p.current_competition
+    return unless c
+    if (c.enrollment_ends_on - p.current_date < 0)
+      c.teams.pending.each{ |team|
+        team.members.each{|member|
+          member.notify(member, "Team Deleted", "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_min_size} min.). Your team has been removed but you can still follow the action <a href=\"/#/team\">here</a>.", :from => team.leader, :key => "enrollment_ended_#{c.id}")
+        end
+        team.destroy
       }
     end
   end
