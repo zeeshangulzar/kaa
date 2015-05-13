@@ -109,6 +109,7 @@ class User < ApplicationModel
   can_share
   can_rate
   has_notifications
+  has_photos
 
   # relationships
   has_one :profile

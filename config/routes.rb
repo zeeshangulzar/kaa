@@ -154,6 +154,12 @@ Go::Application.routes.draw do
   match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
   match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
 
+  resources :photos
+  match '*photoable_type/*photoable_id/photos' => 'photos#index', :via => :get
+  match '*photoable_type/*photoable_id/photos' => 'photos#create', :via => :post
+  match '*photoable_type/*photoable_id/photos' => 'photos#update', :via => :put
+  match '*photoable_type/*photoable_id/photos' => 'photos#destroy', :via => :delete
+
   resources :shares
   match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
   match '*shareable_type/*shareable_id/shares' => 'shares#create', :via => :post

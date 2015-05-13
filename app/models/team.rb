@@ -14,6 +14,7 @@ class Team < ApplicationModel
 
   mount_uploader :image, TeamImageUploader
 
+  has_photos
   has_wall
   belongs_to :competition
 
