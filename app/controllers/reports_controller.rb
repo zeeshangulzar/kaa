@@ -51,7 +51,7 @@ class ReportsController < ApplicationController
   def run
     if @report.report_type == Report::ReportType_SQL
       # prevent non-master from posting SQL
-      @report.sql = params[:report][:sql] if @report.new_record? && @current_user.role == 'Master'
+      @report.sql = params[:report][:sql] if @current_user.role == 'Master'
     else
       @result_fields = params[:field].sort{|x, y| x <=> y}.collect{|x| x} if params[:field]
       @report.fields = @result_fields if @result_fields
