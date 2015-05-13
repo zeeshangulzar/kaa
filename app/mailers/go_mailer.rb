@@ -30,25 +30,25 @@ class GoMailer < ActionMailer::Base
     @user = invitee # NOTE: always need a @user for email templates
     @inviter = inviter
     @promotion = @invitee.promotion
-    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request")
+    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request", :from => self.fromHandler(@inviter))
   end
 
   def chat_message_email(chat_message)
     @chat_message = chat_message
     @user = chat_message.friend
-    mail(:to => @user.email, :subject => "#{Constant::AppName}: New message from #{@chat_message.user.profile.full_name}")
+    mail(:to => @user.email, :subject => "#{Constant::AppName}: New message from #{@chat_message.user.profile.full_name}", :from => self.fromHandler(@chat_message.user))
   end
 
   def challenge_received_email(challenge_sent, receiver)
     @challenge_sent = challenge_sent
     @user = receiver
-    mail(:to => @user.email, :subject => "#{Constant::AppName}: New challenge from #{@challenge_sent.user.profile.full_name}")
+    mail(:to => @user.email, :subject => "#{Constant::AppName}: New challenge from #{@challenge_sent.user.profile.full_name}", :from => self.fromHandler(@challenge_sent.user))
   end
 
   def event_invite_email(event, user)
     @event = event
     @user = user
-    mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}")
+    mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}", :from => self.fromHandler(@event.owner))
   end
 
   def invite_email(emails, user, message = nil)
@@ -56,7 +56,7 @@ class GoMailer < ActionMailer::Base
     @promotion = @user.promotion
     @message = message
     subject = "#{@user.profile.full_name} invited you to join #{Constant::AppName}"
-    mail(:to => emails, :subject => subject)
+    mail(:to => emails, :subject => subject, :from => self.fromHandler(@user))
   end
   
   def content_email(model, object, emails, user, message)
@@ -67,7 +67,7 @@ class GoMailer < ActionMailer::Base
     @message = message
     subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
 
-    mail(:to => emails, :subject => subject, :from => @user.email, :reply_to => @user.email) do |format|
+    mail(:to => emails, :subject => subject, :from => self.fromHandler(@user)) do |format|
       format.text { render model.underscore.downcase }
       format.html { render model.underscore.downcase }
     end
@@ -78,7 +78,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
-    mail(:to => emails, :subject => "#{Constant::AppName} Tip: #{tip.title}", :from => @user.email, :reply_to => @user.email)
+    mail(:to => emails, :subject => "#{Constant::AppName} Tip: #{tip.title}", :from => self.fromHandler(@user))
   end
 
   def recipe(recipe, emails, user, message)
@@ -86,7 +86,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
-    mail(:to => emails, :subject => "#{Constant::AppName} Recipe: #{recipe.title}", :from => @user.email, :reply_to => @user.email)
+    mail(:to => emails, :subject => "#{Constant::AppName} Recipe: #{recipe.title}", :from => self.fromHandler(@user))
   end
 
   def daily_email(day, promotion, to_name, to_email, base_url, user)
@@ -168,14 +168,29 @@ class GoMailer < ActionMailer::Base
     @to_user = to_user
     @invite_type = invite_type
     @message = message
-    mail(:to => to_user.email, :subject => subject)
+    mail(:to => to_user.email, :subject => subject, :from => self.fromHandler(@from_user))
   end
 
   def unregistered_team_invite_email(email, inviter, message = nil)
     @user = inviter
     @inviter = inviter
     @message = message
-    mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}")
+    mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}", :from => self.fromHandler(@inviter))
+  end
+
+  def generic_email(emails, subject, message, from = nil)
+    @message = message
+    @user = from
+    if !emails.empty?
+      mail(:to => emails, :subject => subject, :from => self.fromHandler(@user))
+    end
+  end
+
+  def self.fromHandler(user = nil)
+    return FormattedFromAddress if !user
+    # todo: handle hiding emails based on promotion config and user preferences for future apps
+    # KP doesn't care if they expose people's emails..
+    return "#{user.profile.full_name} <#{user.email}>"
   end
 
 end
