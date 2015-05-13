@@ -5,19 +5,23 @@ class ReportsController < ApplicationController
   before_filter :set_report, :only => [:run, :show]
   
   authorize :index, :show, :run, :location_coordinator
+  authorize :create, :update, :regional_coordinator
 
+# this is throwing 500s for !master?
+=begin
   authorize :create, :update, lambda {|user, promotion, report, params| 
+raise 'get here'
     return true if user.master?
-    return false if promotion.default?
-
     if params[:action] == 'create'
-      params[:report][:report_type] == 'Simple'
+      return params[:report][:report_type] == 'Simple' && user.coordinator_or_above?
     else
-      report.report_type == 'Simple' && (params[:report][:report_type].nil? || params[:report][:report_type] == 'Simple')
+      return report.report_type == 'Simple' && (params[:report][:report_type].nil? || params[:report][:report_type] == 'Simple') && user.coordinator_or_above?
     end
   }
+=end
 
-  authorize :destroy, lambda {|user, promotion, report, params| user.master? || (user.coordinator? && !report.is_default_path?)}
+  authorize :destroy, lambda {|user, promotion, report, params| user.master? || (user.coordinator_or_above? && @promotion.id == user.promotion_id)}
+
 
   def get_promotion
     @promotion ||= Promotion.find(params[:promotion_id])
