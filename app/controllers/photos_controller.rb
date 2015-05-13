@@ -2,7 +2,7 @@ class PhotosController < ApplicationController
 	respond_to :json
 
 	before_filter :get_photoable, :only => [:index, :create, :destroy]
-	authorize :index, :show, :update, :create, :destroy, :user
+	authorize :index, :show, :update, :create, :destroy, :all_team_photos, :user
 
 	# Get the notificationable type and user, or render an error.
 	def get_photoable
@@ -63,4 +63,10 @@ class PhotosController < ApplicationController
     end
     return HESResponder(photo)
 	end
+
+  def all_team_photos
+    return HESResponder("No competition.", "NOT_FOUND") if !@promotion.current_competition
+    photos = Photo.where("photoable_type = 'Team' AND photoable_id IN (#{@promotion.current_competition.teams.collect{|team|team.id}})").order("created_at DESC")
+    return HESResponder(photos)
+  end
 end
