@@ -66,7 +66,7 @@ class PhotosController < ApplicationController
 
   def all_team_photos
     return HESResponder("No competition.", "NOT_FOUND") if !@promotion.current_competition
-    photos = Photo.where("photoable_type = 'Team' AND photoable_id IN (#{@promotion.current_competition.teams.collect{|team|team.id}})").order("created_at DESC")
+    photos = Photo.where("photoable_type = 'Team' AND photoable_id IN (#{@promotion.current_competition.teams.collect{|team|team.id}.join(",")})").order("created_at DESC")
     return HESResponder(photos)
   end
 end
