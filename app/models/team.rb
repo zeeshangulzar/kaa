@@ -18,6 +18,8 @@ class Team < ApplicationModel
   has_wall
   belongs_to :competition
 
+  acts_as_notifier
+
   STATUS = {
     :pending => 0,
     :official => 1
@@ -99,6 +101,10 @@ class Team < ApplicationModel
     if self.status != s
       self.status = s
       self.save!
+      if s == Team::STATUS[:official]
+        # official notification
+        notify(self.leader, "Your team is now official", "\"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" is now official!", :from => self.leader, :key => "team_official_#{self.id}")
+      end
     end
   end
 end
