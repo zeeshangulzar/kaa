@@ -25,7 +25,7 @@ class PhotosController < ApplicationController
 	end
 
 	def create
-    params[:user_id] = @current_user.id
+    params[:photo][:user_id] = @current_user.id
     photo = @photoable.photos.build(params[:photo])
     return HESResponder(photo.errors.full_messages) if !photo.valid?
     Photo.transaction do
