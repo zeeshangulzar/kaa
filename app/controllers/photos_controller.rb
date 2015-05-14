@@ -1,7 +1,7 @@
 class PhotosController < ApplicationController
 	respond_to :json
 
-	before_filter :get_photoable, :only => [:index, :create, :destroy]
+	before_filter :get_photoable, :only => [:index, :create]
 	authorize :index, :show, :update, :create, :destroy, :all_team_photos, :user
 
 	# Get the notificationable type and user, or render an error.
