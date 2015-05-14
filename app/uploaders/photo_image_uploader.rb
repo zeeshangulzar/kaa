@@ -6,11 +6,6 @@ class PhotoImageUploader < ApplicationUploader
 
   # Create different versions of your uploaded files:
   version :thumbnail do
-    process :resize_to_fit => [40, 40]
-  end
-
-  # Create different versions of your uploaded files:
-  version :large_thumbnail do
     process :resize_to_fit => [150, 150]
   end
 
