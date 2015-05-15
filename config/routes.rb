@@ -154,6 +154,13 @@ Go::Application.routes.draw do
   match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
   match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
 
+  match "all_team_photos" => 'photos#all_team_photos', :via => :get
+  resources :photos
+  match '*photoable_type/*photoable_id/photos' => 'photos#index', :via => :get
+  match '*photoable_type/*photoable_id/photos' => 'photos#create', :via => :post
+  match '*photoable_type/*photoable_id/photos' => 'photos#update', :via => :put
+  match '*photoable_type/*photoable_id/photos' => 'photos#destroy', :via => :delete
+
   resources :shares
   match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
   match '*shareable_type/*shareable_id/shares' => 'shares#create', :via => :post
@@ -239,7 +246,6 @@ Go::Application.routes.draw do
   resources :teams do
     resources :team_members, :path => "members"
     resources :team_invites, :path => "invites"
-    resources :team_photos, :path => "photos"
   end
 
   resources :competitions do
@@ -247,10 +253,9 @@ Go::Application.routes.draw do
   end
 
   resources :team_invites
-  resources :team_photos
   resources :team_members
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
-  match "/send_mail" => "#emails#send", :via => :post
+  match "/send_mail" => "emails#send_mail", :via => :post
 end

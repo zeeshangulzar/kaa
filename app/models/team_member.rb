@@ -8,6 +8,12 @@ class TeamMember < ApplicationModel
   belongs_to :user
   belongs_to :team
 
+  after_create :delete_team_invites
+  after_create :update_points
+  after_create :update_team
+  after_save :update_team
+  after_destroy :update_team
+
   # NOTE: this is not cognizant of whether the team is official, the competition is active, freezes_on_date, etc.
   # presently doing those types of checks on user.current_team()
   def update_points
@@ -34,12 +40,14 @@ class TeamMember < ApplicationModel
     self.connection.execute(sql)
   end
 
-  after_create :update_team
-  after_save :update_team
-  after_destroy :update_team
-
   def update_team
     self.team.update_status()
+  end
+
+  def delete_team_invites
+    self.user.team_invites.each{|invite|
+      invite.destroy
+    }
   end
 
 end
