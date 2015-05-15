@@ -246,7 +246,6 @@ Go::Application.routes.draw do
   resources :teams do
     resources :team_members, :path => "members"
     resources :team_invites, :path => "invites"
-    resources :team_photos, :path => "photos"
   end
 
   resources :competitions do
@@ -254,7 +253,6 @@ Go::Application.routes.draw do
   end
 
   resources :team_invites
-  resources :team_photos
   resources :team_members
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post

@@ -25,6 +25,9 @@ class Team < ApplicationModel
     :official => 1
   }
 
+  after_save :update_status
+  before_destroy :disband
+
   STATUS.each_pair do |key, value|
     self.send(:scope, key, where(:status => value))
   end
@@ -47,11 +50,16 @@ class Team < ApplicationModel
   end
 
   def disband
-    team.members.each do |member|
-      member.notifications.find(:all, :conditions => ["message like ?", "%join a #{Team::Title}: #{team.name}</a>."]).each{|x| x.destroy}
-      member.add_notification("#{team.name} has been disbanded.  You can join or start a different team.")
-      reset_user_app_menu(member) #redraw menu so that user can access team links
+    self.members.each do |member|
+      # delete invite notifications
+      Notification.find(:all, :conditions => ["key like ?", "team_#{self.id}%"]).each{|x| x.destroy}
+      # create disbanded notification
+      message = "#{self.name} has been disbanded."
+      message = message + " You can <a href=\"/#/team\">join or start</a> a different team." unless self.competition.enrollment_ends_on < self.competition.promotion.current_date
+      member.notify(member, message, message, :from => self.leader, :key => "team_#{self.id}_deleted")
     end
+    # delete team members...
+    self.team_members.each{|team_member| team_member.destroy}
   end
 
   def stats
@@ -93,8 +101,6 @@ class Team < ApplicationModel
   def include_team_members
     @include_team_members = true
   end
-
-  after_save :update_status
 
   def update_status
     s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
