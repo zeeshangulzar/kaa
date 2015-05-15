@@ -53,7 +53,7 @@ class TeamInvite < ApplicationModel
   end
 
   def not_already_on_team
-    if self.user.current_team
+    if self.user && self.user.current_team
       self.errors[:base] << "User is already on a team."
     end
   end
