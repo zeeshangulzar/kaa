@@ -70,7 +70,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           $redis.publish("TeamInviteAccepted", {:team => self.team, :user_id => self.user_id}.to_json)
           # notify requesting user his request was accepted
-          notify(self.user, "Your team request was accepted", "Your request to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_#{self.team_id}_invite_#{self.id}_request_accepted")
+          self.user.notify(self.user, "Your team request was accepted", "Your request to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" has been accepted.", :from => self.team.leader, :key => "team_#{self.team_id}_invite_#{self.id}_request_accepted")
           # create team member
           self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
@@ -83,7 +83,7 @@ class TeamInvite < ApplicationModel
         if self.status_was != self.status && self.status == TeamInvite::STATUS[:accepted]
           $redis.publish("TeamInviteAccepted", {:team => self.team, :user_id => self.user_id}.to_json)
           # notify team leader his invite was accepted
-          notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_#{self.team_id}_invite_#{self.id}_invite_accepted")
+          self.team.leader.notify(self.team.leader, "#{self.user.profile.full_name} accepted your team invite.", "#{self.user.profile.full_name} has accepted your invite to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.user, :key => "team_#{self.team_id}_invite_#{self.id}_invite_accepted")
           # create team member
           self.add_team_member
         elsif self.status == TeamInvite::STATUS[:unresponded]
