@@ -109,7 +109,7 @@ class Team < ApplicationModel
       self.save!
       if s == Team::STATUS[:official]
         # official notification
-        notify(self.leader, "Your team is now official", "\"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\" is now official!", :from => self.leader, :key => "team_official_#{self.id}")
+        notify(self.leader, "Your team is now official", "\"<a href='/#/team?team_id=#{self.id}'>#{self.name}</a>\" is now official!", :from => self.leader, :key => "team_#{self.id}_official")
       end
     end
   end
