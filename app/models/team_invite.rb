@@ -97,8 +97,8 @@ class TeamInvite < ApplicationModel
 
   def destroy_notifications
     unless self.user_id.nil?
-      Notification.find(:all, :conditions => ["key like ?", "team_#{self.team_id}_invite_#{self.id}_request_made"]).each{|x| x.destroy}
-      Notification.find(:all, :conditions => ["key like ?", "team_#{self.team_id}_invite_#{self.id}_invite_made"]).each{|x| x.destroy}
+      Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.team_id}_invite_#{self.id}_request_made"]).each{|x| x.destroy}
+      Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.team_id}_invite_#{self.id}_invite_made"]).each{|x| x.destroy}
     end
   end
 
