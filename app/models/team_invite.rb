@@ -27,8 +27,7 @@ class TeamInvite < ApplicationModel
   acts_as_notifier
 
   before_create :set_defaults
-  after_create :create_notifications
-  after_update :create_notifications
+  after_save :create_notifications
   after_destroy :destroy_notifications
 
   TYPE.each_pair do |key, value|
@@ -60,7 +59,7 @@ class TeamInvite < ApplicationModel
 
   # TODO: send emails for notifications
   def create_notifications
-    if self.user_id_was.nil? && !self.user_id.nil?
+    if !self.id_was.nil? && self.user_id_was.nil? && !self.user_id.nil?
       # notify user he's been invited to a team
       notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_#{self.team_id}_invite_#{self.id}_invite_made")
     elsif self.user_id.nil? && !self.email.nil?
@@ -79,6 +78,7 @@ class TeamInvite < ApplicationModel
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
           notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has <a href='/#/team?tab=invites'>requested</a> to join \"#{self.team.name}\".", :from => self.user, :key => "team_#{self.team_id}_invite_#{self.id}_request_made")
+raise 'right here heyo'
           Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id, self.message)
         end
       elsif self.invite_type == TeamInvite::TYPE[:invited]
