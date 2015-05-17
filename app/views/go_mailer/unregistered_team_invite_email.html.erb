@@ -1,0 +1,32 @@
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="left">
+      <h1 style="font-family:Open Sans, Helvetica, Arial;color:#57a635;margin:17px;font-weight:bold;font-size:14px;">Greetings from <%= Constant::AppName %>!</h1>
+    </td>
+    <td align="right">
+      <p style="margin:18px;color:#aaa;font-family:Open Sans, Helvetica, Arial;font-size:12px;">
+        <%= @user.promotion.current_date.strftime("%A, %B %-d") %>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <p><%= @inviter.profile.full_name %> has invited you to join their team, "<%= @inviter.current_team.name %>" on  <%= Constant::AppName %>. Click <a style="color:#006ba6" href="https://<%= DomainConfig::DomainNames.first %>/#/register">here</a> to join now and accept their invitation.</p>
+        <% if @message %>
+        <p><strong>"<%= @message %>"</strong></p>
+        <% end %>
+        <p><strong>What is <%= Constant::AppName %>?</strong></p>
+        <p><%= Constant::AppName %> is a wellness campaign sponsored by HealthyWorkforce, for the people who power KP.</p>
+        <p>Using <%= Constant::AppName %>,  you can record all kinds of activity and track your progress towards your individual health and fitness goals. With fun social features and multiple ways to earn points and badges, support co-workers, and stay inspired, <%= Constant::AppName %> will help you achieve your best self!</p>
+        <p>Here are a few quotes from the Wellness Wall:</p>
+        <ul style="list-style-type: none; margin-left: 0px; padding-left:0px;">
+          <li style="margin:10px">"Thumbs up to everyone who continues to 'Thrive' on the weekend! I've been training for the OC Half Marathon, and my first 13 miles is tomorrow morning. Eek!"</li>
+          <li style="margin:10px">"I just started and I am looking forward to inspiration and support!"</li>
+          <li style="margin:10px">"I walked an amazing 16,190 steps / 9.12 miles and burned 973 cal on Saturday while visiting San Francisco. Whoo Hoo! I feel great! :-)"</li>
+        </ul>
+        <p style="margin-top:34px">Ready? Then get set and <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/register" style="color:#006ba6">Let's Go KP</a>!</p>
+      </div>
+    </td>
+  </tr>
+</table>

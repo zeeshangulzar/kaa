@@ -1,0 +1,355 @@
+--- 
+- !ruby/object:ReportSetup 
+  id: 1
+  fields: 
+    "8": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: count(distinct stats.trip_id) `Count Each Participant`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Count Each Participant
+      :identification: false
+      :join: stats
+      :sequence: 6
+      :aggregate: true
+    "16": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: profiles.registered_on `Registered On`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Registered On
+      :identification: false
+      :join: profiles
+      :sequence: 17
+      :aggregate: false
+    "37": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: if(users.allows_email=1,'Yes','No') `Allows Email`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Allows Email
+      :identification: false
+      :join: users
+      :sequence: 14
+      :aggregate: false
+    "9": 
+      :filterable: true
+      :role: Master
+      :sql_phrase: resellers.name `Reseller`
+      :visible: true
+      :category: Program Fields
+      :sensitive: false
+      :display_name: Reseller
+      :identification: false
+      :join: resellers
+      :sequence: 10
+      :aggregate: false
+    "38": 
+      :filterable: true
+      :role: Reseller
+      :sql_phrase: if(users.prefers_metric=1,'Yes','No') `Prefers Metric`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Prefers Metric
+      :identification: false
+      :join: users
+      :sequence: 19
+      :aggregate: false
+    "20": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: stats.consecutive_days_logged `Consecutive Days Logged`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Consecutive Days Logged
+      :identification: false
+      :join: stats
+      :sequence: 30
+      :aggregate: false
+    "18": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: stats.total_days `Total Program Days`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Total Program Days
+      :identification: false
+      :join: stats
+      :sequence: 25
+      :aggregate: false
+    "39": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: if(stats.is_active=1,'Yes','No') `Is Active`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Is Active
+      :identification: false
+      :join: stats
+      :sequence: 23
+      :aggregate: false
+    "21": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: if(stats.logged_today=1, 'Yes', 'No') `Logged Today?`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Logged Today?
+      :identification: false
+      :join: stats
+      :sequence: 34
+      :aggregate: false
+    "19": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: sum(stats.logged_today) `Days Logged`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Days Logged
+      :identification: false
+      :join: stats
+      :sequence: 28
+      :aggregate: true
+    "91": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: addresses.line1 `Address`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Address
+      :identification: true
+      :join: addresses
+      :sequence: 5
+      :aggregate: false
+    "135": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: SUM(stats.total_points) `Total Points`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Total Points
+      :identification: false
+      :join: stats
+      :sequence: 62
+      :aggregate: true
+    "48": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: eligibilities.identifier `Eligibility Id`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Eligibility Id
+      :identification: true
+      :join: eligibilities
+      :sequence: 13
+      :aggregate: false
+    "92": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: addresses.line2 `Address Line 2`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Address Line 2
+      :identification: false
+      :join: addresses
+      :sequence: 7
+      :aggregate: false
+    "1": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: users.first_name `First Name`, users.last_name `Last Name`, users.email `Email`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Each Participant
+      :identification: true
+      :sequence: 24
+      :aggregate: false
+    "49": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: users.sso_identifier `SSO Identifier`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: SSO Identifier
+      :identification: true
+      :join: users
+      :sequence: 16
+      :aggregate: false
+    "93": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: addresses.city `City`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: City
+      :identification: false
+      :join: addresses
+      :sequence: 12
+      :aggregate: false
+    "10": 
+      :filterable: true
+      :role: Reseller
+      :sql_phrase: organizations.name `Organization`
+      :visible: true
+      :category: Program Fields
+      :sensitive: false
+      :display_name: Organization
+      :identification: false
+      :join: organizations
+      :sequence: 33
+      :aggregate: false
+    "2": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: stats.reported_on `Reported On`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Reported On
+      :identification: false
+      :join: stats
+      :sequence: 26
+      :aggregate: false
+    "94": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: addresses.state_province `State/Province`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: State/Province
+      :identification: false
+      :join: addresses
+      :sequence: 15
+      :aggregate: false
+    "3": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: users.first_name `First Name`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: First Name
+      :identification: true
+      :sequence: 29
+      :aggregate: false
+    "95": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: addresses.postal_code `Postal Code`
+      :visible: false
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Postal Code
+      :identification: false
+      :join: addresses
+      :sequence: 20
+      :aggregate: false
+    "4": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: users.last_name `Last Name`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Last Name
+      :identification: true
+      :sequence: 32
+      :aggregate: false
+    "6": 
+      :filterable: false
+      :role: Coordinator
+      :sql_phrase: users.email `Email`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Email
+      :identification: true
+      :sequence: 1
+      :aggregate: false
+    "14": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: users.started_on `Started On`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Started On
+      :identification: false
+      :sequence: 8
+      :aggregate: false
+    "7": 
+      :filterable: true
+      :role: Coordinator
+      :sql_phrase: coalesce(users.gender,'(unspecified)') `Gender`
+      :visible: true
+      :category: Participant Fields
+      :sensitive: false
+      :display_name: Gender
+      :identification: false
+      :sequence: 4
+      :aggregate: false
+  joins: 
+    "11": 
+      :sql: inner join stats on (stats.SINGULAR_id = PLURAL.id)
+      :nest_level: 0
+      :childof: 
+      - resellers
+      - organizations
+      - promotions
+      - users
+      - entries
+      :alias: stats
+    "7": 
+      :sql: inner join organizations on (organizations.id = promotions.organization_id)
+      :parentof: promotions
+      :nest_level: -2
+      :alias: organizations
+    "23": 
+      :sql: left join eligibilities on (eligibilities.user_id = users.id)
+      :nest_level: 1
+      :childof: users
+      :alias: eligibilities
+    "8": 
+      :sql: inner join resellers on (resellers.id = organizations.reseller_id)
+      :parentof: organizations
+      :nest_level: -3
+      :alias: resellers
+    "15": 
+      :sql: inner join entries on (entries.id = stats.entry_id)
+      :nest_level: 2
+      :childof: stats
+      :alias: entries
+    "10": 
+      :sql: left join addresses on (addresses.user_id = users.id)
+      :nest_level: 1
+      :childof: users
+      :alias: addresses
+    "21": 
+      :sql: 
+      :nest_level: 0
+      :alias: users
+    "5": 
+      :sql: inner join promotions on (promotions.id = users.promotion_id)
+      :parentof: users
+      :nest_level: -1
+      :alias: promotions

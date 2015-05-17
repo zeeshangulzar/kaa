@@ -89,6 +89,7 @@ class UsersController < ApplicationController
     if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
       @target_user.stats = @target_user.stats
       @target_user.recent_activities = @target_user.recent_activities
+      @target_user.team_id = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
       end
@@ -196,13 +197,13 @@ class UsersController < ApplicationController
     else
       search_string = search_string.strip
     end
-    if params[:unassociated].nil?
-      conditions = ["users.email like ? or profiles.first_name like ? or profiles.last_name like ?",search_string, search_string, search_string]
-      p = (@current_user.master? && params[:promotion_id] && Promotion.exists?(params[:promotion_id])) ? Promotion.find(params[:promotion_id]) : @promotion
-      users = p.users.find(:all,:include=>:profile,:conditions=>conditions)
-    else
-      limit = !params[:limit].nil? ? params[:limit].to_i : 50
-      users = @current_user.unassociated_search(search_string, limit)
+    limit = !params[:limit].nil? ? params[:limit].to_i : 50
+    users = @current_user.search(search_string, !params[:unassociated].nil?, limit)
+    unless users.empty?
+      team_ids = User::get_team_ids(users.collect{|user|user.id})
+      users.each_with_index{ |user, idx|
+        users[idx].team_id = team_ids[user.id]
+      }
     end
     return HESResponder(users, "OK", limit)
   end

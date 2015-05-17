@@ -1,0 +1,117 @@
+--- 
+- !ruby/object:Report 
+  id: 1
+  report_type: SQL
+  name: Number of Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT COUNT(*) AS 'Number of Users' FROM users WHERE email NOT LIKE '%hesonline%' AND email NOT LIKE '%hesapps.com%';
+  created_by_master: true
+  friendly_url_key:
+
+- !ruby/object:Report 
+  id: 2
+  report_type: SQL
+  name: Total Device Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE active_device = 'FITBIT' OR active_device = 'JAWBONE' GROUP BY active_device;
+  created_by_master: true
+  friendly_url_key: Total Device Users
+
+- !ruby/object:Report 
+  id: 3
+  report_type: Simple
+  name: Number of Users by Gender
+  fields: 
+  - "7"
+  - "8"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Number of Users by Gender
+
+- !ruby/object:Report 
+  id: 4
+  report_type: SQL
+  name: Total Participants by Day
+  fields: []
+
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: |
+    select dates.reported_on `Recorded On`, count(users.id) `Total Participants`
+    from (select distinct(entries.recorded_on) reported_on from entries where recorded_on between :reported_on_min and :reported_on_max) dates
+    left join users on (DATE(users.created_at) <= dates.reported_on)
+    where :conditions
+    group by dates.reported_on
+
+  created_by_master: false
+  friendly_url_key: Total Participants by Day
+
+- !ruby/object:Report 
+  id: 5
+  report_type: Simple
+  name: Days Logged by User
+  fields: 
+  - "1"
+  - "19"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Days Logged by User
+
+- !ruby/object:Report 
+  id: 6
+  report_type: Simple
+  name: Achievements Earned by User
+  fields: 
+  - "1"
+  - "49"
+  filters: 
+    :hashes: []
+
+  limit: 
+  sql: 
+  created_by_master: false
+  friendly_url_key: Achievements Earned by User
+
+- !ruby/object:Report 
+  id: 7
+  report_type: SQL
+  name: Total Fitbit Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE active_device = 'FITBIT';
+  created_by_master: true
+  friendly_url_key: Total Fitbit Users
+
+- !ruby/object:Report 
+  id: 8
+  report_type: SQL
+  name: Total Jawbone Users
+  fields: []
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT COUNT(*) AS 'Number of Jawbone Users' FROM users WHERE active_device = 'JAWBONE';
+  created_by_master: true
+  friendly_url_key: Total Jawbone Users

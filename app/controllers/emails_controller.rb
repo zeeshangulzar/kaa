@@ -52,4 +52,24 @@ class EmailsController < ApplicationController
     end
     return HESResponder(unsubscribe)
   end
+
+  def send_mail
+    return HESResponder("Message, recipient and type required.", "ERROR") if params[:message].nil? || params[:recipient_id].nil? || params[:email_type].nil?
+    message = params[:message]
+    emails = []
+    if params[:email_type] == 'team'
+      team = Team.find(params[:recipient_id]) rescue nil
+      return HESResponder("Team", "NOT_FOUND") if !team
+      emails = team.members.collect{|member|member.email}
+      subject = "#{@current_user.profile.full_name} sent your team a message via #{Constant::AppName}"
+    elsif params[:email_type] == 'individual'
+      user = User.find(params[:recipient_id]) rescue nil
+      return HESResponder("User", "NOT_FOUND") if !user
+      emails = [user.email]
+      subject = "#{@current_user.profile.full_name} sent you a message via #{Constant::AppName}"
+    end
+    Resque.enqueue(GenericEmail, emails, subject, message, @current_user.id) unless emails.empty?
+    return HESResponder()
+  end
+
 end

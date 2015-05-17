@@ -51,6 +51,7 @@ Go::Application.routes.draw do
     resources :success_stories, :only => [:index, :show]
     resources :long_term_goals, :only => [:index, :show]
     resources :personal_action_plans, :only => [:index, :show]
+    resources :team_invites
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
@@ -87,7 +88,13 @@ Go::Application.routes.draw do
     resources :resources
     resources :banners
     resources :locations
+    resources :reports
+    resources :report_fields
+    resources :report_joins
+    resources :competitions
   end
+
+  match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
 
   # CONTENT MODELS
   resources :tips
@@ -146,6 +153,13 @@ Go::Application.routes.draw do
   match '*likeable_type/*likeable_id/likes' => 'likes#index', :via => :get
   match '*likeable_type/*likeable_id/likes' => 'likes#create', :via => :post
   match '*likeable_type/*likeable_id/likes' => 'likes#destroy', :via => :delete
+
+  match "all_team_photos" => 'photos#all_team_photos', :via => :get
+  resources :photos
+  match '*photoable_type/*photoable_id/photos' => 'photos#index', :via => :get
+  match '*photoable_type/*photoable_id/photos' => 'photos#create', :via => :post
+  match '*photoable_type/*photoable_id/photos' => 'photos#update', :via => :put
+  match '*photoable_type/*photoable_id/photos' => 'photos#destroy', :via => :delete
 
   resources :shares
   match '*shareable_type/*shareable_id/shares' => 'shares#index', :via => :get
@@ -232,7 +246,6 @@ Go::Application.routes.draw do
   resources :teams do
     resources :team_members, :path => "members"
     resources :team_invites, :path => "invites"
-    resources :team_photos, :path => "photos"
   end
 
   resources :competitions do
@@ -240,9 +253,9 @@ Go::Application.routes.draw do
   end
 
   resources :team_invites
-  resources :team_photos
   resources :team_members
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
+  match "/send_mail" => "emails#send_mail", :via => :post
 end

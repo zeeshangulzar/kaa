@@ -21,6 +21,11 @@ class ApplicationModel < ActiveRecord::Base
     tables = self.connection.tables
 
     hash.keys.each do |key|
+      if !options.nil? && !options[:do_not_paginate].nil? && options[:do_not_paginate].is_a?(Array)
+        if options[:do_not_paginate].include?(key)
+          next
+        end
+      end
       if tables.include?(key) && hash[key].is_a?(Array) && key != 'posts'
         data = hash[key].clone
         total_pages = (data.size.to_f / ApplicationController::PAGE_SIZE.to_f).ceil
