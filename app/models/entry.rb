@@ -289,6 +289,7 @@ UNION
   before_save :check_for_changes
   after_create :check_for_team_update
   after_commit :check_for_team_update
+  after_save :check_for_team_update
 
   def do_badges
     Badge.do_milestones(self)
