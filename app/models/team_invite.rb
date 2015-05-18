@@ -64,7 +64,7 @@ class TeamInvite < ApplicationModel
       notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_#{self.team_id}_invite_#{self.id}_invite_made")
     elsif self.user_id.nil? && !self.email.nil?
       # unregistered user, send them an e-mail to join
-      Resque.enqueue(UnregisteredTeamInviteEmail, self.email, self.inviter.id, self.message)
+      Resque.enqueue(UnregisteredTeamInviteEmail, self.email, self.inviter.id, self.team_id, self.message)
     else
       # registered user, normal process..
       if self.invite_type == TeamInvite::TYPE[:requested]
@@ -78,7 +78,7 @@ class TeamInvite < ApplicationModel
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify team leader that he has a new request
           notify(self.team.leader, "#{self.user.profile.full_name} has requested to join your team.", "#{self.user.profile.full_name} has <a href='/#/team?tab=invites'>requested</a> to join \"#{self.team.name}\".", :from => self.user, :key => "team_#{self.team_id}_invite_#{self.id}_request_made")
-          Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id, self.message)
+          Resque.enqueue(TeamInviteEmail, 'requested', self.team.leader.id, self.user.id, self.team_id, self.message)
         end
       elsif self.invite_type == TeamInvite::TYPE[:invited]
         # user was invited by team leader to be on team
@@ -91,7 +91,7 @@ class TeamInvite < ApplicationModel
         elsif self.status == TeamInvite::STATUS[:unresponded]
           # notify user he's been invited to a team
           notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_#{self.team_id}_invite_#{self.id}_invite_made")
-          Resque.enqueue(TeamInviteEmail, 'invited', self.user.id, self.inviter.id, self.message)
+          Resque.enqueue(TeamInviteEmail, 'invited', self.user.id, self.inviter.id, self.team_id, self.message)
         end
       end
     end

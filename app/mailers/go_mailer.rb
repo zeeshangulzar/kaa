@@ -48,7 +48,7 @@ class GoMailer < ActionMailer::Base
   def event_invite_email(event, user)
     @event = event
     @user = user
-    mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}", :from => fromHandler(@event.owner))
+    mail(:to => @user.email, :subject => "#{@event.user.profile.full_name} invited you to #{@event.name}", :from => fromHandler(@event.user))
   end
 
   def invite_email(emails, user, message = nil)
@@ -176,7 +176,7 @@ class GoMailer < ActionMailer::Base
     mail(:to => recipient, :subject => subject, :from => from, :subject => subject, :reply_to => reply_to)  
   end
   
-  def team_invite_email(invite_type, to_user, from_user, message = nil)
+  def team_invite_email(invite_type, to_user, from_user, team, message = nil)
     if invite_type == 'requested'
       subject = "#{from_user.profile.full_name} has requested to join your team on #{Constant::AppName}"
     else
@@ -187,13 +187,15 @@ class GoMailer < ActionMailer::Base
     @to_user = to_user
     @invite_type = invite_type
     @message = message
+    @team = team
     mail(:to => to_user.email, :subject => subject, :from => fromHandler(@from_user))
   end
 
-  def unregistered_team_invite_email(email, inviter, message = nil)
+  def unregistered_team_invite_email(email, inviter, team, message = nil)
     @user = inviter
     @inviter = inviter
     @message = message
+    @team = team
     mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}", :from => fromHandler(@inviter))
   end
 
