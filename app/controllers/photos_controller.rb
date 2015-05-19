@@ -53,16 +53,16 @@ class PhotosController < ApplicationController
     return HESResponder(photo)
   end
 
-	def destroy
-		photo = Photo.find(params[:id]) rescue nil
+  def destroy
+    photo = Photo.find(params[:id]) rescue nil
     return HESResponder("Photo", "NOT_FOUND") if !photo
-    if @current_user.coordinator_or_above? || @current_user.id == photo.user_id
+    if @current_user.coordinator_or_above? || @current_user.id == photo.user_id || (@current_user.current_team && photo.photoable_type == "Team" && photo.photoable_id == @current_user.current_team.id && @current_user.current_team.leader.id == @current_user.id)
       Photo.transaction do
         photo.destroy
       end
     end
     return HESResponder(photo)
-	end
+  end
 
   def all_team_photos
     return HESResponder("No competition.", "NOT_FOUND") if !@promotion.current_competition

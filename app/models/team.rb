@@ -52,7 +52,7 @@ class Team < ApplicationModel
   def disband
     self.members.each do |member|
       # delete invite notifications
-      Notification.find(:all, :conditions => ["key like ?", "team_#{self.id}%"]).each{|x| x.destroy}
+      Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.id}%"]).each{|x| x.destroy}
       # create disbanded notification
       message = "#{self.name} has been disbanded."
       message = message + " You can <a href=\"/#/team\">join or start</a> a different team." unless self.competition.enrollment_ends_on < self.competition.promotion.current_date

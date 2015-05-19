@@ -47,6 +47,7 @@ class User < ApplicationModel
   
   after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_commit :welcome_email, :on => :create
+  after_commit :check_for_invites, :on => :create
 
   after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
@@ -77,6 +78,16 @@ class User < ApplicationModel
 
   def welcome_notification
     notify(self, "User Created", "Welcome to #{Constant::AppName}! You will receive important notifications here.", :from => self, :key => "user_#{id}")
+  end
+
+  def check_for_invites
+    if self.promotion.current_competition
+      invites = TeamInvite.where("email = '#{self.email}' AND user_id IS NULL")
+      invites.each{|invite|
+        invite.user_id = self.id
+        invite.save!
+      }
+    end
   end
 
   # Checks for friendship requests before user was registered by email address.

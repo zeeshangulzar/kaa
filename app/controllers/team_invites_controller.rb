@@ -82,9 +82,9 @@ class TeamInvitesController < ApplicationController
         return HESResponder("You may not invite people for this team.", "DENIED")
       else
         if user
-          team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+          team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
         else
-          team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited])
+          team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
         end
       end
     end
