@@ -36,6 +36,7 @@ class LongTermGoalsController < ApplicationController
     LongTermGoal.transaction do
       ltg.save!
     end
+    ltg = LongTermGoal.find(ltg.id) # this was returning assets.hesapps.com.. for image url, this is easier than installing new ssl and taking risks cuz this is the only spot it's known to happen
     return HESResponder(ltg)
   end
 
@@ -58,6 +59,7 @@ class LongTermGoalsController < ApplicationController
     LongTermGoal.transaction do
       ltg.save!
     end
+    ltg = LongTermGoal.find(ltg.id) # this was returning assets.hesapps.com.. for image url, this is easier than installing new ssl and taking risks cuz this is the only spot it's known to happen
     return HESResponder(ltg)
   end
 
