@@ -50,6 +50,8 @@ class Team < ApplicationModel
   end
 
   def disband
+    # delete all team notifications (we only want to retain disbanded notifications, which are generated after this..
+    Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.id}%"]).each{|x| x.destroy}
     self.team_invites.each{ |invite|
       if invite.user
         invite.user.notify(invite.user, "The team \"#{self.name}\" has been disbanded.", "The team \"#{self.name}\" has been disbanded.", :from => self.leader, :key => "team_#{self.id}_deleted")
@@ -57,8 +59,6 @@ class Team < ApplicationModel
       invite.destroy
     }
     self.members.each do |member|
-      # delete invite notifications
-      Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.id}%"]).each{|x| x.destroy}
       # create disbanded notification
       message = "#{self.name} has been disbanded."
       message = message + " You can <a href=\"/#/team\">join or start</a> a different team." unless self.competition.enrollment_ends_on < self.competition.promotion.current_date
