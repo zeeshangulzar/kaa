@@ -51,7 +51,7 @@ class Team < ApplicationModel
 
   def disband
     self.team_invites.each{ |invite|
-      invite.user.notify(invite.user, "The team \"#{self.name}\" has been disbanded.", :from => self.leader, :key => "team_#{self.id}_deleted")
+      invite.user.notify(invite.user, "The team \"#{self.name}\" has been disbanded.", "The team \"#{self.name}\" has been disbanded.", :from => self.leader, :key => "team_#{self.id}_deleted")
       invite.destroy
     }
     self.members.each do |member|
