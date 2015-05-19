@@ -258,4 +258,6 @@ Go::Application.routes.draw do
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
   match "/send_mail" => "emails#send_mail", :via => :post
+
+  match "/export" => "exports#index", :via => :post
 end

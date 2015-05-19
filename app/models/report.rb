@@ -527,7 +527,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       end
     end
 
-    return clause.empty? ? "" : " #{Stat.send(:sanitize_conditions,[clause.join(' AND '),values].flatten)} "
+    return clause.empty? ? "" : " #{User.send(:sanitize_conditions,[clause.join(' AND '),values].flatten)} "
   end
 
   def aggregate_fields(filters)

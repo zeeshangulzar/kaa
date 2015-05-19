@@ -2,7 +2,67 @@
 - !ruby/object:ReportSetup 
   id: 1
   fields:
-    "50": 
+    "1": 
+      :aggregate: false
+      :sequence: 24
+      :sql_phrase: profiles.first_name `First Name`, profiles.last_name `Last Name`, users.email `Email`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Each Participant
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "2": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: profiles.first_name `First Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: First Name
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "3": 
+      :aggregate: false
+      :sequence: 32
+      :sql_phrase: profiles.last_name `Last Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Last Name
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "4": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: users.email `Email`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Email
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "5": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: COALESCE(IF(demographics.gender<>'',demographics.gender,NULL), 'Unspecified') `Gender`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Gender
+      :join: demographics
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "6": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: SUM(entries.exercise_steps) `Total Steps`
@@ -14,7 +74,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "51": 
+    "7": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: SUM(entries.exercise_minutes) `Total Minutes`
@@ -26,7 +86,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "52": 
+    "8": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: SUM(entries.challenge_points) `Challenge Points`
@@ -38,7 +98,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "53": 
+    "9": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: SUM(entries.exercise_points) `Exercise Points`
@@ -50,7 +110,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "54": 
+    "10": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: SUM(entries.timed_behavior_points) `Timed Behavior Points`
@@ -62,7 +122,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "56": 
+    "11": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: COUNT(*) `Challenges Sent`
@@ -74,7 +134,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "58": 
+    "12": 
       :aggregate: true
       :sequence: 17
       :sql_phrase: COUNT(*) `Challenges Received`
@@ -86,7 +146,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "24": 
+    "13": 
       :aggregate: false
       :sequence: 17
       :sql_phrase: users.kpwalk_level `KP Walk! Level`
@@ -98,7 +158,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "25": 
+    "14": 
       :aggregate: false
       :sequence: 17
       :sql_phrase: users.kpwalk_total_minutes `KP Walk! Total Minutes`
@@ -110,7 +170,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "28": 
+    "15": 
       :aggregate: false
       :sequence: 17
       :sql_phrase: users.kpwalk_total_Stars `KP Walk! Total Stars`
@@ -122,7 +182,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "49": 
+    "16": 
       :aggregate: true
       :sequence: 51
       :sql_phrase: COUNT(*) `Total Achievements Earned`
@@ -134,7 +194,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "16": 
+    "17": 
       :aggregate: false
       :sequence: 17
       :sql_phrase: users.created_at `Registered On`
@@ -146,7 +206,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "19": 
+    "18": 
       :aggregate: true
       :sequence: 28
       :sql_phrase: COUNT(*) `Days Logged`
@@ -158,7 +218,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "10": 
+    "19": 
       :aggregate: false
       :sequence: 33
       :sql_phrase: organizations.name `Organization`
@@ -170,7 +230,7 @@
       :sensitive: false
       :category: Program Fields
       :visible: true
-    "14": 
+    "20": 
       :aggregate: false
       :sequence: 8
       :sql_phrase: users.started_on `Started On`
@@ -182,7 +242,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "17": 
+    "21": 
       :aggregate: false
       :sequence: 8
       :sql_phrase: users.last_login `Last Login`
@@ -206,7 +266,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "26": 
+    "23": 
       :aggregate: false
       :sequence: 8
       :sql_phrase: users.altid `NUID`
@@ -218,7 +278,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "27": 
+    "24": 
       :aggregate: false
       :sequence: 8
       :sql_phrase: if(users.nuid_verified=1,'Yes','No') `NUID Verified`
@@ -230,7 +290,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "12|1": 
+    "25|1": 
       :aggregate: false
       :sequence: 2
       :sql_phrase: locations1.name `Location`
@@ -242,7 +302,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "12|2": 
+    "25|2": 
       :aggregate: false
       :sequence: 2
       :sql_phrase: locations2.name `Region`
@@ -254,7 +314,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "91": 
+    "26": 
       :aggregate: false
       :sequence: 5
       :sql_phrase: profiles.line1 `Address`
@@ -266,7 +326,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "92": 
+    "27": 
       :aggregate: false
       :sequence: 7
       :sql_phrase: profiles.line2 `Address Line 2`
@@ -278,7 +338,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "93": 
+    "28": 
       :aggregate: false
       :sequence: 12
       :sql_phrase: profiles.city `City`
@@ -290,7 +350,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "94": 
+    "29": 
       :aggregate: false
       :sequence: 15
       :sql_phrase: profiles.state_province `State/Province`
@@ -302,7 +362,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "95": 
+    "30": 
       :aggregate: false
       :sequence: 20
       :sql_phrase: profiles.postal_code `Postal Code`
@@ -314,7 +374,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: false
-    "8": 
+    "31": 
       :aggregate: true
       :sequence: 6
       :sql_phrase: COALESCE(count(distinct users.id), 0) `Count Each Participant`
@@ -326,7 +386,7 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "9": 
+    "32": 
       :aggregate: false
       :sequence: 10
       :sql_phrase: resellers.name `Reseller`
@@ -338,67 +398,7 @@
       :sensitive: false
       :category: Program Fields
       :visible: true
-    "1": 
-      :aggregate: false
-      :sequence: 24
-      :sql_phrase: profiles.first_name `First Name`, profiles.last_name `Last Name`, users.email `Email`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Each Participant
-      :join: profiles
-      :identification: true
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "3": 
-      :aggregate: false
-      :sequence: 29
-      :sql_phrase: profiles.first_name `First Name`
-      :filterable: false
-      :role: Coordinator
-      :display_name: First Name
-      :join: profiles
-      :identification: true
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "4": 
-      :aggregate: false
-      :sequence: 32
-      :sql_phrase: profiles.last_name `Last Name`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Last Name
-      :join: profiles
-      :identification: true
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "6": 
-      :aggregate: false
-      :sequence: 1
-      :sql_phrase: users.email `Email`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Email
-      :join: users
-      :identification: true
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "7": 
-      :aggregate: false
-      :sequence: 4
-      :sql_phrase: COALESCE(IF(demographics.gender<>'',demographics.gender,NULL), 'Unspecified') `Gender`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Gender
-      :join: demographics
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "37": 
+    "33": 
       :aggregate: false
       :sequence: 14
       :sql_phrase: if(users.allows_email=1,'Yes','No') `Allows Email`
@@ -410,91 +410,182 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
+    "34": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: DATE_FORMAT(evaluations.created_at, '%c/%d/%Y') `Completed Evaluation On`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Completed Evaluation On
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "35": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.find_out `Find Out`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Find Out
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "36": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.focus `Focus`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Focus
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "36": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.average_days_active_per_week `Average Days Active Per Week`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Days Active Per Week
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "37": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.average_minutes_per_day `Average Minutes Per Day`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Average Minutes Per Day
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
+      :visible: true
+    "38": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: teams.name `Team Name`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Name
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "39": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: teams.motto `Team Motto`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Motto
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "40": 
+      :aggregate: false
+      :sequence: 9
+      :sql_phrase: case when teams.status = 1 then 'Yes' else 'No' end `Team Is Official`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Is Official
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
   joins: 
-    "23": 
+    "100": 
       :nest_level: 1
       :sql: left join eligibilities on (eligibilities.user_id = users.id)
       :alias: eligibilities
       :childof: users
-    "21": 
+    "101": 
       :nest_level: 0
       :sql: 
       :alias: users
-    "15": 
+    "102": 
       :nest_level: 2
       :sql: inner join entries on (entries.user_id = users.id)
       :alias: entries
       :childof: users
-    "55": 
+    "103": 
       :nest_level: 2
       :sql: inner join challenges_sent on (challenges_sent.user_id = users.id)
       :alias: challenges_sent
       :childof: users
-    "57": 
+    "104": 
       :nest_level: 2
       :sql: inner join challenges_received on (challenges_received.user_id = users.id)
       :alias: challenges_received
       :childof: users
-    "50": 
+    "105": 
       :nest_level: 2
       :sql: inner join user_badges on (user_badges.user_id = users.id)
       :alias: badges
       :childof: users
-    "13|1": 
+    "106|1": 
       :nest_level: 1
       :sql: inner join locations locations1 on (users.location_id = locations1.id)
       :alias: locations1
       :childof: promotions
-    "13|2": 
+    "106|2": 
       :nest_level: 1
       :sql: inner join locations locations2 on (users.top_level_location_id = locations2.id)
       :alias: locations2
       :childof: promotions
-    "18": 
+    "107": 
       :nest_level: 1
       :sql: |
-        inner join team_members team_members_competitionsN on (team_members_competitionsN.user_id = users.id)
-        inner join team_members team_members_leader_competitionsN on (team_members_leader_competitionsN.team_id = team_memberships_competitionsN.team_id)
-        inner join users users_team_members_leader_competitionsN on (users_team_members_leader_competitionsN.id = team_members_leader_competitionsN.user_id and team_members_leader_competitionsN.is_leader=1)
-        inner join teams teams_competitionsN on (team_members_competitionsN.team_id = teams_competitionsN.id)
-        inner join competitions competitionsN on (users.promotion_id = competitionsN.promotion_id)
-
+        inner join team_members on (team_members.user_id = users.id)
+        inner join teams on (team_members.team_id = teams.id)
       :alias: competitions
       :childof: users
-    "7": 
+    "108": 
       :nest_level: -2
       :sql: inner join organizations on (organizations.id = promotions.organization_id)
       :alias: organizations
       :parentof: promotions
-    "8": 
+    "109": 
       :nest_level: -3
       :sql: inner join resellers on (resellers.id = organizations.reseller_id)
       :alias: resellers
       :parentof: organizations
-    "5": 
+    "110": 
       :nest_level: -1
       :sql: inner join promotions on (promotions.id = users.promotion_id)
       :alias: promotions
       :parentof: users
-    "3": 
+    "111": 
       :nest_level: 1
       :sql: |
-        inner join evaluation_definitions pevevaluationsN on (users.promotion_id = pevevaluationsN.eval_definitionable_id and pevevaluationsN.sequence = evaluationN) 
-        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and pevevaluationsN.id = evaluationsN.evaluation_definition_id)
-
+        inner join evaluation_definitions evaluationDefinitionsN on (users.promotion_id = evaluationDefinitionsN.promotion_id)
+        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and evaluationDefinitionsN.id = evaluationsN.evaluation_definition_id)
       :alias: evaluations
       :childof: users
-    "20": 
+    "112": 
       :alias: evaluationsN_udfs
       :nest_level: 3
       :childof: evaluations
       :sql: left join evaluation_udfs evaluationsN_udfs on (evaluationsN_udfs.evaluation_id = evaluationsN.id)
-    "24":
+    "113":
       :nest_level: 1
       :sql: join profiles on (profiles.user_id = users.id)
       :alias: profiles
       :childof: users
-    "25":
+    "114":
       :nest_level: 1
       :sql: left join demographics on (demographics.user_id = users.id)
       :alias: demographics

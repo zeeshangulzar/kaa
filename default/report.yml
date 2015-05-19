@@ -26,12 +26,12 @@
   friendly_url_key: Total Device Users
 
 - !ruby/object:Report 
-  id: 3
+  id: 2
   report_type: Simple
   name: Number of Users by Gender
   fields: 
-  - "7"
-  - "8"
+  - "5"
+  - "31"
   filters: 
     :hashes: []
 
@@ -41,7 +41,7 @@
   friendly_url_key: Number of Users by Gender
 
 - !ruby/object:Report 
-  id: 4
+  id: 3
   report_type: SQL
   name: Total Participants by Day
   fields: []
@@ -61,12 +61,12 @@
   friendly_url_key: Total Participants by Day
 
 - !ruby/object:Report 
-  id: 5
+  id: 4
   report_type: Simple
   name: Days Logged by User
   fields: 
   - "1"
-  - "19"
+  - "18"
   filters: 
     :hashes: []
 
@@ -76,12 +76,12 @@
   friendly_url_key: Days Logged by User
 
 - !ruby/object:Report 
-  id: 6
+  id: 5
   report_type: Simple
   name: Achievements Earned by User
   fields: 
   - "1"
-  - "49"
+  - "16"
   filters: 
     :hashes: []
 
@@ -91,7 +91,7 @@
   friendly_url_key: Achievements Earned by User
 
 - !ruby/object:Report 
-  id: 7
+  id: 6
   report_type: SQL
   name: Total Fitbit Users
   fields: []
@@ -104,7 +104,7 @@
   friendly_url_key: Total Fitbit Users
 
 - !ruby/object:Report 
-  id: 8
+  id: 7
   report_type: SQL
   name: Total Jawbone Users
   fields: []
