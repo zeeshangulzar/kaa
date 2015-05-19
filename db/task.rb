@@ -93,7 +93,6 @@ class Task
 
   def self.mail_kp_verification
     require 'ftools'
-    require 'Fastercsv'
 
     unless User.connection.tables.include?('kp_verification')
       User.connection.execute "create table kp_verification (user_id int,create_date date)"
