@@ -20,7 +20,7 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
-  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE active_device = 'FITBIT' OR active_device = 'JAWBONE' GROUP BY active_device;
+  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT' OR active_device = 'JAWBONE' GROUP BY active_device;
   created_by_master: true
   friendly_url_key: Total Device Users
 - !ruby/object:Report 
@@ -93,7 +93,7 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
-  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE active_device = 'FITBIT';
+  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT';
   created_by_master: true
   friendly_url_key: Total Fitbit Users
 - !ruby/object:Report 
@@ -105,6 +105,6 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
-  sql: SELECT COUNT(*) AS 'Number of Jawbone Users' FROM users WHERE active_device = 'JAWBONE';
+  sql: SELECT COUNT(*) AS 'Number of Jawbone Users' FROM users WHERE :conditions_with_and active_device = 'JAWBONE';
   created_by_master: true
   friendly_url_key: Total Jawbone Users
