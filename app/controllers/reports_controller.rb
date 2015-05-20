@@ -30,7 +30,11 @@ raise 'get here'
 
   def set_report
     @report_setup = @promotion.report_setup
-    @report ||= @promotion.reports.find(params[:id]) || @promotion.reports.build
+    if params[:is_custom] == 'true'
+      @report ||= @promotion.reports.find(params[:id]) || @promotion.reports.build
+    else
+      @report ||= Report.find(params[:id]) || @promotion.reports.build
+    end
     @report.promotionize(@promotion)
     @report.report_type = Report::ReportType_SQL if params[:sql]
   end
@@ -44,6 +48,7 @@ raise 'get here'
   def index
     @reports = Report.find(:all)
     @reports = @reports.concat(@promotion.reports) if @promotion.reports.is_cloned?
+
     return HESResponder({:data => @reports.as_json, :meta => nil})
   end
 
@@ -82,8 +87,6 @@ raise 'get here'
     end
 
     @rows = data.empty? ? [] : data
-
-    # raise @rows.inspect
 
     respond_to do |wants|
       wants.csv { render :text => @rows.collect{|r|r.to_csv}.join }

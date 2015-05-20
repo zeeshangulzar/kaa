@@ -197,7 +197,7 @@
     "17": 
       :aggregate: false
       :sequence: 17
-      :sql_phrase: users.created_at `Registered On`
+      :sql_phrase: DATE_FORMAT(users.created_at, '%c/%d/%Y') `Registered On`
       :filterable: true
       :role: Coordinator
       :display_name: Registered On
@@ -505,6 +505,18 @@
       :identification: false
       :sensitive: false
       :category: Competition N Fields
+      :visible: true
+    "41": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: SUM(entries.exercise_points) + SUM(entries.challenge_points) + SUM(entries.timed_behavior_points) `Total Points`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Total Points
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
       :visible: true
   joins: 
     "100": 
