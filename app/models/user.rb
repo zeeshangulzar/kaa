@@ -740,7 +740,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
   def current_team
     return nil if self.promotion.current_competition.nil?
     current_competition_id = self.promotion.current_competition.id
-    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id}")
+    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id} AND teams.status <> #{Team::STATUS[:deleted]}")
     return teams.first
   end
 

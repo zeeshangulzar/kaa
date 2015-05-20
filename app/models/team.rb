@@ -22,10 +22,11 @@ class Team < ApplicationModel
 
   STATUS = {
     :pending => 0,
-    :official => 1
+    :official => 1,
+    :deleted => 2
   }
 
-  after_save :update_status
+  after_save :handle_status
   before_destroy :disband
 
   STATUS.each_pair do |key, value|
@@ -50,6 +51,7 @@ class Team < ApplicationModel
   end
 
   def disband
+    return true unless self.status_was != Team::STATUS[:deleted]
     # delete all team notifications (we only want to retain disbanded notifications, which are generated after this..
     Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.id}%"]).each{|x| x.destroy}
     self.team_invites.each{ |invite|
@@ -64,8 +66,8 @@ class Team < ApplicationModel
       message = message + " You can <a href=\"/#/team\">join or start</a> a different team." unless self.competition.enrollment_ends_on < self.competition.promotion.current_date
       member.notify(member, message, message, :from => self.leader, :key => "team_#{self.id}_deleted")
     end
-    # delete team members...
-    self.team_members.each{|team_member| team_member.destroy}
+    # delete team members... don't do this anymore since we have a :deleted status
+    # self.team_members.each{|team_member| team_member.destroy}
   end
 
   def stats
@@ -108,16 +110,21 @@ class Team < ApplicationModel
     @include_team_members = true
   end
 
-  def update_status
-    s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
-    if self.status != s
-      self.status = s
-      self.save!
-      if s == Team::STATUS[:official]
-        # official notification
-        self.members.each{ |member|
-          notify(member, "Your team is now official", "\"<a href='/#/team?team_id=#{self.id}'>#{self.name}</a>\" is now official!", :from => self.leader, :key => "team_#{self.id}_official")
-        }
+  def handle_status
+    if self.status_was != Team::STATUS[:deleted] && self.status == Team::STATUS[:deleted]
+      # team was just "deleted" so disband it
+      self.disband
+    elsif self.status != Team::STATUS[:deleted]
+      s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
+      if self.status != s
+        self.status = s
+        self.save!
+        if s == Team::STATUS[:official]
+          # official notification
+          self.members.each{ |member|
+            notify(member, "Your team is now official", "\"<a href='/#/team?team_id=#{self.id}'>#{self.name}</a>\" is now official!", :from => self.leader, :key => "team_#{self.id}_official")
+          }
+        end
       end
     end
   end

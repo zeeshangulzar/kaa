@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
       :offset       => params[:offset],
       :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
-      :status       => params[:status],
+      :status       => params[:status].nil? ? Team::STATUS[:official] : params[:status],
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir]
     }
@@ -22,7 +22,7 @@ class TeamsController < ApplicationController
   
   def show
     team = Team.find(params[:id]) rescue nil
-    return HESResponder("Team", "NOT_FOUND") if !team
+    return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
     team.include_team_members
     return HESResponder(team)
   end
@@ -44,20 +44,17 @@ class TeamsController < ApplicationController
   
   def update
     team = Team.find(params[:id]) rescue nil
-    if !team
-      return HESResponder("Team", "NOT_FOUND")
+    return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
+    if team.leader.id != @current_user.id && !@current_user.coordinator_or_above?
+      return HESResponder("You may not edit this team.", "DENIED")
+    end
+    Team.transaction do
+      team.update_attributes(params[:team])
+    end
+    if !team.valid?
+      return HESResponder(team.errors.full_messages, "ERROR")
     else
-      if team.leader.id != @current_user.id && !@current_user.coordinator_or_above?
-        return HESResponder("You may not edit this team.", "DENIED")
-      end
-      Team.transaction do
-        team.update_attributes(params[:team])
-      end
-      if !team.valid?
-        return HESResponder(team.errors.full_messages, "ERROR")
-      else
-        return HESResponder(team)
-      end
+      return HESResponder(team)
     end
   end
 
