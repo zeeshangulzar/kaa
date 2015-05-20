@@ -41,7 +41,7 @@ class TeamMember < ApplicationModel
   end
 
   def update_team
-    self.team.update_status()
+    self.team.handle_status()
   end
 
   def delete_team_invites
