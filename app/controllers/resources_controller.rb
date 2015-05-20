@@ -26,8 +26,8 @@ class ResourcesController < ApplicationController
   def create
     resource = @promotion.resources.build(params[:resource])
     return HESResponder(resource.errors.full_messages, "ERROR") if !resource.valid?
-    resourceLocation = Location.find(resource.location_id)
-    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && @current_user.location_ids.include?(resourceLocation.parent_location_id.nil? ? resourceLocation.id : resourceLocation.parent_location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
+    resourceLocation = Location.find(resource.location_id) rescue nil
+    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && resourceLocation && @current_user.location_ids.include?(resourceLocation.parent_location_id.nil? ? resourceLocation.id : resourceLocation.parent_location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == @promotion.id) || @current_user.master?
       Resource.transaction do
         resource.save!
       end
@@ -41,10 +41,10 @@ class ResourcesController < ApplicationController
     resource = Resource.find(params[:id]) rescue nil
     return HESResponder("Resource", "NOT_FOUND") if !resource
     # can't change a resource's location or promotion, for now..
-    resourceLocation = Location.find(resource.location_id)
+    resourceLocation = Location.find(resource.location_id) rescue nil
     params[:resource].delete(:location_id)
     params[:resource].delete(:promotion_id)
-    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && @current_user.location_ids.include?(resourceLocation.parent_location_id.nil? ? resourceLocation.id : resourceLocation.parent_location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == resource.promotion_id) || @current_user.master?
+    if (@current_user.location_coordinator? && @current_user.location_id == resource.location_id) || (@current_user.regional_coordinator? && resourceLocation && @current_user.location_ids.include?(resourceLocation.parent_location_id.nil? ? resourceLocation.id : resourceLocation.parent_location_id)) || (@current_user.coordinator_or_above? && @current_user.promotion_id == resource.promotion_id) || @current_user.master?
       resource.assign_attributes(params[:resource])
       return HESResponder(resource.errors.full_messages, "ERROR") if !resource.valid?
       Resource.transaction do

@@ -550,12 +550,12 @@
       :childof: users
     "106|1": 
       :nest_level: 1
-      :sql: inner join locations locations1 on (users.location_id = locations1.id)
+      :sql: left join locations locations1 on (users.location_id = locations1.id)
       :alias: locations1
       :childof: promotions
     "106|2": 
       :nest_level: 1
-      :sql: inner join locations locations2 on (users.top_level_location_id = locations2.id)
+      :sql: left join locations locations2 on (users.top_level_location_id = locations2.id)
       :alias: locations2
       :childof: promotions
     "107": 

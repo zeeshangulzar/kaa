@@ -150,6 +150,10 @@ raise 'get here'
     rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).users.entries.minimum(:recorded_on) || Date.today,Date.today].min
     rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).users.entries.maximum(:recorded_on) || Date.today,Date.today].min
 
+    # force this for specific roles
+    params[:location] = @current_user.location_id if @current_user.location_coordinator?
+    params[:top_level_location] = @current_user.top_level_location_id if @current_user.regional_coordinator?
+
     rh[:location] = params[:location] ? params[:location] : nil
     rh[:top_level_location] = params[:top_level_location] ? params[:top_level_location] : nil
 
