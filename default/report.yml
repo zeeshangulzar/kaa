@@ -20,7 +20,7 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
-  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT' OR active_device = 'JAWBONE' GROUP BY active_device;
+  sql: SELECT active_device AS 'Device', COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT' OR :conditions_with_and active_device = 'JAWBONE' GROUP BY active_device;
   created_by_master: true
   friendly_url_key: Total Device Users
 - !ruby/object:Report 
