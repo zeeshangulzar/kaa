@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
       :offset       => params[:offset],
       :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
-      :status       => params[:status].nil? ? Team::STATUS[:official] : params[:status],
+      :status       => params[:status].nil? ? 'official' : params[:status],
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir]
     }
