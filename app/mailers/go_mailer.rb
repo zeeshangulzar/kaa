@@ -173,7 +173,7 @@ class GoMailer < ActionMailer::Base
 
     @message = file_names.empty? ? "There are no verification files today." : "The verification files are attached.  Please only fill in the columns labeled 'Eligible?' and 'Comments'. Please send the completed files to kpfulfillment@hesonline.com"
 
-    mail(:to => recipient, :subject => subject, :from => from, :subject => subject, :reply_to => reply_to)  
+    mail(:to => recipient, :subject => subject, :from => from, :subject => subject, :reply_to => reply_to, :body => subject)
   end
   
   def team_invite_email(invite_type, to_user, from_user, team, message = nil)
