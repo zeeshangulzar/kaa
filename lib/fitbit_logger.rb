@@ -2,7 +2,7 @@ class FitbitLogger
   
   def self.update_entry(entry, fbu, fds, write_to_log = false)
     if !entry.manually_recorded
-      entry.update_attributes(:exercise_steps => fds.steps)
+      entry.exercise_steps = fds.steps
       entry.updated_at = Time.now.utc 
 
       if entry.save

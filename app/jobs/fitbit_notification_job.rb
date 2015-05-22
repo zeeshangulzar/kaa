@@ -3,7 +3,7 @@ class FitbitNotificationJob
   @queue = :default
 
   def self.log(s, indent = 1)
-    msg = "#{Time.now} #{'  ' * indent}#{s}"
+    msg = "#{Time.now} PID #{$$} #{'  ' * indent}#{s}"
     File.open("#{Rails.root}/log/fitbit_import_control.log", "a") {|f| f.puts msg}
     puts msg
     msg
@@ -36,10 +36,26 @@ class FitbitNotificationJob
 
         if fitbit_user
           if fitbit_user.user
+            cache_key = "FitbitUser_#{fitbit_user.id}_#{date.to_s(:db)}"
+            last_synced_at = Rails.cache.read(cache_key)
+            if last_synced_at
+              log "Skipping notification for FitbitUser##{fitbit_user.id} / User##{fitbit_user.user.id} for #{date} because it was last updated at #{last_synced_at}"
+              next
+            else
+              pending = Resque.info[:pending]
+              exp = (pending/500.0)
+              exp = 15 if exp < 15
+              Rails.cache.write(cache_key,Time.now,:expires_in=>exp.seconds)
+              log "Caching data for FitbitUser##{fitbit_user.id} / User##{fitbit_user.user.id} for #{date} for #{exp} seconds (#{pending} jobs in Resque queue)"
+            end
+
             log "Processing notification for FitbitUser##{fitbit_user.id} / User##{fitbit_user.user.id}"
             if fitbit_user.user.active_device == 'FITBIT'
+              t1 = Time.now
               FitbitUser.transaction do
                 fitbit_user.retrieve_activities_on_date(date)
+                log "- retrieved Fitbit data in #{(Time.now-t1).round(3)} seconds", 2
+                t1 = Time.now
                 notification = fitbit_user.notifications.create :collection_type=>hash['collectionType'], :date=>date, :owner_id=>hash['ownerId'], :owner_type=>hash['ownerType'], :status=>FitbitNotification::Status[:new]
 
                 entry = fitbit_user.user.entries.find(:first, :conditions => {:recorded_on => notification.date})
@@ -70,11 +86,11 @@ class FitbitNotificationJob
                     log "- FitbitUserDailySummary for #{notification.date} has 0 steps. not logging entry.", 2
                     notification.update_attributes(:status => FitbitNotification::Status[:processed])
                   end
-
                 else
                   log "- FitbitUserDailySummary for #{notification.date} not found", 2
                   notification.update_attributes(:status => FitbitNotification::Status[:exception])
                 end
+                log "- finished in #{(Time.now-t1).round(3)} seconds", 2
               end
             else
               log "active_device is not FITBIT; it is presently '#{fitbit_user.user.active_device}' -- notification ignored", 2
