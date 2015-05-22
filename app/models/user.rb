@@ -801,7 +801,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       SELECT
         team_members.user_id, teams.id
       FROM teams
-      JOIN team_members ON teams.id = team_members.team_id
+      JOIN team_members ON teams.id = team_members.team_id AND teams.status <> #{Team::STATUS[:deleted]}
       WHERE
         team_members.user_id IN (#{user_ids.join(',')})
     "
