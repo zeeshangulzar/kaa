@@ -1,7 +1,7 @@
 class Behavior < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :name, :cap_value, :content, :summary, :public
+  attr_privacy :name, :cap_value, :content, :summary, :image, :public
 
   belongs_to :promotion
 
@@ -9,12 +9,14 @@ class Behavior < ApplicationModel
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :timed_behaviors
   
-  attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary
+  attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary, :image
   
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :type_of_prompt
 
   validates_uniqueness_of :name, :scope => :type_of_prompt
+
+  mount_uploader :image, BehaviorImageUploader
   
   # The types of prompts that are allowed for behaviors
   PROMPT_TYPES = {:textbox => 'textbox', :checkbox => 'checkbox'}
