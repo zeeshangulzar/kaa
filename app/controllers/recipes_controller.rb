@@ -9,8 +9,6 @@ class RecipesController < ApplicationController
   private :page_settings
   
   def index
-    # disabling cache for now..
-    #HESCachedResponder('recipes') {
     if !params[:day].nil? && params[:day].is_i?
       recipes = Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.where("day <= #{params[:day]}")
       if !params[:minimum].nil? && params[:minimum].is_i?
@@ -27,9 +25,8 @@ class RecipesController < ApplicationController
         end
       end
     else
-      recipes = Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.all
+      return HESCachedResponder('recipes', Recipe.includes(:recipe_categories,:ingredients,:recipe_steps).desc.all)
     end
-    #}
     return HESResponder(recipes)
   end
 

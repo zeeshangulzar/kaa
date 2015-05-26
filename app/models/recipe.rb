@@ -212,4 +212,8 @@ class Recipe < ActiveRecord::Base
     recipe_hash = super
     recipe_hash['recipe'] ? recipe_hash['recipe'] : recipe_hash
   end
+
+  def clear_hes_cache
+    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
+  end
 end
