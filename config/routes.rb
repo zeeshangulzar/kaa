@@ -76,7 +76,7 @@ Go::Application.routes.draw do
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
-    resources :challenges, :only => [:index, :show]
+    resources :challenges, :only => [:index, :show, :update]
     resources :suggested_challenges, :only => [:index, :show]
     resources :posters, :only => [:index, :show]
     resources :success_stories, :only => [:index, :show]
