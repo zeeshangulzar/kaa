@@ -123,7 +123,7 @@ class Task
     #Master List (includes EVERYBODY including NOT SURE)
     #Julie.M.Boutell@kp.org
     #self.do_kp_verification(now,"1=1","MASTER",['bobb@hesonline.com','jessicai@hesonline.com','rebeccaf@hesonline.com','Julie.M.Boutell@kp.org'],true)
-    self.do_kp_verification(now,"1=1","MASTER",['bobb@hesonline.com', 'kimberlyk@hesonline.com', 'rebeccah@hesonline.com', 'alexh@hesonline.com'],true)
+    self.do_kp_verification(now,"1=1","MASTER",['bobb@hesonline.com', 'julie.m.boutell@kp.org', 'rebeccah@hesonline.com', 'alexh@hesonline.com'],true)
   end
 
   def self.do_kp_verification(date,clause,report_name,recipients,send_email)
