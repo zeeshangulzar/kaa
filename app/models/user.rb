@@ -465,7 +465,7 @@ events.*
     return @result
   end
 
-  def search(search, unassociated = false, limit = 0)
+  def search(search, unassociated = false, limit = 0, promotion_id = self.promotion_id)
     sql = "
       SELECT
         users.*
@@ -492,7 +492,7 @@ events.*
       "
     end
     sql = sql + "
-        AND users.promotion_id = #{self.promotion_id}
+        AND users.promotion_id = #{promotion_id}
       )
       GROUP BY users.id
       ORDER BY profiles.last_name
