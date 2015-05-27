@@ -2,24 +2,25 @@ class ChallengesController < ApplicationController
   
   authorize :index, :show, :user
   authorize :create, :update, :destroy, :coordinator, :location_coordinator
-  
+
   def index
-    # regular user should only see active challenges
-    challenges = @promotion.challenges.not_deleted.active(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
     if params[:type]
-      if params[:type] == 'regional_coordinator'
-        challenges = @promotion.challenges.send('regional').not_deleted.where(:location_id => @current_user.top_level_location_id).order('visible_from DESC')
-      elsif Challenge::TYPE.stringify_keys.keys.include?(params[:type])
-        # ?type=[peer,regional,etc.]
-        if params[:type] == 'regional'
-          # only return regional challenges that the user isn't currently working towards
-          challenges = challenges.regional.not_deleted.select{|challenge| !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id) }
-        else
-          challenges = challenges.send(params[:type]).not_deleted
-        end
+      if params[:type] == 'regional'
+        # only return regional challenges that the user isn't currently working towards
+        challenges = @promotion.challenges.regional.active.where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id]).select{|challenge|
+          !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id)
+        }
+      elsif params[:type] == 'regional_coordinator'
+        challenges = @promotion.challenges.not_deleted.visible(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
+      elsif params[:type] == 'peer'
+        challenges = Challenge.active_peer(@promotion)
       else
         return HESResponder("No such type.", "ERROR")
       end
+    elsif @current_user.master?
+      challenges = @promotion.challenges
+    else
+      challenges = Challenge.active_peer(@promotion)
     end
     return HESResponder(challenges)
   end
@@ -32,7 +33,7 @@ class ChallengesController < ApplicationController
       return HESResponder("You may not view this challenge.", "DENIED")
     elsif (!challenge.location_id.nil? && !@current_user.location_ids.include?(challenge.location_id)) && !@current_user.coordinator_or_above?
       return HESResponder("You may not view this challenge.", "DENIED")
-    elsif !challenge.is_active? && !@current_user.location_coordinator_or_above?
+    elsif !challenge.is_visible? && !@current_user.location_coordinator_or_above?
       # respect the visible from/to dates..
       return HESResponder("Challenge inactive.", "DENIED")
     else
