@@ -199,11 +199,14 @@ class GoMailer < ActionMailer::Base
     mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}", :from => fromHandler(@inviter))
   end
 
-  def generic_email(emails, subject, message, from = nil)
+  def generic_email(emails, subject, message, from = nil, promotion = nil)
     @message = message
-    @user = from
+    # set the address first based on the from user
+    # because we have to get some sort of user for the template and we don't want their email showing up...
+    from_address = fromHandler(from)
+    @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
     if !emails.empty?
-      mail(:to => emails, :subject => subject, :from => fromHandler(@user))
+      mail(:to => emails, :subject => subject, :from => from_address)
     end
   end
 
