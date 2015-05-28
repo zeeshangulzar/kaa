@@ -466,6 +466,7 @@ events.*
   end
 
   def search(search, unassociated = false, limit = 0, promotion_id = self.promotion_id)
+    search = self.connection.quote_string(search)
     sql = "
       SELECT
         users.*
