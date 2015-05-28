@@ -198,7 +198,8 @@ class UsersController < ApplicationController
       search_string = search_string.strip
     end
     limit = !params[:limit].nil? ? params[:limit].to_i : 50
-    users = @current_user.search(search_string, !params[:unassociated].nil?, limit)
+    pid = @current_user.master? && params[:promotion_id] ? params[:promotion_id] : @current_user.promotion_id
+    users = @current_user.search(search_string, !params[:unassociated].nil?, limit, pid)
     unless users.empty?
       team_ids = User::get_team_ids(users.collect{|user|user.id})
       users.each_with_index{ |user, idx|
@@ -303,9 +304,9 @@ class UsersController < ApplicationController
   def track
     if !params[:uri].nil?
       if @current_user && @current_user.user_or_above?
-        @current_user.requests.create(:uri => params[:uri], :ip => request.remote_ip)
+        @current_user.requests.create(:uri => params[:uri], :ip => request.remote_ip, :info => params[:info])
       else
-        r = Request.new(:uri => params[:uri], :ip => request.remote_ip)
+        r = Request.new(:uri => params[:uri], :ip => request.remote_ip, :info => params[:info])
         if r.valid?
           r.save!
         end

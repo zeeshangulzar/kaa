@@ -24,7 +24,7 @@ class TeamMembersController < ApplicationController
       return HESResponder('Must include team and user id.', "ERROR")
     end
     team = Team.find(params[:team_member][:team_id]) rescue nil
-    user = Photo.find(params[:team_member][:user_id]) rescue nil
+    user = User.find(params[:team_member][:user_id]) rescue nil
     if !team
       return HESResponder("Team", "NOT_FOUND")
     elsif !user

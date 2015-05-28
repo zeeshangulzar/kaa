@@ -210,13 +210,16 @@ class Task
     c = p.current_competition
     return unless c
     if (c.enrollment_ends_on - p.current_date < 0)
+      emails = []
       c.teams.pending.each{ |team|
         team.team_members.each{|team_member|
-          team_member.user.notify(team_member.user, "Team Deleted", "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_size_min} min.). Your team has been removed but you can still follow the action <a href=\"/#/team\">here</a>.", :from => team.leader, :key => "enrollment_ended_#{c.id}")
-          team_member.destroy
+          emails << team_member.user.email
         }
-        team.destroy
+        team.update_attributes(:status => Team::STATUS[:deleted])
       }
+      subject = "Team enrollment has ended"
+      message = "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_size_min} min.). Your team has been removed but you can still follow the action <a href='https://#{promotion.subdomain + '.' + DomainConfig::DomainNames.first}/#/team'>here</a>."
+      Resque.enqueue(GenericEmail, emails, subject, message, nil, p) unless emails.empty?
     end
   end
 
