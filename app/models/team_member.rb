@@ -53,7 +53,7 @@ class TeamMember < ApplicationModel
   end
 
   def delete_old_team_members
-    team_members = self.where("user_id = ? AND team_id <> ? AND competition_id = ?", self.user.id, self.team.id, self.team.competition.id)
+    team_members = TeamMember.where("user_id = ? AND team_id <> ? AND competition_id = ?", self.user.id, self.team.id, self.team.competition.id)
     team_members.each{|team_member|
       team_member.destroy
     }
