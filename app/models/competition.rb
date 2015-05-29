@@ -191,5 +191,38 @@ class Competition < ApplicationModel
     "
     self.connection.execute(sql)
   end
+
+  def all_team_photos
+    sql = "
+      SELECT
+        photos.id AS photo_id, photos.caption, photos.image,
+        users.id AS user_id,
+        profiles.first_name, profiles.last_name
+      FROM photos
+        JOIN teams ON photos.photoable_type = 'Team' AND photos.photoable_id = teams.id
+        JOIN users ON users.id = photos.user_id
+        JOIN profiles ON profiles.user_id = users.id
+      WHERE
+        teams.competition_id = #{self.id}
+    "
+    result = self.connection.exec_query(sql)
+    photos = []
+    result.each{ |row|
+      photo = {}
+      photo[:user] = {}
+      photo[:user][:profile] = {}
+      photo[:image] = {}
+
+      photo[:id]                          = row['photo_id']
+      photo[:caption]                     = row['caption']
+      photo[:image]['url']                = row['image'].nil? ? PhotoImageUploader::default_url : PhotoImageUploader::asset_host_url + row['image'].to_s
+      photo[:user][:id]                   = row['user_id']
+      photo[:user][:profile][:first_name] = row['first_name']
+      photo[:user][:profile][:last_name]  = row['last_name']
+      
+      photos << photo
+    }
+    return photos
+  end
   
 end
