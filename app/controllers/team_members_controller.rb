@@ -12,7 +12,7 @@ class TeamMembersController < ApplicationController
     team_member = TeamMember.find(params[:id]) rescue nil
     if !team_member
       return HESResponder("Team User", "NOT_FOUND")
-    elsif team_member.id != @current_user.id && team_member.team.leader.id != @current_user.id && !@current_user.master?
+    elsif team_member.id != @current_user.id && !@current_user.master? && (!team_member.team.leader || team_member.team.leader.id != @current_user.id)
       return HESResponder("You may not view this team member.", "DENIED")
     else
       return HESResponder(team_member)
@@ -30,7 +30,7 @@ class TeamMembersController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
-    if team.leader.id != @current_user.id && !@current_user.master?
+    if !@current_user.master? && (!team.leader || team.leader.id != @current_user.id)
       return HESResponder("You may not edit this team.", "DENIED")
     end
     team_member = team.team_members.build(:user_id => user.id, :competition_id => team.competition_id)
