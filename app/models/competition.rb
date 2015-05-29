@@ -212,13 +212,15 @@ class Competition < ApplicationModel
       photo[:user] = {}
       photo[:user][:profile] = {}
       photo[:image] = {}
+      photo[:image][:large_thumbnail] = {}
 
-      photo[:id]                          = row['photo_id']
-      photo[:caption]                     = row['caption']
-      photo[:image]['url']                = row['image'].nil? ? PhotoImageUploader::default_url : PhotoImageUploader::asset_host_url + row['image'].to_s
-      photo[:user][:id]                   = row['user_id']
-      photo[:user][:profile][:first_name] = row['first_name']
-      photo[:user][:profile][:last_name]  = row['last_name']
+      photo[:id]                              = row['photo_id']
+      photo[:caption]                         = row['caption']
+      photo[:image][:large_thumbnail']['url'] = row['image'].nil? ? PhotoImageUploader::default_url : PhotoImageUploader::asset_host_url + 'large_thumbnail_' + row['image'].to_s
+      photo[:image]['url']                    = row['image'].nil? ? PhotoImageUploader::default_url : PhotoImageUploader::asset_host_url + row['image'].to_s
+      photo[:user][:id]                       = row['user_id']
+      photo[:user][:profile][:first_name]     = row['first_name']
+      photo[:user][:profile][:last_name]      = row['last_name']
       
       photos << photo
     }
