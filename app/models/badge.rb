@@ -112,6 +112,19 @@ class Badge < ActiveRecord::Base
       end
     end
     deletes = (entry.user.promotion.milestone_goals.keys - rows.collect{|row|row['milestone']}).collect{|x|x}
+
+    milestone_id = false
+
+    if !deletes.empty? && deletes.include?(entry.user.milestone_id) && inserts.empty?
+      milestone_id = "null" # DB value
+    elsif !inserts.empty?
+      milestone_id = inserts.last
+    end
+
+    if milestone_id !== false
+      connection.execute("UPDATE users SET milestone_id = #{milestone_id}")
+    end
+
     self.process_for_user(entry.user_id, entry.recorded_on, {:create => inserts, :update => updates, :destroy => deletes})
     return true
   end

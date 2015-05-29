@@ -130,12 +130,12 @@ class User < ApplicationModel
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :profile, :public
+  attr_privacy :email, :profile, :milestone_id, :public
   attr_privacy :location, :top_level_location_id, :any_user
   attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :me
   attr_privacy :nuid_verified, :master
 
-  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :nuid_verified
+  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :nuid_verified, :milestone_id
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
@@ -223,9 +223,9 @@ class User < ApplicationModel
   
   def serializable_hash(options={})
     hash = super(options)
-    # TODO: this is gonna slow things down, need a much faster means of getting milestone for each user...
-    ms = self.current_milestone
-    hash["milestone_id"] = ms ? ms.id : nil
+    # 2015-05-29 BM: added milestone_id column to user, eliminating these nasty queries every time we serialize user..
+    # ms = self.current_milestone
+    # hash["milestone_id"] = ms ? ms.id : nil
     return hash
   end
 
