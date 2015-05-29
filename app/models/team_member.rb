@@ -9,7 +9,9 @@ class TeamMember < ApplicationModel
   belongs_to :team
 
   after_create :delete_team_invites
+  after_create :delete_old_team_members
   after_create :update_points
+
   after_create :update_team
   after_save :update_team
   after_destroy :update_team
@@ -47,6 +49,13 @@ class TeamMember < ApplicationModel
   def delete_team_invites
     self.user.team_invites.each{|invite|
       invite.destroy
+    }
+  end
+
+  def delete_old_team_members
+    team_members = where("user_id = ? AND team_id <> ? AND competition_id = ?", self.user.id, self.team.id, self.team.competition.id)
+    team_members.each{|team_member|
+      team_member.destroy
     }
   end
 
