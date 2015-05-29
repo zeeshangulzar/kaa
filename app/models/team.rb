@@ -28,6 +28,7 @@ class Team < ApplicationModel
 
   after_save :handle_status
   before_destroy :disband
+  before_destroy :delete_team_members
 
   STATUS.each_pair do |key, value|
     self.send(:scope, key, where(:status => value))
@@ -66,8 +67,10 @@ class Team < ApplicationModel
       message = message + " You can <a href=\"/#/team\">join or start</a> a different team." unless self.competition.enrollment_ends_on < self.competition.promotion.current_date
       member.notify(member, message, message, :from => self.leader, :key => "team_#{self.id}_deleted")
     end
-    # delete team members... don't do this anymore since we have a :deleted status
-    # self.team_members.each{|team_member| team_member.destroy}
+  end
+
+  def delete_team_members
+    self.team_members.each{|team_member| team_member.destroy}
   end
 
   def stats
