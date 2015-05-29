@@ -10,7 +10,7 @@ class Team < ApplicationModel
 
   validates_presence_of :name
 
-  validates_uniqueness_of :name, :scope => :competition_id
+  validates_uniqueness_of :name, :case_sensitive => false, :scope => :competition_id
 
   mount_uploader :image, TeamImageUploader
 
@@ -131,4 +131,5 @@ class Team < ApplicationModel
       end
     end
   end
+
 end
