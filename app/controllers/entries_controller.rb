@@ -139,7 +139,11 @@ class EntriesController < ApplicationController
 
         #TODO: Test entry activities
         behaviors.each do |hash|
-          @entry.entry_behaviors.create(scrub(hash, EntryBehavior))
+          #@entry.entry_behaviors.create(scrub(hash, EntryBehavior))
+          new_hash = scrub(hash,EntryBehavior)
+          eb = @entry.entry_behaviors.find_or_create_by_behavior_id(new_hash[:behavior_id])
+          eb.assign_attributes(new_hash)
+          eb.save!
         end
 
         @entry.save!
