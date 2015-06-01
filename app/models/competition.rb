@@ -204,6 +204,7 @@ class Competition < ApplicationModel
         JOIN profiles ON profiles.user_id = users.id
       WHERE
         teams.competition_id = #{self.id}
+      ORDER BY photos.created_at DESC
     "
     result = self.connection.exec_query(sql)
     photos = []
