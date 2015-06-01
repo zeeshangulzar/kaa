@@ -1,9 +1,7 @@
 class AddCategoryToChallenges < ActiveRecord::Migration
-  def change
+  def up
     add_column :challenges, :category, :string
     add_column :challenges, :expires_on, :date
-  end
-  def up
     sql = "
       UPDATE challenges
       SET challenges.status = 2
@@ -11,6 +9,8 @@ class AddCategoryToChallenges < ActiveRecord::Migration
     self.connection.execute(sql)
   end
   def down
+    remove_column :challenges, :category
+    remove_column :challenges, :expires_on
     sql = "
       UPDATE challenges
       SET challenges.status = 1
