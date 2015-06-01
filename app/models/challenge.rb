@@ -40,7 +40,7 @@ class Challenge < ApplicationModel
 
   # Define scopes for prompt type
   scope :visible, lambda{|promotion|
-    where("(visible_from <= ? OR visible_from IS NULL) AND (visible_to >= ? OR visible_to IS NULL) AND (expires_on <= ? OR expires_on IS NULL)", promotion.current_date, promotion.current_date)
+    where("(visible_from <= ? OR visible_from IS NULL) AND (visible_to >= ? OR visible_to IS NULL) AND (expires_on <= ? OR expires_on IS NULL)", promotion.current_date, promotion.current_date, promotion.current_date)
   }
 
   # Define scopes for prompt type
