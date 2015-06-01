@@ -7,11 +7,11 @@ class ChallengesController < ApplicationController
     if params[:type]
       if params[:type] == 'regional'
         # only return regional challenges that the user isn't currently working towards
-        challenges = @promotion.challenges.regional.active.where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id]).select{|challenge|
+        challenges = @promotion.challenges.regional.active.visible(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id]).select{|challenge|
           !@current_user.accepted_and_completed_challenges.collect{|ac|ac.challenge.id}.include?(challenge.id)
         }
       elsif params[:type] == 'regional_coordinator'
-        challenges = @promotion.challenges.not_deleted.visible(@promotion).where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
+        challenges = @promotion.challenges.not_deleted.regional.where(:location_id => [nil, @current_user.location_id, @current_user.top_level_location_id])
       elsif params[:type] == 'peer'
         challenges = Challenge.active_peer(@promotion)
       else
