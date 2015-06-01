@@ -121,7 +121,7 @@ class Badge < ActiveRecord::Base
       milestone_id = inserts.last
     end
 
-    if milestone_id !== false
+    if milestone_id != false
       connection.execute("UPDATE users SET milestone_id = #{milestone_id}")
     end
 
