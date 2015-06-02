@@ -75,7 +75,7 @@ class FilesController < ApplicationController
           # img.write(path)
           background_img.write(path)
         end
-      rescue Magick::ImageMagickError => e
+      rescue Exception => e # stackoverflow said they'd stab me if i used this. so if i don't make it in one day, you can find me at st. mary's trauma center
         # Do nothing, file is not an image so thumbnail does not need to be made
       end
     end
@@ -105,8 +105,10 @@ class FilesController < ApplicationController
   #     "name": "uploaded-file123123-23545.jpg"
   #   }
   def crop
+    return HESResponder("Invalid image.", "ERROR") unless params[:image]
     require 'RMagick'
     img_path = Dir["#{DIRNAME}/#{params[:image].split('/').last}"].first
+    return HESResponder("Invalid image.", "ERROR") unless img_path
     name = img_path.split('/').last
     ext_type = img_path.split('.').last
     new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')

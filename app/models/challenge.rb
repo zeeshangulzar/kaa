@@ -67,9 +67,11 @@ class Challenge < ApplicationModel
           end
         }
         c = promotion.challenges.peer.active.where("expires_on < ? AND category = ?", promotion.current_date, category).order("expires_on ASC").first
-        c.update_attributes(:expires_on => promotion.current_date + 14)
-        challenges << c
-        active_categories[category] = active_categories[category] + 1 rescue 1
+        if c
+          c.update_attributes(:expires_on => promotion.current_date + 14)
+          challenges << c
+          active_categories[category] = active_categories[category] + 1 rescue 1
+        end
       end
     end
     return challenges

@@ -212,6 +212,7 @@ class UsersController < ApplicationController
 
   # this just checks for uniqueness at the moment
   def validate
+    return HESResponder("Field and value required.", "ERROR") unless params[:field] && params[:value]
     fs = ['email','username', 'altid']
     f = params[:field]
     if !fs.include?(f)

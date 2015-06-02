@@ -192,7 +192,7 @@ class FitbitsController < ApplicationController
     fds = FitbitUserDailySummary.find(:first, :conditions => {:fitbit_user_id => @current_user.fitbit_user.id, :reported_on => e.recorded_on})
 
     e.manually_recorded = false
-    e.exercise_steps = fds.steps
+    e.exercise_steps = fds.steps rescue 0
     e.save
 
     $redis.publish('fitbitEntrySaved', e.to_json)
