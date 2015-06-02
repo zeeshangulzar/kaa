@@ -134,7 +134,7 @@ class EntriesController < ApplicationController
         @entry.save!
         #create exercise activites
         ex_activities.each do |hash|
-          if hash[:exercise_activity_id] && hash[:value]
+          if hash[:exercise_activity_id] && hash[:value] && hash[:exercise_activity_id].to_s.is_i? && hash[:value].to_s.is_i?
             @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
           end
         end
@@ -204,7 +204,7 @@ class EntriesController < ApplicationController
           if entry_ex_act[:id]
             eea = @entry.entry_exercise_activities.detect{|x|x.id==entry_ex_act[:id].to_i}
             eea.update_attributes(scrub(entry_ex_act, EntryExerciseActivity))
-          elsif entry_ex_act[:exercise_activity_id] && entry_ex_act[:value]
+          elsif entry_ex_act[:exercise_activity_id] && entry_ex_act[:value] && entry_ex_act[:exercise_activity_id].to_s.is_i? && entry_ex_act[:value].to_s.is_i?
             @entry.entry_exercise_activities.create(scrub(entry_ex_act, EntryExerciseActivity))
           end
         end
