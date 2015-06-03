@@ -46,7 +46,7 @@ class EventsController < ApplicationController
         :location_id  => event.location_id,
         :location     => event.location
       }
-      if(!params[:include_invite].nil? && params[:include_invite)
+      if !params[:include_invite].nil? && params[:include_invite]
         invite = event.invites.find_by_invited_user_id(@target_user.id)
         invite_hash = {
           :id               => invite.id,
