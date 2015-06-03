@@ -113,10 +113,10 @@
     "10": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.timed_behavior_points) `Timed Behavior Points`
+      :sql_phrase: SUM(entries.timed_behavior_points) `Is Active`
       :filterable: true
       :role: Coordinator
-      :display_name: Timed Behavior Points
+      :display_name: Is Active
       :join: entries
       :identification: false
       :sensitive: false
@@ -255,13 +255,13 @@
       :category: Participant Fields
       :visible: true
     "22": 
-      :aggregate: false
+      :aggregate: true
       :sequence: 8
-      :sql_phrase: users.username `Username`
+      :sql_phrase: AVG(entries.exercise_steps) `Average Steps`
       :filterable: true
       :role: Coordinator
-      :display_name: Username
-      :join: users
+      :display_name: Average Steps
+      :join: entries
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -411,16 +411,16 @@
       :category: Participant Fields
       :visible: true
     "34": 
-      :aggregate: false
-      :sequence: 50
-      :sql_phrase: DATE_FORMAT(evaluations.created_at, '%c/%d/%Y') `Completed Evaluation On`
+      :aggregate: true
+      :sequence: 8
+      :sql_phrase: AVG(entries.exercise_minutes) `Average Minutes`
       :filterable: true
       :role: Coordinator
-      :display_name: Completed Evaluation On
-      :join: evaluations
+      :display_name: Average Minutes
+      :join: entries
       :identification: false
       :sensitive: false
-      :category: Evaluation N Fields
+      :category: Participant Fields
       :visible: true
     "35": 
       :aggregate: false
@@ -518,6 +518,234 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
+    "42": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: profiles.entity `Entity`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Entity
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "43": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: IF(profiles.is_reward_participant = 1, 'Yes', 'No') `Reward Status`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Reward Status
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "44": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: profiles.shirt_size `Shirt Size`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Shirt Size
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "45": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: demographics.ethnicity `Ethnicity Group`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Ethnicity Group
+      :join: demographics
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "46": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: IF(users.active_device = 'FITBIT', 'Yes', 'No') `Is Connected To Fitbit?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Is Connected To Fitbit?
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "47": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: IF(users.active_device = 'JAWBONE', 'Yes', 'No') `Is Connected To Jawbone?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Is Connected To Jawbone?
+      :join: users
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "48": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: profiles.employee_group `Employee Group`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Employee Group
+      :join: profiles
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "49": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Orange 50`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Orange 50
+      :join: orange_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "50": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Green 100`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Green 100
+      :join: green_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "51": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Bronze 250`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Bronze 250
+      :join: bronze_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "52": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Silver 500`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Silver 500
+      :join: silver_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "53": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Gold 750`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Gold 750
+      :join: gold_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "54": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Platinum 1000`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Platinum 1000
+      :join: platinum_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "55": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: user_milestones.earned_date `Diamond 1500`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Diamond 1500
+      :join: diamond_milestones
+      :identification: true
+      :sensitive: false
+      :category: Milestone Fields
+      :visible: true
+    "56": 
+      :aggregate: true
+      :sequence: 29
+      :sql_phrase: COUNT(*) `Number of Connections`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Number of Connections
+      :join: friendships
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "57": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: p.first_name 'Team Leader First Name', p.last_name 'Team Leader Last Name', users.email 'Team Leader Email'
+      :filterable: false
+      :role: Coordinator
+      :display_name: Team Leader
+      :join: competitions
+      :identification: true
+      :sensitive: false
+      :category: Competition Fields
+      :visible: true
+    "58": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: r.name 'Team Region'
+      :filterable: false
+      :role: Coordinator
+      :display_name: Team Region
+      :join: competitions
+      :identification: true
+      :sensitive: false
+      :category: Competition Fields
+      :visible: true
+    "59": 
+      :aggregate: false
+      :sequence: 29
+      :sql_phrase: l.name 'Team Location'
+      :filterable: false
+      :role: Coordinator
+      :display_name: Team Location
+      :join: competitions
+      :identification: true
+      :sensitive: true
+      :category: Competition Fields
+      :visible: true
+    "60": 
+      :aggregate: false
+      :sequence: 4
+      :sql_phrase: demographics.age `Age Group`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Age Group
+      :join: demographics
+      :identification: false
+      :sensitive: true
+      :category: Participant Fields
+      :visible: true
   joins: 
     "100": 
       :nest_level: 1
@@ -561,8 +789,11 @@
     "107": 
       :nest_level: 1
       :sql: |
-        inner join team_members on (team_members.user_id = users.id)
-        inner join teams on (team_members.team_id = teams.id)
+        INNER JOIN profiles p ON p.user_id = users.id
+        INNER JOIN locations r ON r.id = users.top_level_location_id
+        INNER JOIN locations l ON l.id = users.location_id
+        INNER JOIN team_members ON team_members.user_id = users.id
+        INNER JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
       :alias: competitions
       :childof: users
     "108": 
@@ -601,4 +832,59 @@
       :nest_level: 1
       :sql: left join demographics on (demographics.user_id = users.id)
       :alias: demographics
+      :childof: users
+    "115": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Orange')
+      :alias: orange_milestones
+      :childof: users
+    "116": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Green')
+      :alias: green_milestones
+      :childof: users
+    "117": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Bronze')
+      :alias: bronze_milestones
+      :childof: users
+    "118": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Silver')
+      :alias: silver_milestones
+      :childof: users
+    "119": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Gold')
+      :alias: gold_milestones
+      :childof: users
+    "120": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Platinum')
+      :alias: platinum_milestones
+      :childof: users
+    "121": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN user_badges user_milestones ON user_milestones.user_id = users.id
+        INNER JOIN badges milestones ON (milestones.id = user_milestones.badge_id AND milestones.name = 'Diamond')
+      :alias: diamond_milestones
+      :childof: users
+    "122": 
+      :nest_level: 1
+      :sql: |
+        INNER JOIN friendships ON (friendships.friendee_id = users.id AND friendships.status = 'A')
+      :alias: friendships
       :childof: users
