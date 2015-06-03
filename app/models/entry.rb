@@ -133,7 +133,7 @@ class Entry < ApplicationModel
     # sent challenges during this recording week not including today
     challenges_sent_this_week = self.user.challenges_sent.where("DATE(created_at) <> ? AND DATE(created_at) >= ? AND DATE(created_at) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
     # how many challenges sent can count towards points based on what's already been sent this week?
-    max_sent_countable = challenges_sent_this_week.empty? ? self.user.promotion.max_challenges_sent : [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
+    max_sent_countable = challenges_sent_this_week.empty? ? self.user.promotion.max_challenges_sent : self.user.promotion.max_challenges_sent - [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
     # today's sent challenges
     challenges_sent_today = !self.user.challenges_sent.empty? ? self.user.challenges_sent.where("DATE(created_at) = ?", self.recorded_on) : nil
     challenges_sent_countable = 0
