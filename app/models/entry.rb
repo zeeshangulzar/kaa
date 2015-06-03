@@ -145,7 +145,7 @@ class Entry < ApplicationModel
     # completed challenges not including today
     challenges_completed_this_week = self.user.challenges_received.where("DATE(completed_on) <> ? AND DATE(completed_on) >= ? AND DATE(completed_on) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
     # how many challenges completed can count towards points based on what's already been done this week?
-    max_completed_countable = challenges_completed_this_week.empty? ? self.user.promotion.max_challenges_completed : [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
+    max_completed_countable = challenges_completed_this_week.empty? ? self.user.promotion.max_challenges_completed : self.user.promotion.max_challenges_completed - [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
     # today's completed challenges
     challenges_completed_today = self.user.challenges_received.where("DATE(completed_on) = ?", self.recorded_on).all
     if !challenges_completed_today
