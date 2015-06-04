@@ -1,6 +1,6 @@
 class FilesController < ApplicationController
   respond_to :html
-  authorize :upload, :crop, :public
+  authorize :upload, :crop, :rotate, :public
   skip_before_filter :get_uploaded_image
 
   DIRNAME = Rails.root.join("public/tmp/uploaded_files")
@@ -198,6 +198,45 @@ class FilesController < ApplicationController
     blur_img.write(blur_path)
 
     img.write(out_filename)
+  end
+
+  def rotate
+    unless params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil? || params[:rotation].nil?
+      obj = params[:object_type].singularize.camelcase.constantize.find(params[:object_id]) rescue nil
+      if !obj
+        return HESResponder("Object", "NOT_FOUND")
+      end
+    else
+      return HESResponder("Must pass object_type, object_id, image_key and rotation.", "ERROR")
+    end
+    unless (obj.respond_to?("user_id") && @current_user && obj.user_id == @current_user.id) || @current_user.master?
+      return HESResponder("Access denied.", "DENIED")
+    end
+    if !obj.respond_to?(params[:image_key])
+      return HESResponder("Invalid image_type", "ERROR")
+    end
+    img = obj.send(params[:image_key])
+    if img.file.nil?
+      return HESResponder("Object has no associated file.", "ERROR")
+    end
+    if !params[:rotation].to_s.is_i?
+      return HESResponder("Invalid rotation.", "ERROR")
+    end
+    new_filename = "#{DIRNAME}/#{img.file.filename}"
+    new_img = Magick::Image.read(img.url).first
+    new_img.rotate!(params[:rotation])
+    new_img.write(new_filename)
+    obj.send("#{params[:image_key]}=", new_filename)
+    obj.save!
+    response = {
+      :data => {
+        :url => obj.send(params[:image_key]).url
+      },
+      :meta => {
+        :total_records => 1
+      }
+    }
+    return HESResponder(response)
   end
 
   private

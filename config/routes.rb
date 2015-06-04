@@ -20,6 +20,7 @@ Go::Application.routes.draw do
 
   match "/files/upload" => "files#upload", :via => :post
   match "/files/crop" => "files#crop", :via => :put
+  match "/files/rotate" => "files#rotate", :via => :post
 
   match "/stats" => "users#stats", :via => :get
   match "/users/:id/stats" => "users#stats", :via => :get
