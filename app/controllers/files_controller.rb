@@ -203,36 +203,45 @@ class FilesController < ApplicationController
   end
 
   def rotate
-    unless params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil? || params[:rotation].nil?
+    obj = false
+    if params[:rotation].nil? || !params[:rotation].to_s.is_i?
+      return HESResponder("Invalid rotation.", "ERROR")
+    elsif !params[:image_path].nil?
+      new_img = Magick::Image.read(params[:image_path]).first rescue nil
+      if new_img
+        new_filename = "#{DIRNAME}/#{new_img.filename}"
+        new_img.rotate!(params[:rotation])
+        new_img.write(new_filename)
+      else
+        return HESResponder("Invalid image.", "ERROR")
+      end
+    elsif params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil?
       obj = params[:object_type].singularize.camelcase.constantize.find(params[:object_id]) rescue nil
       if !obj
         return HESResponder("Object", "NOT_FOUND")
       end
+      unless (obj.respond_to?("user_id") && @current_user && obj.user_id == @current_user.id) || @current_user.master?
+        return HESResponder("Access denied.", "DENIED")
+      end
+      if !obj.respond_to?(params[:image_key])
+        return HESResponder("Invalid image_type", "ERROR")
+      end
+      img = obj.send(params[:image_key])
+      if img.file.nil?
+        return HESResponder("Object has no associated file.", "ERROR")
+      end
+      new_filename = "#{DIRNAME}/#{img.file.filename}"
+      new_img = Magick::Image.read(img.url).first
+      new_img.rotate!(params[:rotation])
+      new_img.write(new_filename)
+      obj.send("#{params[:image_key]}=", new_filename)
+      obj.save!
     else
       return HESResponder("Must pass object_type, object_id, image_key and rotation.", "ERROR")
     end
-    unless (obj.respond_to?("user_id") && @current_user && obj.user_id == @current_user.id) || @current_user.master?
-      return HESResponder("Access denied.", "DENIED")
-    end
-    if !obj.respond_to?(params[:image_key])
-      return HESResponder("Invalid image_type", "ERROR")
-    end
-    img = obj.send(params[:image_key])
-    if img.file.nil?
-      return HESResponder("Object has no associated file.", "ERROR")
-    end
-    if !params[:rotation].to_s.is_i?
-      return HESResponder("Invalid rotation.", "ERROR")
-    end
-    new_filename = "#{DIRNAME}/#{img.file.filename}"
-    new_img = Magick::Image.read(img.url).first
-    new_img.rotate!(params[:rotation])
-    new_img.write(new_filename)
-    obj.send("#{params[:image_key]}=", new_filename)
-    obj.save!
     response = {
       :data => {
-        :url => obj.send(params[:image_key]).url
+        :url => obj ? obj.send(params[:image_key]).url : new_filename
       },
       :meta => {
         :total_records => 1
