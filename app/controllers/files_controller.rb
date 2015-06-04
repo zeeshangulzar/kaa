@@ -33,10 +33,12 @@ class FilesController < ApplicationController
 
       path = File.join(DIRNAME, name)
 
-
-      
       uploaded_files << {:url => "/#{path}".split('public').last, :name => name}
       File.open(path, "wb") { |f| f.write(uploaded_file.read) }
+
+      img = Magick::Image.read(path).first
+      img.auto_orient!
+      img.write(path)
 
       begin
         tn_img = Magick::Image.read(path).first
