@@ -437,18 +437,6 @@
     "36": 
       :aggregate: false
       :sequence: 50
-      :sql_phrase: evaluations.focus `Focus`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Focus
-      :join: evaluations
-      :identification: false
-      :sensitive: false
-      :category: Evaluation N Fields
-      :visible: true
-    "36": 
-      :aggregate: false
-      :sequence: 50
       :sql_phrase: evaluations.average_days_active_per_week `Average Days Active Per Week`
       :filterable: true
       :role: Coordinator
@@ -540,7 +528,7 @@
       :join: profiles
       :identification: true
       :sensitive: false
-      :category: Participant Fields
+      :category: Registration Fields
       :visible: true
     "44": 
       :aggregate: false
@@ -552,7 +540,7 @@
       :join: profiles
       :identification: true
       :sensitive: false
-      :category: Participant Fields
+      :category: Registration Fields
       :visible: true
     "45": 
       :aggregate: false
@@ -561,10 +549,10 @@
       :filterable: true
       :role: Coordinator
       :display_name: Ethnicity Group
-      :join: demographics
+      :join: ethnicity_demographics
       :identification: false
       :sensitive: false
-      :category: Participant Fields
+      :category: Registration Fields
       :visible: true
     "46": 
       :aggregate: false
@@ -701,7 +689,7 @@
     "57": 
       :aggregate: false
       :sequence: 29
-      :sql_phrase: p.first_name 'Team Leader First Name', p.last_name 'Team Leader Last Name', users.email 'Team Leader Email'
+      :sql_phrase: leader_profiles.first_name 'Team Leader First Name', leader_profiles.last_name 'Team Leader Last Name', leader_users.email 'Team Leader Email'
       :filterable: false
       :role: Coordinator
       :display_name: Team Leader
@@ -731,7 +719,7 @@
       :display_name: Team Location
       :join: competitions
       :identification: true
-      :sensitive: true
+      :sensitive: false
       :category: Competition Fields
       :visible: true
     "60": 
@@ -741,10 +729,22 @@
       :filterable: true
       :role: Coordinator
       :display_name: Age Group
-      :join: demographics
+      :join: age_demographics
       :identification: false
-      :sensitive: true
-      :category: Participant Fields
+      :sensitive: false
+      :category: Registration Fields
+      :visible: true
+    "61": 
+      :aggregate: false
+      :sequence: 50
+      :sql_phrase: evaluations.focus `Focus`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Focus
+      :join: evaluations
+      :identification: false
+      :sensitive: false
+      :category: Evaluation N Fields
       :visible: true
   joins: 
     "100": 
@@ -794,6 +794,8 @@
         INNER JOIN locations l ON l.id = users.location_id
         INNER JOIN team_members ON team_members.user_id = users.id
         INNER JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
+        INNER JOIN users leader_users ON (leader_users.id = team_members.user_id AND team_members.is_leader = 1)
+        INNER JOIN profiles leader_profiles ON leader_profiles.user_id = leader_users.id
       :alias: competitions
       :childof: users
     "108": 
@@ -830,8 +832,8 @@
       :childof: users
     "114":
       :nest_level: 1
-      :sql: left join demographics on (demographics.user_id = users.id)
-      :alias: demographics
+      :sql: left join demographics on (demographics.user_id = users.id AND demographics.age IS NOT NULL AND demographics.age != '')
+      :alias: age_demographics
       :childof: users
     "115": 
       :nest_level: 1
@@ -887,4 +889,9 @@
       :sql: |
         INNER JOIN friendships ON (friendships.friendee_id = users.id AND friendships.status = 'A')
       :alias: friendships
+      :childof: users
+    "123":
+      :nest_level: 1
+      :sql: left join demographics on (demographics.user_id = users.id AND demographics.ethnicity IS NOT NULL AND demographics.ethnicity != '')
+      :alias: ethnicity_demographics
       :childof: users
