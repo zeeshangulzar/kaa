@@ -207,15 +207,21 @@ class FilesController < ApplicationController
     if params[:rotation].nil? || !params[:rotation].to_s.is_i?
       return HESResponder("Invalid rotation.", "ERROR")
     elsif !params[:image_path].nil?
-      new_img = Magick::Image.read(params[:image_path]).first rescue nil
+      img_path = Dir["#{DIRNAME}/#{params[:image_path].split('/').last}"].first
+      new_img = Magick::Image.read(img_path).first rescue nil
+      Rails.logger.warn new_img
       if new_img
-        new_filename = "#{DIRNAME}/#{new_img.filename}"
+        name = img_path.split('/').last
+        ext_type = img_path.split('.').last
+        new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
+        new_img_path = img_path.gsub(name, new_name);
         new_img.rotate!(params[:rotation])
-        new_img.write(new_filename)
+        new_img.write(new_img_path)
+        new_filename = "/#{new_img_path}".split('public').last
       else
         return HESResponder("Invalid image.", "ERROR")
       end
-    elsif params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil?
+    elsif !(params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil?)
       obj = params[:object_type].singularize.camelcase.constantize.find(params[:object_id]) rescue nil
       if !obj
         return HESResponder("Object", "NOT_FOUND")
@@ -242,44 +248,44 @@ class FilesController < ApplicationController
     response = {
       :data => {
         :url => obj ? obj.send(params[:image_key]).url : new_filename
-      },
-      :meta => {
-        :total_records => 1
+        },
+        :meta => {
+          :total_records => 1
+        }
       }
-    }
-    return HESResponder(response)
-  end
+      return HESResponder(response)
+    end
 
-  private
+    private
 
-  def get_uploaded_files
-    @uploaded_files = []
-    iterate_params(params)
+    def get_uploaded_files
+      @uploaded_files = []
+      iterate_params(params)
 
-    @uploaded_files
-  end
+      @uploaded_files
+    end
 
-  def iterate_params(hash)
-    hash.each_pair do |key, value|
-      if value.is_a?(Hash)
-        iterate_params(value)
-      elsif value.is_a?(Array)
-        iterate_array_param(value)
-      elsif value.is_a?(ActionDispatch::Http::UploadedFile)
-        @uploaded_files << value
+    def iterate_params(hash)
+      hash.each_pair do |key, value|
+        if value.is_a?(Hash)
+          iterate_params(value)
+        elsif value.is_a?(Array)
+          iterate_array_param(value)
+        elsif value.is_a?(ActionDispatch::Http::UploadedFile)
+          @uploaded_files << value
+        end
+      end
+    end
+
+    def iterate_array_param(array)
+      array.each_with_index do |value, index|
+        if value.is_a?(Hash)
+          iterate_params(value)
+        elsif value.is_a?(Array)
+          iterate_array_param(value)
+        elsif value.is_a?(ActionDispatch::Http::UploadedFile)
+          @uploaded_files << value
+        end
       end
     end
   end
-
-  def iterate_array_param(array)
-    array.each_with_index do |value, index|
-      if value.is_a?(Hash)
-        iterate_params(value)
-      elsif value.is_a?(Array)
-        iterate_array_param(value)
-      elsif value.is_a?(ActionDispatch::Http::UploadedFile)
-        @uploaded_files << value
-      end
-    end
-  end
-end
