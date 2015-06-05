@@ -37,7 +37,9 @@ class FilesController < ApplicationController
       File.open(path, "wb") { |f| f.write(uploaded_file.read) }
 
       img = Magick::Image.read(path).first
-      img.auto_orient!
+      if !img.scene || img.scene == 0
+        img.auto_orient!
+      end
       img.write(path)
 
       begin
@@ -207,9 +209,8 @@ class FilesController < ApplicationController
     if params[:rotation].nil? || !params[:rotation].to_s.is_i?
       return HESResponder("Invalid rotation.", "ERROR")
     elsif !params[:image_path].nil?
-      img_path = Dir["#{DIRNAME}/#{params[:image_path].split('/').last}"].first
+      img_path = Dir["#{DIRNAME}/#{params[:file][:image_path].original_filename}"].first
       new_img = Magick::Image.read(img_path).first rescue nil
-      Rails.logger.warn new_img
       if new_img
         name = img_path.split('/').last
         ext_type = img_path.split('.').last
