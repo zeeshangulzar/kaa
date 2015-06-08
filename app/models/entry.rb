@@ -42,9 +42,7 @@ class Entry < ApplicationModel
     user = self.user
     #Entries cannot be in the future, or outside of the started_on and promotion "ends on" range
     if user && self.recorded_on
-      if self.recorded_on < user.profile.started_on
-        self.errors[:base] << "Cannot record earlier than user start date: " + user.profile.started_on.to_s
-      elsif self.recorded_on < self.user.profile.backlog_date
+      if self.recorded_on < self.user.profile.backlog_date
         self.errors[:base] << "Cannot record earlier than user backlog date: " + self.user.profile.backlog_date.to_s
       elsif self.recorded_on > user.promotion.current_date
         self.errors[:base] << "Cannot record later than promotion current date: " + user.promotion.current_date.to_s
