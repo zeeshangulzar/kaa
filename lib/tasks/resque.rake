@@ -16,7 +16,9 @@ namespace :resque do
     puts "Dropping resque.pid so resque can make a new one without hassle..."
     File.delete('log/resque.pid') if File.exists?('log/resque.pid')
     puts "Firing up resque..."
-    system("(cd #{Dir.pwd} && nohup nice -5 bundle exec rake environment resque:work RAILS_ENV=production HES_SECURITY_DISABLED=true QUEUE=* PIDFILE=log/resque.pid >> 'log/resque.log' 2>&1 &) && sleep 1")
+    cmd = "(cd #{Dir.pwd} && nohup nice -5 bundle exec rake environment resque:work RAILS_ENV=production HES_SECURITY_DISABLED=true QUEUE=image_processing,default,* PIDFILE=log/resque.pid >> 'log/resque.log' 2>&1 &) && sleep 1"
+    puts cmd
+    system(cmd)
     puts "Should be up."
   end
 end

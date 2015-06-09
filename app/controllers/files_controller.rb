@@ -4,6 +4,7 @@ class FilesController < ApplicationController
   skip_before_filter :get_uploaded_image
 
   DIRNAME = Rails.root.join("public/tmp/uploaded_files")
+  TIMEOUT = 60 # quarter seconds
 
   # Uploads a photo and returns a temporary file path that can be used to assign to a model instance.
   # File can be uploaded on any parameters as long file corresponds to ActionDispatch::Http::UploadedFile.
@@ -206,24 +207,30 @@ class FilesController < ApplicationController
 
   def rotate
     obj = false
+    new_filename = false
+    processed = false
     if params[:rotation].nil? || !params[:rotation].to_s.is_i?
       return HESResponder("Invalid rotation.", "ERROR")
     elsif !params[:image_path].nil?
       img_path = Dir["#{DIRNAME}/#{params[:file][:image_path].original_filename}"].first
-      new_img = Magick::Image.read(img_path).first rescue nil
-      if new_img
-        name = img_path.split('/').last
-        ext_type = img_path.split('.').last
-        new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
-        new_img_path = img_path.gsub(name, new_name);
-        new_img.rotate!(params[:rotation])
-        new_img.write(new_img_path)
-        new_filename = "/#{new_img_path}".split('public').last
-      else
-        return HESResponder("Invalid image.", "ERROR")
+      name = img_path.split('/').last
+      ext_type = img_path.split('.').last
+      new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
+      new_img_path = img_path.gsub(name, new_name);
+      new_filename = "/#{new_img_path}".split('public').last
+      job_key = "local_#{img_path}"
+      job = Resque.enqueue(ImageRotate, job_key, {:image_type => 'local', :image_path => img_path, :new_image_path => new_img_path, :rotation => params[:rotation]})
+      TIMEOUT.times do
+        peek = Resque.peek(:image_processing, 0, 100).find_all { |job| /#{job_key}/.match(job["args"][0]) }
+        if peek.empty?
+          processed = true
+        else
+          sleep 0.25
+        end
       end
-    elsif !(params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil?)
-      obj = params[:object_type].singularize.camelcase.constantize.find(params[:object_id]) rescue nil
+    elsif !(params[:object_id].nil? || params[:object_type].nil? || params[:image_key].nil?) 
+      model = params[:object_type].singularize.camelcase.constantize
+      obj = model.find(params[:object_id]) rescue nil
       if !obj
         return HESResponder("Object", "NOT_FOUND")
       end
@@ -237,14 +244,21 @@ class FilesController < ApplicationController
       if img.file.nil?
         return HESResponder("Object has no associated file.", "ERROR")
       end
-      new_filename = "#{DIRNAME}/#{img.file.filename}"
-      new_img = Magick::Image.read(img.url).first
-      new_img.rotate!(params[:rotation])
-      new_img.write(new_filename)
-      obj.send("#{params[:image_key]}=", new_filename)
-      obj.save!
+      job_key = "object_#{params[:object_type]}_#{params[:object_id]}"
+      job = Resque.enqueue(ImageRotate, job_key, {:image_type => 'object', :object_type => model.to_s, :object_id => params[:object_id], :rotation => params[:rotation], :image_key => params[:image_key]})
+      TIMEOUT.times do 
+        peek = Resque.peek(:image_processing, 0, 100).find_all { |job| /#{job_key}/.match(job["args"][0]) }
+        if peek.empty?
+          processed = true
+        else
+          sleep 0.25
+        end
+      end
     else
       return HESResponder("Must pass object_type, object_id, image_key and rotation.", "ERROR")
+    end
+    if !processed
+      return HESResponder("Image processing incomplete.", "ERROR")
     end
     response = {
       :data => {
