@@ -60,9 +60,12 @@ class Challenge < ApplicationModel
       active_categories = challenges.group(:category).order("count_category ASC").count(:category)
       x = 10 - challenges.size
       x.times do
-        category = all_categories.first
+        category = all_categories[all_categories.to_a.sample.first]
         all_categories.each{ |cat, cat_count|
-          if active_categories[cat].nil? || (active_categories[cat] && active_categories[cat] == active_categories.collect{|k,v|v}.min && active_categories[cat] < cat_count)
+          if active_categories[cat].nil?
+            category = cat
+            break
+          elsif active_categories[cat] && active_categories.size == all_categories.size && active_categories[cat] == active_categories.collect{|k,v|v}.min && active_categories[cat] < cat_count
             category = cat
           end
         }
