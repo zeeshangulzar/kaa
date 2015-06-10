@@ -1,6 +1,6 @@
 class FitbitNotificationJob
   require 'fitbit_logger'
-  @queue = :default
+  @queue = :devices
 
   def self.log(s, indent = 1)
     msg = "#{Time.now} PID #{$$} #{'  ' * indent}#{s}"

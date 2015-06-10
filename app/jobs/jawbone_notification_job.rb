@@ -1,6 +1,6 @@
 class JawboneNotificationJob
   require 'jawbone_logger'
-  @queue = :default
+  @queue = :devices
 
   ##########################################################################
   # Process Jawbone Notifications
