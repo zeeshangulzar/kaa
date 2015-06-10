@@ -236,8 +236,10 @@ class User < ApplicationModel
       _evaluations_definitions = self.evaluations.collect{|x| x.definition.id}
       user_json["evaluation_definitions"] = _evaluations_definitions
     end
+
     user_json['stats'] = @stats if @stats
     user_json['recent_activities'] = @recent_activities if @recent_activities
+    user_json["active_evaluation_definition_ids"] = @active_evaluation_definition_ids if @active_evaluation_definition_ids
     user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
     user_json['team_id'] = @team_id if @team_id
     return user_json
@@ -682,6 +684,17 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def email_with_name
     return "#{self.profile.full_name} <#{self.email}>"
+  end
+
+  def active_evaluation_definition_ids
+    unless @active_evaluation_definition_ids
+      @active_evaluation_definition_ids = self.promotion.evaluation_definitions.reload.active_with_user(self).reload.collect{|ed|ed.id}
+    end
+    return @active_evaluation_definition_ids
+  end
+
+  def active_evaluation_definition_ids=(array)
+    @active_evaluation_definition_ids = array
   end
 
   def completed_evaluation_definition_ids

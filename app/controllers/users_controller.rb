@@ -92,6 +92,7 @@ class UsersController < ApplicationController
       @target_user.team_id = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
+        @target_user.active_evaluation_definition_ids = @target_user.active_evaluation_definition_ids
       end
     end
     return HESResponder(@target_user)

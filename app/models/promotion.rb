@@ -148,17 +148,13 @@ class Promotion < ApplicationModel
 
   def as_json(options={})
     options[:meta] ||= false
-    options = options.merge({:methods => ["current_date", "active_evaluation_definition_ids", "current_competition"]})
+    options = options.merge({:methods => ["current_date", "current_competition"]})
     promotion_obj = super(options)
     return promotion_obj
   end
 
   def milestone_goals
     milestones = self.badges.milestones.collect{|ms| [ms.id, ms.point_goal]}.inject({}) { |h, (id, pts)| h[id] = pts; h }
-  end
-
-  def active_evaluation_definition_ids
-    return self.evaluation_definitions.reload.active.reload.collect{|ed|ed.id}
   end
 
   def clear_hes_cache
