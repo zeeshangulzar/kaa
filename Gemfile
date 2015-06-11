@@ -82,3 +82,5 @@ end
 
 gem 'memcache-client'
 gem 'fastercsv'
+
+gem 'newrelic_rpm'
