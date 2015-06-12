@@ -127,37 +127,54 @@ class Entry < ApplicationModel
     self.timed_behavior_points = timed_behavior_points
 
     #Challenge Points Calculation
-
-    # sent challenges during this recording week not including today
-    challenges_sent_this_week = self.user.challenges_sent.where("DATE(created_at) <> ? AND DATE(created_at) >= ? AND DATE(created_at) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
-    # how many challenges sent can count towards points based on what's already been sent this week?
-    max_sent_countable = challenges_sent_this_week.empty? ? self.user.promotion.max_challenges_sent : self.user.promotion.max_challenges_sent - [self.user.promotion.max_challenges_sent, challenges_sent_this_week.size].min
-    # today's sent challenges
-    challenges_sent_today = !self.user.challenges_sent.empty? ? self.user.challenges_sent.where("DATE(created_at) = ?", self.recorded_on) : nil
-    challenges_sent_countable = 0
-    if !challenges_sent_today.nil? && !challenges_sent_today.empty?
-      challenges_sent_countable = (challenges_sent_today.size > max_sent_countable) ? max_sent_countable : challenges_sent_today.size
-    end
-    challenges_sent_points = challenges_sent_countable * self.user.promotion.challenges_sent_points
-
-    # completed challenges not including today
-    challenges_completed_this_week = self.user.challenges_received.where("DATE(completed_on) <> ? AND DATE(completed_on) >= ? AND DATE(completed_on) <= ?", self.recorded_on, self.recorded_on.beginning_of_week, self.recorded_on.end_of_week) rescue []
-    # how many challenges completed can count towards points based on what's already been done this week?
-    max_completed_countable = challenges_completed_this_week.empty? ? self.user.promotion.max_challenges_completed : self.user.promotion.max_challenges_completed - [self.user.promotion.max_challenges_completed, challenges_completed_this_week.size].min
-    # today's completed challenges
-    challenges_completed_today = self.user.challenges_received.where("DATE(completed_on) = ?", self.recorded_on).all
-    if !challenges_completed_today
-      challenges_completed_today = []
-    else
-      challenges_completed_today = [challenges_completed_today] if !challenges_completed_today.is_a?(Array)
-    end
-    challenges_completed_countable = 0
-    if challenges_completed_today && !challenges_completed_today.empty?
-      challenges_completed_countable = (challenges_completed_today.size > max_completed_countable) ? max_completed_countable : challenges_completed_today.size
-    end
-    challenges_completed_points = challenges_completed_countable * self.user.promotion.challenges_completed_points
-
-    self.challenge_points = challenges_sent_points + challenges_completed_points
+challenges_sql = "
+      UPDATE
+      entries
+      JOIN (
+        SELECT
+        id AS user_id, recorded_date, SUM( (countable_cs * #{self.user.promotion.challenges_sent_points}) + (countable_cr * #{self.user.promotion.challenges_completed_points}) ) AS countable
+        FROM (
+          SELECT
+          id, recorded_date, c_points AS cs_points, NULL AS cr_points, running, last_running, IF(running <= #{self.user.promotion.max_challenges_sent}, c_points, GREATEST(#{self.user.promotion.max_challenges_sent} - last_running, 0)) AS countable_cs, 0 AS countable_cr
+          FROM (
+            SELECT
+            id, recorded_date, c_points,  @last_c := IF(@dummy = id, @run_cs_points, 0) AS last_running, @run_cs_points := IF(@dummy = id, @run_cs_points + c_points, c_points) AS running, @dummy := id
+            FROM (
+              SELECT
+              u.id, DATE(cs.created_at) AS recorded_date, COUNT(cs.id) AS c_points, @dummy := u.id, @run_cs_points := COUNT(cs.id)
+              FROM users u
+              LEFT JOIN challenges_sent cs ON cs.user_id = u.id
+              WHERE
+                DATE(cs.created_at) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
+              GROUP BY u.id, DATE(cs.created_at)
+              ORDER BY u.id, recorded_date
+            ) x
+          ) y
+          UNION
+          SELECT
+          id, recorded_date, NULL AS cs_points, c_points AS cr_points, running, last_running, 0 AS countable_cs, IF(running <= #{self.user.promotion.max_challenges_completed}, c_points, GREATEST(#{self.user.promotion.max_challenges_completed} - last_running, 0)) AS countable_cr
+          FROM (
+            SELECT
+            id, recorded_date, c_points, @last_c := IF(@dummy = id, @run_cr_points, 0) AS last_running, @run_cr_points := IF(@dummy = id, @run_cr_points + c_points, c_points) AS running, @dummy := id
+            FROM (
+              SELECT
+              u.id, DATE(cr.completed_on) AS recorded_date, COUNT(cr.id) AS c_points, @dummy := u.id, @run_cr_points := COUNT(cr.id)
+              FROM users u
+              LEFT JOIN challenges_received cr ON cr.user_id = u.id
+              WHERE
+              cr.completed_on IS NOT NULL
+              AND DATE(cr.completed_on) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
+              GROUP BY u.id, DATE(cr.completed_on)
+              ORDER BY u.id, recorded_date
+            ) x
+          ) y
+        ) z
+        GROUP BY id, recorded_date
+      ) challenges_summed ON challenges_summed.user_id = entries.user_id AND challenges_summed.recorded_date = entries.recorded_on
+      SET entries.challenge_points = challenges_summed.countable
+      WHERE entries.user_id = #{self.user_id}
+    "
+    self.connection.execute(challenges_sql)
     # end challenge calculations
     
   end
