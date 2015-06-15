@@ -98,18 +98,10 @@
   friendly_url_key: Total Fitbit Users
 - !ruby/object:Report 
   id: 8
-  report_type: Simple
-  name: New Report
-  fields: 
-  - "1"
-  - 38|1
-  - 40|1
-  - 59|1
-  - 25|1
-  - "7"
-  - "41"
-  - "6"
-  - 57|1
+  report_type: SQL
+  name: Total Jawbone Users
+  fields: []
+
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
