@@ -48,7 +48,7 @@ class ChallengeReceived < ApplicationModel
     if self.challenge.type == Challenge::TYPE[:regional]
       user_ids = [self.challenge.created_by]
     else
-      user_ids = ChallengeSent.joins(:challenge_sent_users).where("challenges_sent.challenge_id = ? AND challenge_sent_users.created_at >= ? AND challenge_sent_users.created_at <= ? AND challenge_sent_users.user_id = ?", self.challenge.id, self.created_at - 10, (self.completed_on ? self.completed_on : self.user.promotion.current_time), self.user.id).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
+      user_ids = ChallengeSent.joins(:challenge_sent_users).where("challenges_sent.challenge_id = ? AND challenge_sent_users.created_at >= ? AND challenge_sent_users.created_at <= ? AND challenge_sent_users.user_id = ?", self.challenge.id, self.created_at - 30, (self.completed_on ? self.completed_on : self.user.promotion.current_time), self.user.id).order("challenges_sent.created_at ASC").collect{|cs|cs.user_id}
       user_ids = [user_ids] if !user_ids.is_a?(Array)
     end
     return user_ids.empty? ? [] : User.where("id IN (#{user_ids.join(',')})")
