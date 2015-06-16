@@ -299,9 +299,7 @@ UNION
 
   after_commit :do_badges
   before_save :check_for_changes
-  after_create :check_for_team_update
-  after_commit :check_for_team_update
-  after_save :check_for_team_update
+  after_commit :team_member_update
 
   def do_badges
     Badge.do_milestones(self)
@@ -316,13 +314,12 @@ UNION
     activity_columns = ['exercise_minutes', 'exercise_steps']
     points_columns = ['exercise_points', 'challenge_points', 'timed_behavior_points']
     columns_to_check = activity_columns + points_columns
-    @@update_team_points = false
     columns_to_check.each{|column|
       Rails.logger.warn("#{column} is: #{self.send(column).to_i} was: #{self.send(column + "_was").to_i}")
       if self.send(column).to_i != self.send(column + "_was").to_i
         publish = true
         if points_columns.include?(column)
-          @@update_team_points = true
+          #self.team_member_update
         end
       end
     }
@@ -342,10 +339,9 @@ UNION
     end
   end
 
-  def check_for_team_update
-    if @@update_team_points
-      # update user's team member points if they're on a team in an active competition, see user model
-      self.user.update_team_member_points()
-    end
+  def team_member_update
+    # update user's team member points if they're on a team in an active competition, see user model
+    Rails.logger.warn "UPDATING TEAM POINTS!"
+    self.user.update_team_member_points()
   end
 end
