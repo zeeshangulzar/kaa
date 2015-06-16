@@ -199,6 +199,7 @@ class NotificationsController < ApplicationController
     updateable_attrs = ['hidden', 'viewed']
     attrs = scrub(params[:notification], updateable_attrs)
     # TODO: only allow recipient to update maybe??
+
     if params[:id]
       @notification ||= Notification.find(params[:id]) rescue nil
       return HESResponder("Notification", "NOT_FOUND") if !@notification
