@@ -62,7 +62,7 @@ raise 'get here'
       # prevent non-master from posting SQL
       @report.sql = params[:report][:sql] if @current_user.role == 'Master'
     else
-      @result_fields = params[:field].sort{|x, y| x <=> y}.collect{|x| x} if params[:field]
+      @result_fields = params[:field] if params[:field]
       @report.fields = @result_fields if @result_fields
     end
 

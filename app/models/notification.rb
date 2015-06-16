@@ -4,8 +4,8 @@ class Notification < ApplicationModel
   belongs_to :user, :foreign_key => "user_id"
   belongs_to :from_user, :class_name => 'User'
   
-  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user, :user
-  attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :user, :any_user
+  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :user
+  attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :user, :any_user
   attr_privacy_no_path_to_user
 
   validates :title, :presence => true, :length => {:maximum => 100}
