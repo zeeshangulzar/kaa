@@ -180,6 +180,7 @@ DEPENDENCIES
   mime-types (= 1.25.1)
   mysql2
   newrelic_rpm
+  oj
   rack-cors
   rails (= 3.2.19)
   redis

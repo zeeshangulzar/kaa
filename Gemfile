@@ -67,7 +67,7 @@ gem 'oj'
 
 gem "bluecloth", '2.2.0'
 #gem 'yajl-ruby', :require => "yajl"
-gem "resque", "1.25.2"
+gem "resque", "1.25.2", :require => "resque/server"
 
 gem "hes-fitbit","1.0.15"
 gem "hes-jawbone","1.0.7"
