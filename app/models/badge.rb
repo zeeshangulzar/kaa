@@ -118,11 +118,13 @@ class Badge < ActiveRecord::Base
     if !deletes.empty? && deletes.include?(entry.user.milestone_id) && inserts.empty?
       milestone_id = "null" # DB value
     elsif !inserts.empty?
-      milestone_id = inserts.last
+      milestone_id = inserts.last.first
     end
 
     if milestone_id != false
-      connection.execute("UPDATE users SET milestone_id = #{milestone_id}")
+      update_sql = "UPDATE users SET milestone_id = #{milestone_id} WHERE id = #{entry.user_id}"
+      Rails.logger.warn "Updating milestone for User #{entry.user_id}: #{update_sql}"
+      connection.execute(update_sql)
     end
 
     self.process_for_user(entry.user_id, entry.recorded_on, {:create => inserts, :update => updates, :destroy => deletes})
