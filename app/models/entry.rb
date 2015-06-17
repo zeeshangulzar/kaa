@@ -171,7 +171,7 @@ challenges_sql = "
         ) z
         GROUP BY id, recorded_date
       ) challenges_summed ON challenges_summed.user_id = entries.user_id AND challenges_summed.recorded_date = entries.recorded_on
-      SET entries.challenge_points = challenges_summed.countable
+      SET entries.challenge_points = COALESCE(challenges_summed.countable, 0)
       WHERE entries.user_id = #{self.user_id}
     "
     self.connection.execute(challenges_sql)
