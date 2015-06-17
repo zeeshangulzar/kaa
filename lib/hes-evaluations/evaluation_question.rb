@@ -32,10 +32,11 @@ module HesEvaluations
     #  EvaluationQuestion.new(:screen_size, "What size is your screen", ["14 inches", "15 inches", "16 inches"])
     # @example
     #  EvaluationQuestion.new(:screen_size, "What size is your screen", ["14 inches", "15 inches", "16 inches"], :limit => 25)
-    def initialize(name, prompt, answer_group = nil, default = false, column_options = {})
+    def initialize(name, prompt, answer_group = nil, default = false, column_options = {}, required = true)
       @name = name
       @prompt = prompt
       @default = default
+      @required = required
       
       @answer_group = answer_group
       if @answer_group && @answer_group.is_a?(Array)
@@ -109,7 +110,7 @@ module HesEvaluations
     # Hash of EvaluationQuestion, includes answer options
     # @return [Hash] form of EvaluationQuestion object
     def serializable_hash(options = {})
-      _hash = {"short_label" => @name.to_s.humanize.titleize, "name" => @name.to_s, "prompt" => @prompt, "is_active" => true, "is_required" => true, "data_type" => @column_type.to_s, "type_of_prompt" => @answer_group.nil? ? "TEXTBOX" : "DROPDOWN"}
+      _hash = {"short_label" => @name.to_s.humanize.titleize, "name" => @name.to_s, "prompt" => @prompt, "is_active" => true, "is_required" => @required, "data_type" => @column_type.to_s, "type_of_prompt" => @answer_group.nil? ? "TEXTBOX" : "DROPDOWN"}
       _hash["options"] = EvaluationAnswerGroup.find(@answer_group).serializable_hash if @answer_group
       _hash
     end
