@@ -24,7 +24,7 @@ class TeamMember < ApplicationModel
       JOIN (
         SELECT
           user_id,
-          SUM(entries.timed_behavior_points + entries.exercise_points + entries.challenge_points) AS total_points,
+          SUM(COALESCE(entries.timed_behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.challenge_points, 0)) AS total_points,
           SUM(entries.exercise_points) AS total_exercise_points,
           SUM(entries.timed_behavior_points) AS total_timed_behavior_points,
           SUM(entries.challenge_points) AS total_challenge_points
