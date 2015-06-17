@@ -689,7 +689,7 @@
     "57": 
       :aggregate: false
       :sequence: 29
-      :sql_phrase: leader_profiles.first_name 'Team Leader First Name', leader_profiles.last_name 'Team Leader Last Name', leader_users.email 'Team Leader Email'
+      :sql_phrase: leader_profiles.first_name `Team Leader First Name`, leader_profiles.last_name `Team Leader Last Name`, leader_users.email `Team Leader Email`
       :filterable: false
       :role: Coordinator
       :display_name: Team Leader
@@ -701,7 +701,7 @@
     "58": 
       :aggregate: false
       :sequence: 29
-      :sql_phrase: r.name 'Team Region'
+      :sql_phrase: r.name `Team Region`
       :filterable: false
       :role: Coordinator
       :display_name: Team Region
@@ -713,7 +713,7 @@
     "59": 
       :aggregate: false
       :sequence: 29
-      :sql_phrase: l.name 'Team Location'
+      :sql_phrase: l.name `Team Location`
       :filterable: false
       :role: Coordinator
       :display_name: Team Location
