@@ -93,7 +93,7 @@ module HesUdf
 
         klass = Object.const_set(klass_name, klass_new)
         klass.reset_column_information
-
+klass.attr_protected
         klass
       end
 

@@ -26,8 +26,8 @@ module HesEvaluations
       # Adds a flag for turning on and off a custom prompt question
       # @param [CustomPrompt] custom_prompt that was just created
       def add_custom_prompt_to_evaluation_definitions(custom_prompt)
-        # EvaluationDefinition.send(:flag, "is_#{custom_prompt.name}_displayed".to_sym, :default => true)
-        # EvaluationDefinition.reset_column_information
+        EvaluationDefinition.send(:flag, "is_#{custom_prompt.name}_displayed".to_sym, :default => true)
+        EvaluationDefinition.reset_column_information
       end
     end
   end

@@ -6,9 +6,9 @@ module HesCustomPrompts
 	# Custom Prompt engine to initialize
   class Engine < ::Rails::Engine
 
-  	initializer "hes-custom_prompts" do |app|
+  	#initializer "hes-custom_prompts" do |app|
   		ActiveRecord::Base.send(:include, HesCustomPrompts::HasCustomPrompts)
-  	end
+  	#end
 
   end
 end

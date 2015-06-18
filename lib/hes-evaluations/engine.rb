@@ -8,10 +8,10 @@ module HesEvaluations
 	# Engine for initializing Evaluations
   class Engine < ::Rails::Engine
 
-  	initializer "evaluations" do |app|
+#  	initializer "evaluations" do |app|
   		ActiveRecord::Base.send(:include, HasEvaluations)
   		# EvaluationDefinition.send(:include , EvaluationDefinitionFlags) if ActiveRecord::Base.connection.tables.include?("evaluation_definitions") && ActiveRecord::Base.connection.tables.include?(HesFlaggable.flag_def_table_name)
-  	end
+ # 	end
 
     config.after_initialize do
 

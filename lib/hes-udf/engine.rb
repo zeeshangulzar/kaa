@@ -7,7 +7,7 @@ module HesUdf
   # Engine for initializing hes-udf
   class Engine < ::Rails::Engine
 
-    initializer "hes-udfs" do	|app|
+    #initializer "hes-udfs" do	|app|
 
       ActiveRecord::Base.connection.tables.select{|t| t.downcase.include?("_udfs")}.each do |t|
         table = t[0..(t.index("_udfs")-1)].capitalize.singularize rescue nil
@@ -15,6 +15,6 @@ module HesUdf
       end
 
       ActiveRecord::Base.send(:include, HesUdf::Udfable)
-    end
+   #end
   end
 end
