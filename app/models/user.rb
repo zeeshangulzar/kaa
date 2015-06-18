@@ -688,7 +688,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def active_evaluation_definition_ids
     unless @active_evaluation_definition_ids
-      @active_evaluation_definition_ids = self.promotion.evaluation_definitions.reload.active_with_user(self).reload.collect{|ed|ed.id}
+      @active_evaluation_definition_ids = EvaluationDefinition.active_with_user(self).reload.collect{|ed|ed.id}
     end
     return @active_evaluation_definition_ids
   end
