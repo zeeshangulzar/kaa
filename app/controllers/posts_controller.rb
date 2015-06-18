@@ -58,6 +58,7 @@ class PostsController < ApplicationController
     elsif [Promotion].include?(@wallable.class)
       limit = params[:page_size].nil? ? 50 : params[:page_size].to_i
       offset = params[:offset].nil? ? 0 : params[:offset].to_i
+
       location_ids = []
       if !params[:location].nil?
         location_ids_submitted = params[:location].split(',')
@@ -67,6 +68,7 @@ class PostsController < ApplicationController
           end
         }
       end
+
       user_ids = []
       if !params[:friends_only].nil? && params[:friends_only]
         user_ids = @current_user.friends.collect{|f|f.id}
@@ -74,7 +76,9 @@ class PostsController < ApplicationController
       elsif !params[:user_id].nil? && params[:user_id].is_i?
         user_ids = [params[:user_id].to_i]
       end
+
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
+      flagged_only = (!params[:flagged].nil? && (params[:flagged] == 'true' || params[:flagged] == true)) ? true : false
 
       conditions = {
         :offset       => offset,
@@ -82,7 +86,8 @@ class PostsController < ApplicationController
         :user_ids     => user_ids,
         :location_ids => location_ids,
         :has_photo    => has_photo,
-        :current_year => @promotion.current_date.year
+        :current_year => @promotion.current_date.year,
+        :flagged_only => flagged_only
       }
 
       count = Post.wall(@wallable, conditions, true).to_i

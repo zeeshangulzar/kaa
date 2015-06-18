@@ -237,7 +237,8 @@ class Post < ApplicationModel
       :user_ids     => [],
       :location_ids => [],
       :has_photo    => nil,
-      :current_year => Date.today.year
+      :current_year => Date.today.year,
+      :flagged_only => false
     }.merge(conditions)
 
     if count
@@ -253,10 +254,15 @@ class Post < ApplicationModel
         posts_sql = posts_sql + " AND ( users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}) )" if !conditions[:location_ids].empty?
         posts_sql = posts_sql + " AND users.id IN (#{conditions[:user_ids].join(',')}) " if !conditions[:user_ids].empty?
       end
+      if conditions[:flagged_only]
+        posts_sql = posts_sql + " LEFT JOIN posts replies ON replies.parent_post_id = posts.id"
+      end
       posts_sql = posts_sql + "
         WHERE
-        parent_post_id IS NULL AND wallable_id = #{wall.id}
+        posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
         #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
+        #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
+        GROUP BY posts.id
         ORDER BY posts.created_at DESC
       "
       result = self.connection.exec_query(posts_sql)
@@ -275,10 +281,15 @@ class Post < ApplicationModel
       posts_sql = posts_sql + " AND ( users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}) )" if !conditions[:location_ids].empty?
       posts_sql = posts_sql + " AND users.id IN (#{conditions[:user_ids].join(',')}) " if !conditions[:user_ids].empty?
     end
+    if conditions[:flagged_only]
+      posts_sql = posts_sql + " LEFT JOIN posts replies ON replies.parent_post_id = posts.id"
+    end
     posts_sql = posts_sql + "
       WHERE
-      parent_post_id IS NULL AND wallable_id = #{wall.id}
+      posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
       #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
+      #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
+      GROUP BY posts.id
       ORDER BY posts.created_at DESC
       LIMIT #{conditions[:offset]}, #{conditions[:limit]}
     "
