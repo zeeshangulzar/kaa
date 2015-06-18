@@ -1,10 +1,3 @@
-require "hes-authorization"
-#require "hes-api"
-# require "hes-flaggable"
-#require "hes-notifier"
-#require "hes-custom_prompts"
-require "hes-sequencer"
-
 # require File.dirname(__FILE__) + "/evaluation_definition_flags"
 require File.dirname(__FILE__) + "/evaluation_question"
 require File.dirname(__FILE__) + "/evaluation_answer_group"
@@ -15,9 +8,10 @@ module HesEvaluations
 	# Engine for initializing Evaluations
   class Engine < ::Rails::Engine
 
-  	
-    ActiveRecord::Base.send(:include, HasEvaluations)
-    # EvaluationDefinition.send(:include , EvaluationDefinitionFlags) if ActiveRecord::Base.connection.tables.include?("evaluation_definitions") && ActiveRecord::Base.connection.tables.include?(HesFlaggable.flag_def_table_name)
+#  	initializer "evaluations" do |app|
+  		ActiveRecord::Base.send(:include, HasEvaluations)
+  		# EvaluationDefinition.send(:include , EvaluationDefinitionFlags) if ActiveRecord::Base.connection.tables.include?("evaluation_definitions") && ActiveRecord::Base.connection.tables.include?(HesFlaggable.flag_def_table_name)
+ # 	end
 
     config.after_initialize do
 

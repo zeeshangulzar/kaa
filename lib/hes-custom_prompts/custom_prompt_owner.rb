@@ -4,7 +4,7 @@ module HesCustomPrompts
     # Adds udfable when included on a model
     # @param [ActiveRecord] base model to extend
     def self.included(base)
-      #base.send(:udfable)
+      base.send(:udfable)
       base.send(:include, CustomPromptOwnerInstanceMethods)
 
       base.send(:alias_method_chain, :attributes, :custom_prompts)
@@ -27,7 +27,8 @@ module HesCustomPrompts
       end
 
       def attributes_with_custom_prompts
-        _attributes = attributes_without_custom_prompts
+        #_attributes = attributes_without_custom_prompts
+        _attributes = {}
 
         custom_prompts.each do |custom_prompt|
           _attributes[custom_prompt.short_label.underscore] = self.udfs && self.udfs.send("custom_prompt_#{custom_prompt.id}")
@@ -37,14 +38,12 @@ module HesCustomPrompts
 
       def save_custom_prompt_field_values
         if self.custom_prompts_attributes
-
         	udf_attributes = {}
         	@custom_prompts_attributes.each_pair do |field, value|
         		udf_attributes[custom_prompts.detect{|x| x.name == field}.udf_def.cfn] = value
         	end
-
-          #user_defined_fields = udfs || build_udfs
-          #user_defined_fields.update_attributes!(udf_attributes)
+          user_defined_fields = udfs || build_udfs
+          user_defined_fields.update_attributes!(udf_attributes)
         end
       end
 

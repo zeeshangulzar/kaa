@@ -12,12 +12,12 @@ module HesEvaluations
       # Initializes associations needed for evaluations to work on an ActiveRecord model.
       # Adds instance methods to model also
       def has_evaluations
-        self.send(:has_many, :evaluation_definitions, :dependent => :destroy, :order => :days_from_start)
+        self.send(:has_many, :evaluation_definitions, :as => :eval_definitionable, :dependent => :destroy, :order => :days_from_start)
         self.send(:has_many, :evaluations, :through => :evaluation_definitions)
-        #self.send(:has_custom_prompts, :with => :evaluations)
+        self.send(:has_custom_prompts, :with => :evaluations)
 
         self.send(:include, HasEvaluationsInstanceMethods)
-        #self.send(:after_custom_prompt_added, :add_custom_prompt_to_evaluation_definitions)
+        self.send(:after_custom_prompt_added, :add_custom_prompt_to_evaluation_definitions)
       end
     end
 
@@ -26,8 +26,8 @@ module HesEvaluations
       # Adds a flag for turning on and off a custom prompt question
       # @param [CustomPrompt] custom_prompt that was just created
       def add_custom_prompt_to_evaluation_definitions(custom_prompt)
-        # EvaluationDefinition.send(:flag, "is_#{custom_prompt.name}_displayed".to_sym, :default => true)
-        # EvaluationDefinition.reset_column_information
+        EvaluationDefinition.send(:flag, "is_#{custom_prompt.name}_displayed".to_sym, :default => true)
+        EvaluationDefinition.reset_column_information
       end
     end
   end

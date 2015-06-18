@@ -1,5 +1,5 @@
+# Model that describes the user defined field definitions
 class UdfDef < ApplicationModel
-  include TrackChangedFields
 
   validates_presence_of :owner_type, :parent_type, :parent_id, :data_type
 
@@ -7,98 +7,63 @@ class UdfDef < ApplicationModel
   validates_format_of :parent_type, :with => /^[a-zA-Z0-9_]+$/, :message => "must be letters, numbers, and underscores only"
   validates_format_of :parent_id, :with => /^[0-9]+$/, :message => "must be a positive integer"
 
-  def after_validation
-    # is owner a class constant?
-    o = (Inflector.constantize(self.owner_type) rescue nil)  
-    # is parent a class constant?
-    p = (Inflector.constantize(self.parent) rescue nil) 
-    unless o.nil? || p.nil?
-      x = (p.send(:find, self.parent_id) rescue nil)
-      unless x.nil?
-        # is the parent object what it's supposed to be?
-        #self.parent.errors.add "Found #{self.parent.to_s} with id '#{self.parent_id}', but it is not of type #{self.parent.to_s}" unless x.is_a(p)
-        self.errors.add :parent,"Found #{self.parent.to_s} with id '#{self.parent_id}', but it is not of type #{self.parent.to_s}" unless x.is_a(p)
-      else
-        # can the parent object be found?
-        #self.parent.errors.add "Could not find #{self.parent.to_s} with id '#{self.parent_id}'"
-        self.errors.addi :parent,"Could not find #{self.parent.to_s} with id '#{self.parent_id}'"
-      end
-    else
-      #self.owner_type.errors.add "#{self.owner_type} is not a valid class constant" if o.nil?
-      #self.parent.errors.add "#{self.parent} is not a valid class constant" if p.nil?
-      self.errors.add :owner_type,"#{self.owner_type} is not a valid class constant" if o.nil?
-      self.errors.add :parent,"#{self.parent} is not a valid class constant" if p.nil?
-    end
-  end
+  validates_with HesUdf::UdfDefValidator
+  after_create :add_udf_column_to_owner_udfs_table
 
-  def orphan?
-    !parent
-  end
-
+  # The parent that owns this user defined field
+  # @return [ActiveRecord::Base] object that is tied to this udf
   def parent
-    eval(self.parent_type).find(self.parent_id) rescue nil if !self.parent_type.nil? and !self.parent_id.nil?
-  end
-  
-  def after_create
-    update_attributes :field_name=>cfn
-    # after you create a udf def, create the field
-    other = self.data_type.to_sym==:string ? {:limit=>100} : self.data_type.to_sym==:decimal ? {:precision=>10,:scale=>2} : {}
-    begin
-      ActiveRecord::Migration.add_column self.ctn, self.cfn, self.data_type.to_sym,other
-    rescue
-      #puts "=========================================================================================="
-      puts "#{self.ctn} already has #{self.cfn} -- no need to add again"
-      #puts "=========================================================================================="
-      #column already exists
-    end
+    @parent ||= self.parent_type.constantize.find_by_id(self.parent_id) unless self.parent_type.nil? || self.parent_id.nil?
   end
 
-  def v1_conventionalized_field_name
-    "#{self.parent_type}_#{self.parent_id}"
+  # The owner class that has the user defined field on it
+  # @return [Class] class of the owner model
+  def owner
+    @owner ||= self.owner_type.constantize
   end
 
-  def cfnables_to_hash(col='promotion_id')
-    @cfnables ||= {}
-    return @cfnables unless @cfnables.empty?
+  # After udf def is created, add field to owner udf table
+  def add_udf_column_to_owner_udfs_table
+    other = self.data_type.to_sym == :string ? {:limit => 100} : self.data_type.to_sym == :decimal ? {:precision => 10, :scale => 2} : {}
+    ActiveRecord::Migration.add_column self.ctn, self.cfn, self.data_type.to_sym, other rescue puts "#{self.cfn} column already created"
+    conventialized_model.reset_column_information
 
-    sql = "select id, data_type, owner_type, parent_type, parent_id
-           from udf_defs
-           where owner_type = '#{owner_type}' and parent_type = '#{parent_type}' and parent_id in (select id from #{parent.class.table_name} where #{col} = #{parent.send(col)})
-           order by data_type, id"
-
-    rows = ActiveRecord::Base.connection.select_all(sql)
-    rows.each do |row|
-      k = row['data_type'].to_sym
-      @cfnables[k] ||= []
-      @cfnables[k] << row['id'].to_i
-    end
-    @cfnables 
+    self.conventialized_model.send(:attr_accessible, self.cfn)
   end
 
-  def conventionalized_field_name(fn=nil)
-    if parent_type == 'CustomPrompt'
-      if field_name
-        field_name
-      else
-        index=cfnables_to_hash[data_type.to_sym].index(id)
-        "#{parent_type}_#{data_type}_#{index+1}"
-      end
-    else
-      v1_conventionalized_field_name
-    end 
+  # After the udf def is deleted, drop the field on the owner udf table
+  def remove_udf_column_to_owner_udfs_table
+    ActiveRecord::Migration.remove_column self.ctn, self.cfn
+    conventialized_model.reset_column_information
+  end
+
+  # The name of the field using the parent class and parent id
+  # @return [String] name of the field that is associated to this user defined definition
+  def conventionalized_field_name
+    "#{self.parent_type.underscore}_#{self.parent_id}"
   end
   alias_method :cfn, :conventionalized_field_name
 
+  # The name of the table where the user defined fields are stored at
+  # @return [String] name of the owner table
   def conventionalized_table_name
-    "#{eval(self.owner_type).table_name}_udfs"
+    self.conventialized_model.table_name
   end
   alias_method :ctn, :conventionalized_table_name
 
+  # The model that owns this UDF Definition
+  # @return [Class] owner model
+  def conventialized_model
+    "#{self.owner_type}Udf".constantize
+  end
+
+  # Not sure what this function does, doesn't appear to be used but won't delete until positive
+  # @return [Hash] hash with table name, field name, and data type
   def conventionalize
     return {
-             :table_name => ctn,
-             :field_name => cfn,
-             :data_type => self.data_type.to_sym
-           }
+      :table_name => ctn,
+      :field_name => cfn,
+      :data_type => self.data_type.to_sym
+    }
   end
 end

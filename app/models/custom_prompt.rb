@@ -1,8 +1,7 @@
 # Models a custom prompt (question) that can be added to any evaluation, test, registration, or assessment
 class CustomPrompt < ApplicationModel
   attr_accessible :sequence, :prompt, :data_type, :type_of_prompt, :short_label, :options, :is_active, :is_required
-  attr_privacy_no_path_to_user
-  attr_privacy :custom_promptable_id, :custom_promptable_type, :sequence, :prompt, :data_type, :type_of_prompt, :short_label, :options, :is_active, :is_required, :created_at, :updated_at, :public
+  attr_privacy :sequence, :prompt, :data_type, :type_of_prompt, :short_label, :options, :is_active, :is_required, :public
 
   # Check box type
   CHECKBOX = "CHECKBOX"
