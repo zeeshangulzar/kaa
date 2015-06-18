@@ -830,4 +830,25 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
     return ids
   end
 
+  def get_fitbit_weeks
+    if self.entries.count > 0
+      last_day = [Date.today, self.entries.last.recorded_on].min
+    else
+      last_day = Date.today
+    end
+
+    days = self.profile.started_on..last_day
+    weeks = (days.to_a.size / 7.0).ceil
+
+    opts = []
+
+    weeks.times do |week|
+      mon = self.profile.started_on + (week * 7)
+      sun = mon + 6
+      opts << ["Week #{week + 1}: #{mon.strftime('%B %e')} - #{sun.strftime('%B %e')}", week]
+    end
+
+    opts
+  end
+
 end

@@ -86,16 +86,58 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
+    user_hash = @target_user.serializable_hash
+
     if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
-      @target_user.stats = @target_user.stats
-      @target_user.recent_activities = @target_user.recent_activities
-      @target_user.team_id = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
+      user_hash[:stats] = @target_user.stats
+      user_hash[:recent_activities] = @target_user.recent_activities
+      user_hash[:team_id] = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
+
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
-        @target_user.completed_evaluation_definition_ids = @target_user.completed_evaluation_definition_ids
-        @target_user.active_evaluation_definition_ids = @target_user.active_evaluation_definition_ids
+        user_hash[:completed_evaluation_definition_ids] = @target_user.completed_evaluation_definition_ids
+        user_hash[:active_evaluation_definition_ids] = @target_user.active_evaluation_definition_ids
       end
     end
-    return HESResponder(@target_user)
+
+    if @current_user.master?
+      if @target_user.fitbit_user
+        device_sql = "SELECT fud.remote_id, fud.type_of_device, fud.device_version, fud.last_sync_time FROM fitbit_user_devices fud
+               INNER JOIN fitbit_users fbu ON fud.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        notification_sql = "SELECT fbn.id, fbn.status, fbn.date, fbn.updated_at FROM fitbit_notifications fbn
+               INNER JOIN fitbit_users fbu ON fbn.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        fitbit_devices = User.connection.select_all(device_sql)
+        fitbit_notifications = User.connection.select_all(notification_sql)
+
+        user_hash[:fitbit_devices] = fitbit_devices
+        user_hash[:fitbit_user] = @target_user.fitbit_user
+        user_hash[:fitbit_user_notifications] = fitbit_notifications
+        user_hash[:fitbit_weeks] = @target_user.get_fitbit_weeks
+        user_hash[:subscriptions] = @target_user.fitbit_user.retrieve_subscriptions
+      end
+
+      if @target_user.jawbone_user
+        notification_sql = "SELECT jbn.id, jbn.status, jbn.created_at, jbn.updated_at FROM jawbone_notifications jbn
+               INNER JOIN jawbone_users jbu ON jbn.jawbone_user_id = jbu.id
+               INNER JOIN users u ON jbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        jawbone_notifications = User.connection.select_all(notification_sql)
+        
+        user_hash[:jawbone_user] = @target_user.jawbone_user
+        user_hash[:jawbone_user_notifications] = jawbone_notifications
+        user_hash[:jawbone_weeks] = @target_user.get_fitbit_weeks
+      end
+    end
+
+    render :json => user_hash.to_json
+    
+    # return HESResponder(@target_user)
   end
 
 

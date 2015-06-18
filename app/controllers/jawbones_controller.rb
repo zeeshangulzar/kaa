@@ -76,7 +76,7 @@ class JawbonesController < ApplicationController
   end
 
   def refresh_week
-    if master?
+    if @current_user.master?
       Rails.logger.warn("REFRESH_WEEK : #{params.inspect}")
       require 'jawbone_logger'
       if params[:user_id]
@@ -92,23 +92,23 @@ class JawbonesController < ApplicationController
       end
  
       if jbu && u && params[:week]
-        mon = u.trip.profile.started_on + (params[:week].to_i * 7.0)
+        mon = u.profile.started_on + (params[:week].to_i * 7.0)
         sun = mon + 6
         jbu.pull_moves_in_range(mon,sun)
         (mon..sun).each do |day|
           if day <= @promotion.current_date
-            entry = u.trip.entries.find_by_logged_on(day)
+            entry = u.entries.find_by_recorded_on(day)
             jmd = JawboneMoveData.find(:first,:conditions=>{:jawbone_user_id=>jbu.id,:on_date=>day})
             if !jmd.nil?
               p = u.promotion
-              JawboneLogger.log_entry(entry,p.single_day_exercise_limit,jbu,jmd,true)
+              JawboneLogger.log_entry(jmd.date, jbu, jmd, true)
             end
           end
         end
       end
+
+      head :ok
     end
-    u ||= @current_user
-    redirect_to "/users/#{u.id}/edit#refresh_jawbone_data"
   end
 
   def notify                   
