@@ -132,7 +132,7 @@ challenges_sql = "
       entries
       JOIN (
         SELECT
-        id AS user_id, recorded_date, SUM( (countable_cs * #{self.user.promotion.challenges_sent_points}) + (countable_cr * #{self.user.promotion.challenges_completed_points}) ) AS countable
+        id AS user_id, recorded_date, SUM( (COALESCE(countable_cs, 0) * #{self.user.promotion.challenges_sent_points}) + (COALESCE(countable_cr, 0) * #{self.user.promotion.challenges_completed_points}) ) AS countable
         FROM (
           SELECT
           id, recorded_date, c_points AS cs_points, NULL AS cr_points, running, last_running, IF(running <= #{self.user.promotion.max_challenges_sent}, c_points, GREATEST(#{self.user.promotion.max_challenges_sent} - last_running, 0)) AS countable_cs, 0 AS countable_cr
