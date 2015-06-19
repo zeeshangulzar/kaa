@@ -775,7 +775,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
   end
 
   def update_team_member_points
-    if !current_team_member.nil?
+    if !self.current_team_member.nil? && self.promotion.current_date <= self.promotion.current_competition.freeze_team_scores_on
       self.current_team_member.update_points
     end
   end

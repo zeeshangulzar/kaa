@@ -14,7 +14,7 @@ class EvaluationDefinition < ApplicationModel
 
   scope :active_with_user, lambda{ |user|
     days = user.promotion.current_date - user.profile.started_on rescue 0
-    where("(start_date <= '#{user.promotion.current_date}' AND end_date >= '#{user.promotion.current_date}') OR days_from_start <= #{days}").order("start_date ASC")
+    where("eval_definitionable_type = 'Promotion' AND eval_definitionable_id = #{user.promotion_id} AND ((start_date <= '#{user.promotion.current_date}' AND end_date >= '#{user.promotion.current_date}') OR days_from_start <= #{days})").order("start_date ASC")
   }
 
   # Overrides serializable_hash so that questions and custom prompts can be included
