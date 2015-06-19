@@ -15,6 +15,12 @@ class Evaluation < ApplicationModel
   belongs_to :user
   belongs_to :definition, :foreign_key => :evaluation_definition_id, :class_name => EvaluationDefinition
 
+  def as_json(options={})
+    eval_json = super(options)
+    eval_json['evaluation_definition_id'] = self.evaluation_definition_id
+    return eval_json
+  end
+
   # Makes sure evaluation questions are answered correclty
   # validates_with EvaluationValidator
   
