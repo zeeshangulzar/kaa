@@ -245,9 +245,11 @@ class Post < ApplicationModel
       # handle count of top posts separately as we don't want to use ActiveRecord's yucky count method
       posts_sql = "
         SELECT
-        COUNT(posts.id) AS count
-        FROM
-        posts
+        COUNT(*) AS count
+        FROM (
+          SELECT posts.id
+          FROM
+          posts
       "
       if !conditions[:location_ids].empty? || !conditions[:user_ids].empty?
         posts_sql = posts_sql + " JOIN users ON users.id = posts.user_id "
@@ -258,12 +260,13 @@ class Post < ApplicationModel
         posts_sql = posts_sql + " LEFT JOIN posts replies ON replies.parent_post_id = posts.id"
       end
       posts_sql = posts_sql + "
-        WHERE
-        posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
-        #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
-        #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
-        GROUP BY posts.id
-        ORDER BY posts.created_at DESC
+          WHERE
+          posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
+          #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
+          #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
+          GROUP BY posts.id
+          ORDER BY posts.created_at DESC
+        ) X
       "
       result = self.connection.exec_query(posts_sql)
       return result.first['count'].to_s
