@@ -127,7 +127,7 @@ class Entry < ApplicationModel
     self.timed_behavior_points = timed_behavior_points
 
     #Challenge Points Calculation
-challenges_sql = "
+    challenges_sql = "
       UPDATE
       entries
       JOIN (
@@ -174,7 +174,21 @@ challenges_sql = "
       SET entries.challenge_points = COALESCE(challenges_summed.countable, 0)
       WHERE entries.user_id = #{self.user_id}
     "
-    self.connection.execute(challenges_sql)
+    tries = 3
+    begin
+      self.connection.execute(challenges_sql)
+    rescue  ActiveRecord::StatementInvalid => e
+      if e.message =~ /Deadlock found when trying to get lock/
+        tries = tries - 1
+        if tries > 0
+          retry
+        else
+          Rails.logger.warn "DEADLOCK ON ENTRIES: #{challenges_sql}"
+        end
+      else
+        raise e
+      end
+    end
     # end challenge calculations
     
   end
