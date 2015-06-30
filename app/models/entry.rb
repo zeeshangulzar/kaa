@@ -145,7 +145,8 @@ class Entry < ApplicationModel
               FROM users u
               LEFT JOIN challenges_sent cs ON cs.user_id = u.id
               WHERE
-                DATE(cs.created_at) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
+                u.id = #{self.user_id}
+                AND DATE(cs.created_at) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
               GROUP BY u.id, DATE(cs.created_at)
               ORDER BY u.id, recorded_date
             ) x
@@ -162,7 +163,8 @@ class Entry < ApplicationModel
               FROM users u
               LEFT JOIN challenges_received cr ON cr.user_id = u.id
               WHERE
-              cr.completed_on IS NOT NULL
+                u.id = #{self.user_id}
+                AND cr.completed_on IS NOT NULL
               AND DATE(cr.completed_on) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
               GROUP BY u.id, DATE(cr.completed_on)
               ORDER BY u.id, recorded_date
