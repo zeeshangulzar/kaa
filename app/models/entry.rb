@@ -127,53 +127,52 @@ class Entry < ApplicationModel
     self.timed_behavior_points = timed_behavior_points
 
     #Challenge Points Calculation
+    # jesus i hope we don't have to touch this again, ever.
     challenges_sql = "
       UPDATE
       entries
       JOIN (
         SELECT
-        id AS user_id, recorded_date, SUM( (COALESCE(countable_cs, 0) * #{self.user.promotion.challenges_sent_points}) + (COALESCE(countable_cr, 0) * #{self.user.promotion.challenges_completed_points}) ) AS countable
+          user_id, recorded_date, SUM( (COALESCE(countable_cs, 0) * #{self.user.promotion.challenges_sent_points}) + (COALESCE(countable_cr, 0) * #{self.user.promotion.challenges_completed_points}) ) AS points
         FROM (
           SELECT
-          id, recorded_date, c_points AS cs_points, NULL AS cr_points, running, last_running, IF(running <= #{self.user.promotion.max_challenges_sent}, c_points, GREATEST(#{self.user.promotion.max_challenges_sent} - last_running, 0)) AS countable_cs, 0 AS countable_cr
+            user_id, recorded_date, cs_count, NULL AS cr_count, running_cs_count, last_running_cs_count, IF(running_cs_count <= #{self.user.promotion.max_challenges_sent}, cs_count, GREATEST(#{self.user.promotion.max_challenges_sent} - last_running_cs_count, 0)) AS countable_cs, 0 AS countable_cr
           FROM (
             SELECT
-            id, recorded_date, c_points,  @last_c := IF(@dummy = id, @run_cs_points, 0) AS last_running, @run_cs_points := IF(@dummy = id, @run_cs_points + c_points, c_points) AS running, @dummy := id
+              user_id, recorded_date, cs_count, @last_cs_count := IF(@dummy_id = user_id, @running_cs_count, 0) AS last_running_cs_count, @running_cs_count := IF(@dummy_id = user_id, @running_cs_count + cs_count, cs_count) AS running_cs_count, @dummy_id := user_id
             FROM (
               SELECT
-              u.id, DATE(cs.created_at) AS recorded_date, COUNT(cs.id) AS c_points, @dummy := u.id, @run_cs_points := COUNT(cs.id)
-              FROM users u
-              LEFT JOIN challenges_sent cs ON cs.user_id = u.id
+                user_id, DATE(cs.created_at) AS recorded_date, COUNT(cs.id) AS cs_count, @dummy_id := null
+              FROM challenges_sent cs
               WHERE
-                u.id = #{self.user_id}
+                user_id = #{self.user_id}
                 AND DATE(cs.created_at) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
-              GROUP BY u.id, DATE(cs.created_at)
-              ORDER BY u.id, recorded_date
+              GROUP BY user_id, DATE(cs.created_at)
+              ORDER BY user_id, recorded_date
             ) x
           ) y
           UNION
           SELECT
-          id, recorded_date, NULL AS cs_points, c_points AS cr_points, running, last_running, 0 AS countable_cs, IF(running <= #{self.user.promotion.max_challenges_completed}, c_points, GREATEST(#{self.user.promotion.max_challenges_completed} - last_running, 0)) AS countable_cr
+            user_id, recorded_date, NULL AS cs_count, cr_count, running_cr_count, last_running_cr_count, 0 AS countable_cs, IF(running_cr_count <= #{self.user.promotion.max_challenges_completed}, cr_count, GREATEST(#{self.user.promotion.max_challenges_completed} - last_running_cr_count, 0)) AS countable_cr
           FROM (
             SELECT
-            id, recorded_date, c_points, @last_c := IF(@dummy = id, @run_cr_points, 0) AS last_running, @run_cr_points := IF(@dummy = id, @run_cr_points + c_points, c_points) AS running, @dummy := id
+              user_id, recorded_date, cr_count, @last_cr_count := IF(@dummy_id = user_id, @running_cr_count, 0) AS last_running_cr_count, @running_cr_count := IF(@dummy_id = user_id, @running_cr_count + cr_count, cr_count) AS running_cr_count, @dummy_id := user_id
             FROM (
               SELECT
-              u.id, DATE(cr.completed_on) AS recorded_date, COUNT(cr.id) AS c_points, @dummy := u.id, @run_cr_points := COUNT(cr.id)
-              FROM users u
-              LEFT JOIN challenges_received cr ON cr.user_id = u.id
+                user_id, DATE(cr.completed_on) AS recorded_date, COUNT(cr.id) AS cr_count, @dummy_id := null
+              FROM challenges_received cr
               WHERE
-                u.id = #{self.user_id}
+                user_id = #{self.user_id}
                 AND cr.completed_on IS NOT NULL
-              AND DATE(cr.completed_on) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
-              GROUP BY u.id, DATE(cr.completed_on)
-              ORDER BY u.id, recorded_date
+                AND DATE(cr.completed_on) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
+              GROUP BY user_id, DATE(cr.completed_on)
+              ORDER BY user_id, recorded_date
             ) x
           ) y
         ) z
-        GROUP BY id, recorded_date
+        GROUP BY recorded_date
       ) challenges_summed ON challenges_summed.user_id = entries.user_id AND challenges_summed.recorded_date = entries.recorded_on
-      SET entries.challenge_points = COALESCE(challenges_summed.countable, 0)
+      SET entries.challenge_points = COALESCE(challenges_summed.points, 0)
       WHERE entries.user_id = #{self.user_id}
     "
     tries = 3

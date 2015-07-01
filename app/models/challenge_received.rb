@@ -24,8 +24,7 @@ class ChallengeReceived < ApplicationModel
   before_create :set_expiration_if_accepted
   before_update :set_expiration_if_accepted
   before_update :set_completed_on_if_completed
-  after_create :entry_calculate_points
-  after_update :entry_calculate_points
+  after_commit :entry_calculate_points
 
   def set_defaults
     self.status ||= STATUS[:unseen]
