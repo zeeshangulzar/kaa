@@ -50,7 +50,7 @@ class Post < ApplicationModel
 
   acts_as_notifier
 
-  after_update :notify_if_flagged
+  #after_update :notify_if_flagged
 
   scope :top, lambda { where(:depth => 0).includes([:user, {:likes => :user}, {:posts => [:user, {:likes => :user}]}] ).order("posts.created_at DESC") }
 
