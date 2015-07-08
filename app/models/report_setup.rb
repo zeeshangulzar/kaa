@@ -278,10 +278,11 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     cps.each do |cp|
       if cp.is_active && ![CustomPrompt::HEADER, CustomPrompt::PAGEBREAK].include?(cp.type_of_prompt)
         promotion.evaluation_definitions.each_with_index do |pev, index|
-          k = "evaluations_udfs:#{cp.id}|#{pev.sequence}"
+          k = "evaluations_udfs:#{cp.id}|#{pev.id}"
           fields[k] = model.dup
           fields[k][:display_name] = "#{cp.short_label}*"
-          fields[k][:sql_phrase] = "evaluations#{pev.sequence}_udfs.#{cp.udf_def.cfn} `#{cp.short_label} At #{pev.sequence.ordinalize} Evaluation`"
+          fields[k][:sql_phrase] = "evaluations#{pev.id}_udfs.#{cp.udf_def.cfn} `#{cp.short_label} At "
+          fields[k][:sql_phrase] = fields[k][:sql_phrase] + (pev.sequence ? "#{pev.sequence.ordinalize} Evaluation`" : 'Registration`')
           fields[k][:sequence] = fields.size
           fields[k][:join] = 'evaluationsN_udfs'
 
