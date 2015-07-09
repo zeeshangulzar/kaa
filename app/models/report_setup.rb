@@ -194,6 +194,9 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     o2m = add_one_to_many_fields(f.reject {|k,v| !roles.include?(v[:role]) || !v[:visible]}, promotion)
     add_custom_prompts(o2m, promotion)
     add_milestones(o2m, promotion)
+    # see lib/behaviors_for_reports.rb
+    BehaviorsForReports.add_behavior_joins(joins,promotion)
+    BehaviorsForReports.add_behavior_fields(o2m,promotion)
     return add_other_promotion_specific_fields(o2m, promotion)
   end
   

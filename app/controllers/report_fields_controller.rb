@@ -24,6 +24,8 @@ class ReportFieldsController < ApplicationController
       fields = @report_setup.add_milestones(fields, @promotion)
       fields = @report_setup.add_custom_prompts(fields, @promotion)
       fields = @report_setup.add_other_promotion_specific_fields(fields, @promotion)
+      # see lib/behaviors_for_reports.rb
+      fields = BehaviorsForReports.add_behavior_fields(@report_setup.fields,@promotion)
 
       # @report_fields = @report_fields.values
       @report_fields = []

@@ -139,6 +139,10 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     @setup.fields = @setup.add_custom_prompts(@setup.fields,promotion)
     # @setup.fields = @setup.add_locations(@setup.fields, promotion)
     @setup.fields = @setup.add_other_promotion_specific_fields(@setup.fields,promotion)
+
+    # see lib/behaviors_for_reports.rb
+    @setup.joins = BehaviorsForReports.add_behavior_joins(@setup.joins,promotion)
+    @setup.fields = BehaviorsForReports.add_behavior_fields(@setup.fields,promotion)
   end
 
   def to_sql
