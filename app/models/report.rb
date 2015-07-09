@@ -22,7 +22,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   OneToManyTables = ['evaluations','competitions']
 
   # Categories
-  Categories = ['Participant Fields', 'Program Fields', 'Registration Fields', 'Evaluation N Fields', 'Competition N Fields']
+  Categories = ['Participant Fields', 'Program Fields', 'Registration Fields', 'Regional Challenge Fields', 'Peer-to-Peer Challenge Fields', 'Evaluation N Fields', 'Competition N Fields', 'Success Story Fields']
 
   Signs = {
     :is => {:display_name=>'is', :sign=>'='},
@@ -48,6 +48,10 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
   def attributes
     return { :report_type => report_type, :name => name, :fields => fields, :filters => filters, :limit => limit, :sql => sql, :created_by_master => created_by_master, :friendly_url_key => friendly_url_key }
+  end
+
+  def as_json(options={})
+    attributes.merge({:parent=>!parent.nil?})
   end
 
   def attributes=(attributes)
@@ -194,7 +198,15 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
       return new_sql
     else
-      return make_sql
+      new_sql = make_sql
+      new_sql.gsub!(":reported_on_min","'#{filters[:special][:reported_on_min].to_s}'")
+      new_sql.gsub!(":reported_on_max","'#{filters[:special][:reported_on_max].to_s}'")
+      new_sql.gsub!(":reseller_id","'#{filters[:special][:reseller_id].to_s}'")
+      new_sql.gsub!(":organization_id","'#{filters[:special][:organization_id].to_s}'")
+      new_sql.gsub!(":promotion_id","'#{filters[:special][:promotion_id].to_s}'")
+      new_sql.gsub!(":location_id","'#{filters[:special][:location].to_s}'")
+      new_sql.gsub!(":top_level_location_id","'#{filters[:special][:top_level_location].to_s}'")
+      return new_sql
     end
   end
 
@@ -433,11 +445,6 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     if special[:reported_on_min] && special[:reported_on_max]
       i,a = special[:reported_on_min], special[:reported_on_max]
-      sc << "
-            (
-             users.created_at between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'
-            )
-           "
       sc << "entries.recorded_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'" if is_joined('entries')
     end
 
@@ -566,5 +573,4 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     end
     return s
   end
-
 end

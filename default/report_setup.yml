@@ -113,10 +113,10 @@
     "10": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.timed_behavior_points) `Is Active`
+      :sql_phrase: IF(SUM(COALESCE(exercise_minutes, 0) + COALESCE(exercise_steps, 0) + COALESCE(exercise_points, 0) + COALESCE(challenge_points, 0) + COALESCE(timed_behavior_points, 0)) > 0, 'Yes', 'No') AS `Is Active`
       :filterable: true
       :role: Coordinator
-      :display_name: Is Active
+      :display_name: Is Active?
       :join: entries
       :identification: false
       :sensitive: false
@@ -746,6 +746,342 @@
       :sensitive: false
       :category: Evaluation N Fields
       :visible: true
+    "62":
+      :aggregate: true
+      :sequence: 62
+      :sql_phrase: COUNT(DISTINCT regional_challenges_created.id) AS `Regional Challenges Created`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Created
+      :join: regional_challenges_created
+      :identification: false
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "63":
+      :aggregate: true
+      :sequence: 63
+      :sql_phrase: COALESCE(`regional_challenges_accepted`.`rc_accepted`, 0) AS `Regional Challenges Accepted`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Accepted
+      :join: regional_challenges_accepted
+      :identification: false
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "64":
+      :aggregate: true
+      :sequence: 64
+      :sql_phrase: COALESCE(`regional_challenges_completed`.`rc_completed`, 0) AS `Regional Challenges Completed`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Completed
+      :join: regional_challenges_completed
+      :identification: false
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "65":
+      :aggregate: true
+      :sequence: 65
+      :sql_phrase: COALESCE(`regional_challenges_declined`.`rc_declined`, 0) AS `Regional Challenges Declined`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Declined
+      :join: regional_challenges_declined
+      :identification: false
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "66":
+      :aggregate: true
+      :sequence: 66
+      :sql_phrase: COALESCE(`peer_challenges_accepted`.`pc_accepted`, 0) AS `Peer Challenges Accepted`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Accepted
+      :join: peer_challenges_accepted
+      :identification: false
+      :sensitive: false
+      :category: Peer-to-Peer Challenge Fields
+      :visible: true
+    "67":
+      :aggregate: true
+      :sequence: 67
+      :sql_phrase: COALESCE(`peer_challenges_completed`.`pc_completed`, 0) `Peer Challenges Completed`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Completed
+      :join: peer_challenges_completed
+      :identification: false
+      :sensitive: false
+      :category: Peer-to-Peer Challenge Fields
+      :visible: true
+    "68":
+      :aggregate: true
+      :sequence: 68
+      :sql_phrase: COALESCE(`peer_challenges_declined`.`pc_declined`, 0) `Peer Challenges Declined`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Declined
+      :join: peer_challenges_declined
+      :identification: false
+      :sensitive: false
+      :category: Peer-to-Peer Challenge Fields
+      :visible: true
+    "69": 
+      :aggregate: false
+      :sequence: 69
+      :sql_phrase: regional_challenges_created.name `Regional Challenge Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Name
+      :join: regional_challenges_created
+      :identification: true
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "70": 
+      :aggregate: false
+      :sequence: 70
+      :sql_phrase: peer_challenges_received.name `Peer Challenge Name`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Name
+      :join: peer_challenges_received
+      :identification: true
+      :sensitive: false
+      :category: Peer-to-Peer Challenge Fields
+      :visible: true
+    "71": 
+      :aggregate: false
+      :sequence: 71
+      :sql_phrase: challenges_received.created_at `Peer Challenge Created At`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Created At
+      :join: peer_challenges_received
+      :identification: true
+      :sensitive: false
+      :category: Peer-to-Peer Challenge Fields
+      :visible: true
+    "72": 
+      :aggregate: false
+      :sequence: 72
+      :sql_phrase: regional_challenges_created.created_at `Regional Challenge Created At`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Created At
+      :join: regional_challenges_created
+      :identification: true
+      :sensitive: false
+      :category: Regional Challenge Fields
+      :visible: true
+    "73": 
+      :aggregate: true
+      :sequence: 73
+      :sql_phrase: SUM(COALESCE(team_members.total_points, 0))/COUNT(team_members.id) `Team Score`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Team Score
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "74": 
+      :aggregate: false
+      :sequence: 74
+      :sql_phrase: IF(teams.id IS NULL, "No", "Yes") `Is On Team`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Is On Team
+      :join: competitions
+      :identification: false
+      :sensitive: false
+      :category: Competition N Fields
+      :visible: true
+    "75": 
+      :aggregate: true
+      :sequence: 75
+      :sql_phrase: IF(COUNT(entries.id) > 0, "Yes", "No") `Days Logged`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Logged Today?
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "76": 
+      :aggregate: true
+      :sequence: 76
+      :sql_phrase: COUNT(DISTINCT wall_posts.id) `Wall Posts`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Wall Posts
+      :join: wall_posts
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "77": 
+      :aggregate: true
+      :sequence: 77
+      :sql_phrase: COUNT(DISTINCT recipe_ratings.id) `Recipe Ratings`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Recipe Ratings
+      :join: recipe_ratings
+      :identification: false
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "78": 
+      :aggregate: false
+      :sequence: 78
+      :sql_phrase: success_stories.title
+      :filterable: true
+      :role: Coordinator
+      :display_name: Title
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "79": 
+      :aggregate: false
+      :sequence: 79
+      :sql_phrase: success_stories.summary
+      :filterable: true
+      :role: Coordinator
+      :display_name: Summary
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "80": 
+      :aggregate: false
+      :sequence: 80
+      :sql_phrase: success_stories.content
+      :filterable: true
+      :role: Coordinator
+      :display_name: Story
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "81": 
+      :aggregate: false
+      :sequence: 81
+      :sql_phrase: IF(success_stories.featured > 0, 'Yes', 'No') `Featured`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Featured?
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "82": 
+      :aggregate: false
+      :sequence: 82
+      :sql_phrase: success_stories.created_at
+      :filterable: true
+      :role: Coordinator
+      :display_name: Submitted At
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "83": 
+      :aggregate: false
+      :sequence: 83
+      :sql_phrase: success_stories.submitted1 `Stay Healthy?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Stay Healthy?
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "84": 
+      :aggregate: false
+      :sequence: 84
+      :sql_phrase: success_stories.submitted2 `Go KPs role?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Go KPs role?
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "85": 
+      :aggregate: false
+      :sequence: 85
+      :sql_phrase: success_stories.submitted3 `Active Impact?`
+      :filterable: true
+      :role: Coordinator
+      :display_name: Active Impact?
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "86": 
+      :aggregate: false
+      :sequence: 86
+      :sql_phrase: case success_stories.status when 0 then 'Unseen' when 1 then 'Seen' when 2 then 'Active' when 3 then 'Rejected' else NULL end `Status`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Status
+      :join: success_stories
+      :identification: false
+      :sensitive: false
+      :category: Success Story Fields
+      :visible: true
+    "tile-visible:produce": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"produce"')>0,'Yes','No') `Is Produce Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Produce Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "tile-visible:sleep": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"sleep"')>0,'Yes','No') `Is Sleep Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Sleep Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "tile-visible:water": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"water"')>0,'Yes','No') `Is Water Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Water Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
   joins: 
     "100": 
       :nest_level: 1
@@ -763,12 +1099,12 @@
       :childof: users
     "103": 
       :nest_level: 2
-      :sql: inner join challenges_sent on (challenges_sent.user_id = users.id)
+      :sql: LEFT JOIN `challenges_sent` ON (`challenges_sent`.`user_id` = `users`.`id` AND `challenges_sent`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
       :alias: challenges_sent
       :childof: users
     "104": 
       :nest_level: 2
-      :sql: inner join challenges_received on (challenges_received.user_id = users.id)
+      :sql: LEFT JOIN `challenges_received` on (`challenges_received`.`user_id` = `users`.`id` AND `challenges_received`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
       :alias: challenges_received
       :childof: users
     "105": 
@@ -792,10 +1128,10 @@
         INNER JOIN profiles p ON p.user_id = users.id
         INNER JOIN locations r ON r.id = users.top_level_location_id
         INNER JOIN locations l ON l.id = users.location_id
-        INNER JOIN team_members ON team_members.user_id = users.id
-        INNER JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
-        INNER JOIN users leader_users ON (leader_users.id = team_members.user_id AND team_members.is_leader = 1)
-        INNER JOIN profiles leader_profiles ON leader_profiles.user_id = leader_users.id
+        LEFT JOIN team_members ON team_members.user_id = users.id
+        LEFT JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
+        LEFT JOIN users leader_users ON (leader_users.id = team_members.user_id AND team_members.is_leader = 1)
+        LEFT JOIN profiles leader_profiles ON leader_profiles.user_id = leader_users.id
       :alias: competitions
       :childof: users
     "108": 
@@ -813,11 +1149,11 @@
       :sql: inner join promotions on (promotions.id = users.promotion_id)
       :alias: promotions
       :parentof: users
-    "111": 
+    "111":
       :nest_level: 1
       :sql: |
-        inner join evaluation_definitions evaluationDefinitionsN on (users.promotion_id = evaluationDefinitionsN.promotion_id)
-        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and evaluationDefinitionsN.id = evaluationsN.evaluation_definition_id)
+        inner join evaluation_definitions evaluationNDefinition on (evaluationNDefinition.id = evaluationN)
+        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and evaluationNDefinition.id = evaluationsN.evaluation_definition_id)
       :alias: evaluations
       :childof: users
     "112": 
@@ -894,4 +1230,81 @@
       :nest_level: 1
       :sql: left join demographics on (demographics.user_id = users.id AND demographics.ethnicity IS NOT NULL AND demographics.ethnicity != '')
       :alias: ethnicity_demographics
+      :childof: users
+    "300":
+      :nest_level: 1
+      :sql: INNER JOIN `challenges` AS `regional_challenges_created` on (`regional_challenges_created`.`created_by` = `users`.`id` AND `regional_challenges_created`.`type` = 'regional')
+      :alias: regional_challenges_created
+      :childof: users
+    "301":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_accepted`.`id`) AS `rc_accepted`, `challenges_accepted`.`user_id` FROM `challenges_received` AS `challenges_accepted` INNER JOIN `challenges` AS `regional_challenges_accepted` ON (`regional_challenges_accepted`.`type` = 'regional' AND `challenges_accepted`.`challenge_id` = `regional_challenges_accepted`.`id`) WHERE`challenges_accepted`.`status` IN (2, 3) AND `challenges_accepted`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_accepted`.`user_id`) AS `regional_challenges_accepted` ON `regional_challenges_accepted`.`user_id` = `users`.`id`
+      :alias: regional_challenges_accepted
+      :childof: users
+    "302": 
+      :nest_level: 1
+      :sql: LEFT JOIN `challenges_received` AS `challenges_accepted` ON (`challenges_accepted`.`user_id` = `users`.`id` AND `challenges_accepted`.`status` IN (2, 3) AND `challenges_accepted`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: challenges_accepted
+      :childof: users
+    "303":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_completed`.`id`) AS `rc_completed`, `challenges_completed`.`user_id` FROM `challenges_received` AS `challenges_completed` INNER JOIN `challenges` AS `regional_challenges_completed` ON (`regional_challenges_completed`.`type` = 'regional' AND `challenges_completed`.`challenge_id` = `regional_challenges_completed`.`id`) WHERE`challenges_completed`.`status` = 3 AND `challenges_completed`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_completed`.`user_id`) AS `regional_challenges_completed` ON `regional_challenges_completed`.`user_id` = `users`.`id`
+      :alias: regional_challenges_completed
+      :childof: users
+    "304": 
+      :nest_level: 1
+      :sql: INNER JOIN `challenges_received` AS `challenges_completed` ON (`challenges_completed`.`user_id` = `users`.`id` AND `challenges_completed`.`status` = 3 AND `challenges_completed`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: challenges_completed
+      :childof: users
+    "305": 
+      :nest_level: 1
+      :sql: LEFT JOIN `challenges_received` AS `challenges_declined` ON (`challenges_declined`.`user_id` = `users`.`id` AND `challenges_declined`.`status` = 4 AND `challenges_declined`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: challenges_declined
+      :childof: users
+    "306":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_declined`.`id`) AS `rc_declined`, `challenges_declined`.`user_id` FROM `challenges_received` AS `challenges_declined` INNER JOIN `challenges` AS `regional_challenges_declined` ON (`regional_challenges_declined`.`type` = 'regional' AND `challenges_declined`.`challenge_id` = `regional_challenges_declined`.`id`) WHERE`challenges_declined`.`status` = 4 AND `challenges_declined`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_declined`.`user_id`) AS `regional_challenges_declined` ON `regional_challenges_declined`.`user_id` = `users`.`id`
+      :alias: regional_challenges_declined
+      :childof: users
+    "307":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_accepted`.`id`) AS `pc_accepted`, `challenges_accepted`.`user_id` FROM `challenges_received` AS `challenges_accepted` INNER JOIN `challenges` AS `peer_challenges_accepted` ON (`peer_challenges_accepted`.`type` = 'peer' AND `challenges_accepted`.`challenge_id` = `peer_challenges_accepted`.`id`) WHERE`challenges_accepted`.`status` IN (2, 3) AND `challenges_accepted`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_accepted`.`user_id`) AS `peer_challenges_accepted` ON `peer_challenges_accepted`.`user_id` = `users`.`id`
+      :alias: peer_challenges_accepted
+      :childof: users
+    "308":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_completed`.`id`) AS `pc_completed`, `challenges_completed`.`user_id` FROM `challenges_received` AS `challenges_completed` INNER JOIN `challenges` AS `peer_challenges_completed` ON (`peer_challenges_completed`.`type` = 'peer' AND `challenges_completed`.`challenge_id` = `peer_challenges_completed`.`id`) WHERE`challenges_completed`.`status` = 3 AND `challenges_completed`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_completed`.`user_id`) AS `peer_challenges_completed` ON `peer_challenges_completed`.`user_id` = `users`.`id`
+      :alias: peer_challenges_completed
+      :childof: users
+    "309":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_declined`.`id`) AS `pc_declined`, `challenges_declined`.`user_id` FROM `challenges_received` AS `challenges_declined` INNER JOIN `challenges` AS `peer_challenges_declined` ON (`peer_challenges_declined`.`type` = 'peer' AND `challenges_declined`.`challenge_id` = `peer_challenges_declined`.`id`) WHERE`challenges_declined`.`status` = 4 AND `challenges_declined`.`updated_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_declined`.`user_id`) AS `peer_challenges_declined` ON `peer_challenges_declined`.`user_id` = `users`.`id`
+      :alias: peer_challenges_declined
+      :childof: users
+    "310": 
+      :nest_level: 1
+      :sql: |
+        LEFT JOIN team_members ON team_members.user_id = users.id
+        LEFT JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
+      :alias: teams
+      :childof: users
+    "311":
+      :nest_level: 1
+      :sql: LEFT JOIN (SELECT COUNT(DISTINCT `challenges_received`.`id`) AS `pc_received`, `challenges_accepted`.`user_id` FROM `challenges_received`  INNER JOIN `challenges` AS `peer_challenges_received` ON (`peer_challenges_received`.`type` = 'peer' AND `challenges_received`.`challenge_id` = `peer_challenges_received`.`id`) WHERE `challenges_received`.`created_at` BETWEEN :reported_on_min AND :reported_on_max GROUP BY `challenges_received`.`user_id`) AS `peer_challenges_received` ON `peer_challenges_received`.`user_id` = `users`.`id`
+      :alias: peer_challenges_received
+      :childof: users
+    "312":
+      :nest_level: 1
+      :sql: LEFT JOIN `posts` AS `wall_posts` ON (`wall_posts`.`user_id` = `users`.`id` AND `wall_posts`.`wallable_type` = 'Promotion' AND `wall_posts`.`wallable_id` = `users`.`promotion_id` AND `wall_posts`.`is_flagged` = 0 AND `wall_posts`.`is_deleted` = 0 AND `wall_posts`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: wall_posts
+      :childof: users
+    "313":
+      :nest_level: 1
+      :sql: LEFT JOIN `ratings` AS `recipe_ratings` ON (`recipe_ratings`.`user_id` = `users`.`id` AND `recipe_ratings`.`rateable_type` = 'Recipe' AND `recipe_ratings`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: recipe_ratings
+      :childof: users
+    "314":
+      :nest_level: 1
+      :sql: LEFT JOIN `success_stories` ON (`success_stories`.`user_id` = `users`.`id` AND `success_stories`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
+      :alias: success_stories
       :childof: users
