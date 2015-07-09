@@ -133,10 +133,7 @@ class EntriesController < ApplicationController
       Entry.transaction do
         @entry.save!
         #create exercise activites, delete current ones first (if any exist)
-        @entry.entry_exercise_activities.each do |act|
-          # Remove from array and delete from db
-           @entry.entry_exercise_activities.delete(act).first.destroy
-        end
+        @entry.entry_exercise_activities.destroy_all
         ex_activities.each do |hash|
           if hash[:exercise_activity_id] && hash[:value] && hash[:exercise_activity_id].to_s.is_i? && hash[:value].to_s.is_i?
             @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
