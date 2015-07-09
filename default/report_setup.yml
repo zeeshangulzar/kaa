@@ -1308,3 +1308,11 @@
       :sql: LEFT JOIN `success_stories` ON (`success_stories`.`user_id` = `users`.`id` AND `success_stories`.`created_at` BETWEEN :reported_on_min AND :reported_on_max)
       :alias: success_stories
       :childof: users
+    "16":
+      :alias: entry_behaviors
+      :nest_level: 3
+      :childof: entries
+      :sql: |
+        left join entry_behaviors on (entry_behaviors.entry_id = entries.id)
+        left join behaviors on (behaviors.id = entry_behaviors.behavior_id)
+

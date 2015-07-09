@@ -32,6 +32,8 @@ module BehaviorsForReports
     behaviors = promotion.behaviors
 
     behaviors.each do |behavior|
+      next if behavior.name.downcase =~ /weight/
+
       jk = "eb_#{behavior.id}"
       jak = "b_#{behavior.id}"
         if behavior.cap_value.to_i>0
