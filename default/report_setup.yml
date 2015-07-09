@@ -1046,6 +1046,42 @@
       :sensitive: false
       :category: Success Story Fields
       :visible: true
+    "tile-visible:produce": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"produce"')>0,'Yes','No') `Is Produce Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Produce Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "tile-visible:sleep": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"sleep"')>0,'Yes','No') `Is Sleep Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Sleep Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
+    "tile-visible:water": 
+      :aggregate: false
+      :sequence: 1
+      :sql_phrase: if(instr(tiles,'"water"')>0,'Yes','No') `Is Water Tile Visible`
+      :filterable: false
+      :role: Coordinator
+      :display_name: Is Water Tile Visible
+      :join: users
+      :identification: true
+      :sensitive: false
+      :category: Participant Fields
+      :visible: true
   joins: 
     "100": 
       :nest_level: 1
@@ -1113,11 +1149,11 @@
       :sql: inner join promotions on (promotions.id = users.promotion_id)
       :alias: promotions
       :parentof: users
-    "111": 
+    "111":
       :nest_level: 1
       :sql: |
-        inner join evaluation_definitions evaluationDefinitionsN on (users.promotion_id = evaluationDefinitionsN.promotion_id)
-        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and evaluationDefinitionsN.id = evaluationsN.evaluation_definition_id)
+        inner join evaluation_definitions evaluationNDefinition on (evaluationNDefinition.id = evaluationN)
+        inner join evaluations evaluationsN on (users.id = evaluationsN.user_id and evaluationNDefinition.id = evaluationsN.evaluation_definition_id)
       :alias: evaluations
       :childof: users
     "112": 
