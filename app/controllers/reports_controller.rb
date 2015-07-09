@@ -77,6 +77,7 @@ raise 'get here'
 
     # get the data
     begin
+      response.headers['X-SQL'] = @report.to_sql 
       data = @report.get_data
     rescue Exception => err
       if err.message.include?('sensitive')

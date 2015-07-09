@@ -193,6 +193,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     f = add_other_promotion_specific_fields(@fields, promotion)
     o2m = add_one_to_many_fields(f.reject {|k,v| !roles.include?(v[:role]) || !v[:visible]}, promotion)
     add_custom_prompts(o2m, promotion)
+    add_milestones(o2m, promotion)
     return add_other_promotion_specific_fields(o2m, promotion)
   end
   
@@ -277,10 +278,11 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     cps.each do |cp|
       if cp.is_active && ![CustomPrompt::HEADER, CustomPrompt::PAGEBREAK].include?(cp.type_of_prompt)
         promotion.evaluation_definitions.each_with_index do |pev, index|
-          k = "evaluations_udfs:#{cp.id}|#{pev.sequence}"
+          k = "evaluations_udfs:#{cp.id}|#{pev.id}"
           fields[k] = model.dup
           fields[k][:display_name] = "#{cp.short_label}*"
-          fields[k][:sql_phrase] = "evaluations#{pev.sequence}_udfs.#{cp.udf_def.cfn} `#{cp.short_label} At #{pev.sequence.ordinalize} Evaluation`"
+          fields[k][:sql_phrase] = "evaluations#{pev.id}_udfs.#{cp.udf_def.cfn} `#{cp.short_label} At "
+          fields[k][:sql_phrase] = fields[k][:sql_phrase] + (pev.sequence ? "#{pev.sequence.ordinalize} Evaluation`" : 'Registration`')
           fields[k][:sequence] = fields.size
           fields[k][:join] = 'evaluationsN_udfs'
 
@@ -292,6 +294,50 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
+    return fields
+  end
+
+  def add_milestones(fields, promotion)
+    badges = promotion.badges
+    return fields if badges.empty?
+
+    model = {
+      :visible => true,
+      :role => HesAuthorization::AuthRole.auth_roles[:coordinator],
+      :display_name => nil,
+      :identification => false,
+      :sql_phrase => nil,
+      :aggregate => true,
+      :sensitive => false,
+      :filterable => false,
+      :sequence => nil,
+      :join => nil,
+      :category => "Milestones"
+    }
+
+    highest_clause = "CASE\n" 
+    highest_sum = "sum(coalesce(entries.exercise_points,0) + coalesce(entries.challenge_points,0) + coalesce(entries.timed_behavior_points,0))" 
+    promotion.badges.milestones.sort_by(&:point_goal).reverse.each do |badge|
+      k = "milestone_goals:#{badge.point_goal}"
+      fields[k] = model.dup
+      fields[k][:display_name] = "Achieved #{badge.name} Milestone"
+      fields[k][:sql_phrase] = "if(sum(coalesce(entries.exercise_points,0) + coalesce(entries.challenge_points,0) + coalesce(entries.timed_behavior_points,0)) > #{User.sanitize(badge.point_goal)},'Yes','No') `Achieved #{User.sanitize(badge.name)} Milestone`"
+      fields[k][:sequence] = fields.size
+      fields[k][:join] = 'entries'
+
+      highest_clause << "WHEN #{highest_sum} >= #{User.sanitize(badge.point_goal)} THEN #{User.sanitize(badge.name)}\n"
+    end
+
+    highest_clause << "ELSE '' END `Most Recent Milestone`"
+
+    k = "milestone_goals:highest"
+    fields[k] = model.dup
+    fields[k][:display_name] = "Most Recent Milestone"
+    fields[k][:sql_phrase] = highest_clause 
+    fields[k][:sequence] = fields.size
+    fields[k][:aggregate] = true
+    fields[k][:join] = 'entries'
+
     return fields
   end
 end

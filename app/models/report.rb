@@ -135,9 +135,12 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     #o2mId = first_o2m_field.split(':').last.split('-').last.split('|').first
     @setup.fields = @setup.add_one_to_many_fields(@setup.fields,promotion)
 
+
+    @setup.fields = @setup.add_milestones(@setup.fields,promotion)
+
     # posted variable looks like this: profiles_udfs:27 evaluations_udfs:27|1  (where 27 is the custom prompt id and 3 is pev id)
     #first_udf_field = fields.detect{|f|f.include?('evaluations_udfs')||f.include?('profiles_udfs')}||':|'
-    # @setup.fields = @setup.add_custom_prompts(@setup.fields,promotion)
+    @setup.fields = @setup.add_custom_prompts(@setup.fields,promotion)
     # @setup.fields = @setup.add_locations(@setup.fields, promotion)
     @setup.fields = @setup.add_other_promotion_specific_fields(@setup.fields,promotion)
   end
