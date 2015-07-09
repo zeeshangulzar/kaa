@@ -45,7 +45,7 @@ module BehaviorsForReports
           else
             cap_data_type = 'DECIMAL(7,5)'
           end
-          cap_function = "LEAST(CAST(#{jk}.value AS #{cap_data_type}),#{jak}.cap)"
+          cap_function = "LEAST(CAST(#{jk}.value AS #{cap_data_type}),#{jak}.cap_value)"
 
           k = "entry_behaviors_sum_cap:#{behavior.id}"
           fields[k] = model.dup
