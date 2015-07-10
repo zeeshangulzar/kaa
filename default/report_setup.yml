@@ -257,7 +257,7 @@
     "22": 
       :aggregate: true
       :sequence: 8
-      :sql_phrase: AVG(entries.exercise_steps) `Average Steps`
+      :sql_phrase: COALESCE(AVG(entries.exercise_steps), 0) `Average Steps` 
       :filterable: true
       :role: Coordinator
       :display_name: Average Steps
@@ -596,11 +596,11 @@
       :sql_phrase: user_milestones.earned_date `Orange 50`
       :filterable: false
       :role: Coordinator
-      :display_name: Orange 50
+      :display_name: Orange - Date Earned
       :join: orange_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "50": 
       :aggregate: false
@@ -608,11 +608,11 @@
       :sql_phrase: user_milestones.earned_date `Green 100`
       :filterable: false
       :role: Coordinator
-      :display_name: Green 100
+      :display_name: Green - Date Earned
       :join: green_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "51": 
       :aggregate: false
@@ -620,11 +620,11 @@
       :sql_phrase: user_milestones.earned_date `Bronze 250`
       :filterable: false
       :role: Coordinator
-      :display_name: Bronze 250
+      :display_name: Bronze - Date Earned
       :join: bronze_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "52": 
       :aggregate: false
@@ -632,11 +632,11 @@
       :sql_phrase: user_milestones.earned_date `Silver 500`
       :filterable: false
       :role: Coordinator
-      :display_name: Silver 500
+      :display_name: Silver - Date Earned
       :join: silver_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "53": 
       :aggregate: false
@@ -644,11 +644,11 @@
       :sql_phrase: user_milestones.earned_date `Gold 750`
       :filterable: false
       :role: Coordinator
-      :display_name: Gold 750
+      :display_name: Gold - Date Earned
       :join: gold_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "54": 
       :aggregate: false
@@ -656,11 +656,11 @@
       :sql_phrase: user_milestones.earned_date `Platinum 1000`
       :filterable: false
       :role: Coordinator
-      :display_name: Platinum 1000
+      :display_name: Platinum - Date Earned
       :join: platinum_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "55": 
       :aggregate: false
@@ -668,11 +668,11 @@
       :sql_phrase: user_milestones.earned_date `Diamond 1500`
       :filterable: false
       :role: Coordinator
-      :display_name: Diamond 1500
+      :display_name: Diamond - Date Earned
       :join: diamond_milestones
       :identification: true
       :sensitive: false
-      :category: Milestone Fields
+      :category: Milestones
       :visible: true
     "56": 
       :aggregate: true
