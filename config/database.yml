@@ -22,7 +22,7 @@
 development:
    adapter: mysql2
    encoding: latin1
-   database: go_development
+   database: h4h_development
    username: hesdev
    password: l0ngd@y
    host: 10.100.1.249
@@ -30,7 +30,7 @@ development:
 test:
     adapter: mysql2
     encoding: latin1
-    database: go_test
+    database: h4h_test
     username: hesdev
     password: l0ngd@y
     host: 10.100.1.249

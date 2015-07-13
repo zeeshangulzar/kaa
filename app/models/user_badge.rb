@@ -13,7 +13,7 @@ class UserBadge < ApplicationModel
     appendages = [
       'Feels good, doesn\'t it?',
       'Nice.',
-      'Way to "Go KP"',
+      'Way to Go.',
       'KP it up.',
       'Well done.',
       'Super.'

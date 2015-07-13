@@ -10,7 +10,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-APPLICATION_NAME = 'GOKP'
+APPLICATION_NAME = 'H4H'
 
 module Go
   class Application < Rails::Application
@@ -80,7 +80,7 @@ module Go
     }
 
     # memcache
-    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => 'gokp'}
+    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => 'h4h'}
 
 end
 end

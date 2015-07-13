@@ -78,7 +78,7 @@ class Task
         } # end each user
         if queue
           # make the XML file for this promotion
-          tag = "gokp-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
+          tag = "h4h-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
           XmlEmailDelivery.deliver_many(mails,tag,addresses) unless mails.empty?
         else
           mails.each_with_index{ |mail, idx|

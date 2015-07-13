@@ -11,9 +11,9 @@ class KpwUsersController < ApplicationController
     potential_kpw_users = User.connection.select_all(sql)
     potential_kpw_users.each do |row|
       password = decrypt(Base64.decode64(row['password'])).downcase
-      if password==params[:password].downcase && !row['gokp_token'].empty?
+      if password==params[:password].downcase && !row['h4h_token'].empty?
         if @promotion.users.count(:all,:conditions=>"kpwalk_user_id = #{User.sanitize(row['user_id'])}").zero?
-          params[:token] = row['gokp_token']
+          params[:token] = row['h4h_token']
           find_by_token
           return
         else
@@ -27,7 +27,7 @@ class KpwUsersController < ApplicationController
   end
 
   def find_by_token
-    # find user in kpwalk database where gokp_token = params[:token]
+    # find user in kpwalk database where h4h_token = params[:token]
     #   - if so, proceed
     #   - if not, return nothing
     hash = User.get_kpwalk_data_from_token(params[:token])

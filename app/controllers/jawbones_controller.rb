@@ -52,7 +52,7 @@ class JawbonesController < ApplicationController
         notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} shortly."
       end
 
-      redirect_to = "http://#{u.promotion.subdomain}.healthyworkforce-gokp.org/#/settings"
+      redirect_to = "http://#{u.promotion.subdomain}.healthfortheholidays.com/#/settings"
 
       redirect_to Rails.env.production? ? redirect_to : 'http://www.go.dev:9000/#/settings'
     else

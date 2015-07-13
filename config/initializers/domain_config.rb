@@ -1,6 +1,6 @@
 module DomainConfig
   # if you want this site to be served as site.com and/or site.net and/or site.org, put them here
-  DomainNames=['healthyworkforce-gokp.org', 'gokp.com', 'go.dev']
+  DomainNames=['healthfortheholidays.com', 'h4h.dev']
   # if you want site.com and/or site.org to be redirected to site.com, put them here
   RedirectDomainNames=['']
   # if you want staging.site.com, dev.site.com, test.site.com to be served as site.com, put staging, dev, test here

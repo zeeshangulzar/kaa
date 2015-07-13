@@ -46,10 +46,10 @@ class FitbitLogger
     # Send the user a notification saying that their Fitbit data has been synced.
     if user_notification
       log "- Updated Notification##{user_notification.id} for #{fbu.user.email}", 2 if write_to_log
-      user_notification.update_attributes(:message => "Your Fitbit data was synchronized with Go KP on #{dt} at #{tm}")
+      user_notification.update_attributes(:message => "Your Fitbit data was synchronized with #{Constant::AppName} on #{dt} at #{tm}")
     else
       log "- Created FITBIT notification for #{fbu.user.email}", 2 if write_to_log
-      fbu.user.notifications.create(:key => 'FITBIT', :title => "Fitbit Data Synced", :message => "Your Fitbit data was synchronized with Go KP on #{dt} at #{tm}")
+      fbu.user.notifications.create(:key => 'FITBIT', :title => "Fitbit Data Synced", :message => "Your Fitbit data was synchronized with #{Constant::AppName} on #{dt} at #{tm}")
     end
 
     # # Send the user a notification about the activity's cap value.
