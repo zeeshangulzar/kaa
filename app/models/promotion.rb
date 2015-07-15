@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :badges, :resources_title, :name, :status, :version, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :resources_title, :name, :status, :version, :any_user
 
   belongs_to :organization
 
@@ -14,8 +14,6 @@ class Promotion < ApplicationModel
   has_many :email_reminders
 
   has_many :unsubscribe_list
-
-  has_many :badges, :order => "sequence ASC"
 
   has_many :resources
 
@@ -145,10 +143,6 @@ class Promotion < ApplicationModel
     options = options.merge({:methods => ["current_date", "current_competition"]})
     promotion_obj = super(options)
     return promotion_obj
-  end
-
-  def milestone_goals
-    milestones = self.badges.milestones.collect{|ms| [ms.id, ms.point_goal]}.inject({}) { |h, (id, pts)| h[id] = pts; h }
   end
 
   def clear_hes_cache

@@ -40,15 +40,5 @@ class Like < ApplicationModel
     likeable.fire_after_unlike(self) if likeable.respond_to?(:fire_after_unlike)
     user.fire_after_unlike(self) if user.respond_to?(:fire_after_unlike)
   end
-  
-  after_create :do_badges
-  after_destroy :do_badges
-
-  def do_badges
-    if self.likeable_type == "Post"
-      Badge.do_applause(self)
-      Badge.do_high_five(self)
-    end
-  end
 
 end

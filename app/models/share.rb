@@ -17,15 +17,4 @@ class Share < ApplicationModel
       HesShareable::ActsAsShareable.non_active_record_shareables.detect{|x| x.to_s == self.shareable_type}.find(self.shareable_id)
     end
   end
-  
-  after_create :do_badges
-  after_destroy :do_badges
-
-  def do_badges
-    Badge.do_chef(self)
-    Badge.do_head_chef(self)
-    Badge.do_tipster(self)
-    Badge.do_uber_tipster(self)
-  end
-
 end

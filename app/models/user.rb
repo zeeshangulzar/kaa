@@ -126,12 +126,12 @@ class User < ApplicationModel
   # attrs
   attr_protected :role, :auth_key
   
-  attr_privacy :email, :profile, :milestone_id, :public
+  attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :me
+  attr_privacy :username, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :me
   attr_privacy :nuid_verified, :master
 
-  attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :nuid_verified, :milestone_id
+  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
@@ -145,22 +145,14 @@ class User < ApplicationModel
   has_many :evaluations, :dependent => :destroy
 
   has_many :groups, :foreign_key => "owner_id"
-  
-  has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
-  has_many :badges, :through => :badges_earned
 
-  # these two convoluted associations provide a means of getting the user's latest milestone badge earned
-  has_one :current_milestone_earned, :class_name => "UserBadge", :include => :badge, :order => "earned_date DESC, badges.sequence DESC", :conditions => proc { "badges.badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }
-  has_one :current_milestone, :class_name => "Badge", :through => :current_milestone_earned, :source => :badge, :foreign_key => "badge_id", :order => "earned_date DESC, badges.sequence DESC"
-  
-  accepts_nested_attributes_for :profile, :evaluations, :badges_earned
+  accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
   
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
   before_validation :set_parents, :on => :create
   before_save :set_top_level_location
-
 
 
   # includes
@@ -188,9 +180,6 @@ class User < ApplicationModel
   
   def serializable_hash(options={})
     hash = super(options)
-    # 2015-05-29 BM: added milestone_id column to user, eliminating these nasty queries every time we serialize user..
-    # ms = self.current_milestone
-    # hash["milestone_id"] = ms ? ms.id : nil
     return hash
   end
 

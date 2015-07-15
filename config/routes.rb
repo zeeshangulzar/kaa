@@ -44,11 +44,6 @@ Go::Application.routes.draw do
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
 
-  match 'badges' => 'badges#user_badges_earned', :via => 'get'
-  match 'users/:user_id/badges' => 'badges#user_badges_earned', :via => 'get'
-
-  resources :badges
-
   resources :organizations, :group_users
 
   match 'groups/*group_id/users' => 'group_users#index', :via => :get
@@ -62,7 +57,6 @@ Go::Application.routes.draw do
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
-    resources :badges, :only => [:index]
     # CONTENT MODELS
     resources :tips
     resources :facts

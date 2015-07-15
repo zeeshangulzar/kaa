@@ -193,7 +193,6 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     f = add_other_promotion_specific_fields(@fields, promotion)
     o2m = add_one_to_many_fields(f.reject {|k,v| !roles.include?(v[:role]) || !v[:visible]}, promotion)
     add_custom_prompts(o2m, promotion)
-    add_milestones(o2m, promotion)
     # see lib/behaviors_for_reports.rb
     BehaviorsForReports.add_behavior_joins(joins,promotion)
     BehaviorsForReports.add_behavior_fields(o2m,promotion)
@@ -300,47 +299,4 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     return fields
   end
 
-  def add_milestones(fields, promotion)
-    badges = promotion.badges
-    return fields if badges.empty?
-
-    model = {
-      :visible => true,
-      :role => HesAuthorization::AuthRole.auth_roles[:coordinator],
-      :display_name => nil,
-      :identification => false,
-      :sql_phrase => nil,
-      :aggregate => true,
-      :sensitive => false,
-      :filterable => false,
-      :sequence => nil,
-      :join => nil,
-      :category => "Milestones"
-    }
-
-    highest_clause = "CASE\n" 
-    highest_sum = "sum(coalesce(entries.exercise_points,0) + coalesce(entries.gift_points,0) + coalesce(entries.behavior_points,0))" 
-    promotion.badges.milestones.sort_by(&:point_goal).reverse.each do |badge|
-      k = "milestone_goals:#{badge.point_goal}"
-      fields[k] = model.dup
-      fields[k][:display_name] = "Achieved #{badge.name} Milestone"
-      fields[k][:sql_phrase] = "if(sum(coalesce(entries.exercise_points,0) + coalesce(entries.gift_points,0) + coalesce(entries.behavior_points,0)) > #{User.sanitize(badge.point_goal)},'Yes','No') `Achieved #{User.sanitize(badge.name)} Milestone`"
-      fields[k][:sequence] = fields.size
-      fields[k][:join] = 'entries'
-
-      highest_clause << "WHEN #{highest_sum} >= #{User.sanitize(badge.point_goal)} THEN #{User.sanitize(badge.name)}\n"
-    end
-
-    highest_clause << "ELSE '' END `Most Recent Milestone`"
-
-    k = "milestone_goals:highest"
-    fields[k] = model.dup
-    fields[k][:display_name] = "Most Recent Milestone"
-    fields[k][:sql_phrase] = highest_clause 
-    fields[k][:sequence] = fields.size
-    fields[k][:aggregate] = true
-    fields[k][:join] = 'entries'
-
-    return fields
-  end
 end

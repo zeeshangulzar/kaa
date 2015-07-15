@@ -285,16 +285,4 @@ class Friendship < ApplicationModel
     inverse_friendship.destroy if !inverse_friendship.nil?
   end
 
-
-
-  # badges...
-
-  after_create :do_badges
-  after_update :do_badges
-  after_destroy :do_badges
-
-  def do_badges
-    return Badge.do_sidekick(self)
-  end
-
 end

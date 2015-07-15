@@ -150,7 +150,6 @@ class Competition < ApplicationModel
       user['profile']['first_name']   = row['first_name']
       user['profile']['last_name']    = row['last_name']
       user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
-      user['milestone_id']            = row['milestone_id']
       user['location_id']             = row['location_id']
       user['location']['id']          = row['location_id']
       user['location']['name']        = row['location_name']

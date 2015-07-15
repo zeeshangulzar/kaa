@@ -21,11 +21,5 @@ class Rating < ApplicationModel
       HesRateable::ActsAsRateable.non_active_record_rateables.detect{|x| x.to_s == self.rateable_type}.find(self.rateable_id)
     end
   end
-  
-  after_create :do_badges
-
-  def do_badges
-    Badge.do_food_critic(self)
-  end
 
 end

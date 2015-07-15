@@ -199,16 +199,6 @@ class Post < ApplicationModel
     "post_reply_#{reply.id}"
   end
 
-
-  # badges...
-
-  after_create :do_badges
-  after_destroy :do_badges
-
-  def do_badges
-    return Badge.do_enthusiast(self)
-  end
-
   def root_user
     return !self.root_post.nil? ? self.root_post.user : self.user
   end
@@ -362,27 +352,10 @@ class Post < ApplicationModel
     users_sql = "
       SELECT
       users.id AS user_id, profiles.id AS profile_id, profiles.first_name, profiles.last_name, profiles.image,
-      user_badge.id AS milestone_id, locations.id AS location_id, locations.name AS location_name
+      locations.id AS location_id, locations.name AS location_name
       FROM users
       JOIN profiles ON profiles.user_id = users.id
       LEFT JOIN locations ON locations.id = users.location_id
-      LEFT JOIN (
-        SELECT
-        user_badges.user_id, badges.id
-        FROM user_badges
-        JOIN badges ON badges.id = user_badges.badge_id
-        JOIN (
-          SELECT
-          user_id, MAX(point_goal) as point_goal
-          FROM
-          user_badges
-          JOIN badges ON badges.id = user_badges.badge_id
-          WHERE
-          badges.badge_type = 'milestone'
-          AND user_badges.earned_year = #{conditions[:current_year]}
-          GROUP BY user_id
-        ) max_badge ON max_badge.user_id = user_badges.user_id AND max_badge.point_goal = badges.point_goal
-      ) user_badge ON user_badge.user_id = users.id
       WHERE users.id IN (#{( posts.collect{|p|p['user_id']} + replies.collect{|r|r['user_id']} + likes.collect{|l|l['user_id']} ).join(',')})
     "
     result = self.connection.exec_query(users_sql)
@@ -398,7 +371,6 @@ class Post < ApplicationModel
       user['profile']['first_name']   = row['first_name']
       user['profile']['last_name']    = row['last_name']
       user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
-      user['milestone_id']            = row['milestone_id']
       user['location_id']             = row['location_id']
       user['location']['id']          = row['location_id']
       user['location']['name']        = row['location_name']
