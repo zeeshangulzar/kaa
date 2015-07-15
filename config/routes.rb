@@ -188,11 +188,6 @@ Go::Application.routes.draw do
   match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
   match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
 
-  resources :events do
-    resources :invites, :only => [:index, :show, :create]
-  end
-  resources :invites
-
   resources :chat_messages
 
   match "/posters/current" => "posters#current", :via => :get

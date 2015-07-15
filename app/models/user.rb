@@ -262,8 +262,6 @@ group_users.user_id = #{user_id}
     return @result
   end
 
-  has_many :invites, :foreign_key => "invited_user_id"  
-
   def search(search, unassociated = false, limit = 0, promotion_id = self.promotion_id)
     search = self.connection.quote_string(search)
     sql = "
