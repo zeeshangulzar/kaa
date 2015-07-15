@@ -144,9 +144,6 @@ class User < ApplicationModel
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
 
-  has_many :long_term_goals, :order => "created_at DESC"
-  has_many :personal_action_plans
-
   has_many :groups, :foreign_key => "owner_id"
   
   has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
@@ -299,69 +296,6 @@ group_users.user_id = #{user_id}
     users = User.find_by_sql(sql)
     ActiveRecord::Associations::Preloader.new(users, :profile).run
     return users
-  end
-
-  def posters(options = {})
-    user = self
-    options[:unlocked_only] ||= false
-    options[:start] ||= user.promotion.current_date.beginning_of_week
-    options[:end] ||= user.promotion.current_date.end_of_week
-    sql = "
-SELECT
-IF(
-  IF(entries.exercise_minutes > 0, 1, 0)
-  OR
-  IF(entries.exercise_steps > 0, 1, 0)
-  , 1, 0) AS unlocked,
-posters.id, posters.visible_date, posters.summary, posters.content, posters.success_story_id, posters.title
-FROM posters
-LEFT JOIN entries ON entries.user_id = #{user.id}
-  AND (
-    entries.recorded_on = posters.visible_date
-    OR (
-      -- saturday's entry lines up with friday
-      WEEKDAY(entries.recorded_on) = 5 AND DATE_SUB(entries.recorded_on, INTERVAL 1 DAY) = posters.visible_date
-      OR
-      -- sunday's entry lines up with friday
-      WEEKDAY(entries.recorded_on) = 6 AND DATE_SUB(entries.recorded_on, INTERVAL 2 DAY) = posters.visible_date
-    )
-  )
-WHERE
-posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
-AND posters.active = 1
-AND posters.visible_date <= '#{user.promotion.current_date}'
-GROUP BY posters.visible_date, entries.recorded_on
-ORDER BY posters.visible_date DESC, entries.recorded_on DESC
-    "
-    posters_array = []
-    last = nil
-    Poster.connection.select_all(sql).each do |row|
-      if last && last['visible_date'] == row['visible_date']
-        if row['unlocked'] === 1
-          posters_array.pop
-          posters_array.push(row)
-        end
-      else
-        posters_array.push(row)
-      end
-      last = row
-    end
-
-    # remove posters if they cannot possibly unlock them (poster visible date is earlier than backlog date)
-    posters_array.each_with_index{|poster,index|
-      if poster['visible_date'].to_date < self.profile.backlog_date && poster['unlocked'] < 1
-        posters_array.delete_at(index)
-      end
-    }
-
-    loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
-
-    posters_array.each_with_index{|poster,index|
-      posters_array[index]['image1'] = loaded_posters[index].image1.serializable_hash
-      posters_array[index]['image2'] = loaded_posters[index].image2.serializable_hash
-    }
-
-    return posters_array
   end
 
   def self.stats(user_ids,year)

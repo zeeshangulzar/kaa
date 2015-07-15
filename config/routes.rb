@@ -25,16 +25,6 @@ Go::Application.routes.draw do
   match "/stats" => "users#stats", :via => :get
   match "/users/:id/stats" => "users#stats", :via => :get
 
-  match "/long_term_goals/curated_images" => "long_term_goals#curated_images", :via => :get
-  match "/long_term_goals" => "long_term_goals#index", :via => :get
-  match "/long_term_goals" => "long_term_goals#create", :via => :post
-  match "/long_term_goals/:id" => "long_term_goals#show", :via => :get
-  match "/long_term_goals/:id" => "long_term_goals#update", :via => :put
-  
-
-  match "/personal_action_plans" => "personal_action_plans#index", :via => :get
-  match "/personal_action_plans" => "personal_action_plans#create", :via => :post
-
   resources :profiles, :only => [:update]
 
   resources :users do
@@ -49,8 +39,6 @@ Go::Application.routes.draw do
     end
     resources :profiles, :only => [:update]
     resources :groups
-    resources :long_term_goals, :only => [:index, :show]
-    resources :personal_action_plans, :only => [:index, :show]
     resources :team_invites
   end
 
@@ -192,9 +180,6 @@ Go::Application.routes.draw do
 
   match "/posters/current" => "posters#current", :via => :get
   resources :posters
-
-  match "/success_stories/featured" => "success_stories#featured", :via => :get
-  resources :success_stories
 
   resources :launch_notifications, :only => [:create]
 

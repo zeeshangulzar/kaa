@@ -305,34 +305,6 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def self.do_all_star(success_story)
-    # TODO: possibly destroy?
-    all_star_badge = success_story.user.promotion.badges.where(:name => "All Star").first rescue nil
-    return if !all_star_badge
-    Badge.uncached do
-      u = success_story.user
-      all_star = u.badges_earned.where(:badges=>{:name=>"All Star"},:earned_year => u.promotion.current_date.year).size
-      if all_star < 1
-        u.badges_earned.create(:badge_id => all_star_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
-  def self.do_time_to_shine(success_story)
-    # TODO: possibly destroy?
-    time_to_shine_badge = success_story.user.promotion.badges.where(:name => "Time To Shine").first rescue nil
-    return if !time_to_shine_badge
-    Badge.uncached do
-      if success_story.featured
-        u = success_story.user
-        time_to_shine = u.badges_earned.where(:badges=>{:name=>"Time To Shine"},:earned_year => u.promotion.current_date.year).size
-        if time_to_shine < 1
-          u.badges_earned.create(:badge_id => time_to_shine_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-        end
-      end
-    end
-  end
-
   def self.do_chef(share)
     # TODO: possibly destroy?
     chef_badge = share.user.promotion.badges.where(:name => "Chef").first rescue nil
