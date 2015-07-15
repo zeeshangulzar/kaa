@@ -140,9 +140,6 @@ class User < ApplicationModel
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
   validates_uniqueness_of :email, :scope => :promotion_id
-  validates_uniqueness_of :altid, :scope => :promotion_id, :case_sensitve => false
-
-  
 
 #  default_scope :include => :profile, :order => "profiles.last_name ASC"
 
