@@ -87,12 +87,8 @@ Go::Application.routes.draw do
   # locations...
   resources :locations do
     resources :locations, :only => [:index, :show]
-    resources :forums
     resources :resources
   end
-
-  resources :forums
-  
 
   # friendships...
   resources :friendships

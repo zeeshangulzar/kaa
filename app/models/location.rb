@@ -10,8 +10,6 @@ class Location < ApplicationModel
 
   has_many :users, :conditions => proc { "users.location_id = #{self.id} OR users.location_id IN (SELECT id FROM locations WHERE parent_location_id = #{self.id})" }
 
-  has_many :forums, :order => "sequence ASC"
-
   flags :has_content
 
   before_save :set_root_location

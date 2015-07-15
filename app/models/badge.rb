@@ -433,34 +433,6 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def self.do_willpower(long_term_goal)
-    # TODO: possibly destroy?
-    willpower_badge = long_term_goal.user.promotion.badges.where(:name => "Willpower").first rescue nil
-    return if !willpower_badge
-    Badge.uncached do
-      u = long_term_goal.user
-      completed = u.long_term_goals.completed.where("YEAR(completed_on) = #{u.promotion.current_date.year}").size
-      willpower = u.badges_earned.where(:badges=>{:name=>"Willpower"},:earned_year => u.promotion.current_date.year).size
-      if willpower < 1 && completed > 0
-        u.badges_earned.create(:badge_id => willpower_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
-  def self.do_transformer(long_term_goal)
-    # TODO: possibly destroy?
-    transformer_badge = long_term_goal.user.promotion.badges.where(:name => "Transformer").first
-    return if !transformer_badge
-    Badge.uncached do
-      u = long_term_goal.user
-      completed = u.long_term_goals.completed.where("YEAR(completed_on) = #{u.promotion.current_date.year}").size
-      transformer = u.badges_earned.where(:badges=>{:name=>"Transformer"},:earned_year => u.promotion.current_date.year).size
-      if transformer < 1 && completed > 4
-        u.badges_earned.create(:badge_id => transformer_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
   def self.do_food_critic(rating)
     # TODO: possibly destroy?
     food_critic_badge = rating.user.promotion.badges.where(:name => "Food Critic").first rescue nil

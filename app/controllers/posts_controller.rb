@@ -176,16 +176,7 @@ class PostsController < ApplicationController
     parent_obj = @wallable || @postable
     post = parent_obj.posts.build
 
-    if parent_obj.class == Forum
-=begin
-      # Forum "topic" permissions
-      if (@current_user.coordinator_or_above? && parent_obj.location.promotion_id == @current_user.promotion_id) || @current_user.location_ids.include?(parent_obj.location_id) || @current_user.master?
-        # good to post, was too difficult to write the opposite of these tests, hence the else..
-      else
-        return HESResponder("Cannot post forum topic.", "DENIED")
-      end
-=end
-    elsif parent_obj.class == Post
+    if parent_obj.class == Post
       post.parent_post_id = parent_obj.id
       post.depth = parent_obj.depth + 1
     end
