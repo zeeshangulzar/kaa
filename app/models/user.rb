@@ -1,7 +1,6 @@
 require 'bcrypt'
 
 class User < ApplicationModel
-  include KpwalkUserAdditions
   include HESFitbitUserAdditions
   include HESJawboneUserAdditions
   include PerModelEncryption
@@ -19,7 +18,6 @@ class User < ApplicationModel
   flags :allow_daily_emails_all_week, :default => true
 
   flags :stay_logged_in, :default => true
-  flags :hide_kpw_stats, :default => false
 
   attr_privacy_no_path_to_user
 
@@ -132,7 +130,7 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :milestone_id, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :kpwalk_user_id, :kpwalk_level, :kpwalk_total_minutes, :kpwalk_total_stars, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :me
+  attr_privacy :username, :tiles, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :me
   attr_privacy :nuid_verified, :master
 
   attr_accessible :username, :tiles, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :nuid_verified, :milestone_id
