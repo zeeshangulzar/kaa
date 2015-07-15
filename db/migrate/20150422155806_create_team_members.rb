@@ -5,8 +5,8 @@ class CreateTeamMembers < ActiveRecord::Migration
       t.boolean :is_leader
       t.integer :total_points, :default => 0
       t.integer :total_exercise_points, :default => 0
-      t.integer :total_timed_behavior_points, :default => 0
-      t.integer :total_challenge_points, :default => 0
+      t.integer :total_behavior_points, :default => 0
+      t.integer :total_gift_points, :default => 0
       t.timestamps
     end
     add_index :team_members, :team_id, :name=>'by_team_id'

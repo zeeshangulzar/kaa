@@ -82,7 +82,7 @@ class Badge < ActiveRecord::Base
           @runtot := (@runtot + z.total_points) AS total_points, z.as_of
           FROM (
             SELECT
-            @runtot := 0, SUM(e.exercise_points + e.challenge_points + e.timed_behavior_points) total_points, e.recorded_on as_of
+            @runtot := 0, SUM(e.exercise_points + e.gift_points + e.behavior_points) total_points, e.recorded_on as_of
             FROM
               entries e
             WHERE
@@ -277,34 +277,6 @@ class Badge < ActiveRecord::Base
     end
   end
 
-  def self.do_rookie(challenge_received)
-    # TODO: possibly destroy?
-    rookie_badge = challenge_received.user.promotion.badges.where(:name => "Rookie").first rescue nil
-    return if !rookie_badge
-    Badge.uncached do
-      u = challenge_received.user
-      completed = u.challenges_received.completed.where("YEAR(completed_on) = #{u.promotion.current_date.year}").size
-      rookie = u.badges_earned.where(:badges=>{:name=>"Rookie"},:earned_year => u.promotion.current_date).size
-      if rookie < 1 && completed > 0
-        u.badges_earned.create(:badge_id => rookie_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
-  def self.do_mvp(challenge_received)
-    # TODO: possibly destroy?
-    mvp_badge = challenge_received.user.promotion.badges.where(:name => "MVP").first rescue nil
-    return if !mvp_badge
-    Badge.uncached do
-      u = challenge_received.user
-      completed = u.challenges_received.completed.where("YEAR(completed_on) = #{u.promotion.current_date.year}").size
-      mvp = u.badges_earned.where(:badges=>{:name=>"MVP"},:earned_year => u.promotion.current_date).size
-      if mvp < 1 && completed > 9
-        u.badges_earned.create(:badge_id => mvp_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
   def self.do_applause(like)
     # TODO: possibly destroy?
     applause_badge = like.user.promotion.badges.where(:name => "Applause").first rescue nil
@@ -329,20 +301,6 @@ class Badge < ActiveRecord::Base
       high_five = u.badges_earned.where(:badges=>{:name=>"High Five"},:earned_year => u.promotion.current_date.year).size
       if high_five < 1 && likes > 9
         u.badges_earned.create(:badge_id => high_five_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
-      end
-    end
-  end
-
-  def self.do_coach(challenge_sent)
-    # TODO: possibly destroy?
-    coach_badge = challenge_sent.user.promotion.badges.where(:name => "Coach").first rescue nil
-    return if !coach_badge
-    Badge.uncached do
-      u = challenge_sent.user
-      challenges_sent = u.challenges_sent.where("YEAR(created_at) = #{u.promotion.current_date.year}").size
-      coach = u.badges_earned.where(:badges=>{:name=>"Coach"},:earned_year => u.promotion.current_date.year).size
-      if coach < 1 && challenges_sent > 9
-        u.badges_earned.create(:badge_id => coach_badge.id, :earned_date => u.promotion.current_date, :earned_year => u.promotion.current_date.year)
       end
     end
   end

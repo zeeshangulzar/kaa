@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :challenges, :static_tiles, :dynamic_tiles, :backlog_days, :badges, :resources_title, :name, :status, :version, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :badges, :resources_title, :name, :status, :version, :any_user
 
   belongs_to :organization
 
@@ -11,19 +11,13 @@ class Promotion < ApplicationModel
   has_many :behaviors
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
-  has_many :posters, :order => 'visible_date DESC'
-  has_many :success_stories, :order => 'created_at DESC'
   has_many :email_reminders
-
-  has_many :challenges
-  has_many :suggested_challenges
 
   has_many :unsubscribe_list
 
   has_many :badges, :order => "sequence ASC"
 
   has_many :resources
-  has_many :banners
 
   has_many :competitions
 

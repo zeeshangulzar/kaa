@@ -11,7 +11,7 @@ class Entry < ApplicationModel
 
   attr_accessible :entry_behaviors, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :challenge_points, :timed_behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :gift_points, :behavior_points, :updated_at, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
@@ -105,29 +105,30 @@ class Entry < ApplicationModel
   def calculate_points
     calculate_exercise_points
 
-    timed_behavior_points = 0
+    behavior_points = 0
     self.entry_behaviors.each do |entry_behavior|
       behavior = entry_behavior.behavior
 
       if entry_behavior.value
         value = entry_behavior.value.to_i
         value = behavior.cap_value && value >= behavior.cap_value ?  behavior.cap_value : value
-
-        #Timed behaviors override behavior
-        if behavior.active_timed_behavior
-          behavior.active_timed_behavior.point_thresholds do |point_threshold|
-            if value >= point_threshold.min
-              timed_behavior_points += point_threshold.value
-            end #if
-          end #do timed point threshold
-        end #elsif
+        behavior.point_thresholds do |point_threshold|
+          if value >= point_threshold.min
+            behavior_points += point_threshold.value
+          end #if
+        end #do point threshold
       end #if
     end #do entry_behavior
 
-    self.timed_behavior_points = timed_behavior_points
+    self.behavior_points = behavior_points
+
+=begin
+
+# challenge points stuff, possibly salvage for gifts???
 
     #Challenge Points Calculation
     # jesus i hope we don't have to touch this again, ever.
+    # 7/15 fuck...
     challenges_sql = "
       UPDATE
       entries
@@ -191,7 +192,8 @@ class Entry < ApplicationModel
       end
     end
     # end challenge calculations
-    
+=end
+
   end
 
   def as_json(options={})
@@ -309,25 +311,14 @@ UNION
     return summary
   end
 
-  # badges....
-
-
-  after_commit :do_badges
   before_save :check_for_changes
   after_commit :team_member_update
-
-  def do_badges
-    Badge.do_milestones(self)
-    Badge.do_goal_getter(self)
-    Badge.do_weekender(self)
-    Badge.do_weekend_warrior(self)
-  end
 
   # whether or not we should publish the user object to redis & update team scores
   def check_for_changes
     publish = false
     activity_columns = ['exercise_minutes', 'exercise_steps']
-    points_columns = ['exercise_points', 'challenge_points', 'timed_behavior_points']
+    points_columns = ['exercise_points', 'gift_points', 'behavior_points']
     columns_to_check = activity_columns + points_columns
     columns_to_check.each{|column|
       Rails.logger.warn("#{column} is: #{self.send(column).to_i} was: #{self.send(column + "_was").to_i}")

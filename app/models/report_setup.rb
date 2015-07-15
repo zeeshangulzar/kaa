@@ -319,12 +319,12 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     }
 
     highest_clause = "CASE\n" 
-    highest_sum = "sum(coalesce(entries.exercise_points,0) + coalesce(entries.challenge_points,0) + coalesce(entries.timed_behavior_points,0))" 
+    highest_sum = "sum(coalesce(entries.exercise_points,0) + coalesce(entries.gift_points,0) + coalesce(entries.behavior_points,0))" 
     promotion.badges.milestones.sort_by(&:point_goal).reverse.each do |badge|
       k = "milestone_goals:#{badge.point_goal}"
       fields[k] = model.dup
       fields[k][:display_name] = "Achieved #{badge.name} Milestone"
-      fields[k][:sql_phrase] = "if(sum(coalesce(entries.exercise_points,0) + coalesce(entries.challenge_points,0) + coalesce(entries.timed_behavior_points,0)) > #{User.sanitize(badge.point_goal)},'Yes','No') `Achieved #{User.sanitize(badge.name)} Milestone`"
+      fields[k][:sql_phrase] = "if(sum(coalesce(entries.exercise_points,0) + coalesce(entries.gift_points,0) + coalesce(entries.behavior_points,0)) > #{User.sanitize(badge.point_goal)},'Yes','No') `Achieved #{User.sanitize(badge.name)} Milestone`"
       fields[k][:sequence] = fields.size
       fields[k][:join] = 'entries'
 

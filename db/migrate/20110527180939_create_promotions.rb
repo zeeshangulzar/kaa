@@ -23,12 +23,7 @@ class CreatePromotions < ActiveRecord::Migration
       t.integer     :single_day_minute_limit,     :default => 90
       t.integer     :single_day_step_limit,       :default => 15000
       t.string      :location_labels,             :limit => 1000, :default => 'Location'
-      t.integer     :challenges_sent_points,      :default => 1
-      t.integer     :challenges_completed_points, :default => 1
-      t.integer     :max_challenges_sent,         :default => 4
-      t.integer     :max_challenges_completed,    :default => 4
-      t.text        :static_tiles
-      t.text        :dynamic_tiles
+      t.integer     :min_behaviors,               :default => 2
       t.timestamps
     end
   end

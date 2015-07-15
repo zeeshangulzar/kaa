@@ -2,7 +2,7 @@ class TeamMember < ApplicationModel
   attr_accessible *column_names
   attr_privacy_path_to_user :user
   attr_privacy :id, :team_id, :user_id, :user, :any_user
-  attr_privacy :total_points, :total_exercise_points, :total_timed_behavior_points, :total_challenge_points, :connections
+  attr_privacy :total_points, :total_exercise_points, :total_behavior_points, :total_gift_points, :connections
   
   # Associations
   belongs_to :user
@@ -24,10 +24,10 @@ class TeamMember < ApplicationModel
       JOIN (
         SELECT
           user_id,
-          SUM(COALESCE(entries.timed_behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.challenge_points, 0)) AS total_points,
+          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.gift_points, 0)) AS total_points,
           SUM(entries.exercise_points) AS total_exercise_points,
-          SUM(entries.timed_behavior_points) AS total_timed_behavior_points,
-          SUM(entries.challenge_points) AS total_challenge_points
+          SUM(entries.behavior_points) AS total_behavior_points,
+          SUM(entries.gift_points) AS total_gift_points
         FROM entries
         WHERE
           user_id = #{self.user_id}
@@ -36,8 +36,8 @@ class TeamMember < ApplicationModel
       SET
         team_members.total_points = COALESCE(stats.total_points, 0),
         team_members.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
-        team_members.total_timed_behavior_points = COALESCE(stats.total_timed_behavior_points, 0),
-        team_members.total_challenge_points = COALESCE(stats.total_challenge_points, 0)
+        team_members.total_behavior_points = COALESCE(stats.total_behavior_points, 0),
+        team_members.total_gift_points = COALESCE(stats.total_gift_points, 0)
     "
     self.connection.execute(sql)
   end

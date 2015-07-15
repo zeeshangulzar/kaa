@@ -10,8 +10,6 @@ class User < ApplicationModel
   
   flags :notify_email_friend_requests, :default => true
   flags :notify_email_messages, :default => false
-  flags :notify_email_challenges, :default => true
-  flags :notify_email_events, :default => true
   flags :notify_email_teams, :default => true
 
   flags :allow_daily_emails_monday, :default => false
@@ -145,36 +143,11 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
-  has_many :events
 
   has_many :long_term_goals, :order => "created_at DESC"
   has_many :personal_action_plans
 
-  has_many :created_challenges, :foreign_key => 'created_by', :class_name => "Challenge"
-
-  has_many :challenges_sent, :class_name => "ChallengeSent", :order => "created_at DESC"
-  has_many :challenges_received, :class_name => "ChallengeReceived", :order => "completed_on DESC, created_at DESC"
-
-  expired_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
-  has_many :expired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on < '#{Time.now.utc.to_s(:db)}' AND status = #{expired_challenge_statuses.join(",")}" }, :order => "created_at DESC"
-
-  has_many :unexpired_challenges, :class_name => "ChallengeReceived", :conditions => proc { "expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}'" }, :order => "created_at DESC"
-
-  active_challenge_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending], ChallengeReceived::STATUS[:accepted]]
-  has_many :active_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{active_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
-
-  challenge_queue_statuses = [ChallengeReceived::STATUS[:unseen], ChallengeReceived::STATUS[:pending]]
-  has_many :challenge_queue, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{challenge_queue_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
-
-  accepted_challenge_statuses = [ChallengeReceived::STATUS[:accepted]]
-  has_many :accepted_challenges, :class_name => "ChallengeReceived", :conditions => proc { "status IN (#{accepted_challenge_statuses.join(",")}) AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')" }, :order => "created_at DESC"
-  
-  has_many :accepted_and_completed_challenges, :class_name => "ChallengeReceived", :conditions => proc { "(status = #{ChallengeReceived::STATUS[:accepted]} AND (expires_on IS NULL OR expires_on >= '#{Time.now.utc.to_s(:db)}')) OR status = #{ChallengeReceived::STATUS[:completed]}" }, :order => "completed_on DESC, created_at DESC"
-
-  has_many :suggested_challenges
-
   has_many :groups, :foreign_key => "owner_id"
-
   
   has_many :badges_earned, :class_name => "UserBadge", :include => :badge, :order => "badges.sequence ASC"
   has_many :badges, :through => :badges_earned
@@ -183,7 +156,7 @@ class User < ApplicationModel
   has_one :current_milestone_earned, :class_name => "UserBadge", :include => :badge, :order => "earned_date DESC, badges.sequence DESC", :conditions => proc { "badges.badge_type = '#{Badge::TYPE[:milestones]}' AND YEAR(earned_date) = #{self.promotion.current_date.year}" }
   has_one :current_milestone, :class_name => "Badge", :through => :current_milestone_earned, :source => :badge, :foreign_key => "badge_id", :order => "earned_date DESC, badges.sequence DESC"
   
-  accepts_nested_attributes_for :profile, :evaluations, :created_challenges, :challenges_received, :challenges_sent, :events, :badges_earned
+  accepts_nested_attributes_for :profile, :evaluations, :badges_earned
   attr_accessor :include_evaluation_definitions
   
   # hooks
@@ -290,177 +263,6 @@ group_users.user_id = #{user_id}
   end
 
   has_many :invites, :foreign_key => "invited_user_id"  
-
-  # events associations that are too complex for Rails..
-  has_many :events
-
-  def subscribed_events(options = {})
-    return self.events_query(options.merge({:type=>'subscribed'}))
-  end
-  
-  def unresponded_events(options = {})
-    return self.events_query(options.merge({:type=>'unresponded'}))
-  end
-
-  def maybe_events(options = {})
-    return self.events_query(options.merge({:type=>'maybe'}))
-  end
-
-  def attending_events(options = {})
-    return self.events_query(options.merge({:type=>'attending'}))
-  end
-
-  def declined_events(options = {})
-    return self.events_query(options.merge({:type=>'declined'}))
-  end
-
-  def events_query(options = {})
-    options = {
-      :type             => options[:type] ||= 'subscribed',
-      :start            => !options[:start].nil? ? options[:start].is_a?(String) ? options[:start] : options[:start].utc.to_s(:db) : nil,
-      :end              => !options[:end].nil? ? options[:end].is_a?(String) ? options[:end] : options[:end].utc.to_s(:db) : nil,
-      :id               => options[:id] ||= nil,
-      :return           => options[:return] ||= 'array',
-      :include_canceled => options[:include_canceled] ||= false
-    }
-    # select statement is at the end of this function..
-    sql = "
-FROM events
-LEFT JOIN invites my_invite ON my_invite.event_id = events.id AND (my_invite.invited_user_id = #{self.id})
-LEFT JOIN invites all_invites ON all_invites.event_id = events.id
-JOIN users on events.user_id = users.id
-JOIN profiles on profiles.user_id = users.id
-WHERE
-(
-    "
-    case options[:type]
-      when 'unresponded'
-        sql += "
-  # UNRESPONDED
-  # my friends events with privacy = all_friends
-  (
-    (
-      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-    )
-    AND events.user_id <> #{self.id}
-    AND events.privacy = 'F'
-    # invite doesn't exist or is unresponded
-    AND (
-      my_invite.status IS NULL
-      OR
-      my_invite.status = #{Invite::STATUS[:unresponded]}
-    )
-  )
-  OR
-  # events i'm invited to
-  (
-    my_invite.invited_user_id = #{self.id}
-    AND my_invite.status = #{Invite::STATUS[:unresponded]}
-  )
-  OR
-  # coordinator events in my area
-  (
-    events.event_type = 'C'
-    AND events.privacy = 'L'
-    AND (events.location_id IS NULL #{"OR events.location_id IN (" + [self.location_id, self.top_level_location_id].join(',') + ")" if self.location_id})
-    # invite doesn't exist or is unresponded
-    AND (
-      my_invite.status IS NULL
-      OR
-      my_invite.status = #{Invite::STATUS[:unresponded]}
-    )
-  )
-        "
-      when 'maybe'
-        sql += "
-  # MAYBE
-  # events i'm invited to
-  (
-    my_invite.invited_user_id = #{self.id}
-    AND my_invite.status = #{Invite::STATUS[:maybe]}
-  )
-        "
-      when 'attending'
-        sql += "
-  # ATTENDING
-  # my events
-  (
-    events.user_id = #{self.id}
-  )
-  OR
-  # my invites
-  (
-    my_invite.status = #{Invite::STATUS[:attending]}
-  )
-        "
-      when 'declined'
-        sql += "
-  # DECLINED
-  # events i'm invited to
-  (
-    my_invite.invited_user_id = #{self.id}
-    AND my_invite.status = #{Invite::STATUS[:declined]}
-  )
-        "
-    when "subscribed"
-      sql += "
-  # SUBSCRIBED
-  # my events
-  (
-    events.user_id = #{self.id}
-  )
-  OR
-  # my friends events with privacy = all_friends
-  (
-    (
-      events.user_id in (select friendee_id from friendships where (friender_id = #{self.id}) AND friendships.status = 'A')
-    )
-    AND events.user_id <> #{self.id}
-    AND events.privacy = 'F'
-  )
-  OR
-  # events i'm invited to
-  (
-    my_invite.invited_user_id = #{self.id}
-  )
-  OR
-  # coordinator events in my area
-  (
-    events.event_type = 'C'
-    AND events.privacy = 'L'
-    AND (events.location_id IS NULL #{"OR events.location_id IN (" + [self.location_id, self.top_level_location_id].join(',') + ")" if self.location_id})
-  )
-      "
-    else
-      # default events
-      return Event.find_by_sql("SELECT * FROM events WHERE events.user_id = #{self.id}")
-    end
-    sql += "
-)
-#{"AND events.start >= '" + options[:start] + "'" if !options[:start].nil?}
-#{"AND events.end <= '" + options[:end] + "'" if !options[:end].nil?}
-#{"AND events.id = " + options[:id].to_s if !options[:id].nil?}
-#{"AND events.is_canceled = 0" unless options[:include_canceled]}
-GROUP BY events.id
-ORDER BY events.start ASC
-    "
-    case options[:return]
-      when 'count'
-      sql = "
-SELECT
-COUNT(DISTINCT(events.id)) AS total_events
-" + sql
-        @result = Event.count_by_sql(sql)
-    else
-      # default/"array"
-      sql = "
-SELECT
-events.*
-" + sql
-      @result = Event.find_by_sql(sql)
-    end
-    return @result
-  end
 
   def search(search, unassociated = false, limit = 0, promotion_id = self.promotion_id)
     search = self.connection.quote_string(search)
@@ -571,11 +373,11 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       SELECT
       entries.user_id AS user_id,
       SUM(exercise_points) AS total_exercise_points,
-      SUM(challenge_points) AS total_challenge_points,
-      SUM(timed_behavior_points) AS total_timed_behavior_points,
+      SUM(gift_points) AS total_gift_points,
+      SUM(behavior_points) AS total_behavior_points,
       SUM(exercise_steps) AS total_exercise_steps,
       SUM(exercise_minutes) AS total_exercise_minutes,
-      SUM(exercise_points) + SUM(challenge_points) + SUM(timed_behavior_points) AS total_points,
+      SUM(exercise_points) + SUM(gift_points) + SUM(behavior_points) AS total_points,
       AVG(exercise_minutes) AS average_exercise_minutes,
       AVG(exercise_steps) AS average_exercise_steps
       FROM
@@ -586,7 +388,7 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
-    keys = ['total_exercise_points','total_challenge_points','total_timed_behavior_points','total_exercise_steps','total_exercise_minutes','total_points','average_exercise_minutes','average_exercise_steps']
+    keys = ['total_exercise_points','total_gift_points','total_behavior_points','total_exercise_steps','total_exercise_minutes','total_points','average_exercise_minutes','average_exercise_steps']
     zeroes = Hash[*keys.collect{|k|[k,0]}.flatten]
     user_stats = Hash[*user_ids.collect{|id|[id,zeroes]}.flatten]
     self.connection.select_all(sql).each do |row|
@@ -605,69 +407,6 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def stats=(hash)
     @stats=hash
-  end
-
-  # KEEP ME
-  # this was the original way of determining which posters a user has unlocked
-  # leaving it here for now, cuz they'll probably change their minds and this was a nice quick implementation
-  # that took some thought and time
-  def posters_original(options = {})
-    user = self
-    options[:unlocked_only] ||= false
-    options[:start] ||= user.promotion.current_date.beginning_of_week
-    options[:end] ||= user.promotion.current_date.end_of_week
-    sql = "
-SELECT
-IF(
-  -- entry's minutes is greater than the goal minutes of the entry, fall back on profile
-  IF(entries.exercise_minutes > COALESCE(entries.goal_minutes, profiles.goal_minutes, 0), 1, 0)
-  OR
-  -- entry's steps is greater than the goal steps of the entry, fall back on profile
-  IF(entries.exercise_steps > COALESCE(entries.goal_steps, profiles.goal_steps, 0), 1, 0)
-  , 1, 0) AS unlocked,
-posters.id, posters.visible_date, posters.summary, posters.content, posters.success_story_id, posters.title
-FROM posters
-LEFT JOIN entries ON entries.user_id = #{user.id}
-  AND (
-    entries.recorded_on = posters.visible_date
-    OR (
-      -- saturday's entry lines up with friday
-      WEEKDAY(entries.recorded_on) = 5 AND DATE_SUB(entries.recorded_on, INTERVAL 1 DAY) = posters.visible_date
-      OR
-      -- sunday's entry lines up with friday
-      WEEKDAY(entries.recorded_on) = 6 AND DATE_SUB(entries.recorded_on, INTERVAL 2 DAY) = posters.visible_date
-    )
-  )
-LEFT JOIN profiles ON profiles.user_id = entries.user_id
-WHERE
-posters.visible_date BETWEEN '#{options[:start]}' AND '#{options[:end]}'
-AND posters.active = 1
-AND posters.visible_date <= '#{user.promotion.current_date}'
-GROUP BY posters.visible_date, entries.recorded_on
-ORDER BY posters.visible_date DESC, entries.recorded_on DESC
-    "
-    posters_array = []
-    last = nil
-    Poster.connection.select_all(sql).each do |row|
-      if last && last['visible_date'] == row['visible_date']
-        if row['unlocked'] === 1
-          posters_array.pop
-          posters_array.push(row)
-        end
-      else
-        posters_array.push(row)
-      end
-      last = row
-    end
-
-    loaded_posters = Poster.where(:id => posters_array.collect{|p|p['id']}).order("posters.visible_date DESC")
-
-    posters_array.each_with_index{|poster,index|
-      posters_array[index]['image1'] = loaded_posters[index].image1.serializable_hash
-      posters_array[index]['image2'] = loaded_posters[index].image2.serializable_hash
-    }
-
-    return posters_array
   end
 
   def location_ids
@@ -740,10 +479,6 @@ ORDER BY posters.visible_date DESC, entries.recorded_on DESC
 
   def recent_activities=(hash)
     @recent_activities = hash
-  end
-
-  def challenges_sent_this_week
-    return self.challenges_sent.where("created_at >= ?", self.promotion.current_time.beginning_of_week)
   end
 
   def current_team

@@ -7,7 +7,6 @@ class Behavior < ApplicationModel
 
   has_many :entries_behaviors
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
-  has_many :timed_behaviors
   
   attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary, :image
   
@@ -47,10 +46,6 @@ class Behavior < ApplicationModel
   # @return [Hash] with regular expression validation properties
   def regex_validation
     REGEX_VALIDATIONS[read_attribute(:regex_validation).to_sym] rescue nil
-  end
-
-  def active_timed_behavior
-    self.timed_behaviors.select {|ta| ta.begin_date <= self.promotion.current_date && (ta.end_date.nil? || ta.end_date >= self.promotion.current_date)}.first
   end
 
   # Array of options

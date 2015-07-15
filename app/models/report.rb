@@ -22,7 +22,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   OneToManyTables = ['evaluations','competitions']
 
   # Categories
-  Categories = ['Participant Fields', 'Program Fields', 'Registration Fields', 'Regional Challenge Fields', 'Peer-to-Peer Challenge Fields', 'Evaluation N Fields', 'Competition N Fields', 'Success Story Fields']
+  Categories = ['Participant Fields', 'Program Fields', 'Registration Fields', 'Evaluation N Fields', 'Competition N Fields']
 
   Signs = {
     :is => {:display_name=>'is', :sign=>'='},

@@ -48,8 +48,7 @@ Go::Application.routes.draw do
       put 'password_reset' => 'users#password_reset', :via => :put
     end
     resources :profiles, :only => [:update]
-    resources :groups, :challenges_sent, :challenges_received, :suggested_challenges, :events
-    resources :success_stories, :only => [:index, :show]
+    resources :groups
     resources :long_term_goals, :only => [:index, :show]
     resources :personal_action_plans, :only => [:index, :show]
     resources :team_invites
@@ -62,9 +61,7 @@ Go::Application.routes.draw do
 
   resources :badges
 
-  match "challenges_sent/validate" => "challenges_sent#validate", :via => 'post'
-
-  resources :challenges, :organizations, :group_users, :challenges_sent, :challenges_received, :suggested_challenges
+  resources :organizations, :group_users
 
   match 'groups/*group_id/users' => 'group_users#index', :via => :get
   resources :groups do
@@ -77,17 +74,12 @@ Go::Application.routes.draw do
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
-    resources :challenges, :only => [:index, :show, :update]
-    resources :suggested_challenges, :only => [:index, :show]
-    resources :posters, :only => [:index, :show]
-    resources :success_stories, :only => [:index, :show]
     resources :badges, :only => [:index]
     # CONTENT MODELS
     resources :tips
     resources :facts
     resources :articles
     resources :resources
-    resources :banners
     resources :locations
     resources :reports
     resources :report_fields
@@ -103,14 +95,12 @@ Go::Application.routes.draw do
   resources :facts
 
   resources :resources
-  resources :banners
 
   # locations...
   resources :locations do
     resources :locations, :only => [:index, :show]
     resources :forums
     resources :resources
-    resources :banners
   end
 
   resources :forums

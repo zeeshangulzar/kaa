@@ -38,16 +38,6 @@ behavior_water.save!
 behavior_veggies = promotion.behaviors.create :name => "Eat Veggies", :content => "Gots to have those veggies", :type_of_prompt => "counter", :cap_value => 5, :cap_message => "You can only record 5 veggie servings a day"
 behavior_veggies.save!
 
-
-timed_water_behavior = behavior_water.timed_behaviors.create :begin_date => startDt + 14, :end_date => (startDt + 21)
-timed_water_behavior.point_thresholds.create :value => 1, :min => 1
-timed_water_behavior.save!
-
-timed_water_behavior_2 = behavior_water.timed_behaviors.create :begin_date => startDt + 32, :end_date => (startDt + 50)
-timed_water_behavior_2.point_thresholds.create :value => 1, :min => 4
-timed_water_behavior_2.point_thresholds.create :value => 2, :min => 8
-timed_water_behavior_2.save!
-
 master = promotion.users.build
 master.role=User::Role[:master]
 master.password = 'test'
