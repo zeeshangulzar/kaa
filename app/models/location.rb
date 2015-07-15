@@ -22,7 +22,6 @@ class Location < ApplicationModel
   mount_uploader :logo, LocationLogoUploader
 
   has_one :resource
-  has_many :banners
 
   scope :top, lambda { where("parent_location_id IS NULL")}
 
