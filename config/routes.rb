@@ -38,18 +38,12 @@ Go::Application.routes.draw do
       put 'password_reset' => 'users#password_reset', :via => :put
     end
     resources :profiles, :only => [:update]
-    resources :groups
     resources :team_invites
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
 
-  resources :organizations, :group_users
-
-  match 'groups/*group_id/users' => 'group_users#index', :via => :get
-  resources :groups do
-    resources :group_users, :only => [:index, :show]
-  end
+  resources :organizations
 
   get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
@@ -83,13 +77,6 @@ Go::Application.routes.draw do
     resources :locations, :only => [:index, :show]
     resources :resources
   end
-
-  # friendships...
-  resources :friendships
-  match '*friendable_type/*friendable_id/friendships' => 'friendships#index', :via => :get
-  match '*friendable_type/*friendable_id/friendships' => 'friendships#show', :via => :get
-  match '*friendable_type/*friendable_id/friendships/*friendship_id' => 'friendships#show', :via => :get
-  match '*friendable_type/*friendable_id/friendships' => 'friendships#create', :via => :post
 
   resources :entries
 
@@ -165,8 +152,6 @@ Go::Application.routes.draw do
   resources :comments
   match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
   match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
-
-  resources :chat_messages
 
   match "/posters/current" => "posters#current", :via => :get
   resources :posters

@@ -88,7 +88,7 @@ class UsersController < ApplicationController
   def show
     user_hash = @target_user.serializable_hash
 
-    if @target_user.id == @current_user.id || @target_user.friends.include?(@current_user) || @current_user.master?
+    if @target_user.id == @current_user.id || @current_user.master?
       user_hash[:stats] = @target_user.stats
       user_hash[:recent_activities] = @target_user.recent_activities
       user_hash[:team_id] = !@target_user.current_team.nil? ? @target_user.current_team.id : nil

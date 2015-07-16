@@ -45,17 +45,6 @@ master.auth_key = 'changeme'
 master.location = location1
 if master.save
   master_profile = master.create_profile :first_name => 'HES', :last_name => 'Admin'
-  # mc = master's challenge
-  mc = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Walk Around The Building', :description => "Just walk around the building once. Then once more. Keep going, you can do it.", :location_id => location1.id)
-
-  mc2 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Eat Some Fruit', :description => "Fruit is tasty. Make a fruit smoothie. Or a salad. Fruit.", :location_id => location1.id)
-
-  mc3 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Take Your Dog For A Walk', :description => "He'd really appreciate it if he could get some exercise and not be so depressed. You're depressing him.", :location_id => location1.id)
-
-  mc4 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Take Grandma For A Walk', :description => "She'd really appreciate it if you called her once in awhile.", :location_id => location1.id)
-
-  mc5 = master.created_challenges.create(:promotion_id => master.promotion_id, :name => 'Go Vegetarian For A Day', :description => "Numerous studies have shown people who eat primarily plant-based proteins have smaller brains than their carnivorous counterparts.", :location_id => location1.id)
-
 end
 
 user = promotion.users.build
@@ -84,12 +73,6 @@ if user2.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user2_profile.started_on = (startDt)
   user2_profile.save!
-  # oh look, bob's creating a group for his friends. too bad friends isn't built yet..
-  user2_group = user2.groups.build(:name => "Frenemies")
-  user2_group.save!
-  user2_group_user = user2_group.group_users.create(:user_id => user.id)
-  # bob needs a friend...
-  user2.friendships.create(:friendee_id => user.id, :status => Friendship::STATUS[:accepted])
 end
 
 user3 = promotion.users.build
@@ -104,9 +87,6 @@ if user3.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user3_profile.started_on = (startDt + 7)
   user3_profile.save!
-  user3_group_user = user2_group.group_users.create(:user_id => user3.id)
-  # bob needs a friend...
-  user3.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
 user4 = promotion.users.build
@@ -121,9 +101,6 @@ if user4.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user4_profile.started_on = (startDt + 7)
   user4_profile.save!
-  user4_group_user = user2_group.group_users.create(:user_id => user4.id)
-  # bob needs a friend...
-  user4.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
 user5 = promotion.users.build
@@ -138,9 +115,6 @@ if user5.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user5_profile.started_on = (startDt + 7)
   user5_profile.save!
-  user5_group_user = user2_group.group_users.create(:user_id => user5.id)
-  # bob needs a friend...
-  user5.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
 user6 = promotion.users.build
@@ -155,9 +129,6 @@ if user6.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user6_profile.started_on = (startDt + 7)
   user6_profile.save!
-  user6_group_user = user2_group.group_users.create(:user_id => user6.id)
-  # bob needs a friend...
-  user6.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
 user7 = promotion.users.build
@@ -172,14 +143,8 @@ if user7.save
   #Override the defaults and have this user start in the past... for seeding purposes
   user7_profile.started_on = (startDt + 7)
   user7_profile.save!
-  user7_group_user = user2_group.group_users.create(:user_id => user7.id)
-  # bob needs a friend...
-  user7.friendships.create(:friendee_id => user2.id, :status => Friendship::STATUS[:accepted])
 end
 
-# TODO: update for challenge_sent_users
-#user2_cs = user2.challenges_sent.build(:to_group_id => user2_group.id, :challenge_id => mc.id)
-#user2_cs.save!
 
 #Build up user entries
 

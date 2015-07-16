@@ -7,9 +7,6 @@ class User < ApplicationModel
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
-  
-  flags :notify_email_friend_requests, :default => true
-  flags :notify_email_messages, :default => false
   flags :notify_email_teams, :default => true
 
   flags :allow_daily_emails_monday, :default => false
@@ -30,43 +27,10 @@ class User < ApplicationModel
     :poster                     => "Poster",
     :master                     => "Master",
   }
-  
-  # pulling in friendships..
 
   has_many :requests, :order => "created_at DESC"
-  
-  has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
-  has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy if HesFriendships.create_inverse_friendships
-
-  has_many :email_reminders_sent, :order => "created_at DESC"
-  has_many :email_reminders, :class_name => "EmailReminder", :through => :email_reminders_sent, :order => "email_reminders_sent.created_at DESC"
-  
-  after_create :associate_requested_friendships if HesFriendships.allows_unregistered_friends
   after_commit :welcome_email, :on => :create
   after_commit :check_for_invites, :on => :create
-
-  after_update :check_if_email_has_changed_and_associate_requested_friendships if HesFriendships.allows_unregistered_friends
-  after_create :auto_accept_friendships if HesFriendships.auto_accept_friendships
-
-  def friends
-    @friends = self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
-  end
-
-  # Requests a friendship from another user or email address
-  #
-  # @param [User, String] user_or_email of user if exists, otherwise just use email address
-  # @return [Friendship] instance of your friendship with other user, status will be 'requested'
-  # @example
-  #  @target_user.request_friend(another_user)
-  #  @target_user.request_friend("developer@hesonline.com")
-  # @todo Try to find user if string is passed in. Not sure if good idea because will have to know structure of database for this to work.
-  def request_friend(user_or_email)
-    unless user_or_email.is_a?(String)
-      friendships.create(:friendee => user_or_email, :status => Friendship::STATUS[:requested])
-    else
-      friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
-    end
-  end
 
   def welcome_email
     Resque.enqueue(WelcomeEmail, self.id)
@@ -85,29 +49,6 @@ class User < ApplicationModel
       }
     end
   end
-
-  # Checks for friendship requests before user was registered by email address.
-  # If any are found, updates friendships tied to other user while creating one for this user
-  #
-  # @param [String] email address if want to check for email not associated with user
-  # @note Called in after_create by default
-  def associate_requested_friendships(email = nil)
-    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
-      friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
-      f.update_attributes(:friendee => self)
-    end
-  end
-
-  # Checks to see if email address has changed after user is updated.
-  # Calls check_for_requested_friendships if email was updated.
-  # @see #check_for_requested_friendships
-  def check_if_email_has_changed_and_associate_requested_friendships
-    if email_was != email
-      associate_requested_friendships
-    end
-  end
-  
-  # end friendships pulled in
 
   can_comment
 
@@ -143,8 +84,6 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
-
-  has_many :groups, :foreign_key => "owner_id"
 
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
@@ -208,10 +147,6 @@ class User < ApplicationModel
     return true
   end
 
-  def messages
-    ChatMessage.by_userid(self.id)
-  end
-
   def password
     return nil if !self.password_hash
     @password ||= Password.new(self.password_hash)
@@ -233,21 +168,6 @@ class User < ApplicationModel
     @next_eval_definition
   end
 
-  def groups_with_user(user_id)
-    sql = "
-SELECT
-groups.*
-FROM groups
-JOIN group_users ON groups.id = group_users.group_id
-WHERE
-groups.owner_id = #{self.id}
-AND
-group_users.user_id = #{user_id}
-    "
-    @result = Group.find_by_sql(sql)
-    return @result
-  end
-
   def search(search, unassociated = false, limit = 0, promotion_id = self.promotion_id)
     search = self.connection.quote_string(search)
     sql = "
@@ -255,7 +175,6 @@ group_users.user_id = #{user_id}
         users.*
       FROM users
       JOIN profiles ON profiles.user_id = users.id
-      LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
       WHERE
       (
         users.email LIKE '%#{search}%'
@@ -266,16 +185,6 @@ group_users.user_id = #{user_id}
       AND
       (
         users.id <> #{self.id}
-    "
-    if unassociated
-      sql = sql + "
-        AND (
-          friendships.status IS NULL
-          OR friendships.status = 'D'
-        )
-      "
-    end
-    sql = sql + "
         AND users.promotion_id = #{promotion_id}
       )
       GROUP BY users.id
@@ -365,12 +274,6 @@ group_users.user_id = #{user_id}
 
   def process_last_accessed
     self.update_attributes(:last_accessed => self.promotion.current_time) if !self.last_accessed || self.last_accessed.to_date < self.promotion.current_date
-    days_since_last_accessed = self.promotion.current_date - self.last_accessed.to_date
-    reminder = self.promotion.email_reminders.asc.where("days <= #{days_since_last_accessed}").first
-    if reminder && !reminder.welcome_back_notification.nil? && !reminder.welcome_back_message.nil?
-      notify(self, "Welcome Back", reminder.welcome_back_notification, :from => self, :key => "user_#{id}")
-      $redis.publish('welcomeBackMessage', {:message => reminder.welcome_back_message, :user_id => self.id}.to_json)
-    end
   end
 
   def recent_activities(id_only = false, limit = 5)
@@ -436,14 +339,6 @@ group_users.user_id = #{user_id}
       SELECT
         DISTINCT(connection_id) AS id
       FROM (
-        SELECT
-          DISTINCT(friendships.friendee_id) AS connection_id
-        FROM friendships
-        WHERE
-          friendships.friender_id = #{self.id} AND friendships.status = 'A'
-
-        UNION
-
         SELECT
           DISTINCT(team_members.user_id) AS connection_id
         FROM team_members

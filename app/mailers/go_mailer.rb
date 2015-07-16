@@ -25,20 +25,6 @@ class GoMailer < ActionMailer::Base
     mail(:to => contact_request['email'], :subject => "#{Constant::AppName}: Contact Request")
   end
 
-  def friend_invite_email(invitee, inviter)
-    @invitee = invitee
-    @user = invitee # NOTE: always need a @user for email templates
-    @inviter = inviter
-    @promotion = @invitee.promotion
-    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request", :from => fromHandler(@inviter))
-  end
-
-  def chat_message_email(chat_message)
-    @chat_message = chat_message
-    @user = chat_message.friend
-    mail(:to => @user.email, :subject => "#{Constant::AppName}: New message from #{@chat_message.user.profile.full_name}", :from => fromHandler(@chat_message.user))
-  end
-
   def invite_email(emails, user, message = nil)
     @user = user
     @promotion = @user.promotion
