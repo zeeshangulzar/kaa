@@ -54,8 +54,8 @@ class Entry < ApplicationModel
   end
 
   def nullify_exercise_and_set_is_recorded_and_goals
-    self.exercise_steps = nil if self.exercise_steps.to_i == 0
-    self.exercise_minutes = nil if self.exercise_minutes.to_i == 0
+    self.exercise_steps = 0 if self.exercise_steps.to_i == 0
+    self.exercise_minutes = 0 if self.exercise_minutes.to_i == 0
     set_is_recorded
     # update goals from profile
     if self.exercise_steps_was != self.exercise_steps || self.exercise_minutes_was != self.exercise_minutes
@@ -84,10 +84,10 @@ class Entry < ApplicationModel
     points = 0
     value = 0
     point_thresholds = []
-    if !self.exercise_minutes.nil?
+    if self.exercise_minutes > 0
       point_thresholds = self.user.promotion.minutes_point_thresholds
       value = self.exercise_minutes
-    elsif !self.exercise_steps.nil?
+    elsif self.exercise_steps > 0
       point_thresholds = self.user.promotion.steps_point_thresholds
       value = self.exercise_steps
     end

@@ -2,7 +2,7 @@
 class OrganizationsController < ApplicationController
   respond_to :json
 
-  authorize :show, :public
+  authorize :all, :master
 
   get_parent :organization, :only => [:index, :create], :ignore_missing => [:index, :create]
 

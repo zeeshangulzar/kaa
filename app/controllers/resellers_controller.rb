@@ -23,7 +23,7 @@ class ResellersController < ApplicationController
   #   }]
   def index
     resellers = Reseller.all
-    return HESResponder(@resellers.to_json(:include => [:organizations, :promotions]))
+    return HESResponder(resellers)
   end
 
   # Get a reseller
