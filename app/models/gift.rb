@@ -18,7 +18,7 @@ class Gift < ApplicationModel
   mount_uploader :image, GiftImageUploader
   
   # The types of prompts that are allowed for behaviors
-  PROMPT_TYPES = {:textbox => 'textbox', :checkbox => 'checkbox'}
+  PROMPT_TYPES = {:checkbox => 'checkbox'}
   PROMPT_TYPES.each_pair do |k, v|
     # Define constants for prompt types
     const_set k.to_s.upcase, v
@@ -32,22 +32,6 @@ class Gift < ApplicationModel
     end
   end
   
-  # Regular expression validations for testing different values in a text box
-  REGEX_VALIDATIONS = {
-    :anything => {:name => :anything, :display => 'Any text and/or number', :regex => nil, :message => nil},
-    :one_digit => {:name => :one_digit, :display => '0 to 9', :regex => '^(\\d){1,1}$', :message => 'One digit only'},
-    :two_digits => {:name => :two_digits, :display => '0 to 99', :regex => '^(\\d){1,2}$', :message => 'One or two digits'},
-    :three_digits => {:name => :three_digits, :display => '0 to 999', :regex => '^(\\d){1,3}$', :message => 'Up to three digits'},
-    :four_digits => {:name => :four_digits, :display => '0 to 9,999', :regex => '^(\\d){1,4}$', :message => 'Up to four digits'},
-    :five_digits => {:name => :five_digits, :display => '0 to 99,999', :regex => '^(\\d){1,5}$', :message => 'Up to five digits'}
-  }
-  
-  # Gets the regulare expression validation hash instead of just name
-  # @return [Hash] with regular expression validation properties
-  def regex_validation
-    REGEX_VALIDATIONS[read_attribute(:regex_validation).to_sym] rescue nil
-  end
-
   # Array of options
   # @return [Array<String>] options in array
   def options

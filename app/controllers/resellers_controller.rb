@@ -69,9 +69,7 @@ class ResellersController < ApplicationController
   #    "url": "/resellers/1"
   #   }
   def create
-    Reseller.transaction do
-      reseller = Reseller.create(params[:reseller])
-    end
+    reseller = Reseller.create(params[:reseller])
     if !reseller.valid?
       return HESResponder(reseller.errors.full_messages, "ERROR")
     else
