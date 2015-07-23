@@ -91,9 +91,7 @@ class OrganizationsController < ApplicationController
   #    "url": "http://api.roundtriptohealth.com/organizations/1"
   #   }
   def create
-    Organization.transction do
-      organization = @reseller ? @reseller.organizations.create(params[:organization]) : Organization.create(params[:organization])
-    end
+    organization = @reseller ? @reseller.organizations.create(params[:organization]) : Organization.create(params[:organization])
     if !organization.valid?
       return HESResponder(organization.errors.full_messages, "ERROR")
     end
