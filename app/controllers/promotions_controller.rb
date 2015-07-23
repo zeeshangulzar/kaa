@@ -10,14 +10,7 @@ class PromotionsController < ApplicationController
     return HESResponder(promotions)
   end
 
-  # Get a promotion
-  #
-  # @url [GET] /promotions/1
-  # @param [Integer] id The id of the promotion
-  # @return [Promotion] Promotion that matches the id
-  #
-  # [URL] /promotions/:id [GET]
-  #  [200 OK] Successfully retrieved Promotion
+
   def show
     promotion = (params[:id] == 'current') ? @promotion : Promotion.find(params[:id]) rescue nil
     if !promotion
@@ -36,9 +29,7 @@ class PromotionsController < ApplicationController
   end
 
   def create
-    Promotion.transaction do
-      promotion = Promotion.create(params[:promotion])
-    end
+    promotion = Promotion.create(params[:promotion])
     if !promotion.valid?
       return HESResponder(promotion.errors.full_messages, "ERROR")
     end
