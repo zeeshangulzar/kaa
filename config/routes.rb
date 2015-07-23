@@ -43,7 +43,9 @@ Go::Application.routes.draw do
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
 
-  resources :organizations
+  resources :organizations do
+    resources :promotions, :only => [:index, :show]
+  end
 
   get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
