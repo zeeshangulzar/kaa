@@ -2,11 +2,9 @@ class Profile < ApplicationModel
   # attrs
   attr_privacy_path_to_user :user
   
-  attr_accessible :gender,:first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :image, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :ethnicity, :age, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity
-
+  attr_accessible *column_names
   attr_privacy :first_name,:last_name,:image,:public_comment
-
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :is_reward_participant, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :me
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :me
 
 
 
@@ -77,18 +75,5 @@ class Profile < ApplicationModel
     end
     return sans_team
   end
-
-  def self.do_nuid_verification
-    #by nuid 
-    connection.execute "update users
-    inner join profiles on profiles.user_id = users.id
-    inner join kp_verified on kp_verified.type ='nuid' and kp_verified.value = users.altid
-    set users.nuid_verified = 1
-    where profiles.is_reward_participant = 1 
-    and users.nuid_verified = 0
-    and kp_verified.value is not null 
-    and trim(kp_verified.value) <> '';"
-  end
-
 
 end
