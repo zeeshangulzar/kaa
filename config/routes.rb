@@ -7,6 +7,7 @@ Go::Application.routes.draw do
 
   resources :resellers do
     resources :organizations, :only => [:index, :show]
+    resources :promotions, :only => [:index, :show]
   end
 
   match "/track" => "users#track", :via => :post

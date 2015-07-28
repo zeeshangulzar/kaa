@@ -4,5 +4,5 @@ class Reseller < ApplicationModel
   attr_privacy :name, :created_at, :updated_at, :contact_name, :contact_email, :master
 
   has_many :organizations
-  has_many :promotions
+  has_many :promotions, :through => :organizations
 end
