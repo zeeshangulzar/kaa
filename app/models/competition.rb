@@ -11,10 +11,6 @@ class Competition < ApplicationModel
   has_many :official_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:official]}, :order => "name ASC"
   has_many :pending_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:pending]}, :order => "name ASC"
   
-
-  maintain_sequence :scope=>:promotion_id, :order=>:competition_starts_on
-
-  
   def during_enrollment?(dte=promotion.current_date)
     dte.between?(enrollment_starts_on,enrollment_ends_on)
   end
