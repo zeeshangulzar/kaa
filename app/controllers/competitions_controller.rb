@@ -10,9 +10,8 @@ class CompetitionsController < ApplicationController
   end
 
   def create
-    Competition.transaction do
-      competition = @promotion.competitions.create(params[:competition])
-    end
+    competition = @promotion.competitions.create(params[:competition])
+
     return HESResponder(competition.errors.full_messages, "ERROR") if !competition.valid?
     return HESResponder(competition)
   end
