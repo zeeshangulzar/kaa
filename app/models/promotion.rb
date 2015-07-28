@@ -1,9 +1,9 @@
 class Promotion < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :public
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :resources_title, :name, :status, :version, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
 
   belongs_to :organization
 
