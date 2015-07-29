@@ -37,6 +37,7 @@ class Promotion < ApplicationModel
   flags :is_jawbone_enabled, :default => false
   flags :is_manual_override_enabled, :default => false
   flags :is_teams_enabled, :default => true
+  flags :is_gender_displayed, :default => true
 
   self.after_save :clear_hes_cache
   self.after_destroy :clear_hes_cache
