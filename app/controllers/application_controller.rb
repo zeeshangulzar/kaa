@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
 
   HTTP_CODES = {
     'OK'        => 200,
+    'BAD'       => 400,
     'DENIED'    => 403,
     'NOT_FOUND' => 404,
     'ERROR'     => 422
@@ -19,6 +20,32 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveRecord::RecordNotUnique do |exception|
     return HESResponder("Record not unique", "ERROR")
+  end
+
+  # custom error class and rescue to catch errors from HESResponder and immediately render them
+  # (in case HESResponder is called multiple times or is called via HESCachedResponder, or whatever else.. we don't want to continue)
+  #   the other solution i thought of was to create a method like HESErrorResponder that raises
+  #   HESError which in turn calls HESResponder to render the error immediately
+  #   but this implementation does the same thing, for all intents and purposes
+  #   without having to change HESResponder() everywhere we encounter an error
+  #   NOTE: i've set this up to handle almost exactly what was just described, raising and rendering in the opposite order
+  #         so you COULD raise HESError like so: raise HESError, [errors, status]
+  #         and it will pass through to HESResponder without entering an infinite loop via the new argument "raised"
+  class HESError < StandardError; end
+  rescue_from HESError do |exception|
+    if exception.message.is_a?(String)
+      if response.code == '200'
+        message = exception.message.to_s == "ApplicationController::HESError" ? "General Error" : exception.message
+        # raise HESError was called directly in a controller with no args or with a string, shouldn't happen but whatevs
+        render :json => {:errors => [message]}, :status => '422' and return
+      else
+        render :text => exception.message and return
+      end
+    elsif exception.message.is_a?(Array)
+      return HESResponder(exception.message[0] || 'General Error', exception.message[1] || 'ERROR', nil, true)
+    else
+      return HESResponder(exception.message[:payload] || 'General Error', exception.message[:status] || 'ERROR', nil, true)
+    end
   end
 
   def get_user_from_params_user_id
@@ -81,7 +108,8 @@ class ApplicationController < ActionController::Base
   end
 
   # page_size of 0 = all records
-  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil)
+  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false)
+
     if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
       # allow a complete response to pass right thru
       render :json => MultiJson.dump(payload), :status => HTTP_CODES['OK'] and return
@@ -105,23 +133,6 @@ class ApplicationController < ActionController::Base
       # status is OK and payload is a string..
       response = {:message => payload}
     else
-      # KEEP THIS FOR NOW..
-#      # get the class.table_name for the root node name
-#      if payload.is_a?(Array) || payload.is_a?(Hash)
-#        # ActiveRecord collection
-#        if !payload.first.nil? && !payload.first.class.nil? && !payload.first.class.respond_to?('table_name')
-#          root = payload.first.class.table_name.to_s
-#        end
-#      else
-#        # Single ActiveRecord
-#        if !payload.class.nil? && payload.class.respond_to?('table_name')
-#          root = payload.class.tab# get the class.table_name for the root node name
-#      if payload.is_a?(Array) || payload.is_a?(Hash)
-#        # ActiveRecord collection
-#        le_name.to_s
-#        end
-#      end
-
       if payload.respond_to?('size')
         # generally, size() would indicate an array, however, I've come across instances where it's a hash
         payload = payload.to_a if payload.is_a?(Hash)
@@ -165,38 +176,16 @@ class ApplicationController < ActionController::Base
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
     payload_hash = MultiJson.dump(response)
-    render :json => payload_hash, :status => code and return payload_hash
+    if status != 'OK' && !raised
+      # catch everything except 200s and immediately render the error UNLESS already in a rescue attempt (raised = true)
+      # see rescue_from HESError
+      raise HESError, render_to_string(:json => payload_hash, :status => code)
+    else
+      render(:json => payload_hash, :status => code) and return payload_hash
+    end
   end
 
-  # Takes incoming param (expected to be a hash) and removes anything that cannot be
-  # written in accordance with the incoming model or array. Then returns the scrubbed hash
-  def scrub(param, model_or_array = [])
-    allowed_attrs = model_or_array.is_a?(Array) ? model_or_array : model_or_array.accessible_attributes.to_a
-    posted_attrs = param.stringify_keys.keys
-    attrs_to_update = allowed_attrs & posted_attrs
-    param.delete_if{|k,v|!attrs_to_update.include?(k)}
-  end
-
-  def get_user
-    return @current_user
-  end
-
-  def url_replace(url, options = {})
-    uri = URI.parse(URI.encode(url))
-    hquery = !uri.query.nil? ? CGI::parse(uri.query) : {}
-    components = Hash[uri.component.map { |key| [key, uri.send(key)] }]
-    new_hquery = hquery.merge(options[:merge_query] || {}).select { |k, v| v }.map{|v|v.join('=')}
-    new_query = new_hquery.join("&")
-    new_components = {
-      :path  => options[:path] || uri.path,
-      :query => new_query
-    }
-    new_uri = URI::Generic.build(components.merge(new_components))
-    URI.decode(new_uri.to_s)
-  end
-
-
-  
+  # BEGIN CACHING RELATED METHODS
   def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
     cache_miss = false
     if block_given?
@@ -233,12 +222,39 @@ class ApplicationController < ActionController::Base
     Rails.cache.delete(timestamp_key)
   end
 
-
   def params_to_cache_key
     params.
         keys.sort{|x,y| x.to_s<=>y.to_s}.
           collect{|k,v|"#{k}_#{params[k]}"}.
             join('_')
+  end
+  # END CACHING RELATED METHODS
+
+  # Takes incoming param (expected to be a hash) and removes anything that cannot be
+  # written in accordance with the incoming model or array. Then returns the scrubbed hash
+  def scrub(param, model_or_array = [])
+    allowed_attrs = model_or_array.is_a?(Array) ? model_or_array : model_or_array.accessible_attributes.to_a
+    posted_attrs = param.stringify_keys.keys
+    attrs_to_update = allowed_attrs & posted_attrs
+    param.delete_if{|k,v|!attrs_to_update.include?(k)}
+  end
+
+  def get_user
+    return @current_user
+  end
+
+  def url_replace(url, options = {})
+    uri = URI.parse(URI.encode(url))
+    hquery = !uri.query.nil? ? CGI::parse(uri.query) : {}
+    components = Hash[uri.component.map { |key| [key, uri.send(key)] }]
+    new_hquery = hquery.merge(options[:merge_query] || {}).select { |k, v| v }.map{|v|v.join('=')}
+    new_query = new_hquery.join("&")
+    new_components = {
+      :path  => options[:path] || uri.path,
+      :query => new_query
+    }
+    new_uri = URI::Generic.build(components.merge(new_components))
+    URI.decode(new_uri.to_s)
   end
 
   def get_host

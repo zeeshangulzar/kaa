@@ -2,20 +2,6 @@ class EntriesController < ApplicationController
 
   authorize :all, :user
   
-  # Gets the list of entries for an team instance
-  #
-  # @return [Array] of all entries
-  #
-  # [URL] /entries [GET]
-  #  [200 OK] Successfully retrieved Entry Array object
-  #   # Example response
-  #   [{
-  #    "user_id": 1,
-  #    "exercise_minutes": 45,
-  #    "is_logged": true
-  #    "recorded_on": "2012-11-21"
-  #    "notes": "Eliptical machine while reading Fitness magazine"
-  #   }]
   def index
     return HESResponder("You can't view other users' entries.", "DENIED") if @target_user.id != @current_user.id && !@current_user.master?
     options = {}
@@ -63,7 +49,8 @@ class EntriesController < ApplicationController
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
         :entry_behaviors              => behaviors_array,
-        :entry_exercise_activities    => activities_array,
+        :entry_gifts                  => gifts_array,
+        # :entry_exercise_activities    => activities_array,
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,
@@ -74,24 +61,6 @@ class EntriesController < ApplicationController
     return HESResponder(entries_array, "OK", 0)
   end
 
-  # Gets a single entry for a team
-  #
-  # @example
-  #  #GET /entries/1
-  #
-  # @param [Integer] id of the entry
-  # @return [Entry] that matches the id
-  #
-  # [URL] /entries/1 [GET]
-  #  [200 OK] Successfully retrieved Entry object
-  #   # Example response
-  #   {
-  #    "user_id": 1,
-  #    "exercise_minutes": 45,
-  #    "is_logged": true
-  #    "recorded_on": "2012-11-21"
-  #    "notes": "Eliptical machine while reading Fitness magazine"
-  #   }
   def show
     @entry = Entry.find(params[:id]) rescue nil
     return HESResponder("Entry", "NOT_FOUND") if !@entry
@@ -102,145 +71,124 @@ class EntriesController < ApplicationController
     end
   end
 
-  # Creates a single entry
-  #
-  # @example
-  #  #POST /entries/1
-  #  {
-  #    exercise_minutes: 45,
-  #    notes: "Eliptical machine while reading Fitness magazine"
-  #  }
-  # @return [Entry] that was just created
-  #
-  # [URL] /entries [POST]
-  #  [201 CREATED] Successfully created Entry object
-  #   # Example response
-  #   {
-  #    "user_id": 1,
-  #    "exercise_minutes": 45,
-  #    "is_logged": true
-  #    "recorded_on": "2012-11-21"
-  #    "notes": "Eliptical machine while reading Fitness magazine"
-  #   }
   def create
-    ex_activities = params[:entry].delete(:entry_exercise_activities) || []
-    behaviors = params[:entry].delete(:entry_behaviors) || []
-    @entry = @target_user.entries.find_by_recorded_on(params[:entry][:recorded_on]) || @target_user.entries.build(params[:entry])
-    @entry.assign_attributes(params[:entry])
-    if !@entry.valid?
-      return HESResponder(@entry.errors.full_messages, "ERROR")
-    else
-      Entry.transaction do
-        @entry.save!
-        #create exercise activites, delete current ones first (if any exist)
-        @entry.entry_exercise_activities.destroy_all
-        ex_activities.each do |hash|
-          if hash[:exercise_activity_id] && hash[:value] && hash[:exercise_activity_id].to_s.is_i? && hash[:value].to_s.is_i?
-            @entry.entry_exercise_activities.create(scrub(hash, EntryExerciseActivity))
-          end
-        end
-
-        #TODO: Test entry activities
-        behaviors.each do |hash|
-          #@entry.entry_behaviors.create(scrub(hash, EntryBehavior))
-          new_hash = scrub(hash,EntryBehavior)
-          eb = @entry.entry_behaviors.find_or_create_by_behavior_id(new_hash[:behavior_id])
-          eb.assign_attributes(new_hash)
-          eb.save!
-        end
-
-        @entry.save!
-      end
-      return HESResponder(@entry)
+    entries = []
+    entries_sent = !params[:entries].nil? && params[:entries].is_a?(Array) ? params[:entries] : [params[:entry]]
+    Entry.transaction do
+      entries_sent.each{ |entry|
+        entries << create_or_update(entry)
+      }
     end
-    # see app/mailers/go_mailer.rb
-    # GoMailer.dummy_email(@entry).deliver!
-    # see app/jobs/dummy_job.rb
-    # Resque.enqueue(DummyJob,@entry.id)
+    return HESResponder(entries)
   end
 
-  # Updates a single entry
-  #
-  # @example
-  #  #PUT /entries/1
-  #  {
-  #    exercise_minutes: 45,
-  #    notes: "Eliptical machine while reading Fitness magazine"
-  #  }
-  #
-  # @param [Integer] id of the entry
-  # @return [Entry] that was just updated
-  #
-  # [URL] /entries [PUT]
-  #  [202 ACCEPTED] Successfully updated Entry object
-  #   # Example response
-  #   {
-  #    "user_id": 1,
-  #    "exercise_minutes": 45,
-  #    "is_recorded": true
-  #    "recorded_on": "2012-11-21"
-  #    "notes": "Eliptical machine while reading Fitness magazine"
-  #    "entry_activities" : [{}]
-  #    "entry_exercise_activities" : [{}]
-  #   }
   def update
-    @entry = @target_user.entries.find(params[:id])
-    if @entry.user.id != @current_user.id && !@current_user.master?
-      return HESResponder("You may not edit this entry.", "DENIED")
-    end
-    return HESResponder(@entry.errors.full_messages, "ERRROR") if !@entry.valid?
+    entries = []
+    entries_sent = !params[:entries].nil? && params[:entries].is_a?(Array) ? params[:entries] : [params[:entry]]
     Entry.transaction do
-      entry_ex_activities = params[:entry].delete(:entry_exercise_activities)
-      if !entry_ex_activities.nil?
-        
-        ids = entry_ex_activities.nil? ? [] : entry_ex_activities.map{|x| x[:id]}
-        remove_activities = @entry.entry_exercise_activities.reject{|x| ids.include? x.id}
-
-        remove_activities.each do |act|
-          # Remove from array and delete from db
-           @entry.entry_exercise_activities.delete(act).first.destroy
-        end
-
-        entry_ex_activities.each do |entry_ex_act|
-          if entry_ex_act[:id]
-            eea = @entry.entry_exercise_activities.detect{|x|x.id==entry_ex_act[:id].to_i}
-            eea.update_attributes(scrub(entry_ex_act, EntryExerciseActivity))
-          elsif entry_ex_act[:exercise_activity_id] && entry_ex_act[:value] && entry_ex_act[:exercise_activity_id].to_s.is_i? && entry_ex_act[:value].to_s.is_i?
-            @entry.entry_exercise_activities.create(scrub(entry_ex_act, EntryExerciseActivity))
-          end
-        end
-      end
-
-      entry_behaviors = params[:entry].delete(:entry_behaviors)
-      if !entry_behaviors.nil?
-        ids = entry_behaviors.nil? ? [] : entry_behaviors.map{|x| x[:id]}
-        remove_behaviors = @entry.entry_behaviors.reject{|x| ids.include? x.id}
-
-        remove_behaviors.each do |act|
-          @entry.entry_behaviors.delete(act).first.destroy
-        end
-
-         entry_behaviors.each do |entry_behavior|
-          if entry_behavior[:id]
-            eb = @entry.entry_behaviors.detect{|x|x.id==entry_behavior[:id].to_i}
-          end
-          if entry_behavior[:id] && eb
-            eb.update_attributes(scrub(entry_behavior, EntryBehavior))
-          else
-            @entry.entry_behaviors.create(scrub(entry_behavior, EntryBehavior))
-          end
-        end
-      end 
-
-      @entry.assign_attributes(scrub(params[:entry], Entry))
-      @entry.save!
+      entries_sent.each{ |entry|
+        entries << create_or_update(entry)
+      }
     end
-    return HESResponder(@entry)
+    return HESResponder(entries)
   end
 
   def aggregate
     year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
     return HESResponder(Entry.aggregate({:year => year, :user_id => @current_user.id}), "OK", 0)
   end
+
+  def create_or_update(entry_params)
+    entry = entry_id = nil
+    if !entry_params[:id].nil?
+      entry = @target_user.entries.find(entry_params[:id])
+      return HESResponder("Entry", "NOT_FOUND") if !entry
+      entry_id = entry.id
+    end
+    if ((entry && entry.user_id != @current_user.id) || (entry_params[:user_id] && entry_params[:user_id] != @current_user.id)) && !@current_user.master?
+      return HESResponder("You may only edit your entries.", "DENIED")
+    end
+
+    entry_exercise_activities = entry_params.delete(:entry_exercise_activities)
+    entry_behaviors = entry_params.delete(:entry_behaviors)
+    entry_gifts = entry_params.delete(:entry_gifts)
+
+    if !entry
+      entry = @target_user.entries.find_by_recorded_on(entry_params[:recorded_on]) || @target_user.entries.build(entry_params)
+    end
+    entry.assign_attributes(scrub(entry_params, Entry))
+    return HESResponder(entry.errors.full_messages, "ERROR") if !entry.valid?
+
+    Entry.transaction do
+      entry.save! if !entry_id
+      if !entry_exercise_activities.nil?
+        entry_exercise_activity_ids = entry_exercise_activities.map{|x| x[:id]}
+        remove_activities = entry.entry_exercise_activities.reject{|x| entry_exercise_activity_ids.include?(x.id)}
+        remove_activities.each do |activity|
+          # Remove from array and delete from db
+           entry.entry_exercise_activities.delete(act).first.destroy
+        end
+        entry_exercise_activities.each do |entry_exercise_activity|
+          hash = scrub(entry_exercise_activity, EntryExerciseActivity)
+          if entry_exercise_activity[:exercise_activity_id] && entry_exercise_activity[:value] && entry_exercise_activity[:exercise_activity_id].to_s.is_i? && entry_exercise_activty[:value].to_s.is_i?
+            if entry_exercise_activity[:id]
+              eea = entry.entry_exercise_activities.detect{|x|x.id == entry_exercise_activity[:id].to_i}
+              eea.update_attributes(hash)
+            else
+              entry.entry_exercise_activities.create(hash)
+            end
+          end
+        end
+      end
+
+      if !entry_behaviors.nil?
+        entry_behavior_ids = entry_behaviors.map{|x| x[:id]}
+        remove_behaviors = entry.entry_behaviors.reject{|x| entry_behavior_ids.include?(x.id)}
+        remove_behaviors.each do |behavior|
+          # Remove from array and delete from db
+           entry.entry_exercise_activities.delete(behavior).first.destroy
+        end
+        entry_behaviors.each do |entry_behavior|
+          hash = scrub(entry_behavior, EntryBehavior)
+          if entry_behavior[:behavior_id] && entry_behavior[:value] && entry_behavior[:behavior_id].to_s.is_i? && entry_behavior[:value].to_s.is_i?
+            if entry_behavior[:id]
+              eb = entry.entry_behaviors.detect{|x|x.id == entry_behavior[:id].to_i}
+              eb.update_attributes(hash)
+            else
+              entry.entry_behaviors.create(hash)
+            end
+          end
+        end
+      end
+
+      if !entry_gifts.nil?
+        entry_gift_ids = entry_gifts.map{|x| x[:id]}
+        remove_gifts = entry.entry_gifts.reject{|x| entry_gift_ids.include?(x.id)}
+        remove_gifts.each do |gift|
+          # Remove from array and delete from db
+           entry.entry_gifts.delete(gift).first.destroy
+        end
+        entry_gifts.each do |entry_gift|
+          hash = scrub(entry_gift, EntryGift)
+          if entry_gift[:gift_id] && entry_gift[:value] && entry_gift[:gift_id].to_s.is_i? && entry_gift[:value].to_s.is_i?
+            if entry_gift[:id]
+              eg = entry.entry_gifts.detect{|x|x.id == entry_gift[:id].to_i}
+              eg.update_attributes(hash)
+            else
+              entry.entry_gifts.create(hash)
+            end
+          end
+        end
+      end
+
+      entry.save!
+
+    end # transaction
+
+    return entry
+
+  end
+
+  private :create_or_update
 
 end
