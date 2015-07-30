@@ -10,7 +10,7 @@ class CreateGiftsTable < ActiveRecord::Migration
       t.string   :regex_validation, :limit => 20
       t.text     :options
       t.text     :summary
-    
+      t.integer  :sequence
       t.timestamps
     end
   end

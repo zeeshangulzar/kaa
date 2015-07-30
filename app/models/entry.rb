@@ -7,9 +7,9 @@ class Entry < ApplicationModel
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
 
   has_many :entry_behaviors, :in_json => true
-  accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities
+  accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities, :entry_gifts
 
-  attr_accessible :entry_behaviors, :entry_exercise_activities
+  attr_accessible :entry_behaviors, :entry_exercise_activities, :entry_gifts
 
   attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :gift_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
   

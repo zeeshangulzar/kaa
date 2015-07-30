@@ -1,10 +1,10 @@
-class BehaviorsController < ApplicationController
+class GiftsController < ApplicationController
   authorize :all, :master
   authorize :index, :user
   
   def index
-    behaviors = !@promotion.nil? ? @promotion.behaviors : Behavior.all
-    return HESResponder(behaviors)
+    gifts = !@promotion.nil? ? @promotion.gifts : Gift.all
+    return HESResponder(gifts)
   end
 
   # Gets a single activity

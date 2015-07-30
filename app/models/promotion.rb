@@ -3,12 +3,13 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :program_length, :behaviors, :exercise_activities, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gift_point_thresholds, :behavior_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
 
   belongs_to :organization
 
   has_many :users
   has_many :behaviors
+  has_many :gifts
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :email_reminders
@@ -58,6 +59,14 @@ class Promotion < ApplicationModel
 
   def minutes_point_thresholds
     self.point_thresholds.find(:all, :conditions => {:rel => "MINUTES"}, :order => 'min DESC')
+  end
+
+  def gift_point_thresholds
+    self.point_thresholds.find(:all, :conditions => {:rel => "GIFTS"}, :order => 'min DESC')
+  end
+
+  def behavior_point_thresholds
+    self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
   end
 
   # Creates the initial assesement used at registration and the final assessment used at the program end

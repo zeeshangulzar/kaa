@@ -6,7 +6,6 @@ class Behavior < ApplicationModel
   belongs_to :promotion
 
   has_many :entries_behaviors
-  has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   
   attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary, :image
   

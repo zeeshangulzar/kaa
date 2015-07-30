@@ -54,6 +54,8 @@ Go::Application.routes.draw do
   resources :promotions do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
+    resources :behaviors, :only => [:index, :create, :show]
+    resources :gifts, :only => [:index, :create, :show]
     # CONTENT MODELS
     resources :tips
     resources :facts

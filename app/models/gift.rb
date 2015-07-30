@@ -1,14 +1,13 @@
 class Gift < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :name, :cap_value, :content, :summary, :image, :public
-
+  attr_privacy :name, :cap_value, :content, :summary, :image, :visible_date, :public
+  attr_privacy :sequence, :master
   belongs_to :promotion
 
   has_many :entries_gifts
-  has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   
-  attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary, :image
+  attr_accessible :name, :type_of_prompt, :content, :cap_value, :cap_message, :regex_validation, :options, :summary, :image, :sequence
   
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :type_of_prompt
@@ -50,6 +49,10 @@ class Gift < ApplicationModel
     _json = super
     _json['regex_validation'] = self.regex_validation.as_json unless self.read_attribute(:regex_validation).nil?
     _json
+  end
+
+  def visible_date
+    return self.promotion.starts_on + (self.sequence || 0)
   end
   
 end
