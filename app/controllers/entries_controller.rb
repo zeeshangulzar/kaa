@@ -146,7 +146,7 @@ class EntriesController < ApplicationController
         remove_behaviors = entry.entry_behaviors.reject{|x| entry_behavior_ids.include?(x.id)}
         remove_behaviors.each do |behavior|
           # Remove from array and delete from db
-           entry.entry_exercise_activities.delete(behavior).first.destroy
+           entry.entry_behaviors.delete(behavior).first.destroy
         end
         entry_behaviors.each do |entry_behavior|
           hash = scrub(entry_behavior, EntryBehavior)

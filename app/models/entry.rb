@@ -93,7 +93,7 @@ class Entry < ApplicationModel
       value = self.exercise_steps
     end
 
-    point_thresholds.each do |point_threshold|
+    point_thresholds.each do  |point_threshold|
       if value >= point_threshold.min
         points += point_threshold.value
         break
@@ -103,98 +103,46 @@ class Entry < ApplicationModel
     self.exercise_points = points
   end
 
+  def calculate_behavior_points
+    points = 0
+    point_thresholds = self.user.promotion.behaviors_point_thresholds
+    behaviors_logged = 0
+    self.entry_behaviors.each{ |entry_behavior|
+      if entry_behavior.value && entry_behavior.value.to_i > 0
+        behaviors_logged += 1
+      end
+    }
+    point_thresholds.each{ |point_threshold|
+      if behaviors_logged >= point_threshold.min
+        points = point_threshold.value
+        break
+      end
+    }
+    self.behavior_points = points
+  end
+
+  def calculate_gift_points
+    points = 0
+    point_thresholds = self.user.promotion.gifts_point_thresholds
+    gifts_logged = 0
+    self.entry_gifts.each{ |entry_gift|
+      if entry_gift.value && entry_gift.value.to_i > 0
+        gifts_logged += 1
+      end
+    }
+    point_thresholds.each{ |point_threshold|
+      if gifts_logged >= point_threshold.min
+        points = point_threshold.value
+        break
+      end
+    }
+    self.gift_points = points
+  end
+
   def calculate_points
     calculate_exercise_points
-
-    behavior_points = 0
-    self.entry_behaviors.each do |entry_behavior|
-      behavior = entry_behavior.behavior
-
-      if entry_behavior.value
-        value = entry_behavior.value.to_i
-        value = behavior.cap_value && value >= behavior.cap_value ?  behavior.cap_value : value
-        behavior.point_thresholds do |point_threshold|
-          if value >= point_threshold.min
-            behavior_points += point_threshold.value
-          end #if
-        end #do point threshold
-      end #if
-    end #do entry_behavior
-
-    self.behavior_points = behavior_points
-
-=begin
-
-# challenge points stuff, possibly salvage for gifts???
-
-    #Challenge Points Calculation
-    # jesus i hope we don't have to touch this again, ever.
-    # 7/15 fuck...
-    challenges_sql = "
-      UPDATE
-      entries
-      JOIN (
-        SELECT
-          user_id, recorded_date, SUM( (COALESCE(countable_cs, 0) * #{self.user.promotion.challenges_sent_points}) + (COALESCE(countable_cr, 0) * #{self.user.promotion.challenges_completed_points}) ) AS points
-        FROM (
-          SELECT
-            user_id, recorded_date, cs_count, NULL AS cr_count, running_cs_count, last_running_cs_count, IF(running_cs_count <= #{self.user.promotion.max_challenges_sent}, cs_count, GREATEST(#{self.user.promotion.max_challenges_sent} - last_running_cs_count, 0)) AS countable_cs, 0 AS countable_cr
-          FROM (
-            SELECT
-              user_id, recorded_date, cs_count, @last_cs_count := IF(@dummy_id = user_id, @running_cs_count, 0) AS last_running_cs_count, @running_cs_count := IF(@dummy_id = user_id, @running_cs_count + cs_count, cs_count) AS running_cs_count, @dummy_id := user_id
-            FROM (
-              SELECT
-                user_id, DATE(cs.created_at) AS recorded_date, COUNT(cs.id) AS cs_count, @dummy_id := null
-              FROM challenges_sent cs
-              WHERE
-                user_id = #{self.user_id}
-                AND DATE(cs.created_at) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
-              GROUP BY user_id, DATE(cs.created_at)
-              ORDER BY user_id, recorded_date
-            ) x
-          ) y
-          UNION
-          SELECT
-            user_id, recorded_date, NULL AS cs_count, cr_count, running_cr_count, last_running_cr_count, 0 AS countable_cs, IF(running_cr_count <= #{self.user.promotion.max_challenges_completed}, cr_count, GREATEST(#{self.user.promotion.max_challenges_completed} - last_running_cr_count, 0)) AS countable_cr
-          FROM (
-            SELECT
-              user_id, recorded_date, cr_count, @last_cr_count := IF(@dummy_id = user_id, @running_cr_count, 0) AS last_running_cr_count, @running_cr_count := IF(@dummy_id = user_id, @running_cr_count + cr_count, cr_count) AS running_cr_count, @dummy_id := user_id
-            FROM (
-              SELECT
-                user_id, DATE(cr.completed_on) AS recorded_date, COUNT(cr.id) AS cr_count, @dummy_id := null
-              FROM challenges_received cr
-              WHERE
-                user_id = #{self.user_id}
-                AND cr.completed_on IS NOT NULL
-                AND DATE(cr.completed_on) BETWEEN '#{self.recorded_on.beginning_of_week}' AND '#{self.recorded_on.end_of_week}'
-              GROUP BY user_id, DATE(cr.completed_on)
-              ORDER BY user_id, recorded_date
-            ) x
-          ) y
-        ) z
-        GROUP BY recorded_date
-      ) challenges_summed ON challenges_summed.user_id = entries.user_id AND challenges_summed.recorded_date = entries.recorded_on
-      SET entries.challenge_points = COALESCE(challenges_summed.points, 0)
-      WHERE entries.user_id = #{self.user_id}
-    "
-    tries = 3
-    begin
-      self.connection.execute(challenges_sql)
-    rescue  ActiveRecord::StatementInvalid => e
-      if e.message =~ /Deadlock found when trying to get lock/
-        tries = tries - 1
-        if tries > 0
-          retry
-        else
-          Rails.logger.warn "DEADLOCK ON ENTRIES: #{challenges_sql}"
-        end
-      else
-        raise e
-      end
-    end
-    # end challenge calculations
-=end
-
+    calculate_behavior_points
+    calculate_gift_points
   end
 
   def as_json(options={})
