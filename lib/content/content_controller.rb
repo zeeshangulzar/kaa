@@ -27,7 +27,7 @@ class ContentController < ApplicationController
   end
 
   def create
-    @obj = @content_model_class_name.for_promotion(@promotion).new(params[@content_model_class_name.name.downcase.underscore.to_sym])
+    @obj = @content_model_class_name.for_promotion(@promotion).new(params[@content_model_class_name.name.underscore.downcase.to_sym])
     if @obj.valid?
       @content_model_class_name.transaction do
         @obj.save!
@@ -44,7 +44,7 @@ class ContentController < ApplicationController
   def update
     @obj = @content_model_class_name.for_promotion(@promotion).find(params[:id])
     @content_model_class_name.transaction do
-      @obj.update_attributes(params[@content_model_class_name.name.downcase.underscore.to_sym])
+      @obj.update_attributes(params[@content_model_class_name.name.underscore.downcase.to_sym])
     end
     if @obj.valid?
       return HESResponder(@obj)

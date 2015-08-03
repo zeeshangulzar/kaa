@@ -56,6 +56,7 @@ Go::Application.routes.draw do
     resources :activities, :only => [:index, :create, :show]
     resources :behaviors, :only => [:index, :create, :show]
     resources :gifts, :only => [:index, :create, :show]
+    resources :custom_content, :controller => "custom_content"
     # CONTENT MODELS
     resources :tips
     resources :facts
@@ -74,6 +75,7 @@ Go::Application.routes.draw do
   resources :tips
   resources :articles
   resources :facts
+  resources :custom_content, :controller => "custom_content"
 
   resources :resources
 

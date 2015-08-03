@@ -7,12 +7,15 @@ class Promotion < ApplicationModel
 
   belongs_to :organization
 
+  has_many :custom_content
   has_many :users
   has_many :behaviors
   has_many :gifts
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :email_reminders
+
+  DEFAULT_SUBDOMAIN = 'www'
 
   has_many :unsubscribe_list
 
@@ -198,6 +201,10 @@ class Promotion < ApplicationModel
       end
     end
     comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => today } ] )
+  end
+
+  def is_default?
+    return self.subdomain == Promotion::DEFAULT_SUBDOMAIN
   end
 
 end
