@@ -23,7 +23,6 @@ class CreatePromotions < ActiveRecord::Migration
       t.integer     :single_day_minute_limit,     :default => 90
       t.integer     :single_day_step_limit,       :default => 15000
       t.string      :location_labels,             :limit => 1000, :default => 'Location'
-      t.integer     :min_behaviors,               :default => 2
       t.timestamps
     end
   end
