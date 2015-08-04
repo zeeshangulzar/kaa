@@ -6,7 +6,7 @@ class CustomContent < ApplicationModel
   attr_privacy :title, :description, :summary, :content, :caption, :master
 
   belongs_to :promotion
-  has_many :custom_content_archives
+  has_many :custom_content_archives, :order => "archived_at DESC"
 
   MARKDOWN_COLUMNS = ['title_html','description_html','summary_html','content_html','caption_html']
   

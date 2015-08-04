@@ -186,43 +186,58 @@ class ApplicationController < ActionController::Base
   end
 
   # BEGIN CACHING RELATED METHODS
-  def HESCachedResponder(category_key, payload = 'AOK', status = 'OK', page_size = nil)
+  def HESCachedResponder(cache_key, payload = 'AOK', options = {})
+    options = {
+      :page_size => nil,
+      :include_params_slug => false,
+      :cache_options => false
+    }.nil_merge!(options)
+
     cache_miss = false
+
     if block_given?
-      response = hes_cache_fetch(category_key) { cache_miss = true; HESResponder(yield, status, page_size) }
+      response = hes_cache_fetch(cache_key){
+        cache_miss = true;
+        HESResponder(yield, 'OK', options[:page_size])
+      }
     else
-      response = hes_cache_fetch(category_key) { cache_miss = true; HESResponder(payload, status, page_size) }
+      response = hes_cache_fetch(cache_key){
+        cache_miss = true;
+        HESResponder(payload, 'OK', options[:page_size])
+      }
     end
     render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
   end
 
-  def hes_cache_fetch(category_key,options=nil,item_key=params_to_cache_key)
-    timestamp_key = "HESCacheTimestamp_#{category_key}"
+  def hes_cache_fetch(cache_key, options= {})
+    params_appendage = options[:include_params_slug] ? "_" + params_slug : ""
+    timestamp_key = "HESCacheTimestamp_#{cache_key}"
     cached_timestamp = Rails.cache.read(timestamp_key)
-    cache_key = "HESCache_#{category_key}_#{item_key}"
+    complete_cache_key = "HESCache_#{cache_key}#{params_appendage}"
 
     if cached_timestamp
-      item = Rails.cache.read(cache_key)
+      item = Rails.cache.read(complete_cache_key)
       if item && item.is_a?(Hash) && item[:timestamp] == cached_timestamp
-        Rails.logger.warn "cache hit for #{cache_key}"
+        Rails.logger.warn "cache hit for #{complete_cache_key}"
         return item[:data]
       end
     end
 
-    Rails.logger.warn "cache miss for #{cache_key}"
+    Rails.logger.warn "cache miss for #{complete_cache_key}"
     timestamp =  Time.now.utc
     Rails.cache.write timestamp_key, timestamp
     data = yield
-    Rails.cache.write cache_key, {:timestamp=>timestamp, :data=>data}, options
-    data
+    Rails.cache.write complete_cache_key, {:timestamp=>timestamp, :data=>data}, options[:cache_options]
+    return data
   end
 
-  def self.hes_cache_clear(category_key)
-    timestamp_key = "HESCacheTimestamp_#{category_key}"
+  def self.hes_cache_clear(cache_key)
+    timestamp_key = "HESCacheTimestamp_#{cache_key}"
+Rails.logger.warn timestamp_key + " should be cleared"
     Rails.cache.delete(timestamp_key)
   end
 
-  def params_to_cache_key
+  def params_slug
     params.
         keys.sort{|x,y| x.to_s<=>y.to_s}.
           collect{|k,v|"#{k}_#{params[k]}"}.

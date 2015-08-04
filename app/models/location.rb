@@ -119,11 +119,6 @@ class Location < ApplicationModel
     return Location.where(:parent_location_id => self.id)
   end
 
-  def as_json(options = {})
-    options[:except] ||= :locations
-    super
-  end
-
   def clear_cache
     cache_key = "promotion_#{self.promotion_id}_nested_locations"
     Rails.cache.delete(cache_key)

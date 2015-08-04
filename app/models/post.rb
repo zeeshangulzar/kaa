@@ -203,19 +203,11 @@ class Post < ApplicationModel
     return !self.root_post.nil? ? self.root_post.user : self.user
   end
 
-  def as_json(options={})
-    if !options[:methods].nil? && (options[:methods] == 'root_user' || options[:methods].include?('root_user'))
-      options = options.merge({:methods => ["root_user"]})
-    end
-    super
-  end
-
   def notify_if_flagged
     if !self.is_flagged_was && self.is_flagged
       notify(self.user, "Your post has been flagged.", "Your <a href='/#/wellness_wall/#{self.id}'>post</a> was flagged.", :from => self.user, :key => "post_" + self.id.to_s)
     end
   end
-
 
 
   # big ass method to get everything on the wall without active record junk

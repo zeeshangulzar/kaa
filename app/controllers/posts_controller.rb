@@ -128,6 +128,7 @@ class PostsController < ApplicationController
     end
 
     p.each_with_index{|post,index|
+      post.attach('root_user', post.root_user)
       # remove posts where parent is deleted or flagged
       if !post.parent_post_id.nil?
         if post.parent_post.nil? || post.parent_post.is_flagged
@@ -136,8 +137,7 @@ class PostsController < ApplicationController
       end
     }
 
-    response = p.as_json(:methods => 'root_user')
-    return HESResponder(response)
+    return HESResponder(p)
   end
 
   def popular_posts

@@ -23,7 +23,7 @@ class TeamsController < ApplicationController
   def show
     team = Team.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
-    team.include_team_members
+    team.attach(:team_members)
     return HESResponder(team)
   end
   
