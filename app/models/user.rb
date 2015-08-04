@@ -51,7 +51,6 @@ class User < ApplicationModel
   end
 
   can_comment
-
   can_post
   can_like
   can_share
@@ -61,7 +60,6 @@ class User < ApplicationModel
 
   # relationships
   has_one :profile
-
   has_one :demographic
 
   # attrs
@@ -77,8 +75,6 @@ class User < ApplicationModel
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
   validates_uniqueness_of :email, :scope => :promotion_id
-
-#  default_scope :include => :profile, :order => "profiles.last_name ASC"
 
   belongs_to :promotion
   belongs_to :location
@@ -117,27 +113,6 @@ class User < ApplicationModel
     end
   end
   
-  def serializable_hash(options={})
-    hash = super(options)
-    return hash
-  end
-
-  def as_json(options={})
-    user_json = super(options.merge(:include=>:profile))
-
-    if self.include_evaluation_definitions || options[:include_evaluation_definitions]
-      _evaluations_definitions = self.evaluations.collect{|x| x.definition.id}
-      user_json["evaluation_definitions"] = _evaluations_definitions
-    end
-
-    user_json['stats'] = @stats if @stats
-    user_json['recent_activities'] = @recent_activities if @recent_activities
-    user_json["active_evaluation_definition_ids"] = @active_evaluation_definition_ids if @active_evaluation_definition_ids
-    user_json['completed_evaluation_definition_ids'] = @completed_evaluation_definition_ids if @completed_evaluation_definition_ids
-    user_json['team_id'] = @team_id if @team_id
-    return user_json
-  end
-
   def auth_basic_header
     b64 = Base64.encode64("#{self.id}:#{self.auth_key}").gsub("\n","")
     "Basic #{b64}"
@@ -232,11 +207,7 @@ class User < ApplicationModel
       arr =  self.class.stats([self.id],year)
       @stats = arr[self.id]
     end
-    @stats
-  end
-
-  def stats=(hash)
-    @stats=hash
+    return @stats
   end
 
   def location_ids
@@ -274,35 +245,6 @@ class User < ApplicationModel
 
   def process_last_accessed
     self.update_attributes(:last_accessed => self.promotion.current_time) if !self.last_accessed || self.last_accessed.to_date < self.promotion.current_date
-  end
-
-  def recent_activities(id_only = false, limit = 5)
-    sql = "
-      SELECT
-        DISTINCT(exercise_activities.id) AS id
-      FROM entries
-      JOIN rel_entries_exercises_activities ON rel_entries_exercises_activities.entry_id = entries.id
-      JOIN exercise_activities ON exercise_activities.id = rel_entries_exercises_activities.exercise_activity_id
-      WHERE
-        entries.user_id = #{self.id}
-        AND entries.recorded_on <= '#{self.promotion.current_date}'
-      GROUP BY exercise_activities.id
-      ORDER BY MAX(rel_entries_exercises_activities.updated_at) DESC
-      LIMIT #{limit}
-    "
-    result = self.connection.exec_query(sql)
-    ids = []
-    result.each{ |row|
-      ids << row['id']
-    }
-    if id_only  
-      return ids
-    end
-    return ExerciseActivity.find(ids)
-  end
-
-  def recent_activities=(hash)
-    @recent_activities = hash
   end
 
   def current_team
@@ -395,6 +337,32 @@ class User < ApplicationModel
     end
 
     opts
+  end
+
+  # not used in h4h...
+  def recent_activities(id_only = false, limit = 5)
+    sql = "
+      SELECT
+        DISTINCT(exercise_activities.id) AS id
+      FROM entries
+      JOIN rel_entries_exercises_activities ON rel_entries_exercises_activities.entry_id = entries.id
+      JOIN exercise_activities ON exercise_activities.id = rel_entries_exercises_activities.exercise_activity_id
+      WHERE
+        entries.user_id = #{self.id}
+        AND entries.recorded_on <= '#{self.promotion.current_date}'
+      GROUP BY exercise_activities.id
+      ORDER BY MAX(rel_entries_exercises_activities.updated_at) DESC
+      LIMIT #{limit}
+    "
+    result = self.connection.exec_query(sql)
+    ids = []
+    result.each{ |row|
+      ids << row['id']
+    }
+    if id_only  
+      return ids
+    end
+    return ExerciseActivity.find(ids)
   end
 
 end

@@ -60,11 +60,6 @@ class Notification < ApplicationModel
     update_attributes(:hidden => true)
   end
 
-  def as_json(options = nil)
-    hash = serializable_hash(options)
-    hash.merge!('user' => user.as_json)
-  end
-
   # send all notifications to redis to have broadcasted via socket.io
   def publish_to_redis
     $redis.publish('notificationPublished', {:notification => self, :user_id => self.user_id}.to_json)

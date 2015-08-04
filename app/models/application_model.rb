@@ -15,9 +15,13 @@ class ApplicationModel < ActiveRecord::Base
     hash = serializable_hash(options)
 
     if @attachments
-      # nice way to inject associations to json from controller methods
+      # nice way to inject associations or whatever else into json from controller methods
       @attachments.each{ |attachment|
-        hash[attachment] = self.send(attachment)
+        if attachment.is_a?(Symbol) && self.respond_to?(attachment)
+          hash[attachment] = self.send(attachment)
+        elsif attachment.is_a?(Array)
+          hash[attachment[0].to_sym] = attachment[1]
+        end
       }
     end
 
@@ -57,11 +61,13 @@ class ApplicationModel < ActiveRecord::Base
     hash
   end
 
-  # call Model.attach(:association) to include the assc. in json for a particular request/method
-  def attach(association)
+  # call Model.attach(:attachment) to include the assc. or object in json for a particular request/method
+  def attach(attachment_name, attachment = nil)
     @attachments = [] if !@attachments
-    if self.respond_to?(association)
+    if attachment_name.is_a?(Symbol) && self.respond_to?(attachment_name)
       @attachments << association
+    elsif !attachment.nil?
+      @attachments << [attachment_name.to_sym, attachment]
     end
   end
   

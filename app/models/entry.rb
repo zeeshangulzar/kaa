@@ -289,7 +289,7 @@ UNION
 
     if publish
       u = self.user
-      u.stats = u.stats()
+      u.attach('stats', u.stats())
       $redis.publish('userUpdated', u.as_json.to_json)
     end
   end
