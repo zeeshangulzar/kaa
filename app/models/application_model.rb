@@ -70,5 +70,109 @@ class ApplicationModel < ActiveRecord::Base
       @attachments << [attachment_name.to_sym, attachment]
     end
   end
+
+  # BEGIN CACHING MAGIC
+
+  CLEAR_CACHES_DEFAULT = {
+    :self         => true,
+    :parents      => true,
+    :ancestors    => false,
+    :children     => false,
+    :descendants  => false # THIS COULD BE DANGEROUS, NOT EVEN ENABLING ATM
+  }
+
+  @@CACHE_CONFIG = {}
+
+  after_commit :clear_caches
+
+  def cache_key
+    return nil if !self.id
+    return self.class.name.underscore.pluralize + "_" + self.id.to_s
+  end
+
+  def clear_cache
+    Rails.logger.info "HESCACHE - clearing cache for: #{self.class.name}: #{self.id} (#{self.cache_key})"
+    ApplicationController.hes_cache_clear self.cache_key
+  end
+
+  def clear_parent_caches(objects = [], ancestors = false)
+    self.clear_cache
+    Rails.logger.info "HESCACHE - clearing parent caches for #{self.class.name}: #{self.id}"
+    objects = [objects] if !objects.is_a?(Array)
+    objects.each{ |obj|
+      obj.clear_parent_caches
+    }
+    refs = self.reflections.select do |association, reflection|
+      reflection.macro == :belongs_to
+    end
+    refs.each{|ref|
+      obj = self.send(ref.second.name)
+      if obj && obj.class.attr_privacy
+        obj.class.attr_privacy.each{ |rule|
+          if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym)
+            Rails.logger.info "HESCACHE - found belongs_to assoc. with privacy/json rule for: #{obj.class.name}"
+            if ancestors
+              obj.clear_parent_caches([], true)
+            else
+              obj.clear_cache
+            end
+          end
+        }
+      end
+    }
+  end
+
+  def clear_child_caches(objects = [], descendants = false)
+    self.clear_cache
+    Rails.logger.info "HESCACHE - clearing child caches for #{self.class.name}: #{self.id}"
+    objects = [objects] if !objects.is_a?(Array)
+    objects.each{ |obj|
+      obj.clear_child_caches
+    }
+    refs = self.reflections.select do |association, reflection|
+      reflection.macro == :has_many || reflection.macro == :has_one
+    end
+    refs.each{|ref|
+      objs = self.send(ref.second.name)
+      next if !objs
+      objs = [objs] if !objs.is_a?(Array)
+      objs.each{ |obj|
+        if obj.class.attr_privacy
+          obj.class.attr_privacy.each{ |rule|
+            if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym)
+              Rails.logger.info "HESCACHE - found has_many or has_one assoc. with privacy/json for: #{obj.class.name}"
+              if descendants
+                # I HOPE YOU KNOW WHAT YOU'RE DOING!
+                obj.clear_child_caches([], true)
+              else
+                obj.clear_cache
+              end
+            end
+          }
+        end
+      }
+    }
+  end
+
+  def clear_caches
+    @@CACHE_CONFIG[self::class::name] = CLEAR_CACHES_DEFAULT.dup if !@@CACHE_CONFIG[self::class::name]
+    cc = @@CACHE_CONFIG[self::class::name]
+    self.clear_cache if cc[:self]
+    self.clear_parent_caches if cc[:parents] && !cc[:ancestors]
+    self.clear_parent_caches([], true) if cc[:ancestors]
+    self.clear_child_caches if cc[:children] && !cc[:descendants]
+    # NOT EVEN ENABLING THIS NEXT ONE UNTIL IF EVER IT MAKES SENSE OR WE CAN MAKE IT SAFE
+    # self.clear_child_caches if cc[:descendants]
+  end
+
+  def self.clear_cache_for(*args)
+    @@CACHE_CONFIG[self::name] = CLEAR_CACHES_DEFAULT.dup if !@@CACHE_CONFIG[self::name]
+    cc = @@CACHE_CONFIG[self::name]
+    cc.each{|k,v|
+      cc[k.to_sym] = args.include?(k)
+    }
+  end
+
+  # END CACHING MAGIC
   
 end

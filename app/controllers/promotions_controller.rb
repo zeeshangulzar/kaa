@@ -20,10 +20,8 @@ class PromotionsController < ApplicationController
   end
 
   def current
-    #@promotion.logo = @promotion.logo_for_user(@current_user) if @current_user
-    #@promotion.resources_title = @promotion.resources_title_for_user(@current_user) if @current_user
     if @current_user && @current_user.user?
-      return HESCachedResponder('promotions_' + @promotion.id.to_s, @promotion)
+      return HESCachedResponder(@promotion.cache_key, @promotion)
     end
     return HESResponder(@promotion)
   end

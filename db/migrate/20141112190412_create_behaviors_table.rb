@@ -5,7 +5,7 @@ class CreateBehaviorsTable < ActiveRecord::Migration
       t.string   :name
       t.text     :content
       t.text     :summary
-    
+      t.integer  :sequence, :default => 0
       t.timestamps
     end
   end

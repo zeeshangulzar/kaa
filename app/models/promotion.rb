@@ -1,27 +1,26 @@
 class Promotion < ApplicationModel
-  attr_accessible *column_names
-  attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
 
+  attr_accessible *column_names
+  
+  attr_privacy_no_path_to_user
+
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
 
   belongs_to :organization
 
   has_many :custom_content
   has_many :users
-  has_many :behaviors
+  has_many :behaviors, :order => "sequence ASC"
   has_many :gifts
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :email_reminders
+  has_many :unsubscribe_list
+  has_many :resources
+  has_many :competitions
 
   DEFAULT_SUBDOMAIN = 'www'
-
-  has_many :unsubscribe_list
-
-  has_many :resources
-
-  has_many :competitions
 
   has_custom_prompts :with => :evaluations
 
@@ -42,11 +41,6 @@ class Promotion < ApplicationModel
   flags :is_manual_override_enabled, :default => false
   flags :is_teams_enabled, :default => true
   flags :is_gender_displayed, :default => true
-
-  self.after_save :clear_hes_cache
-  self.after_destroy :clear_hes_cache
-
-  after_commit :clear_cache
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -158,10 +152,6 @@ class Promotion < ApplicationModel
     promotion_obj = super(options)
     return promotion_obj
   end
-
-  def clear_hes_cache
-    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
-  end
   
   def logo_for_user(user=nil)
     if user && user.location && user.location.parent_location && !user.location.parent_location.logo.nil?
@@ -175,11 +165,6 @@ class Promotion < ApplicationModel
       return user.location.parent_location.resources_title
     end
     return self.resources_title
-  end
-
-  def clear_cache
-    cache_key = "promotion_#{self.id}"
-    Rails.cache.delete(cache_key)
   end
 
   def custom_content_path
