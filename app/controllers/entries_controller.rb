@@ -62,10 +62,10 @@ class EntriesController < ApplicationController
   end
 
   def show
-    @entry = Entry.find(params[:id]) rescue nil
-    return HESResponder("Entry", "NOT_FOUND") if !@entry
-    if @entry.user.id == @current_user.id || @current_user.master?
-      return HESResponder(@entry)
+    entry = Entry.find(params[:id]) rescue nil
+    return HESResponder("Entry", "NOT_FOUND") if !entry
+    if entry.user.id == @current_user.id || @current_user.master?
+      return HESResponder(entry)
     else
       return HESResponder("You may not view other users' entries.", "DENIED")
     end
