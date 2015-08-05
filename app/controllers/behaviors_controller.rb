@@ -1,6 +1,6 @@
 class BehaviorsController < ApplicationController
   authorize :all, :master
-  authorize :index, :user
+  authorize :index, :show, :user
   
   def index
     behaviors = !@promotion.nil? ? @promotion.behaviors : Behavior.all
@@ -8,7 +8,8 @@ class BehaviorsController < ApplicationController
   end
 
   def show
-    behavior = Behavior.find(params[:id])
+    behavior = Behavior.find(params[:id]) rescue nil
+    return HESResponder("Behavior", "NOT_FOUND") if !behavior
     return HESResponder(behavior)
   end
 

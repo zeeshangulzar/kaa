@@ -27,14 +27,14 @@ class EntriesController < ApplicationController
         behaviors_array[eb_index] = behavior_hash
       }
       
-      activities_array = []
-      entry.entry_exercise_activities.each_with_index{|eea,eea_index|
-        activity_hash = {
-          :id => eea.id,
-          :exercise_activity_id => eea.exercise_activity_id,
-          :value                => eea.value
+      gifts_array = []
+      entry.entry_gifts.each_with_index{|eg,eg_index|
+        gift_hash = {
+          :id      => eg.id,
+          :gift_id => eg.gift_id,
+          :value   => eg.value
         }
-        activities_array[eea_index] = activity_hash
+        gifts_array[eg_index] = gift_hash
       }
 
       entry_hash = {

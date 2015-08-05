@@ -14,12 +14,14 @@ class CompetitionsController < ApplicationController
     Competition.transaction do
       competition = @promotion.competitions.create(params[:competition])
     end
+    return HESResponder("Error saving competition.", "ERROR") if !competition
     return HESResponder(competition.errors.full_messages, "ERROR") if !competition.valid?
     return HESResponder(competition)
   end
 
   def update
-    competition = Competition.find(params[:id])
+    competition = Competition.find(params[:id]) rescue nil
+    return HESResponder("Competition", "NOT_FOUND") if !competition
     Competition.transaction do
       competition.update_attributes(params[:competition])
     end
@@ -28,7 +30,8 @@ class CompetitionsController < ApplicationController
   end
 
   def destroy
-    competition = Competition.find(params[:id])
+    competition = Competition.find(params[:id]) rescue nil
+    return HESResponder("Competition", "NOT_FOUND") if !competition
     Competition.transaction do
       competition.destroy
     end
