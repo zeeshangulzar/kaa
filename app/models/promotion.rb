@@ -33,6 +33,7 @@ class Promotion < ApplicationModel
 
   mount_uploader :logo, PromotionLogoUploader
 
+  after_create :copy_custom_prompts
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
@@ -66,23 +67,27 @@ class Promotion < ApplicationModel
     self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
   end
 
+  # copy default promo custom prompts for evals, etc.
+  def copy_custom_prompts
+    default = Promotion::get_default
+    if default
+      default.custom_prompts.each{|cp|
+        copied_cp = cp.dup
+        copied_cp.id = nil
+        copied_cp.custom_promptable_id = self.id
+        copied_cp.save!
+      }
+    }
+  end
+
   # Creates the initial assesement used at registration and the final assessment used at the program end
   def create_evaluations
     Promotion.transaction do
-      dp = Promotion::get_default
-      if dp
-        dp.evaluation_definitions.each{|ed|
+      default = Promotion::get_default
+      if default
+        # copy default promo evaluations
+        default.evaluation_definitions.each{|ed|
           copied_ed = ed.dup
-          copied_ed.visible_questions.split(',').each{|question|
-            dp.custom_prompts.each{|cp|
-              if cp.name == question
-                copied_cp = cp.dup
-                copied_cp.id = nil
-                copied_cp.custom_promptable_id = self.id
-                copied_cp.save!
-              end
-            }
-          }
           copied_ed.id = nil
           copied_ed.eval_definitionable_id = self.id
           copied_ed.save!
