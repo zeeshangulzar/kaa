@@ -68,11 +68,31 @@ class Promotion < ApplicationModel
 
   # Creates the initial assesement used at registration and the final assessment used at the program end
   def create_evaluations
-    initial_evaluation = self.evaluation_definitions.create!(:name => "Initial Assessment", :days_from_start => 0)
-    program_end_evaluation = self.evaluation_definitions.create!(:name => "Program End Evaluation", :days_from_start => self.program_length - 1)
-
-      # initial_evaluation.update_attributes(:is_liked_least_displayed => false, :is_liked_most_displayed => false)
+    Promotion.transaction do
+      dp = Promotion::get_default
+      if dp
+        dp.evaluation_definitions.each{|ed|
+          copied_ed = ed.dup
+          copied_ed.visible_questions.split(',').each{|question|
+            dp.custom_prompts.each{|cp|
+              if cp.name == question
+                copied_cp = cp.dup
+                copied_cp.id = nil
+                copied_cp.custom_promptable_id = self.id
+                copied_cp.save!
+              end
+            }
+          }
+          copied_ed.id = nil
+          copied_ed.eval_definitionable_id = self.id
+          copied_ed.save!
+        }
+      else
+        initial_evaluation = self.evaluation_definitions.create!(:name => "Initial Assessment", :days_from_start => 0)
+        program_end_evaluation = self.evaluation_definitions.create!(:name => "Program End Evaluation", :days_from_start => self.program_length - 1)
+      end
     end
+  end
 
   # Updates the last evaluation that is tied to the ends_on date
   def update_evaluations
@@ -190,6 +210,10 @@ class Promotion < ApplicationModel
 
   def is_default?
     return self.subdomain == Promotion::DEFAULT_SUBDOMAIN
+  end
+
+  def self.get_default
+    return Promotion.where(:subdomain => Promotion::DEFAULT_SUBDOMAIN).first rescue nil
   end
 
 end
