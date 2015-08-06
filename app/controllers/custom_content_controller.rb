@@ -7,7 +7,7 @@ class CustomContentController < ApplicationController
       :category => params[:category].nil? ? nil : params[:category],
       :key => params[:key].nil? ? nil : params[:key]
     }
-    custom_content = @promotion.is_default? ? CustomContent.where(:promotion_id => nil) : CustomContent.for(@promotion, conditions)
+    custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(custom_content)
   end
 
