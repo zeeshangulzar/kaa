@@ -77,7 +77,7 @@ class Promotion < ApplicationModel
         copied_cp.custom_promptable_id = self.id
         copied_cp.save!
       }
-    }
+    end
   end
 
   # Creates the initial assesement used at registration and the final assessment used at the program end
