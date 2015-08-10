@@ -2,7 +2,7 @@
 class EntryGift < ApplicationModel
   belongs_to :entry
   belongs_to :gift
-  attr_accessible :value, :entry_id, :gift_id
+  attr_accessible :id, :value, :entry_id, :gift_id
   attr_privacy :id, :gift_id, :value, :gift, :me
   attr_privacy_path_to_user :entry, :user
 

@@ -5,7 +5,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
 
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :any_user
 
   belongs_to :organization
 
@@ -42,6 +42,8 @@ class Promotion < ApplicationModel
   flags :is_manual_override_enabled, :default => false
   flags :is_teams_enabled, :default => true
   flags :is_gender_displayed, :default => true
+  flags :is_show_individual_leaderboard, :default => true
+
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
