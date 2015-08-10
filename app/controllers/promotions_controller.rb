@@ -86,9 +86,4 @@ class PromotionsController < ApplicationController
     render :json => {:data => users} and return
   end
 
-  def verify_users_for_achievements
-    Profile.do_nuid_verification
-    render :text=>'OK',:layout=>nil
-  end
-
 end

@@ -233,7 +233,6 @@ class ApplicationController < ActionController::Base
 
   def self.hes_cache_clear(cache_key)
     timestamp_key = "HESCacheTimestamp_#{cache_key}"
-Rails.logger.warn timestamp_key + " should be cleared"
     Rails.cache.delete(timestamp_key)
   end
 

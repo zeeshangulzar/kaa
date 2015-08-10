@@ -6,6 +6,7 @@ class CreateGiftsTable < ActiveRecord::Migration
       t.text     :content
       t.text     :summary
       t.integer  :sequence
+      t.string   :image
       t.timestamps
     end
   end

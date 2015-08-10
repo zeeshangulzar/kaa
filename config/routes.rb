@@ -79,6 +79,7 @@ Go::Application.routes.draw do
 
   resources :resources
   resources :behaviors
+  resources :gifts
 
   # locations...
   resources :locations do
