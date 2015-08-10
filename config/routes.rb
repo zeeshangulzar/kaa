@@ -209,4 +209,6 @@ Go::Application.routes.draw do
   match "/send_mail" => "emails#send_mail", :via => :post
 
   match "/export" => "exports#index", :via => :post
+
+  match 'promotions/:promotion_id/keywords' => 'promotions#keywords', :via => :get
 end

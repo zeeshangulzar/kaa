@@ -15,6 +15,20 @@ class CustomContent < ApplicationModel
 
   validates_presence_of :category, :key
 
+  MARKDOWN_COLUMNS.each{ |column|
+    self.send(:define_method, "#{column}", 
+      Proc.new {nil
+        original = read_attribute(column.to_sym)
+        if self.promotion.nil?
+          next original
+        end
+        re = Regexp.union(self.promotion.keywords.keys)
+        s = original.gsub(re) { |m| self.promotion.keywords[m] }
+        next s
+      }
+    )
+  }
+
   def archive
     CustomContentArchive::archive(self)
   end

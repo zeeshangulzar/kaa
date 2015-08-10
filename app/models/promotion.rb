@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_accessible :flags, *column_names
   
   attr_privacy_no_path_to_user
-
+  
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :any_user
 
@@ -221,6 +221,20 @@ class Promotion < ApplicationModel
 
   def self.get_default
     return Promotion.where(:subdomain => Promotion::DEFAULT_SUBDOMAIN).first rescue nil
+  end
+
+  def keywords
+    return {
+      'APP_NAME'        => Constant::AppName,
+      'NAME'            => self.name,
+      'LAUNCHES_ON'     => self.launch_on,
+      'STARTS_ON'       => self.starts_on,
+      'ENDS_ON'         => self.ends_on,
+      'REG_STARTS'      => self.registration_starts_on,
+      'REG_ENDS'        => self.registration_ends_on,
+      'LENGTH_IN_DAYS'  => self.program_length,
+      'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
+    }
   end
 
 end

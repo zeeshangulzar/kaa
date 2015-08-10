@@ -77,18 +77,10 @@ class UsersController < ApplicationController
     end
   end
 
-  # Get a user
-  #
-  # @url [GET] /users/1
-  # @param [Integer] id The id of the user
-  # @return [User] User that matches the id
-  #
-  # [URL] /users/:id [GET]
-  #  [200 OK] Successfully retrieved User
   def show
     if @target_user.id == @current_user.id || @current_user.master?
       @target_user.attach('stats', @target_user.stats)
-      @target_user.attach('recent_activities', @target_user.recent_activities)
+      #@target_user.attach('recent_activities', @target_user.recent_activities)
       @target_user.attach('team_id', !@target_user.current_team.nil? ? @target_user.current_team.id : nil)
 
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
@@ -136,13 +128,6 @@ class UsersController < ApplicationController
     return HESResponder(@target_user)
   end
 
-
-
-  # Create a user
-  #
-  # @url [POST] /users
-  # @authorize Public
-  # TODO: document me!
   def create
     return HESResponder("No user provided.", "ERROR") if params[:user].empty?
     demographic = false

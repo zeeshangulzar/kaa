@@ -3,7 +3,7 @@ class PromotionsController < ApplicationController
 
   authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :public
   authorize :index, :poster
-  authorize :create, :update, :destroy, :master
+  authorize :create, :update, :destroy, :keywords, :master
 
   def index
     promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : Promotion.all
@@ -84,6 +84,10 @@ class PromotionsController < ApplicationController
   def top_location_stats
     users = ActiveRecord::Base.connection.select_all("SELECT COUNT(*) AS 'user_count', locations.name FROM users INNER JOIN locations ON users.top_level_location_id = locations.id WHERE users.promotion_id = #{@promotion.id} GROUP BY locations.name;")
     render :json => {:data => users} and return
+  end
+
+  def keywords
+    return HESResponder(@promotion.keywords)
   end
 
 end
