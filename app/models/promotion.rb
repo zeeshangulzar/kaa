@@ -1,6 +1,6 @@
 class Promotion < ApplicationModel
 
-  attr_accessible *column_names
+  attr_accessible :flags, *column_names
   
   attr_privacy_no_path_to_user
 

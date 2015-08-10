@@ -27,9 +27,21 @@ class PromotionsController < ApplicationController
   end
 
   def create
-    promotion = Promotion.create(params[:promotion])
-    if !promotion.valid?
-      return HESResponder(promotion.errors.full_messages, "ERROR")
+    promotion = nil
+    Promotion.transaction do
+      promotion = Promotion.create(params[:promotion])
+      if !promotion || !promotion.valid?
+        return HESResponder(promotion.errors.full_messages, "ERROR")
+      else
+        if !params[:promotion][:flags].nil?
+          params[:promotion][:flags].each{|f,v|
+            if !promotion.flags[f.to_sym].nil?
+              promotion.flags[f.to_sym] = v
+            end
+          }
+          promotion.save!
+        end
+      end
     end
     return HESResponder(promotion)
   end
@@ -41,6 +53,14 @@ class PromotionsController < ApplicationController
     else
       Promotion.transaction do
         promotion.update_attributes(params[:promotion])
+        if !params[:promotion][:flags].nil?
+          params[:promotion][:flags].each{|f,v|
+            if !promotion.flags[f.to_sym].nil?
+              promotion.flags[f.to_sym] = v
+            end
+          }
+          promotion.save!
+        end
       end
       if !promotion.valid?
         return HESResponder(promotion.errors.full_messages, "ERROR")
