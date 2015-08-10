@@ -12,7 +12,7 @@ class Entry < ApplicationModel
 
   attr_accessible :entry_behaviors, :entry_exercise_activities, :entry_gifts
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :gift_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :gift_points, :behavior_points, :updated_at, :entry_behaviors, :entry_gifts, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
@@ -33,7 +33,7 @@ class Entry < ApplicationModel
     else
       sql += " AND `entries`.`recorded_on` <= '#{Date.today.to_s}'"
     end
-    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities)
+    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_gifts, :entry_exercise_activities)
   }
 
   before_save :calculate_points
