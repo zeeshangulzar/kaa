@@ -42,6 +42,8 @@ class Promotion < ApplicationModel
   flags :is_manual_override_enabled, :default => false
   flags :is_teams_enabled, :default => true
   flags :is_gender_displayed, :default => true
+  flags :is_show_individual_leaderboard, :default => true
+
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
