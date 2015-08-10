@@ -37,14 +37,14 @@ class EntriesController < ApplicationController
         gifts_array[eg_index] = gift_hash
       }
       
-      activities_array = []
-      entry.entry_exercise_activities.each_with_index{|eea,eea_index|
-        activity_hash = {
-          :id => eea.id,
-          :exercise_activity_id => eea.exercise_activity_id,
-          :value                => eea.value
+      gifts_array = []
+      entry.entry_gifts.each_with_index{|eg,eg_index|
+        gift_hash = {
+          :id      => eg.id,
+          :gift_id => eg.gift_id,
+          :value   => eg.value
         }
-        activities_array[eea_index] = activity_hash
+        gifts_array[eg_index] = gift_hash
       }
 
       entry_hash = {
@@ -72,10 +72,10 @@ class EntriesController < ApplicationController
   end
 
   def show
-    @entry = Entry.find(params[:id]) rescue nil
-    return HESResponder("Entry", "NOT_FOUND") if !@entry
-    if @entry.user.id == @current_user.id || @current_user.master?
-      return HESResponder(@entry)
+    entry = Entry.find(params[:id]) rescue nil
+    return HESResponder("Entry", "NOT_FOUND") if !entry
+    if entry.user.id == @current_user.id || @current_user.master?
+      return HESResponder(entry)
     else
       return HESResponder("You may not view other users' entries.", "DENIED")
     end

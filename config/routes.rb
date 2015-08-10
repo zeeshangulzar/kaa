@@ -78,6 +78,7 @@ Go::Application.routes.draw do
   resources :custom_content, :controller => "custom_content"
 
   resources :resources
+  resources :behaviors
 
   # locations...
   resources :locations do

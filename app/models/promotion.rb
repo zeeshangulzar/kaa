@@ -1,27 +1,26 @@
 class Promotion < ApplicationModel
-  attr_accessible *column_names
-  attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
 
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :gifts, :backlog_days, :resources_title, :name, :status, :version, :program_name, :any_user
+  attr_accessible *column_names
+  
+  attr_privacy_no_path_to_user
+
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :any_user
 
   belongs_to :organization
 
   has_many :custom_content
   has_many :users
-  has_many :behaviors
+  has_many :behaviors, :order => "sequence ASC"
   has_many :gifts
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :email_reminders
+  has_many :unsubscribe_list
+  has_many :resources
+  has_many :competitions
 
   DEFAULT_SUBDOMAIN = 'www'
-
-  has_many :unsubscribe_list
-
-  has_many :resources
-
-  has_many :competitions
 
   has_custom_prompts :with => :evaluations
 
@@ -34,6 +33,7 @@ class Promotion < ApplicationModel
 
   mount_uploader :logo, PromotionLogoUploader
 
+  after_create :copy_custom_prompts
   after_create :create_evaluations
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
@@ -42,11 +42,6 @@ class Promotion < ApplicationModel
   flags :is_manual_override_enabled, :default => false
   flags :is_teams_enabled, :default => true
   flags :is_gender_displayed, :default => true
-
-  self.after_save :clear_hes_cache
-  self.after_destroy :clear_hes_cache
-
-  after_commit :clear_cache
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -72,13 +67,37 @@ class Promotion < ApplicationModel
     self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
   end
 
+  # copy default promo custom prompts for evals, etc.
+  def copy_custom_prompts
+    default = Promotion::get_default
+    if default
+      default.custom_prompts.each{|cp|
+        copied_cp = cp.dup
+        copied_cp.id = nil
+        copied_cp.custom_promptable_id = self.id
+        copied_cp.save!
+      }
+    end
+  end
+
   # Creates the initial assesement used at registration and the final assessment used at the program end
   def create_evaluations
-    initial_evaluation = self.evaluation_definitions.create!(:name => "Initial Assessment", :days_from_start => 0)
-    program_end_evaluation = self.evaluation_definitions.create!(:name => "Program End Evaluation", :days_from_start => self.program_length - 1)
-
-      # initial_evaluation.update_attributes(:is_liked_least_displayed => false, :is_liked_most_displayed => false)
+    Promotion.transaction do
+      default = Promotion::get_default
+      if default
+        # copy default promo evaluations
+        default.evaluation_definitions.each{|ed|
+          copied_ed = ed.dup
+          copied_ed.id = nil
+          copied_ed.eval_definitionable_id = self.id
+          copied_ed.save!
+        }
+      else
+        initial_evaluation = self.evaluation_definitions.create!(:name => "Initial Assessment", :days_from_start => 0)
+        program_end_evaluation = self.evaluation_definitions.create!(:name => "Program End Evaluation", :days_from_start => self.program_length - 1)
+      end
     end
+  end
 
   # Updates the last evaluation that is tied to the ends_on date
   def update_evaluations
@@ -158,10 +177,6 @@ class Promotion < ApplicationModel
     promotion_obj = super(options)
     return promotion_obj
   end
-
-  def clear_hes_cache
-    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
-  end
   
   def logo_for_user(user=nil)
     if user && user.location && user.location.parent_location && !user.location.parent_location.logo.nil?
@@ -175,11 +190,6 @@ class Promotion < ApplicationModel
       return user.location.parent_location.resources_title
     end
     return self.resources_title
-  end
-
-  def clear_cache
-    cache_key = "promotion_#{self.id}"
-    Rails.cache.delete(cache_key)
   end
 
   def custom_content_path
@@ -205,6 +215,10 @@ class Promotion < ApplicationModel
 
   def is_default?
     return self.subdomain == Promotion::DEFAULT_SUBDOMAIN
+  end
+
+  def self.get_default
+    return Promotion.where(:subdomain => Promotion::DEFAULT_SUBDOMAIN).first rescue nil
   end
 
 end

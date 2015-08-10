@@ -86,16 +86,14 @@ class UsersController < ApplicationController
   # [URL] /users/:id [GET]
   #  [200 OK] Successfully retrieved User
   def show
-    user_hash = @target_user.serializable_hash
-
     if @target_user.id == @current_user.id || @current_user.master?
-      user_hash[:stats] = @target_user.stats
-      user_hash[:recent_activities] = @target_user.recent_activities
-      user_hash[:team_id] = !@target_user.current_team.nil? ? @target_user.current_team.id : nil
+      @target_user.attach('stats', @target_user.stats)
+      @target_user.attach('recent_activities', @target_user.recent_activities)
+      @target_user.attach('team_id', !@target_user.current_team.nil? ? @target_user.current_team.id : nil)
 
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
-        user_hash[:completed_evaluation_definition_ids] = @target_user.completed_evaluation_definition_ids
-        user_hash[:active_evaluation_definition_ids] = @target_user.active_evaluation_definition_ids
+        @target_user.attach('completed_evaluation_definition_ids', @target_user.completed_evaluation_definition_ids)
+        @target_user.attach('active_evaluation_definition_ids', @target_user.active_evaluation_definition_ids)
       end
     end
 
@@ -114,11 +112,11 @@ class UsersController < ApplicationController
         fitbit_devices = User.connection.select_all(device_sql)
         fitbit_notifications = User.connection.select_all(notification_sql)
 
-        user_hash[:fitbit_devices] = fitbit_devices
-        user_hash[:fitbit_user] = @target_user.fitbit_user
-        user_hash[:fitbit_user_notifications] = fitbit_notifications
-        user_hash[:fitbit_weeks] = @target_user.get_fitbit_weeks
-        user_hash[:subscriptions] = @target_user.fitbit_user.retrieve_subscriptions
+        @target_user.attach('fitbit_devices', fitbit_devices)
+        @target_user.attach('fitbit_user', @target_user.fitbit_user)
+        @target_user.attach('fitbit_user_notifications', fitbit_notifications)
+        @target_user.attach('fitbit_weeks', @target_user.get_fitbit_weeks)
+        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions)
       end
 
       if @target_user.jawbone_user
@@ -129,15 +127,13 @@ class UsersController < ApplicationController
 
         jawbone_notifications = User.connection.select_all(notification_sql)
         
-        user_hash[:jawbone_user] = @target_user.jawbone_user
-        user_hash[:jawbone_user_notifications] = jawbone_notifications
-        user_hash[:jawbone_weeks] = @target_user.get_fitbit_weeks
+        @target_user.attach('jawbone_user', @target_user.jawbone_user)
+        @target_user.attach('jawbone_user_notifications', jawbone_notifications)
+        @target_user.attach('jawbone_weeks', @target_user.get_fitbit_weeks)
       end
     end
 
-    render :json => user_hash.to_json
-    
-    # return HESResponder(@target_user)
+    return HESResponder(@target_user)
   end
 
 

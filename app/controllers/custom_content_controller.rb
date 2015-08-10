@@ -7,7 +7,7 @@ class CustomContentController < ApplicationController
       :category => params[:category].nil? ? nil : params[:category],
       :key => params[:key].nil? ? nil : params[:key]
     }
-    custom_content = @promotion.is_default? ? CustomContent.where(:promotion_id => nil) : CustomContent.for(@promotion, conditions)
+    custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(custom_content)
   end
 
@@ -15,6 +15,9 @@ class CustomContentController < ApplicationController
     custom_content = CustomContent.find(params[:id]) rescue nil
     return HESResponder("Custom Content", "NOT_FOUND") if !custom_content
     return HESResponder("Not allowed.", "DENIED") if !custom_content.promotion_id.nil? && @promotion.id != custom_content.promotion_id && !@current_user.master?
+    if @current_user.master?
+      custom_content.attach(:custom_content_archives)
+    end
     return HESResponder(custom_content)
   end
 

@@ -40,7 +40,6 @@ class Team < ApplicationModel
 
   def as_json(options={})
     team_json = super(options.merge(:do_not_paginate=>['team_members']))
-    team_json['team_members'] = self.team_members.as_json if @include_team_members
     return team_json
   end
 
