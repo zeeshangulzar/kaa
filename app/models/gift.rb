@@ -8,7 +8,7 @@ class Gift < ApplicationModel
   has_many :entries_gifts
   
   # Name, type of prompt and sequence are all required
-  validates_presence_of :name, :summary
+  validates_presence_of :name
 
   mount_uploader :image, GiftImageUploader
 
