@@ -109,7 +109,7 @@ class ApplicationModel < ActiveRecord::Base
       obj = self.send(ref.second.name)
       if obj && obj.class.attr_privacy
         obj.class.attr_privacy.each{ |rule|
-          if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym)
+          if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym) || (self.class.const_defined?('ASSOCIATED_CACHE_SYMBOLS') && !(rule[:attrs] & self.class::ASSOCIATED_CACHE_SYMBOLS).empty?)
             Rails.logger.info "HESCACHE - found belongs_to assoc. with privacy/json rule for: #{obj.class.name}"
             if ancestors
               obj.clear_parent_caches([], true)

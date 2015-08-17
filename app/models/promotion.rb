@@ -4,8 +4,8 @@ class Promotion < ApplicationModel
   
   attr_privacy_no_path_to_user
   
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :public
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :any_user
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :current_date, :public
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :current_competition, :any_user
 
   belongs_to :organization
 
@@ -173,13 +173,6 @@ class Promotion < ApplicationModel
     return location
   end
 
-  def as_json(options={})
-    options[:meta] ||= false
-    options = options.merge({:methods => ["current_date", "current_competition"]})
-    promotion_obj = super(options)
-    return promotion_obj
-  end
-  
   def logo_for_user(user=nil)
     if user && user.location && user.location.parent_location && !user.location.parent_location.logo.nil?
       return user.location.parent_location.logo.as_json[:logo]
