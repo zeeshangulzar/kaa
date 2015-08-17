@@ -21,7 +21,8 @@ class PromotionsController < ApplicationController
 
   def current
     if @current_user && @current_user.user?
-      return HESCachedResponder(@promotion.cache_key, @promotion)
+      seconds_to_midnight = (@promotion.current_date + 1).to_time.to_i - @promotion.current_time.to_i # expire promotion cache at start of new day so frontend can use @promotion.current_date
+      return HESCachedResponder(@promotion.cache_key, @promotion, {:cache_options=>{:expires_in => seconds_to_midnight}})
     end
     return HESResponder(@promotion)
   end

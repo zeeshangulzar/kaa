@@ -33,8 +33,8 @@ class Promotion < ApplicationModel
 
   mount_uploader :logo, PromotionLogoUploader
 
-  after_create :copy_custom_prompts
-  after_create :create_evaluations
+  after_create :copy_defaults
+
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
   flags :is_fitbit_enabled, :default => false
@@ -44,6 +44,8 @@ class Promotion < ApplicationModel
   flags :is_gender_displayed, :default => true
   flags :is_show_individual_leaderboard, :default => true
 
+  # Name, type of prompt and sequence are all required
+  validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
 
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
@@ -67,6 +69,49 @@ class Promotion < ApplicationModel
 
   def behaviors_point_thresholds
     self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
+  end
+
+  def copy_defaults
+    default = Promotion::get_default
+    if default
+      self.copy_point_thresholds
+      self.copy_behaviors
+      self.copy_gifts
+      self.copy_custom_prompts
+    end
+    self.create_evaluations
+  end
+
+  def copy_point_thresholds
+    default = Promotion::get_default
+    default.point_thresholds.each{|pt|
+      copied_pt = pt.dup
+      copied_pt.id = nil
+      copied_pt.pointable_id = self.id
+      copied_pt.save!
+    }
+  end
+
+  # TODO: test copying of images
+  def copy_behaviors
+    default = Promotion::get_default
+    default.behaviors.each{|b|
+      copied_b = b.dup
+      copied_b.id = nil
+      copied_b.promotion_id = self.id
+      copied_b.save!
+    }
+  end
+
+  # TODO: test copying of images
+  def copy_gifts
+    default = Promotion::get_default
+    default.gifts.each{|g|
+      copied_g = g.dup
+      copied_g.id = nil
+      copied_g.promotion_id = self.id
+      copied_g.save!
+    }
   end
 
   # copy default promo custom prompts for evals, etc.

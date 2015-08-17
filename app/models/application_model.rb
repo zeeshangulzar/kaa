@@ -92,7 +92,7 @@ class ApplicationModel < ActiveRecord::Base
 
   def clear_cache
     Rails.logger.info "HESCACHE - clearing cache for: #{self.class.name}: #{self.id} (#{self.cache_key})"
-    ApplicationController.hes_cache_clear self.cache_key
+    ApplicationController.hes_cache_clear(self.cache_key)
   end
 
   def clear_parent_caches(objects = [], ancestors = false)

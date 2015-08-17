@@ -15,6 +15,7 @@ class CustomContent < ApplicationModel
 
   validates_presence_of :category, :key
 
+  # override the markdown columns' methods to substitute promotion keywords
   MARKDOWN_COLUMNS.each{ |column|
     self.send(:define_method, "#{column}", 
       Proc.new {nil
@@ -28,11 +29,7 @@ class CustomContent < ApplicationModel
       }
     )
   }
-
-  def archive
-    CustomContentArchive::archive(self)
-  end
-
+  
   # say you have a column named summary and it has markdown.  for better performance, convert the summary to markdown on SAVE rather than ON RENDER
   # now you can return summary_markdown to the browser QUICKLY rather than Markdown.new(summary).to_html SLOWLY
   def resync_markdown_columns
@@ -44,6 +41,7 @@ class CustomContent < ApplicationModel
     end
   end
 
+  # gets content as customized for a promotion, default content is pulled in addition to promotion content, both custom and overriding defaults
   def self.for(promotion, conditions)
     conditions = {
       :category => nil,
@@ -75,6 +73,10 @@ class CustomContent < ApplicationModel
       ORDER BY `category` ASC, `sequence` ASC
     ")
     return custom_content
+  end
+
+  def archive
+    CustomContentArchive::archive(self)
   end
 
 end

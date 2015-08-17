@@ -190,18 +190,18 @@ class ApplicationController < ActionController::Base
     options = {
       :page_size => nil,
       :include_params_slug => false,
-      :cache_options => false
+      :cache_options => {}
     }.nil_merge!(options)
 
     cache_miss = false
 
     if block_given?
-      response = hes_cache_fetch(cache_key){
+      response = hes_cache_fetch(cache_key, options){
         cache_miss = true;
         HESResponder(yield, 'OK', options[:page_size])
       }
     else
-      response = hes_cache_fetch(cache_key){
+      response = hes_cache_fetch(cache_key, options){
         cache_miss = true;
         HESResponder(payload, 'OK', options[:page_size])
       }
@@ -225,9 +225,9 @@ class ApplicationController < ActionController::Base
 
     Rails.logger.warn "cache miss for #{complete_cache_key}"
     timestamp =  Time.now.utc
-    Rails.cache.write timestamp_key, timestamp
+    Rails.cache.write(timestamp_key, timestamp, options[:cache_options])
     data = yield
-    Rails.cache.write complete_cache_key, {:timestamp=>timestamp, :data=>data}, options[:cache_options]
+    Rails.cache.write(complete_cache_key, {:timestamp=>timestamp, :data=>data}, options[:cache_options])
     return data
   end
 
