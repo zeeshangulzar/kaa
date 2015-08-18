@@ -47,6 +47,12 @@ class Promotion < ApplicationModel
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
 
+  def as_json(options={})
+    options[:meta] ||= false
+    promotion_obj = super(options)
+    return promotion_obj
+  end
+
   def current_date
     ActiveSupport::TimeZone[time_zone].today()
   end
