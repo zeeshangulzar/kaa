@@ -330,6 +330,8 @@ class Promotion < ApplicationModel
       return result.first['user_count']
     end
     users = []
+    rank = 1
+    previous_user = nil
     result.each{|row|
       user = {}
       user['profile']                 = {}
@@ -342,7 +344,10 @@ class Promotion < ApplicationModel
       user['location']['id']          = row['location_id']
       user['location']['name']        = row['location_name']
       user['total_points']            = row['total_points']
+      rank = rank + 1 if (!previous_user || previous_user['total_points'] > user['total_points'])
+      user['rank']         = rank
       users << user
+      previous_user = user
     }
 
     return users

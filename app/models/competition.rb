@@ -57,7 +57,7 @@ class Competition < ApplicationModel
     # filter junk out...
     sort_columns = ['teams.name', 'teams.status', 'avg_points', 'total_points', 'member_count']
     conditions.delete(:sort) if !conditions[:sort].nil? && !sort_columns.include?(conditions[:sort])
-    conditions.delete(:sort_dor) if !conditions[:sort_dir].nil? && !['ASC', 'DESC'].include?(conditions[:sort_dir].upcase)
+    conditions.delete(:sort_dir) if !conditions[:sort_dir].nil? && !['ASC', 'DESC'].include?(conditions[:sort_dir].upcase)
     conditions.delete(:offset) if !ApplicationHelper::is_i?(conditions[:offset])
     conditions.delete(:limit) if !ApplicationHelper::is_i?(conditions[:limit])
     conditions.delete(:status) if !conditions[:status].nil? && !Team::STATUS.keys.include?(conditions[:status].downcase.to_sym)
@@ -68,7 +68,8 @@ class Competition < ApplicationModel
       :location_ids => [],
       :status       => nil,
       :sort         => "avg_points",
-      :sort_dir     => "DESC"
+      :sort_dir     => "DESC",
+      :neighbors_id => nil
     }.nil_merge!(conditions)
 
     teams_sql = "
@@ -107,6 +108,11 @@ class Competition < ApplicationModel
       return result.first['team_count']
     end
     teams = []
+    
+    rank = 1
+    previous_team = nil
+    neighbors_index = nil
+
     result.each{|row|
       team = {}
       team['image']        = {}
@@ -118,10 +124,21 @@ class Competition < ApplicationModel
       team['avg_points']   = row['avg_points']
       team['status']       = row['status']
       team['member_count'] = row['member_count']
+      rank = rank + 1 if (!previous_team || previous_team['avg_points'] > team['avg_points'])
+      team['rank']         = rank
       teams << team
+      previous_team = team
+      if conditions[:neighbors_id] && team['id'].to_s == conditions[:neighbors_id].to_s
+        neighbors_index = teams.index(team)
+      end
     }
 
     return [] if teams.empty? # this is a rather important line
+
+    if neighbors_index
+      start = [0, neighbors_index.to_i - 2].max
+      teams = teams.slice(start, 5)
+    end
 
     # grab users of posts, replies and likes..
     users_sql = "

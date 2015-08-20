@@ -11,7 +11,8 @@ class TeamsController < ApplicationController
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :status       => params[:status].nil? ? 'official' : params[:status],
       :sort         => params[:sort],
-      :sort_dir     => params[:sort_dir]
+      :sort_dir     => params[:sort_dir],
+      :neighbors_id => params[:neighbors_id]
     }
 
     teams = []
@@ -76,7 +77,6 @@ class TeamsController < ApplicationController
       format.json {render :json => is_team_name_valid(params[:team][:name])[:is_valid]}
     end
   end
-
   
   def search    
     render :json => @competition.teams.all(:limit => 20, :conditions => ["name like ?","%#{params[:id]}%"]).collect{|t|{:id=>t.id,:name=>t.name}}
