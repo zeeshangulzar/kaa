@@ -281,4 +281,71 @@ class Promotion < ApplicationModel
     }
   end
 
+  def individual_leaderboard(conditions = {}, count = false)
+
+    # filter junk out...
+    sort_columns = ['name', 'total_points']
+    conditions.delete(:sort) if !conditions[:sort].nil? && !sort_columns.include?(conditions[:sort])
+    conditions.delete(:sort_dor) if !conditions[:sort_dir].nil? && !['ASC', 'DESC'].include?(conditions[:sort_dir].upcase)
+    conditions.delete(:offset) if !ApplicationHelper::is_i?(conditions[:offset])
+    conditions.delete(:limit) if !ApplicationHelper::is_i?(conditions[:limit])
+
+    conditions = {
+      :offset       => nil,
+      :limit        => 99999999999, # if we have more users than this, we've got bigger problems to worry about
+      :location_ids => [],
+      :sort         => "total_points",
+      :sort_dir     => "DESC"
+    }.nil_merge!(conditions)
+
+    users_sql = "
+      SELECT
+    "
+    if count
+      users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
+    else
+      users_sql = users_sql + "
+        users.id, profiles.first_name, profiles.last_name, profiles.image, users.location_id, users.top_level_location_id, users.total_points,
+        locations.id AS location_id, locations.name AS location_name
+      "
+    end
+    users_sql = users_sql + "
+      FROM users
+        JOIN profiles ON profiles.user_id = users.id
+        LEFT JOIN locations ON locations.id = users.location_id
+      WHERE
+        users.promotion_id = #{self.id}
+        #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
+    "
+    if !count
+      users_sql = users_sql + "
+        GROUP BY users.id
+        ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
+        #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
+        #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
+      "
+    end
+    result = self.connection.exec_query(users_sql)
+    if count
+      return result.first['user_count']
+    end
+    users = []
+    result.each{|row|
+      user = {}
+      user['profile']                 = {}
+      user['profile']['image']        = {}
+      user['location']                = {}
+      user['id']                      = row['id']
+      user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
+      user['profile']['first_name']   = row['first_name']
+      user['profile']['last_name']   = row['last_name']
+      user['location']['id']          = row['location_id']
+      user['location']['name']        = row['location_name']
+      user['total_points']            = row['total_points']
+      users << user
+    }
+
+    return users
+  end
+
 end

@@ -365,4 +365,28 @@ class User < ApplicationModel
     return ExerciseActivity.find(ids)
   end
 
+  def update_points
+    sql = "
+      UPDATE users
+      JOIN (
+        SELECT
+          user_id,
+          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.gift_points, 0)) AS total_points,
+          SUM(entries.exercise_points) AS total_exercise_points,
+          SUM(entries.behavior_points) AS total_behavior_points,
+          SUM(entries.gift_points) AS total_gift_points
+        FROM entries
+        WHERE
+          user_id = #{self.id}
+          AND entries.recorded_on BETWEEN '#{self.promotion.starts_on}' AND '#{[self.promotion.ends_on, self.promotion.current_date].min}'
+        ) stats on stats.user_id = users.id
+      SET
+        users.total_points = COALESCE(stats.total_points, 0),
+        users.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
+        users.total_behavior_points = COALESCE(stats.total_behavior_points, 0),
+        users.total_gift_points = COALESCE(stats.total_gift_points, 0)
+    "
+    self.connection.execute(sql)
+  end
+
 end

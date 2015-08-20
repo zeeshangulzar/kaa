@@ -1,15 +1,8 @@
 class UsersController < ApplicationController
-  authorize :create, :validate, :track, :public
-  authorize :search, :show, :user
-  authorize :update, :user
+  authorize :create, :validate, :track, :get_user_from_auth_key, :password_reset, :verify_password_reset, :forgot, :authenticate, :public
+  authorize :search, :show, :update, :leaderboard, :user
   authorize :index, :coordinator
-  authorize :destroy, :master
-  authorize :authenticate, :public
-  authorize :forgot, :public
-  authorize :verify_password_reset, :public
-  authorize :password_reset, :public
-  authorize :impersonate, :master
-  authorize :get_user_from_auth_key, :public
+  authorize :destroy, :impersonate, :master
 
   def impersonate
     impersonate_user = User.find(params[:impersonate_id])
@@ -338,6 +331,19 @@ class UsersController < ApplicationController
       end
     end
     return HESResponder()
+  end
+
+  def leaderboard
+    conditions = {
+      :offset       => params[:offset],
+      :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
+      :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
+      :sort         => params[:sort],
+      :sort_dir     => params[:sort_dir]
+    }
+    users = []
+    users = @promotion.individual_leaderboard
+    return HESResponder(users)
   end
 
 end

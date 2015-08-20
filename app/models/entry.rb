@@ -262,6 +262,7 @@ UNION
 
   before_save :check_for_changes
   after_commit :team_member_update
+  after_commit :update_user_points
 
   # whether or not we should publish the user object to redis & update team scores
   def check_for_changes
@@ -298,5 +299,10 @@ UNION
     # update user's team member points if they're on a team in an active competition, see user model
     Rails.logger.warn "UPDATING TEAM POINTS!"
     self.user.update_team_member_points()
+  end
+
+  def update_user_points
+    # update user's aggregate point totals
+    self.user.update_points()
   end
 end

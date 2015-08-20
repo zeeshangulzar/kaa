@@ -13,6 +13,10 @@ class CreateUsers < ActiveRecord::Migration
       t.string      :email,                                           :limit => 100
       t.datetime    :last_login
       t.integer     :location_id
+      t.integer     :total_points,                                    :default => 0
+      t.integer     :total_exercise_points,                           :default => 0
+      t.integer     :total_behavior_points,                           :default => 0
+      t.integer     :total_gift_points,                               :default => 0
       t.timestamps
     end
   end

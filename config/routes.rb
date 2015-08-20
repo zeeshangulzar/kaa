@@ -13,7 +13,7 @@ Go::Application.routes.draw do
   match "/track" => "users#track", :via => :post
   match "/users/validate" => "users#validate", :via => :post
   match "/users/:user_id/profile" => "profiles#show", :via => :get
-  match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
+  match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get 
   match '/users/:user_id/entries' => 'entries#index', :via => :get
   
   match '/entries/aggregate' => 'entries#aggregate', :via => :get
@@ -27,6 +27,9 @@ Go::Application.routes.draw do
   match "/users/:id/stats" => "users#stats", :via => :get
 
   resources :profiles, :only => [:update]
+
+  match "/individual_leaderboard" => "users#leaderboard", :via => :get
+  match "/promotions/:promotion_id/individual_leaderboard" => "users#leaderboard", :via => :get
 
   resources :users do
     post 'forgot', :on => :collection
