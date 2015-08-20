@@ -31,6 +31,8 @@ Go::Application.routes.draw do
   match "/individual_leaderboard" => "users#leaderboard", :via => :get
   match "/promotions/:promotion_id/individual_leaderboard" => "users#leaderboard", :via => :get
 
+  match "/competitions/:id/members" => "competitions#members", :via => :get
+
   resources :users do
     post 'forgot', :on => :collection
     collection do

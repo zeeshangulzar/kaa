@@ -10,6 +10,7 @@ class Competition < ApplicationModel
   has_many :teams, :order => "name ASC"
   has_many :official_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:official]}, :order => "name ASC"
   has_many :pending_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:pending]}, :order => "name ASC"
+  has_many :members, :class_name => "TeamMember"
 
   ASSOCIATED_CACHE_SYMBOLS = [:current_competition] # custom names used in other models' attr_privacy (e.g. Promotion) that represent an association and require clearing the parent model cache
   

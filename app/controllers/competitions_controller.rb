@@ -1,5 +1,7 @@
 class CompetitionsController < ApplicationController
 
+  authorize :members, :coordinator
+
   def index
     return HESResponder(@promotion.competitions)
   end
@@ -37,4 +39,11 @@ class CompetitionsController < ApplicationController
     end
     return HESResponder(competition)
   end
+
+  def members
+    competition = Competition.find(params[:id]) rescue nil
+    return HESResponder("Competition", "NOT_FOUND") if !competition
+    return HESResponder(competition.members)
+  end
+
 end
