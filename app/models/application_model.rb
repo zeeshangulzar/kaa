@@ -65,7 +65,7 @@ class ApplicationModel < ActiveRecord::Base
   def attach(attachment_name, attachment = nil)
     @attachments = [] if !@attachments
     if attachment_name.is_a?(Symbol) && self.respond_to?(attachment_name)
-      @attachments << association
+      @attachments << attachment_name
     elsif !attachment.nil?
       @attachments << [attachment_name.to_sym, attachment]
     end
