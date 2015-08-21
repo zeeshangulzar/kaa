@@ -126,6 +126,9 @@ module HESPrivacy
                   ok = true
                 elsif target_user.respond_to?(:ids_of_connections)
                   ok = target_user.ids_of_connections.include?(requester.id)
+                  if !ok
+                    ok = requester.coordinator_or_above? && requester.promotion_id == target_user.promotion_id
+                  end
                 else
                   Rails.logger.warn "HESPrivacy warning: :connections was specified but #{target_user.class.to_s} does not have a method named ids_of_connections"
                 end

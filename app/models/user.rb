@@ -277,23 +277,25 @@ class User < ApplicationModel
   end
 
   def ids_of_connections
-    sql = "
-      SELECT
-        DISTINCT(connection_id) AS id
-      FROM (
-        SELECT
-          DISTINCT(team_members.user_id) AS connection_id
-        FROM team_members
-        JOIN teams ON teams.id = team_members.team_id
-        WHERE
-          team_members.team_id = #{self.current_team.id} AND teams.competition_id = #{self.current_team.competition_id}
-      ) AS connections
-    "
-    result = self.connection.exec_query(sql)
     ids = []
-    result.each{ |row|
-      ids << row['id']
-    }
+    if self.current_team
+      sql = "
+        SELECT
+          DISTINCT(connection_id) AS id
+        FROM (
+          SELECT
+            DISTINCT(team_members.user_id) AS connection_id
+          FROM team_members
+          JOIN teams ON teams.id = team_members.team_id
+          WHERE
+            team_members.team_id = #{self.current_team.id} AND teams.competition_id = #{self.current_team.competition_id}
+        ) AS connections
+      "
+      result = self.connection.exec_query(sql)
+      result.each{ |row|
+        ids << row['id']
+      }
+    end
     return ids
   end
 
