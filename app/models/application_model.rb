@@ -62,11 +62,11 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   # call Model.attach(:attachment) to include the assc. or object in json for a particular request/method
-  def attach(attachment_name, attachment = nil)
+  def attach(attachment_name, attachment = 'no attachment')
     @attachments = [] if !@attachments
     if attachment_name.is_a?(Symbol) && self.respond_to?(attachment_name)
       @attachments << attachment_name
-    elsif !attachment.nil?
+    elsif attachment != 'no attachment'
       @attachments << [attachment_name.to_sym, attachment]
     end
   end
