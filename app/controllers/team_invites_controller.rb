@@ -7,7 +7,7 @@ class TeamInvitesController < ApplicationController
     if type == "Team"
       team = type_obj = Team.find(params[:team_id]) rescue nil
       return HESResponder("Team", "NOT_FOUND") if !team
-      if team.leader.id != @current_user.id && !@current_user.master?
+      if team.leader.id != @current_user.id && !@current_user.coordinator_or_above?
         return HESResponder("You don't have access to the team's invites.", "DENIED")
       end
     else
