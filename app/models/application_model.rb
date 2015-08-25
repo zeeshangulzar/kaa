@@ -1,6 +1,11 @@
 # abstraction layer between models and active record
 class ApplicationModel < ActiveRecord::Base
 
+  # TODO: implement better pagination through a scope such as below, in as_json object & associations, combined with HESResponder injecting paging params
+  # scope :paginated, lambda{|limit,offset|
+  #   limit(limit).offset(offset)
+  # }
+
   self.abstract_class = true
   def all_attrs
     return *self.class.column_names

@@ -19,6 +19,7 @@ class Promotion < ApplicationModel
   has_many :unsubscribe_list
   has_many :resources
   has_many :competitions
+  has_many :notifications, :as => :notificationable, :order => 'created_at DESC'
 
   DEFAULT_SUBDOMAIN = 'www'
 
@@ -28,7 +29,6 @@ class Promotion < ApplicationModel
 
   has_wall
   has_evaluations
-
   has_reports
 
   mount_uploader :logo, PromotionLogoUploader

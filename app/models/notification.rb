@@ -4,7 +4,7 @@ class Notification < ApplicationModel
   belongs_to :user, :foreign_key => "user_id"
   belongs_to :from_user, :class_name => 'User'
   
-  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :user
+  attr_accessible *column_names
   attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :user, :any_user
   attr_privacy_no_path_to_user
 
@@ -26,28 +26,22 @@ class Notification < ApplicationModel
   
   # Creates notifications for an entire group of users.
   def self.create_for_users(notificationable, title, message, from_user, key, users)
-    sql = "INSERT INTO `notifications` (`created_at`, `updated_at`, `user_id`, `message`, `key`, `notificationable_type`, `notificationable_id` #{", `title`" unless title.to_s.empty?} #{", `from_user_id`" unless from_user.nil?}) VALUES"
-    now = Time.now.to_s(:db)
-    values_sql = ""
-    users.each_with_index do |u,i|
-      values_sql += "('#{now}', '#{now}', #{u.id}, '#{message.gsub(/\\/, '\&\&').gsub(/'/, "''")}', '#{key}', '#{notificationable.class.to_s}', #{notificationable.id} #{", '#{title.gsub(/\\/, '\&\&').gsub(/'/, "''")}'" unless title.to_s.empty?} #{", #{from_user.id}" unless from_user.nil?}),"
-    end
-    
-    sql += values_sql.chop + ";"
-
-    ActiveRecord::Base.connection.execute sql
-    
-    Notification.last(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, id, title, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
+    users.each_slice(1000).to_a.each{|user_chunk|
+      sql = "INSERT INTO `notifications` (`created_at`, `updated_at`, `user_id`, `message`, `key`, `notificationable_type`, `notificationable_id` #{", `title`" unless title.to_s.empty?} #{", `from_user_id`" unless from_user.nil?}) VALUES"
+      now = Time.now.to_s(:db)
+      values_sql = ""
+      user_chunk.each_with_index do |u,i|
+        values_sql += "('#{now}', '#{now}', #{u.id}, '#{message.gsub(/\\/, '\&\&').gsub(/'/, "''")}', '#{key}', '#{notificationable.class.to_s}', #{notificationable.id} #{", '#{title.gsub(/\\/, '\&\&').gsub(/'/, "''")}'" unless title.to_s.empty?} #{", #{from_user.id}" unless from_user.nil?}),"
+      end
+      sql += values_sql.chop + ";"
+      ActiveRecord::Base.connection.execute sql
+    }
+    Notification.last(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, id, title, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => "`key`")
   end
   
   # Finds all notifications matching a notificationable type and id.
   def self.find_all_by_key_group_by_created_at(notificationable)
     all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
-  end
-
-  # Sets certain attributes as accessible for creating/updating
-  def accessible_attributes
-    attributes.delete_if {|key, value| !Notification.accessible_attributes.include?(key)}
   end
 
   # Marks the notification as having been viewed.
