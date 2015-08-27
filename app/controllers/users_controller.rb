@@ -220,7 +220,7 @@ class UsersController < ApplicationController
     unless users.empty?
       team_ids = User::get_team_ids(users.collect{|user|user.id})
       users.each_with_index{ |user, idx|
-        users[idx].team_id = team_ids[user.id]
+        users[idx].attach('team_id', team_ids[user.id])
       }
     end
     return HESResponder(users, "OK", limit)
