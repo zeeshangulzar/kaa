@@ -109,7 +109,7 @@ class Competition < ApplicationModel
     end
     teams = []
     
-    rank = 1
+    rank = 0
     previous_team = nil
     neighbors_index = nil
 
