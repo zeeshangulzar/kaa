@@ -48,7 +48,11 @@ raise 'get here'
   def index
     @reports = Report.find(:all)
     @reports = @reports.concat(@promotion.reports) if @promotion.reports.is_cloned?
-
+    if params[:stats] && (params[:stats].to_i === 1 || params[:stats] == 'true')
+      @reports.reject!{|report| !report.stats }
+    else
+      @reports.reject!{|report| report.stats }
+    end
     return HESResponder({:data => @reports.as_json, :meta => nil})
   end
 

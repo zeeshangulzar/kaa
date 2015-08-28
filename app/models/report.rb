@@ -10,6 +10,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   attr_accessor :sql
   attr_accessor :created_by_master
   attr_accessor :category
+  attr_accessor :stats
 
   CopyDefault=false
 
@@ -47,7 +48,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
   end
 
   def attributes
-    return { :report_type => report_type, :name => name, :fields => fields, :filters => filters, :limit => limit, :sql => sql, :created_by_master => created_by_master, :friendly_url_key => friendly_url_key }
+    return { :report_type => report_type, :name => name, :fields => fields, :filters => filters, :limit => limit, :sql => sql, :created_by_master => created_by_master, :friendly_url_key => friendly_url_key, :id => id, :stats => stats }
   end
 
   def as_json(options={})
