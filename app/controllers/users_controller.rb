@@ -24,7 +24,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    sql = "SELECT users.id, first_name, last_name, email, COUNT(entries.id) AS 'days_logged', l1.name AS 'region', l2.name AS 'location'
+    sql = "SELECT users.id, first_name, last_name, email, COUNT(entries.id) AS 'days_logged', l1.name AS 'region', l2.name AS 'location', users.total_points
           FROM users
           LEFT JOIN profiles ON profiles.user_id = users.id
           LEFT JOIN entries ON entries.user_id = users.id
