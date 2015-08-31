@@ -28,8 +28,22 @@ class NotificationsController < ApplicationController
 
   def index
     notification_owner = @notificationable || @current_user
-    notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
-    return HESResponder(notifications)
+    #notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
+    notifications = Notification::find_all_group_by_key(notification_owner)
+    data = []
+    notifications.each{|notification|
+      n = {
+        :id           => notification.id,
+        :total        => notification.total,
+        :total_viewed => notification.total_viewed,
+        :key          => notification.key,
+        :title        => notification.title,
+        :message      => notification.message,
+        :created_at   => notification.created_at
+      }
+      data << n
+    }
+    return HESResponder(data)
   end
 
   def show
@@ -54,7 +68,7 @@ class NotificationsController < ApplicationController
       :message      => notification.message,
       :created_at   => notification.created_at
     }
-    return HESResponder({:data => [n], :meta => {}})
+    return HESResponder([n])
   end
 
   def update

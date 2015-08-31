@@ -38,10 +38,15 @@ class Notification < ApplicationModel
     }
     Notification.last(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, id, title, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => "`key`")
   end
-  
+    
   # Finds all notifications matching a notificationable type and id.
   def self.find_all_by_key_group_by_created_at(notificationable)
-    all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
+    all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at, hidden, viewed", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
+  end
+
+  # Finds all notifications matching a notificationable type and id.
+  def self.find_all_group_by_key(notificationable)
+    all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at, hidden, viewed", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => '`key`', :order => 'created_at DESC')
   end
 
   # Marks the notification as having been viewed.
