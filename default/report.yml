@@ -116,3 +116,38 @@
   sql: SELECT COUNT(*) AS 'Number of Jawbone Users' FROM users WHERE :conditions_with_and active_device = 'JAWBONE';
   created_by_master: true
   friendly_url_key: Total Jawbone Users
+- !ruby/object:Report 
+  id: 9
+  stats: true
+  report_type: SQL
+  fields: []
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
+  sql: SELECT `users`.`Date`, @total := @total + `users_registered` AS `Total Users` FROM (SELECT COUNT(users.id) AS `users_registered`, DATE(users.created_at) AS `date`, @total := 0 FROM users WHERE promotion_id = :promotion_id GROUP BY `date` ORDER BY `date` ASC) users FROM users WHERE promotion_id = :promotion_id GROUP BY `date` ORDER BY `date` ASC) users
+  friendly_url_key: Participants Per Day
+  name: Participants Per Day
+- !ruby/object:Report
+  id: 10
+  stats: true
+  report_type: SQL
+  fields: []
+  filters: !map:ActiveSupport::HashWithIndifferentAccess
+    hashes:
+  limit:
+  sql: SELECT `recorded_on` AS `Date`, COUNT(user_id) AS `Active Users` FROM entries JOIN users ON users.id = entries.user_id AND users.promotion_id = :promotion_id WHERE (exercise_minutes > 0 OR exercise_steps > 0) GROUP BY recorded_on ORDER BY recorded_on ASC
+  created_by_master: true
+  friendly_url_key: Active Participants Per Day
+  name: Active Participants Per Day
+- !ruby/object:Report
+  id: 11
+  stats: true
+  report_type: SQL
+  fields: []
+  filters: !map:ActiveSupport::HashWithIndifferentAccess
+    hashes:
+  limit:
+  sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
+  created_by_master: true
+  friendly_url_key: Gender
+  name: Gender
