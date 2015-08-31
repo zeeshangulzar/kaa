@@ -111,7 +111,7 @@ Go::Application.routes.draw do
   match '/notifications/get_past_notifications' => 'notifications#get_past_notifications', :via => :get
   resources :notifications
   match "/notifications" => "notifications#update", :via => :put
-  match '*notificationable_type/*notificationable_id/notifications' => 'notifications#index', :via => :get
+  match '*notificationable_type/*notificationable_id/notifications' => 'notifications#keyed_notifications', :via => :get
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
   match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
 

@@ -28,7 +28,12 @@ class NotificationsController < ApplicationController
 
   def index
     notification_owner = @notificationable || @current_user
-    #notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
+    notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
+    return HESResponder(notifications)
+  end
+
+  def keyed_notifications
+    notification_owner = @notificationable || @current_user
     notifications = Notification::find_all_group_by_key(notification_owner)
     data = []
     notifications.each{|notification|
