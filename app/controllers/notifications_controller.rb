@@ -3,7 +3,7 @@ class NotificationsController < ApplicationController
   respond_to :json
 
   # Get the notificationable type and user before each request.
-  before_filter :get_notificationable, :only => [:index, :create, :destroy]
+  before_filter :get_notificationable, :only => [:index, :keyed_notifications, :create, :destroy]
 
   authorize :index, :show, :update, :user
   authorize :create, :destroy, :get_past_notifications, :keyed_notifications, :coordinator
