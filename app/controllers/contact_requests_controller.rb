@@ -57,7 +57,7 @@ class ContactRequestsController < ApplicationController
       end
       Resque.enqueue(ContactRequestEmail, params[:contact_request], extra_tags)
     else
-      return HESResponder(@contact_request.errors.full_messasges, "ERROR")
+      return HESResponder(@contact_request.errors.full_messages, "ERROR")
     end
 
     return HESResponder(@contact_request)
