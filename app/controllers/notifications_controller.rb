@@ -6,7 +6,7 @@ class NotificationsController < ApplicationController
   before_filter :get_notificationable, :only => [:index, :create, :destroy]
 
   authorize :index, :show, :update, :user
-  authorize :create, :destroy, :get_past_notifications, :coordinator
+  authorize :create, :destroy, :get_past_notifications, :keyed_notifications, :coordinator
 
   # Extra authorize parameters
   def authorization_parameters
