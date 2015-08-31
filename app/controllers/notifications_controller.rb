@@ -54,7 +54,7 @@ class NotificationsController < ApplicationController
   def show
     notification ||= Notification.find(params[:id]) rescue nil
     return HESResponder("Notification", "NOT_FOUND") if !notification
-    return HESResponder("You may not view this notification", "DENIED") if notification.user_id != current_user.id && !@current_user.coordinator_or_above?
+    return HESResponder("You may not view this notification", "DENIED") if notification.user_id != @current_user.id && !@current_user.coordinator_or_above?
     return HESResponder(notification)
   end
 
@@ -85,6 +85,7 @@ class NotificationsController < ApplicationController
       notification ||= Notification.find(params[:id]) rescue nil
       return HESResponder("Notification", "NOT_FOUND") if !notification
       notification.update_attributes(attrs)
+      return HESResponder(notification.errors.full_messages, "ERROR") if !notification.valid?
       return HESResponder(notification)
     elsif params[:ids]
       notifications = Notification.where(:id => params[:ids])
