@@ -134,6 +134,9 @@ class TeamInvitesController < ApplicationController
     TeamInvite.transaction do
       team_invite.save!
     end
+    TeamInvite.uncached do
+      team_invite = TeamInvite.find(params[:id])
+    end
     return HESResponder(team_invite)
   end
 
