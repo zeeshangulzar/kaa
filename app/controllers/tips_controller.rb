@@ -2,6 +2,9 @@ class TipsController < ContentController
   # if you don't see code, or don't see much code
   # it's because lib/content/content_controller.rb is working :-)
   wrap_parameters :tip
+
+  authorize :reorder, :master
+
   def index
     # disabling cache for now..
     #tips = hes_cache_fetch('tips') {
@@ -40,4 +43,21 @@ class TipsController < ContentController
     end
     return HESResponder(tips)
   end
+
+  def reorder
+    return HESResponder("Must provide sequence.", "ERROR") if params[:sequence].nil? || !params[:sequence].is_a?(Array)
+    tips = Tip.for_promotion(@promotion).desc.all
+
+    tip_ids = tips.collect{|tip|tip.id}
+    return HESResponder("Tip ids are mismatched.", "ERROR") if (tip_ids & params[:sequence]) != tip_ids
+    day = 1
+    params[:sequence].each{ |tip_id|
+      tip = Tip.find(tip_id)
+      tip.update_attributes(:day => day)
+      day += 1
+    }
+    tips = Tip.for_promotion(@promotion).desc.all
+    return HESResponder(tips)
+  end
+
 end

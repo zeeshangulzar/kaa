@@ -76,6 +76,8 @@ Go::Application.routes.draw do
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
 
+  match 'promotions/:promotion_id/tips/reorder', :controller => :tips, :action => :reorder, :via => :post
+
   # CONTENT MODELS
   resources :tips
   resources :articles
