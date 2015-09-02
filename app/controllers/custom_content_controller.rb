@@ -48,10 +48,12 @@ class CustomContentController < ApplicationController
   end
 
   def copy
+    return HESResponder("Must provide from and to promotion.", "ERROR") if params[:from].nil? || params[:to].nil?
     from = params[:from]
     to = params[:to]
     category = params[:category]
     copied = CustomContent::copy(from, to, category)
+    return HESResponder("Unknown error copying content.", "ERROR") if !copied
     return HESResponder(copied)
   end
 
