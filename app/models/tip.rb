@@ -21,6 +21,7 @@ class Tip < ContentModel
   mount_uploader :small_image, TipSmallImageUploader
   mount_uploader :email_image, TipEmailImageUploader
 
+  acts_as_likeable :label => "Favorite"
   acts_as_shareable
   has_wall
 

@@ -3,6 +3,7 @@ class TipsController < ContentController
   # it's because lib/content/content_controller.rb is working :-)
   wrap_parameters :tip
 
+  authorize :user_favorites, :user
   authorize :reorder, :master
 
   def index
@@ -57,6 +58,13 @@ class TipsController < ContentController
       day += 1
     }
     tips = Tip.for_promotion(@promotion).desc.all
+    return HESResponder(tips)
+  end
+
+  def user_favorites
+    likes = @current_user.likes.where(:likeable_type => "Tip")
+    return HESResponder([]) if likes.empty?
+    tips = Tip.where(:id => likes.collect{|like|like.likeable_id})
     return HESResponder(tips)
   end
 

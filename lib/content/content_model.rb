@@ -119,6 +119,7 @@ class ContentModel < ActiveRecord::Base
 
   def self.to_s
     self.initialize_content_model
+    return @@config.keys.first.name # I think the stuff below was for debugging/info purposes but other modules depend on Class::to_s returning the actual class name - BM 2015-09-02
     output = "=======================================================================================================\n"
     @@config.keys.each do |klass|
       output << "#{klass.name}\n"

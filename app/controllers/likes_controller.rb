@@ -35,10 +35,13 @@ class LikesController < ApplicationController
   end
 
   def create
+    if !@likeable.likes.where(:user_id => @current_user.id).empty?
+      return HESResponder("You may only like a #{@likeable.class.name.to_s.downcase} once.", "ERROR")
+    end
     @like = @current_user.likes.build
     @like.likeable_id = @likeable.id
     @like.likeable_type = @likeable.class.to_s
-    @like.save
+    @like.save!
     return HESResponder(@like)
   end
 
