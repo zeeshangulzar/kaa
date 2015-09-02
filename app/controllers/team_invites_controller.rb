@@ -26,6 +26,9 @@ class TeamInvitesController < ApplicationController
     else
       invites = type_obj.team_invites
     end
+    if !params[:status].nil? && TeamInvite::STATUS.stringify_keys.keys.include?(params[:status])
+      invites = invites.send(params[:status])
+    end
     return HESResponder(invites)
   end
 
