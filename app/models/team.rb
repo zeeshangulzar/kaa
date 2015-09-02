@@ -116,6 +116,8 @@ class Team < ApplicationModel
     if self.status_was != Team::STATUS[:deleted] && self.status == Team::STATUS[:deleted]
       # team was just "deleted" so disband it
       self.disband
+      self.name = self.name + "_deleted_" + self.id
+      self.save!
     elsif self.status != Team::STATUS[:deleted]
       s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
       if self.status != s
