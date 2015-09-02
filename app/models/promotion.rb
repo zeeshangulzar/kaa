@@ -331,7 +331,7 @@ class Promotion < ApplicationModel
       return result.first['user_count']
     end
     users = []
-    rank = 1
+    rank = 0
     previous_user = nil
     result.each{|row|
       user = {}
