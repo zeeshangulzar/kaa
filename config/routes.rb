@@ -83,6 +83,9 @@ Go::Application.routes.draw do
   resources :articles
   resources :facts
   resources :custom_content, :controller => "custom_content"
+  
+  match 'promotions/:promotion_id/custom_content/reorder' => 'custom_content#reorder', :via => :post
+  match 'custom_content/copy' => 'custom_content#copy', :via => :post
 
   resources :resources
   resources :behaviors

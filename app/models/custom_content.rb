@@ -1,3 +1,5 @@
+# NOTE:
+# default custom content has promotion_id = null/nil
 class CustomContent < ApplicationModel
   self.table_name = "custom_content"
   attr_accessible *column_names
@@ -10,6 +12,7 @@ class CustomContent < ApplicationModel
 
   MARKDOWN_COLUMNS = ['title_html','description_html','summary_html','content_html','caption_html']
   
+  before_save :fix_promotion_id
   before_save :resync_markdown_columns
   before_save :archive
 
@@ -29,6 +32,12 @@ class CustomContent < ApplicationModel
       }
     )
   }
+
+  def fix_promotion_id
+    if !self.promotion_id.nil? && self.promotion.is_default?
+      self.promotion_id = nil
+    end
+  end
   
   # say you have a column named summary and it has markdown.  for better performance, convert the summary to markdown on SAVE rather than ON RENDER
   # now you can return summary_markdown to the browser QUICKLY rather than Markdown.new(summary).to_html SLOWLY
@@ -47,12 +56,15 @@ class CustomContent < ApplicationModel
       :category => nil,
       :key => nil
     }.merge(conditions)
+
+    promotion_id = promotion.is_default? ? 'null' : promotion.id
+
     custom_content = self.find_by_sql("
       SELECT
         *
       FROM `custom_content`
       WHERE
-        `promotion_id` = #{promotion.id}
+        `promotion_id` = #{promotion_id}
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
       UNION
@@ -66,7 +78,7 @@ class CustomContent < ApplicationModel
             CONCAT(`category`,`key`)
           FROM `custom_content`
           WHERE 
-            `promotion_id` = #{promotion.id}
+            `promotion_id` = #{promotion_id}
         )
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
@@ -77,6 +89,38 @@ class CustomContent < ApplicationModel
 
   def archive
     CustomContentArchive::archive(self)
+  end
+
+  # nice method to copy content
+  # can copy everything in promo, a specific category, or specific objects
+  def self.copy(from, to, options = {})
+    pf = Promotion.find(from) rescue nil
+    pt = Promotion.find(to) rescue nil
+    return false if !pf || !pt
+    cc = pf.custom_content 
+    if options[:category]
+      cc = pf.custom_content.where(:category => category)
+    end
+    if options[:ids]
+      cc = pf.custom_content.find(:all, :conditions => {:id => options[:ids]})
+    end
+    copied = []
+    cc.each{|content|
+      copied_content = content.dup
+      copied_content.id = nil
+      copied_content.promotion_id = pt.id
+      copied_content.save!
+      copied << copied_content
+    }
+    if copied.size == 1
+      return copied.first
+    end
+    return copied
+  end
+
+  def promotion
+    # return the default promotion if id is nil
+    return self.promotion_id.nil? ? Promotion::get_default : Promotion.find(self.promotion_id)
   end
 
 end

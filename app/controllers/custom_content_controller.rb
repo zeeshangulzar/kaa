@@ -1,6 +1,6 @@
 class CustomContentController < ApplicationController
   authorize :index, :show, :public
-  authorize :create, :update, :destroy, :master
+  authorize :create, :update, :destroy, :copy, :reorder, :master
   
   def index
     conditions = {
@@ -43,6 +43,52 @@ class CustomContentController < ApplicationController
     custom_content = CustomContent.find(params[:id])
     CustomContent.transaction do
       custom_content.destroy
+    end
+    return HESResponder(custom_content)
+  end
+
+  def copy
+    from = params[:from]
+    to = params[:to]
+    category = params[:category]
+    copied = CustomContent::copy(from, to, category)
+    return HESResponder(copied)
+  end
+
+  # resequencing of a custom content category, follow along cuz this one gets a bit hairy
+  def reorder
+    # must include a promotion, the sequence and the category
+    return HESResponder("Must provide promotion, sequence and category.", "ERROR") if params[:sequence].nil? || !params[:sequence].is_a?(Array) || params[:category].nil? || params[:promotion_id].nil?
+    custom_content = CustomContent.for(@promotion, {:category => params[:category]})
+    
+    # make sure the posted sequence contains every content id for the category
+    cc_ids = custom_content.collect{|content|content.id}
+    return HESResponder("Content ids are mismatched.", "ERROR") if (cc_ids & params[:sequence]) != cc_ids
+
+    # make a hash to keep track of the posted sequence ids (which may include defaults) vs. the new ids (after cloning)
+    mapped_ids = Hash[ *params[:sequence].collect { |v| [ v, v ] }.flatten ]
+
+    # does the content include defaults? if so and we're not editing default's content, clone it and keep track of new ids below...
+    default_content = custom_content.select{|content|content.promotion_id.nil?}
+    if !@promotion.is_default? && default_content
+      # copy defaults..
+      default_content.each{|content|
+        copied_content = CustomContent::copy(Promotion::get_default, @promotion, { :ids => content.id })
+        # update the mapping hash with the new id so we can reference it during resequencing
+        mapped_ids[content.id] = copied_content.id
+      }
+    end
+    
+    sequence = 0
+    params[:sequence].each{ |cc_id|
+      cc = CustomContent.find(mapped_ids[cc_id]) # note that we use the map instead of the posted ids, in case we've cloned content
+      cc.update_attributes(:sequence => sequence)
+      sequence += 1
+    }
+    
+    # just for giggles, regrab everything uncached...
+    CustomContent.uncached do
+      custom_content = CustomContent.for(@promotion, {:category => params[:category]})
     end
     return HESResponder(custom_content)
   end

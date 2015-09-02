@@ -10,6 +10,14 @@ class Promotion < ApplicationModel
   belongs_to :organization
 
   has_many :custom_content
+  # override this for default promotion..
+  def custom_content
+    if self.is_default?
+      return CustomContent.where(:promotion_id => nil)
+    end
+    super
+  end
+
   has_many :users
   has_many :behaviors, :order => "sequence ASC"
   has_many :gifts
