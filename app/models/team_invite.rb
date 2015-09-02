@@ -22,7 +22,7 @@ class TeamInvite < ApplicationModel
   
   # validate
   validate :not_already_on_team
-  validates :user_id, :uniqueness => {:scope => [:team_id, :type], :message => 'already requested/invited.', :allow_nil => true}
+  validates :user_id, :uniqueness => {:scope => [:team_id, :invite_type], :message => 'already requested/invited.', :allow_nil => true}
 
   acts_as_notifier
 
