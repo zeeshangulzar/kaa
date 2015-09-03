@@ -95,7 +95,7 @@ class TeamInvitesController < ApplicationController
           if existing_invite.nil?
             team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
           else
-            existing_invite.assign_attributes(:status => TeamInvite::STATUS[:unresponded], :invite_type => TeamInvite::TYPE[:invited])
+            existing_invite.assign_attributes(:status => TeamInvite::STATUS[:unresponded], :invite_type => TeamInvite::TYPE[:invited], :invited_by => @current_user.id)
             team_invite = existing_invite
           end
         else
