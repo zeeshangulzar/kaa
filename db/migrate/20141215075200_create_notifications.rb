@@ -4,7 +4,7 @@ class CreateNotifications < ActiveRecord::Migration
       t.integer  :user_id
       t.boolean  :viewed, :default => false
       t.text     :message
-      t.string   :key, :limit => 25
+      t.string   :key, :limit => 50
       t.string   :title, :limit => 100
       t.integer  :notificationable_id
       t.string   :notificationable_type, :limit => 50
