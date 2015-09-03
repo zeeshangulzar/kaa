@@ -118,7 +118,7 @@
   friendly_url_key: Total Jawbone Users
 - !ruby/object:Report 
   id: 9
-  stats: true
+  stats: false
   report_type: SQL
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
@@ -129,7 +129,7 @@
   name: Participants Per Day
 - !ruby/object:Report
   id: 10
-  stats: true
+  stats: false
   report_type: SQL
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
