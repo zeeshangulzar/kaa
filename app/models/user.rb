@@ -7,6 +7,7 @@ class User < ApplicationModel
 
   flags :hide_goal_hit_message, :default => false
   flags :has_seen_tutorial, :default => false
+  flags :has_seen_team_tutorial, :default => false
   flags :notify_email_teams, :default => true
 
   flags :allow_daily_emails_monday, :default => false
