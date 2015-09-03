@@ -78,14 +78,26 @@ class TeamInvitesController < ApplicationController
       if @current_user.id != user.id
         return HESResponder("Impersonation attempt logged.", "ERROR")
       else
-        team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invite_type => TeamInvite::TYPE[:requested])
+        existing_invite = @current_user.team_invites.invited.declined.where(:team_id => team.id).first
+        if existing_invite.nil?
+          team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invite_type => TeamInvite::TYPE[:requested])
+        else
+          existing_invite.assign_attributes(:status => TeamInvite::STATUS[:unresponded], :invite_type => TeamInvite::TYPE[:requested], :invited_by => nil)
+          team_invite = existing_invite
+        end
       end
     elsif invite_type == TeamInvite::TYPE[:invited]
       if team.leader.id != @current_user.id && !@current_user.master?
         return HESResponder("You may not invite people for this team.", "DENIED")
       else
         if user
-          team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
+          existing_invite = team.team_invites.requested.declined.where(:user_id => user.id).first
+          if existing_invite.nil?
+            team_invite = team.team_invites.build(:user_id => user.id, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
+          else
+            existing_invite.assign_attributes(:status => TeamInvite::STATUS[:unresponded], :invite_type => TeamInvite::TYPE[:invited])
+            team_invite = existing_invite
+          end
         else
           team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
         end
