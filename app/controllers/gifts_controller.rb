@@ -1,5 +1,5 @@
 class GiftsController < ApplicationController
-  authorize :all, :master
+  authorize :all, :reorder, :master
   authorize :index, :show, :user
   
   def index
@@ -36,5 +36,23 @@ class GiftsController < ApplicationController
       gift.destroy
     end
     return HESResponder(gift)
+  end
+
+  def reorder
+    return HESResponder("Must provide sequence.", "ERROR") if params[:sequence].nil? || !params[:sequence].is_a?(Array)
+    gifts = @promotion.gifts
+
+    gift_ids = gifts.collect{|gift|gift.id}
+    return HESResponder("Gift ids are mismatched.", "ERROR") if (gift_ids & params[:sequence]) != gift_ids
+    sequence = 0
+    params[:sequence].each{ |gift_id|
+      gift = Gift.find(gift_id)
+      gift.update_attributes(:sequence => sequence)
+      sequence += 1
+    }
+    Gift.uncached do
+      gifts = @promotion.gifts
+    end
+    return HESResponder(gifts)
   end
 end
