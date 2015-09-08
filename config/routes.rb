@@ -78,6 +78,8 @@ Go::Application.routes.draw do
 
   match 'promotions/:promotion_id/gifts/reorder', :controller => :gifts, :action => :reorder, :via => :post
 
+  match 'promotions/:promotion_id/behaviors/reorder', :controller => :behaviors, :action => :reorder, :via => :post
+
   match 'promotions/:promotion_id/tips/reorder', :controller => :tips, :action => :reorder, :via => :post
   match "/tips/favorites" => "tips#user_favorites", :via => :get
 
