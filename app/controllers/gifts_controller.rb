@@ -14,9 +14,11 @@ class GiftsController < ApplicationController
   end
 
   def create
+    gift = nil
     Gift.transaction do
       gift = Gift.create(params[:gift])
     end
+    return HESResponder(gift.errors.full_messages, "ERROR") if !gift.valid?
     return HESResponder(gift)
   end
 
@@ -26,7 +28,7 @@ class GiftsController < ApplicationController
     Gift.transaction do
       gift.update_attributes(params[:gift])
     end
-    return HESResponder(gift.errors.full_messages) if !gift.valid?
+    return HESResponder(gift.errors.full_messages, "ERROR") if !gift.valid?
     return HESResponder(gift)
   end
 
