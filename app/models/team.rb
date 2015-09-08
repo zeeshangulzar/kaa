@@ -26,7 +26,7 @@ class Team < ApplicationModel
     :deleted => 2
   }
 
-  after_save :handle_status
+  before_save :handle_status
   before_destroy :disband
   before_destroy :delete_team_members
 
@@ -116,13 +116,11 @@ class Team < ApplicationModel
     if self.status_was != Team::STATUS[:deleted] && self.status == Team::STATUS[:deleted]
       # team was just "deleted" so disband it
       self.disband
-      self.name = self.name + "_deleted_" + self.id
-      self.save!
+      self.name = self.name + "_deleted_" + self.id.to_s
     elsif self.status != Team::STATUS[:deleted]
       s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
       if self.status != s
         self.status = s
-        self.save!
         if s == Team::STATUS[:official]
           # official notification
           self.members.each{ |member|
