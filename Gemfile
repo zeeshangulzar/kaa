@@ -3,6 +3,7 @@ source 'http://gems.github.com'
 source 'http://rubygems.org/'
 
 gem 'rails', '3.2.19'
+gem 'rake', '10.3.2'
 
 gem 'mysql2', '0.3.16'
 gem 'rmagick', '~> 2.13'
