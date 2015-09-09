@@ -3,6 +3,7 @@ source 'http://gems.github.com'
 source 'http://rubygems.org/'
 
 gem 'rails', '3.2.19'
+gem 'rake', '10.3.2'
 
 gem 'mysql2', '0.3.16'
 gem 'rmagick', '~> 2.13'
@@ -12,6 +13,7 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'json'
 
 gem 'bcrypt-ruby', '3.0.1'
+gem 'i18n', '0.6.11'
 
 # HES Gems
 # gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"

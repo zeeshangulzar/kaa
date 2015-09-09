@@ -18,6 +18,8 @@ class CustomContent < ApplicationModel
 
   validates_presence_of :category, :key
 
+  mount_uploader :image, CustomContentImageUploader
+
   # override the markdown columns' methods to substitute promotion keywords
   MARKDOWN_COLUMNS.each{ |column|
     self.send(:define_method, "#{column}", 
