@@ -12,6 +12,7 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'json'
 
 gem 'bcrypt-ruby', '3.0.1'
+gem 'i18n', '0.6.4'
 
 # HES Gems
 # gem "hes-evaluations", '0.1.0', :path => "vendor/gems/hes-evaluations"
