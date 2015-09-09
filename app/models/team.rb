@@ -129,6 +129,12 @@ class Team < ApplicationModel
         end
       end
     end
+    # delete invites/requests, since team is full
+    if self.team_members.count == self.competition.team_size_max
+      self.team_invites.each{|invite|
+        invite.destroy
+      }
+    end
   end
 
 end
