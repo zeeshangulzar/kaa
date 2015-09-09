@@ -5,9 +5,9 @@ try{
 	var fs = require('fs');
 	
 	var options = {
-		key: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.key'),
-		cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.crt'),
-		ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/go.ca_bundle.crt')
+		key: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h.key'),
+		cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h.crt'),
+		ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h_ca_bundle.crt')
 	};
 
 	app = require('https').createServer(options);
@@ -17,7 +17,7 @@ catch(e) {
 }
 
 var io = require('socket.io').listen(app);
-app.listen(5001);
+app.listen(8001);
 
 var redis = require('redis').createClient();
 var users = {};
