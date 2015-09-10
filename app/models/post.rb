@@ -144,7 +144,7 @@ class Post < ApplicationModel
   def create_post_owner_notification_of_like(like)
     return if like.user.id == self.user.id # don't notify user of his own likes..
     unless self.user.role == "Poster"
-      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/wellness_wall/#{self.id}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
+      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/wall/#{self.id}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
     else
       self.postable.notify(self.user, HesPosts.post_liked_notification_title.call(self.postable, like), HesPosts.expert_post_liked_notification_message.call(self.postable, like), :from_user => like.user, :key => post_like_notification_key(like))
     end
@@ -176,7 +176,7 @@ class Post < ApplicationModel
   def create_post_owner_notification_of_reply(reply)
     return if reply.user.id == self.user.id # don't notify user of his own replies..
     unless self.user.role == "Poster"
-      notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/wellness_wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
+      notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
     else
       self.postable.notify(self.postable.user, HesPosts.post_replied_notification_title.call(self.postable, reply), HesPosts.expert_post_replied_notification_message.call(self.postable, reply), :from_user => reply.user, :key => post_reply_notification_key(reply))
     end
@@ -205,7 +205,7 @@ class Post < ApplicationModel
 
   def notify_if_flagged
     if !self.is_flagged_was && self.is_flagged
-      notify(self.user, "Your post has been flagged.", "Your <a href='/#/wellness_wall/#{self.id}'>post</a> was flagged.", :from => self.user, :key => "post_" + self.id.to_s)
+      notify(self.user, "Your post has been flagged.", "Your <a href='/#/wall/#{self.id}'>post</a> was flagged.", :from => self.user, :key => "post_" + self.id.to_s)
     end
   end
 
