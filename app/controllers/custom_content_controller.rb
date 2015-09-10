@@ -5,7 +5,8 @@ class CustomContentController < ApplicationController
   def index
     conditions = {
       :category => params[:category].nil? ? nil : params[:category],
-      :key => params[:key].nil? ? nil : params[:key]
+      :key => params[:key].nil? ? nil : params[:key],
+      :group => params[:group].nil? ? nil : params[:group]
     }
     custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(custom_content)
@@ -14,8 +15,8 @@ class CustomContentController < ApplicationController
   def show
     custom_content = CustomContent.find(params[:id]) rescue nil
     return HESResponder("Custom Content", "NOT_FOUND") if !custom_content
-    return HESResponder("Not allowed.", "DENIED") if !custom_content.promotion_id.nil? && @promotion.id != custom_content.promotion_id && !@current_user.master?
-    if @current_user.master?
+    return HESResponder("Not allowed.", "DENIED") if !custom_content.promotion_id.nil? && @promotion.id != custom_content.promotion_id && (!@current_user || !@current_user.master?)
+    if @current_user && @current_user.master?
       custom_content.attach(:custom_content_archives)
     end
     return HESResponder(custom_content)

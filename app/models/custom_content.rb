@@ -4,7 +4,7 @@ class CustomContent < ApplicationModel
   self.table_name = "custom_content"
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :promotion_id, :location_id, :category, :key, :title_html, :description_html, :summary_html, :content_html, :image, :caption_html, :sequence, :public
+  attr_privacy :promotion_id, :location_id, :category, :key, :group, :title_html, :description_html, :summary_html, :content_html, :image, :caption_html, :sequence, :public
   attr_privacy :title, :description, :summary, :content, :caption, :master
 
   belongs_to :promotion
@@ -58,7 +58,8 @@ class CustomContent < ApplicationModel
   def self.for(promotion, conditions)
     conditions = {
       :category => nil,
-      :key => nil
+      :key => nil,
+      :group => nil
     }.merge(conditions)
 
     promotion_id = promotion.is_default? ? 'null' : promotion.id
@@ -71,6 +72,7 @@ class CustomContent < ApplicationModel
         `promotion_id` = #{promotion_id}
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
+        #{"AND `group` = #{sanitize(conditions[:group])}" if !conditions[:group].nil?}
       UNION
       SELECT
         *
@@ -86,6 +88,7 @@ class CustomContent < ApplicationModel
         )
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
+        #{"AND `group` = #{sanitize(conditions[:group])}" if !conditions[:group].nil?}
       ORDER BY `category` ASC, `sequence` ASC
     ")
     return custom_content
