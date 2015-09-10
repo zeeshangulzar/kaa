@@ -8,8 +8,8 @@ class CustomContentArchive < ApplicationModel
   belongs_to :custom_content
 
   def self.archive(custom_content)
-    cca = custom_content.custom_content_archives.new
-    custom_content.class.column_names.reject{|col|col=='id'}.each{ |col|
+    cca = custom_content.custom_content_archives.build()
+    custom_content.class.column_names.reject{|col|col=='id' || col=='image'}.each{ |col|
       cca.send("#{col}=", custom_content.send("#{col}"))
     }
     cca.archived_at = DateTime.now
