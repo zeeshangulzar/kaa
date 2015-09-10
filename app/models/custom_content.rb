@@ -14,7 +14,7 @@ class CustomContent < ApplicationModel
   
   before_save :fix_promotion_id
   before_save :resync_markdown_columns
-  before_save :archive
+  after_save :archive
 
   validates_presence_of :category, :key
 
