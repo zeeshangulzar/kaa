@@ -47,7 +47,9 @@ class CustomContent < ApplicationModel
     CustomContent::MARKDOWN_COLUMNS.each do |col|
       markdown_column_name = col
       original_column_name = markdown_column_name.to_s.gsub(/_html$/,'')
-      html = Markdown.new(self.send(original_column_name)).to_html
+      value = self.send(original_column_name)
+      fixed_underscores = !value.nil? ? value.gsub(/_/,'\_') : ''
+      html = Markdown.new(fixed_underscores).to_html
       self.send("#{markdown_column_name}=",html)
     end
   end

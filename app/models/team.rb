@@ -121,6 +121,7 @@ class Team < ApplicationModel
       s =  self.team_members.count >= self.competition.team_size_min ? Team::STATUS[:official] : Team::STATUS[:pending]
       if self.status != s
         self.status = s
+        self.save!
         if s == Team::STATUS[:official]
           # official notification
           self.members.each{ |member|

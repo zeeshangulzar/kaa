@@ -281,11 +281,11 @@ class Promotion < ApplicationModel
     return {
       'APP_NAME'        => Constant::AppName,
       'NAME'            => self.name,
-      'LAUNCHES_ON'     => self.launch_on,
-      'STARTS_ON'       => self.starts_on,
-      'ENDS_ON'         => self.ends_on,
-      'REG_STARTS'      => self.registration_starts_on,
-      'REG_ENDS'        => self.registration_ends_on,
+      'LAUNCHES_ON'     => self.launch_on.strftime("%A, %B #{self.launch_on.day.ordinalize}, %Y"),
+      'STARTS_ON'       => self.starts_on.strftime("%A, %B #{self.starts_on.day.ordinalize}, %Y"),
+      'ENDS_ON'         => self.ends_on.strftime("%A, %B #{self.ends_on.day.ordinalize}, %Y"),
+      'REG_STARTS'      => self.registration_starts_on.strftime("%A, %B #{self.registration_starts_on.day.ordinalize}, %Y"),
+      'REG_ENDS'        => self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day.ordinalize}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
     }

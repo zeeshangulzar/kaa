@@ -243,7 +243,7 @@ class Post < ApplicationModel
       end
       posts_sql = posts_sql + "
           WHERE
-          posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
+          posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
           #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
           #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
           GROUP BY posts.id
@@ -271,7 +271,7 @@ class Post < ApplicationModel
     end
     posts_sql = posts_sql + "
       WHERE
-      posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id}
+      posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
       #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
       #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
       GROUP BY posts.id
