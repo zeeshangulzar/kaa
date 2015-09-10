@@ -174,7 +174,7 @@ DEPENDENCIES
   hes-jawbone (= 1.0.7)
   hes-sequencer
   hes_route_docs
-  i18n (= 0.6.4)
+  i18n (= 0.6.11)
   json
   memcache-client
   mime-types (= 1.25.1)
