@@ -330,6 +330,7 @@ class Promotion < ApplicationModel
         LEFT JOIN locations ON locations.id = users.location_id
       WHERE
         users.promotion_id = #{self.id}
+        AND users.opted_in_individual_leaderboard = 1
         #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
     "
     if !count

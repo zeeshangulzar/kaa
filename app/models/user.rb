@@ -9,8 +9,6 @@ class User < ApplicationModel
   flags :has_seen_tutorial, :default => false
   flags :has_seen_team_tutorial, :default => false
   flags :notify_email_teams, :default => true
-  flags :opt_leaderboard, :default => true
-
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true
 
@@ -69,10 +67,10 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :me
+  attr_privacy :username, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :master
 
-  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role
+  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
