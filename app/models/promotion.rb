@@ -53,6 +53,11 @@ class Promotion < ApplicationModel
   flags :is_show_individual_leaderboard, :default => true
   flags :is_location_displayed, :default => false
   flags :is_social_media_displayed, :default => false
+  flags :is_wall_enabled, :default => true
+  flags :is_mapwalk_enabled, :default => true
+  flags :is_resources_enabled, :default => true
+  
+
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
