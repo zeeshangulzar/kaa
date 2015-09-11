@@ -9,6 +9,7 @@ class User < ApplicationModel
   flags :has_seen_tutorial, :default => false
   flags :has_seen_team_tutorial, :default => false
   flags :notify_email_teams, :default => true
+  flags :opt_leaderboard, :default => true
 
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true
