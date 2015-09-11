@@ -1,0 +1,44 @@
+<%
+@custom_content = @object
+%>
+<table cellspacing="0" cellpadding="0">
+  <%
+  if !@custom_content.image.file.nil?
+  %>
+    <tr>
+      <td colspan="2" style="text-align:center" align="center">
+        <img src="<%= @custom_content.image.url %>" style="width:100%;max-height:500px"/>
+      </td>
+    </tr>
+  <%
+  end
+  %>
+  <tr>
+    <td align="left">
+      <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <h1 style="color:#4A7628;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this <%= Constant::AppName %> Article</h1>
+        <% unless @message.empty? %>
+        <p>
+           <%= @user.profile.first_name %> says:<br/>
+          <%= @message %>
+        </p>
+        <% end %> 
+        <p>
+          <strong><%= raw @custom_content.title_html %></strong>
+        </p>
+      </div>
+    </td>
+    <td align="right" valign="top">
+      <p style="margin:16px;color:#aaa;">
+        <%= @user.promotion.current_date.to_s %>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <%= raw @custom_content.content_html %>
+      </div>
+    </td>
+  </tr>
+</table>
