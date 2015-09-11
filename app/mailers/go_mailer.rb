@@ -1,4 +1,5 @@
 class GoMailer < ActionMailer::Base
+  include AbstractController::Callbacks
 
   Domain = DomainConfig::DomainNames.first
   AppName = Constant::AppName
@@ -15,6 +16,8 @@ class GoMailer < ActionMailer::Base
 
   def welcome_email(user)
     @user = user
+    @promotion = user.promotion
+    @base_url = "http://#{user.promotion.subdomain}.staging.healthfortheholidays.com"
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
@@ -39,7 +42,11 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
-    subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
+    if @model.name == 'CustomContent'
+      subject = "#{Constant::AppName} #{object['category'].titleize}: #{ActionView::Base.full_sanitizer.sanitize(object['title_html'])}"
+    else
+      subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
+    end
 
     mail(:to => emails, :subject => subject, :from => fromHandler(@user)) do |format|
       format.text { render model.underscore.downcase }
@@ -107,6 +114,7 @@ class GoMailer < ActionMailer::Base
     @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/contact"
     @user = user
     @host = "#{base_url}"
+    @promotion = @user.promotion
 
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
@@ -127,27 +135,9 @@ class GoMailer < ActionMailer::Base
     @link = "http#{'s' unless Rails.env.to_s=='development'}://#{base_url}/#/password_reset/#{CGI.escape(encoded_encrypted_id_link)}"
     @user = user
     @host = "#{base_url}"
+    @promotion = @user.promotion
 
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
-  end
-
-  def kp_verification(promotion, base_url, file_names, email_recipients, email_subject)
-    p = promotion
-    @user = p.users.first
-    subject = "#{'Empty ' if file_names.empty?}#{email_subject}"
-    recipient = email_recipients 
-    from = FormattedFromAddress
-    reply_to = "#{AppName}<kpfulfillment@hesonline.com>"
-    sent_on = p.current_time
-    headers 'return-path'=>FromAddress
-
-    file_names.each do |fn|
-      attachments["#{File.basename(fn)}"] = File.read(fn)
-    end
-
-    @message = file_names.empty? ? "There are no verification files today." : "The verification files are attached.  Please only fill in the columns labeled 'Eligible?' and 'Comments'. Please send the completed files to kpfulfillment@hesonline.com"
-
-    mail(:to => recipient, :subject => subject, :from => from, :subject => subject, :reply_to => reply_to, :body => subject)
   end
   
   def team_invite_email(invite_type, to_user, from_user, team, message = nil)
@@ -162,6 +152,7 @@ class GoMailer < ActionMailer::Base
     @invite_type = invite_type
     @message = message
     @team = team
+    @promotion = @from_user.promotion
     mail(:to => to_user.email, :subject => subject, :from => fromHandler(@from_user))
   end
 
@@ -170,6 +161,7 @@ class GoMailer < ActionMailer::Base
     @inviter = inviter
     @message = message
     @team = team
+    @promotion = @inviter.promotion
     mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}", :from => fromHandler(@inviter))
   end
 
@@ -179,6 +171,7 @@ class GoMailer < ActionMailer::Base
     # because we have to get some sort of user for the template and we don't want their email showing up...
     from_address = fromHandler(from)
     @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
+    @promotion = @user.promotion
     if !emails.empty?
       mail(:to => emails, :subject => subject, :from => from_address)
     end
