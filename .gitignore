@@ -22,3 +22,6 @@
 
 # ignore schema
 /db/schema.rb
+content
+public
+dump.rdb
