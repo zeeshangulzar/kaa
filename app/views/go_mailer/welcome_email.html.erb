@@ -1,29 +1,18 @@
 <table cellspacing="0" cellpadding="0">
   <tr>
-    <td align="left">
-      <h1 style="font-family:Open Sans, Helvetica, Arial;color:#57a635;margin:17px;font-weight:bold;font-size:14px;">Welcome to <%= Constant::AppName %>!</h1>
-    </td>
-    <td align="right">
-      <p style="margin:18px;color:#aaa;font-family:Open Sans, Helvetica, Arial;font-size:12px;">
-        <%= @user.promotion.current_date.strftime("%A, %B %-d") %>
-      </p>
+    <td colspan="2">
+      <img src="<%= @base_url %>/images/email/welcome.jpg" />
     </td>
   </tr>
   <tr>
-    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
-      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <p><%= @user.profile.full_name %>,</p>
-        <p>Get ready to move more, eat well, and have fun! Go KP will help you track your healthy activities and the changes you make to feel your best as you work toward your wellness goals.</p>
-        <p style="color:#fd7d23;margin-top:34px"><strong>Get started:</strong></p>
-        <ul>
-          <li style='margin-bottom: 10px;'><strong>Set your daily exercise goal.</strong> Set it once or change it as often as you'd like. Earn points, badges, and other awards each time you achieve it.</li>
-          <li style='margin-bottom: 10px;'><strong>Create a long-term goal.</strong> Whether you're managing your weight, drinking more water, eating more vegetables, or training for a race, reaching your long-term goal will motivate you to continually aim higher.</li>
-          <li style='margin-bottom: 10px;'><strong>Challenge your co-workers.</strong> Give and get support by challenging yourself and your colleagues to try different activities.</li>
-          <li style='margin-bottom: 10px;'><strong>Get social.</strong> Build connections with your colleagues, rate recipies, share tips using Facebook and Twitter, and more.</li>
-          <li><strong>Set up your steps-tracking <a href="http://files.hesapps.com/GoKP/GoKP-Fitbit-Jawbone-Setup-Guide.pdf" style="color:#006ba6">device</a> (optional).</strong> Have a Fitbit<sup>&reg;</sup> or Jawbone<sup>&trade;</sup> device? Sync it with your Go KP account and watch your steps add up... automatically.</li>
-        </ul>
-        <p style="margin-top:34px">Ready? Then get set and <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">Let's Go KP</a>!</p>
-        <p><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+    <td style="background-color:#fff" colspan="2">
+      <div style="margin:18px;color:#164c4c;font-size:14px;font-family:Open Sans, Helvetica, Arial;">
+        <p>Welcome to <%=Constant::AppName %>!</p>
+        <p>Is there a time of year harder to stay on track with your wellness than the Holidays?</p>
+        <p>Whether you're a beginner or experienced exerciser, the holidays beckons you to forget about the gym. And <%= Constant::AppName %> makes it even more enjoyable with motivating tools to set goals, progress, share success, and support other participants.</p>
+        <p>Take a few minutes to explore <%= Constant::AppName %> today and begin tracking your progress on <%= @promotion.starts_on %>.</p>
+        <p>Be sure to sync your current Fitbit&reg; with your <%= Constant::AppName %> account.</p>
+        <p style="text-align:center"><a href="<%= @base_url %>" style="color:#006ba6"><img src="<%= @base_url %>/images/email/get_started.jpg" alt="GET STARTED" /></a></p>
       </div>
     </td>
   </tr>

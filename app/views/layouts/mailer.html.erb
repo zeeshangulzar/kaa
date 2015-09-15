@@ -1,45 +1,60 @@
-<table width="100%" cellspacing="0" cellpadding="0" style="font-family:Open Sans, Helvetica, Arial;">
+<table align="center" cellpadding="0" cellspacing="0" style="min-width:700px;width:100%">
   <tr>
-    <td style="background-color:#FFFFFF" align="center">
-      <table style="width:100%; width:630px; padding:16px;" cellspacing="0" cellpadding="0">
-        <tr>
+    <td align="center" style="background-color:#ffffff">
+      <table cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-spacing:0px;width:100%;width:630px;">
+        <tr style="background-color:#ffffff">
           <td style="text-align:left">
-            <img src="https://<%= DomainConfig::DomainNames.first + "/images/" + (@user.promotion.theme ||= 'default') + "/app-logo.png?" + Time.now.to_i.to_s %>" style="width:175px; max-width:80%" />
+            <a href="<%= @base_url %>" style="border:none;text-decoration:none;">
+              <img src="<%= @base_url %>/images/email/logo.jpg" style="border:none;text-decoration:none;"/>
+            </a>
           </td>
           <td style="text-align:right">
-            <img src="https://<%= DomainConfig::DomainNames.first + "/images/email/logo.jpg?" + Time.now.to_i.to_s %>" style="width:158px; max-width:90%" />
+            <% unless @promotion.nil? %>
+              <img src="<%= @promotion.logo.url %>"/>
+            <% end %>
           </td>
         </tr>
       </table>
     </td>
   </tr>
   <tr>
-    <td style="background-color:#f2f2f2" align="center">
-      <table style="width:100%; width:630px; padding:16px;" cellspacing="0" cellpadding="0">
-        <tr>
-          <td colspan="2">
-            <table style="display:block;background-color:#FFF;margin-bottom:10px" cellspacing="0" cellpadding="0">
-              <tbody style="width:100%;display:block;">
-                <tr style="width:100%;display:block;">
-                  <td style="text-align:left;width:100%;display:block;font-family:Open Sans, Helvetica, Arial;">
-                    <%= yield %>
-                  </td>
-                </tr>
-                <tr style="width:100%;display:block;height:6px;max-height:6px;padding:0px;margin:0px;">
-                  <td style="height:6px;max-height:6px;margin:0px;padding:0px">
-                    <img src="https://<%= DomainConfig::DomainNames.first %>/images/email/rainbow.jpg" style="margin:0px;width:600px;height:6px;padding:0px" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <td align="center" style="background-color:#fffff;border-spacing:0px;padding-top:16px;">
+      <table cellpadding="0" cellspacing="0" style="width:100%; width:630px;margin-top:-1px;border-spacing:0px;">
+        <tr style="background-color:#ffffff">
+          <td colspan="2" style="padding-left:20px;padding-right:20px;font-family:Arial;">
+            <br/>
+            <%= yield %>
           </td>
         </tr>
-        <tr>
-          <td align="left" style="font-family:Open Sans, Helvetica, Arial;">
-            <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;"><a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/settings" style="color:#006ba6;font-family:Open Sans, Helvetica, Arial;">Email Preferences</a></p>
+        <tr style="background-color:#ffffff">
+          <td colspan="2" style="text-align:right">
+            <div style="margin:10px;">
+              <a href="%= @base_url %>" style="border:none;text-decoration:none;">
+                <img src="%= @base_url %>/images/emails/walk_this_way.png"/>
+              </a>
+            </div>
           </td>
-          <td align="right" style="color:#838383;font-family:Open Sans, Helvetica, Arial;">
-            <p style="margin:0px;margin-top:15px;margin-bottom:80px;font-size:12px;font-family:Open Sans, Helvetica, Arial;">&copy; <%= Date.today.year %> Health Enhancement Systems</p>
+        </tr>
+        <tr style="background-color:#ffffff;padding:0px;">
+          <td colspan="2" style="padding:0px">
+            <br/>
+            <div style="width:100%;height:5px;background-color:#b6354b"></div>
+          </td>
+        </tr>
+        <tr style="vertical-align:top">
+          <td align="left">
+            <p style="margin-bottom:80px;margin-top:0px;">
+              <a href="<%= @base_url %>" style="color: #50819c;font-size: 12px;">
+                <%= @base_url %>
+              </a>
+            </p>
+          </td>
+          <td align="right">
+            <p style="margin-bottom:80px;color: #508AA2; font-size: 12px; height: 30px;float:right;margin-top:0px;">
+              &copy; 
+              <%= Date.today.year  %>
+              Health Enhancement Systems 
+            </p>
           </td>
         </tr>
       </table>
