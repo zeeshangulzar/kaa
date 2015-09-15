@@ -75,14 +75,20 @@ class GoMailer < ActionMailer::Base
     @recipe = Recipe.daily
     @promotion = promotion
     @user = user
-
+    @base_url = "#{@promotion.subdomain}.#{GoMailer::Domain}"
+    @daily = true
+=begin
+# debugging code remove me
+@tip ||= Tip.first
+@base_url = "#{@promotion.subdomain}.staging.#{GoMailer::Domain}"
+=end
     to = "#{to_name} <#{to_email}>"
     from = FormattedFromAddress
     reply_to = FromAddress
     sent_on = promotion.current_time
     headers 'return-path'=>FromAddress
 
-    mail(:to => to, :subject => "#{@tip.title}", :from => from, :reply_to => reply_to)
+    mail(:to => to, :subject => "#{@tip.email_subject}", :from => from, :reply_to => reply_to)
     
   end
 
