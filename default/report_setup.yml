@@ -410,30 +410,6 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "43": 
-      :aggregate: false
-      :sequence: 29
-      :sql_phrase: IF(profiles.is_reward_participant = 1, 'Yes', 'No') `Reward Status`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Reward Status
-      :join: profiles
-      :identification: true
-      :sensitive: false
-      :category: Registration Fields
-      :visible: true
-    "44": 
-      :aggregate: false
-      :sequence: 29
-      :sql_phrase: profiles.shirt_size `Shirt Size`
-      :filterable: false
-      :role: Coordinator
-      :display_name: Shirt Size
-      :join: profiles
-      :identification: true
-      :sensitive: false
-      :category: Registration Fields
-      :visible: true
     "45": 
       :aggregate: false
       :sequence: 4
