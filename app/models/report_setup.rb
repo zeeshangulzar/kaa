@@ -144,22 +144,20 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #   end
     # end
 
-    # if promotion.flags[:is_location_displayed]
-    #   location_labels = promotion.location_labels
-
-    #   fields.each_key do |k|
-    #     raise fields[k].inspect
-    #       if fields[k][:display_name]=~/Top Level Location/
-    #         fields[k][:visible] = true if location_labels.size > 1
-    #         fields[k][:display_name] = fields[k][:display_name].gsub(/Top Level Location/,location_labels.first)
-    #         fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Top Level Location/,location_labels.first)
-    #       elsif fields[k][:display_name]=~/Bottom Level Location/
-    #         fields[k][:visible] = true
-    #         fields[k][:display_name] = fields[k][:display_name].gsub(/Bottom Level Location/,location_labels.last)
-    #         fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Bottom Level Location/,location_labels.last)
-    #       end
-    #   end
-    # end
+    location_labels = promotion.location_labels
+    if promotion.flags[:is_location_displayed]
+      fields.each_key do |k|
+        if fields[k][:display_name]=~/Top Level Location/
+          fields[k][:visible] = true if location_labels.size > 1
+          fields[k][:display_name] = fields[k][:display_name].gsub(/Top Level Location/,location_labels.first)
+          fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Top Level Location/,location_labels.first)
+        elsif fields[k][:display_name]=~/Location/
+          fields[k][:visible] = true
+          fields[k][:display_name] = fields[k][:display_name].gsub(/Location/,location_labels.last)
+          fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Location/,location_labels.last)
+        end
+      end
+    end
     # if promotion.organization.is_sso_enabled
     #   fields.each_key do |k|
     #       if fields[k][:sql_phrase]=~/sso_identifier/
@@ -182,7 +180,6 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #         fields[k][:visible] = true
     #       end
     #   end
-    # end
     return fields
   end
   

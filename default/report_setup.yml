@@ -217,19 +217,19 @@
       :identification: false
       :sensitive: false
       :category: Participant Fields
-      :visible: true
+      :visible: false
     "25|2": 
       :aggregate: false
       :sequence: 2
-      :sql_phrase: locations2.name `Region`
+      :sql_phrase: locations2.name `Top Level Location`
       :filterable: true
       :role: Coordinator
-      :display_name: Region
+      :display_name: Top Level Location
       :join: locations2
       :identification: false
       :sensitive: false
       :category: Participant Fields
-      :visible: true
+      :visible: false
     "26": 
       :aggregate: false
       :sequence: 5

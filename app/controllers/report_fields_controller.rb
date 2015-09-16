@@ -29,8 +29,10 @@ class ReportFieldsController < ApplicationController
       # @report_fields = @report_fields.values
       @report_fields = []
       fields.each do |id, field|
-        field[:id] = id
-        @report_fields << field
+        if field[:visible]
+          field[:id] = id
+          @report_fields << field
+        end
       end
 
     end

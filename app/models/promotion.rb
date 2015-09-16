@@ -56,6 +56,7 @@ class Promotion < ApplicationModel
   flags :is_wall_enabled, :default => true
   flags :is_mapwalk_enabled, :default => true
   flags :is_resources_enabled, :default => true
+  flags :is_address_enabled, :default => false
   
 
 
@@ -204,6 +205,10 @@ class Promotion < ApplicationModel
 
   def nested_locations?
     location_labels_as_array.size>1
+  end
+
+  def location_labels
+    self.read_attribute(:location_labels).to_s.empty? ? ['Location'] : self.read_attribute(:location_labels).split("|").map(&:strip)
   end
 
   def location_labels_as_array
