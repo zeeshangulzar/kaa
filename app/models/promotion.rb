@@ -211,9 +211,9 @@ class Promotion < ApplicationModel
     self.read_attribute(:location_labels).to_s.empty? ? ['Location'] : self.read_attribute(:location_labels).split("|").map(&:strip)
   end
 
-  def location_labels_as_array
-    location_labels.to_s.empty? ? [self.location_labels||'Location'] : location_labels.split("\n").collect{|x|x.split("|").first}
-  end
+  # def location_labels_as_array
+  #   location_labels.to_s.empty? ? [self.location_labels||'Location'] : location_labels.split("\n").collect{|x|x.split("|").first}
+  # end
 
   def nested_locations(reload=false)
     cache_key = "promotion_#{self.id}_nested_locations"
