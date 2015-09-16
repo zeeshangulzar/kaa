@@ -36,6 +36,8 @@ module BehaviorsForReports
 
       jk = "eb_#{behavior.id}"
       jak = "b_#{behavior.id}"
+=begin
+# behaviors are checkboxes in h4h, don't need anything except times recorded
         if behavior.cap_value.to_i>0
           # if the value is under the cap, show the value; otherwise show what the capped value would be
           if behavior.cap_value.to_i>9999
@@ -90,7 +92,8 @@ module BehaviorsForReports
 #          fields[k][:join] = jk
 #          fields[k][:category] = 'Activity Fields' 
 #        end
-
+# end unnecessary fields
+=end
       k = "entry_behaviors_times:#{behavior.id}"
       fields[k] = model.dup
       fields[k][:display_name] = "#{behavior.name.titleize} - Times Recorded"
