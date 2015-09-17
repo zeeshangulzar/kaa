@@ -20,21 +20,6 @@ class CustomContent < ApplicationModel
 
   mount_uploader :image, CustomContentImageUploader
 
-  # override the markdown columns' methods to substitute promotion keywords
-  MARKDOWN_COLUMNS.each{ |column|
-    self.send(:define_method, "#{column}", 
-      Proc.new {nil
-        original = read_attribute(column.to_sym)
-        if self.promotion.nil?
-          next original
-        end
-        re = Regexp.union(self.promotion.keywords.keys)
-        s = original.gsub(re) { |m| self.promotion.keywords[m] }
-        next s
-      }
-    )
-  }
-
   def fix_promotion_id
     if !self.promotion_id.nil? && self.promotion.is_default?
       self.promotion_id = nil
@@ -128,6 +113,22 @@ class CustomContent < ApplicationModel
   def promotion
     # return the default promotion if id is nil
     return self.promotion_id.nil? ? Promotion::get_default : Promotion.find(self.promotion_id)
+  end
+
+  # substitute promotion keywords for markdown columns
+  def self.keyworded(custom_content, promotion = nil)
+    array_passed = custom_content.is_a?(Array)
+    custom_contents = array_passed ? custom_content : [custom_content]
+    promotion ||= self.promotion
+    custom_contents.each{ |custom_content|
+      MARKDOWN_COLUMNS.each{ |column|
+        original = custom_content.send(column)
+        re = Regexp.union(promotion.keywords.keys)
+        with_keywords = original.gsub(re) { |m| promotion.keywords[m] }
+        custom_content.send("#{column}=", with_keywords)
+      }
+    }
+    return array_passed ? custom_contents : custom_contents.first
   end
 
 end

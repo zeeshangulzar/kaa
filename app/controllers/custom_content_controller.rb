@@ -9,7 +9,7 @@ class CustomContentController < ApplicationController
       :group => params[:group].nil? ? nil : params[:group]
     }
     custom_content = CustomContent.for(@promotion, conditions)
-    return HESResponder(custom_content)
+    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
 
   def show
@@ -19,7 +19,7 @@ class CustomContentController < ApplicationController
     if @current_user && @current_user.master?
       custom_content.attach(:custom_content_archives)
     end
-    return HESResponder(custom_content)
+    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
 
   def create
@@ -28,7 +28,7 @@ class CustomContentController < ApplicationController
     CustomContent.transaction do
       custom_content.save!
     end
-    return HESResponder(custom_content)
+    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
 
   def update
@@ -37,7 +37,7 @@ class CustomContentController < ApplicationController
     CustomContent.transaction do
       custom_content.update_attributes(params[:custom_content])
     end
-    return HESResponder(custom_content)
+    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
   
   def destroy
@@ -45,7 +45,7 @@ class CustomContentController < ApplicationController
     CustomContent.transaction do
       custom_content.destroy
     end
-    return HESResponder(custom_content)
+    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
 
   def copy
