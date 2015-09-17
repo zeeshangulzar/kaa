@@ -445,7 +445,7 @@
       :identification: false
       :sensitive: false
       :category: Participant Fields
-      :visible: true
+      :visible: false
     "57": 
       :aggregate: false
       :sequence: 29

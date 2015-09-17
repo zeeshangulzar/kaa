@@ -158,6 +158,14 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
+
+    if promotion.flags[:is_fitbit_enabled]
+      fields.each_key do |k|
+        if fields[k][:display_name]=~/Is Connected To Fitbit?/
+          fields[k][:visible] = true
+        end
+      end
+    end
     # if promotion.organization.is_sso_enabled
     #   fields.each_key do |k|
     #       if fields[k][:sql_phrase]=~/sso_identifier/
