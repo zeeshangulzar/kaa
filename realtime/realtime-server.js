@@ -29,6 +29,7 @@ redis.subscribe('jawboneEntrySaved');
 redis.subscribe('newMessageCreated');
 redis.subscribe('newPostCreated');
 redis.subscribe('notificationPublished');
+redis.subscribe('newCoordinatorNotification');
 redis.subscribe('welcomeBackMessage');
 redis.subscribe('userUpdated');
 redis.subscribe('promotionUpdated');
@@ -69,6 +70,10 @@ redis.on('message', function(channel, data) {
 		case 'notificationPublished':
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('notificationPublished', data);
+			break;
+		case 'newCoordinatorNotification':
+			promotionId = data.promotion_id.toString();
+			io.sockets.in('Promotion' + promotionId).emit('newCoordinatorNotification', data);
 			break;
     case 'welcomeBackMessage':
 			userId = data.user_id.toString();
