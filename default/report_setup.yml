@@ -74,6 +74,18 @@
       :sensitive: false
       :category: Activity Fields
       :visible: true
+    "steps_times_recorded":
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: "coalesce(sum(if((entries.exercise_steps > 0),1,0)),0) `Steps - Times Recorded`"
+      :filterable: true
+      :role: Coordinator
+      :display_name: Steps - Times Recorded
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Activity Fields
+      :visible: true
     "7": 
       :aggregate: true
       :sequence: 17
@@ -81,6 +93,18 @@
       :filterable: true
       :role: Coordinator
       :display_name: Total Minutes
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Activity Fields
+      :visible: true
+    "minutes_times_recorded": 
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: "coalesce(sum(if((entries.exercise_minutes > 0),1,0)),0) `Minutes - Times Recorded`"
+      :filterable: true
+      :role: Coordinator
+      :display_name: Minutes - Times Recorded
       :join: entries
       :identification: false
       :sensitive: false
@@ -109,6 +133,18 @@
       :identification: false
       :sensitive: false
       :category: Participant Fields
+      :visible: true
+    "gift_times_recorded":
+      :aggregate: true
+      :sequence: 17
+      :sql_phrase: "coalesce(sum(if((entries.gift_points > 0),1,0)),0) `Gift Box - Times Recorded`"
+      :filterable: true
+      :role: Coordinator
+      :display_name: Gift Box - Times Recorded
+      :join: entries
+      :identification: false
+      :sensitive: false
+      :category: Activity Fields
       :visible: true
     "behavior_inches": 
       :aggregate: true
@@ -469,7 +505,7 @@
       :identification: true
       :sensitive: false
       :category: Competition Fields
-      :visible: true
+      :visible: false
     "60": 
       :aggregate: false
       :sequence: 4

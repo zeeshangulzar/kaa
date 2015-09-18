@@ -151,7 +151,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
           fields[k][:visible] = true if location_labels.size > 1
           fields[k][:display_name] = fields[k][:display_name].gsub(/Top Level Location/,location_labels.first)
           fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Top Level Location/,location_labels.first)
-        elsif fields[k][:display_name]=~/Location/
+        elsif (fields[k][:display_name]=~/Location/ || fields[k][:display_name]=~/Team Location/)
           fields[k][:visible] = true
           fields[k][:display_name] = fields[k][:display_name].gsub(/Location/,location_labels.last)
           fields[k][:sql_phrase] = fields[k][:sql_phrase].gsub(/Location/,location_labels.last)
