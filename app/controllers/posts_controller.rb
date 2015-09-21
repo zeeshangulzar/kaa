@@ -111,7 +111,12 @@ class PostsController < ApplicationController
     else
       # not the wall, not a post.. grab posts
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
-      posts = has_photo ? @wallable.posts.where("photo IS NOT NULL") : @wallable.posts.top
+      within_promotion = true # TODO: make some sort of switch for master/poster to see all posts regardless of promotion
+      if within_promotion
+        posts = has_photo ? @wallable.posts.includes(:user).where("`posts`.`photo` IS NOT NULL AND `users`.`promotion_id` = #{@promotion.id}") : @wallable.posts.top.where("`users`.`promotion_id` = #{@promotion.id}")
+      else
+        posts = has_photo ? @wallable.posts.where("photo IS NOT NULL") : @wallable.posts.top
+      end
       return HESResponder(posts)
     end
   end
