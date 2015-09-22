@@ -40,6 +40,15 @@
       </div>
     </td>
   </tr>
+  <% if !@custom_message.empty? %>
+    <tr>
+      <td colspan="2">
+        <div style="margin:16px;float:right;font-family:Open Sans, Helvetica, Arial;">
+          <%= raw @custom_message %>
+        </div>
+      </td> 
+    </tr>
+  <% end %>
   <tr>
     <td>
       <div style="margin:16px;font-family:Open Sans, Helvetica, Arial;font-size:14px">

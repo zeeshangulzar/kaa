@@ -8,6 +8,7 @@
     <td style="background-color:#fff" colspan="2">
       <div style="margin:18px;color:#164c4c;font-size:14px;font-family:Open Sans, Helvetica, Arial;">
         <%= raw CustomContent.get('content_html', {:category => 'emails', :key => 'welcome_main'}, @promotion) %>
+        <p style="text-align:center"><a href="<%= @base_url %>" style="color:#006ba6"><img src="<%= @base_url %>/images/email/get_started.jpg" alt="GET STARTED" /></a></p>
       </div>
     </td>
   </tr>

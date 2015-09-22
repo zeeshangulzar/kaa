@@ -70,13 +70,14 @@ class GoMailer < ActionMailer::Base
     mail(:to => emails, :subject => "#{Constant::AppName} Recipe: #{recipe.title}", :from => fromHandler(@user))
   end
 
-  def daily_email(day, promotion, to_name, to_email, base_url, user)
+  def daily_email(day, promotion, to_name, to_email, base_url, user, custom_message = nil)
     @tip = Tip.for_promotion(promotion).find_by_day(day)
     @recipe = Recipe.daily
     @promotion = promotion
     @user = user
     @base_url = "#{@promotion.subdomain}.#{GoMailer::Domain}"
     @daily = true
+    @custom_message = custom_message
 =begin
 # debugging code remove me
 @tip ||= Tip.first
