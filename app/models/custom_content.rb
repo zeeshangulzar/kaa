@@ -131,4 +131,14 @@ class CustomContent < ApplicationModel
     return array_passed ? custom_contents : custom_contents.first
   end
 
+  # wrapper to grab a single custom content column for promotion keyworded and ready to go
+  # TODO: this doesn't have fantastic error checking at the moment
+  def self.get(column, conditions, promotion)
+    cc = CustomContent.for(promotion, conditions)
+    if !cc.empty?
+      return CustomContent.keyworded(cc, promotion).first.send(column)
+    end
+    return nil
+  end
+
 end
