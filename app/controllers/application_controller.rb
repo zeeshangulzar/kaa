@@ -143,37 +143,11 @@ class ApplicationController < ActionController::Base
         # singular object
         data = [payload]
       end
-
       total_records = payload.respond_to?('size') ? payload.size : 1
-      total_pages = page_size > 0 ? (total_records.to_f / page_size.to_f).ceil : 1
-      current_page = page_size > 0 ? (offset.to_f / page_size.to_f).ceil + 1 : 1
-
       response = {
         :data => data,
-        :meta => {
-          :page_size      => page_size,
-          :page           => current_page,
-          :total_pages    => total_pages,
-          :total_records  => total_records,
-          :links   => {
-            :current  => request.fullpath
-          }
-        }
+        :meta => ApplicationController::meta(request, data, offset, page_size, total_records)
       }
-
-      if page_size > 0
-        # prev/next links will never exist if we're getting all records..
-        if total_records > page_size
-          if offset > 0
-            prev_offset = (offset - page_size) <= 0 ? nil : offset - page_size
-            response[:meta][:links][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => prev_offset})
-          end
-          if (offset + page_size) < total_records
-            next_offset = offset + page_size
-            response[:meta][:links][:next] = url_replace(request.fullpath, :merge_query => {'offset' => next_offset})
-          end
-        end
-      end
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
     payload_hash = MultiJson.dump(response)
@@ -258,7 +232,7 @@ class ApplicationController < ActionController::Base
     return @current_user
   end
 
-  def url_replace(url, options = {})
+  def self.url_replace(url, options = {})
     uri = URI.parse(URI.encode(url))
     hquery = !uri.query.nil? ? CGI::parse(uri.query) : {}
     components = Hash[uri.component.map { |key| [key, uri.send(key)] }]
@@ -279,6 +253,25 @@ class ApplicationController < ActionController::Base
       host = request.host
     end
     return host
+  end
+
+  def self.meta(request, collection, offset = 0, page_size = ApplicationController::PAGE_SIZE, count = nil)
+    meta = {
+      :total_records => !count.nil? ? count : collection.size,
+      :page_size     => page_size,
+      :page          => page_size > 0 ? (offset.to_f / page_size.to_f).ceil + 1 : 1,
+      :links         => {
+        :current     => request.fullpath
+      }
+    }
+    meta[:total_pages] = page_size > 0 ? (meta[:total_records].to_f / page_size.to_f).ceil : 1
+    if offset + page_size < meta[:total_records].to_i
+      meta[:links][:next] = ApplicationController::url_replace(request.fullpath, :merge_query => {'offset' => offset + page_size})
+    end
+    if offset - page_size >= 0
+      meta[:links][:prev] = ApplicationController::url_replace(request.fullpath, :merge_query => {'offset' => offset - page_size})
+    end
+    return meta
   end
 
 end

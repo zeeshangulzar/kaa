@@ -335,36 +335,21 @@ class UsersController < ApplicationController
 
   def leaderboard
     offset = (!params[:offset].nil? && params[:offset].is_i? && params[:offset].to_i > 0) ? params[:offset].to_i : 0
-    limit = (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
-    
+    limit = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
     conditions = {
       :offset       => offset > 0 ? offset : nil, # we need integers for paging calculations below, but nils are appreciated for model method
-      :limit        => limit > 0 ? limit : nil,
+      :limit        => limit > 0 ? limit : ApplicationController::PAGE_SIZE,
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir]
     }
-
     users = []
     users = @promotion.individual_leaderboard(conditions)
     count = @promotion.individual_leaderboard(conditions, true)
     response = {
       :data => users,
-      :meta => {
-        :page_size => conditions[:limit],
-        :total_records => count
-      }
+      :meta => ApplicationController::meta(request, users, offset, limit, count)
     }
-
-    if !users.empty?
-      if offset + limit < count.to_i
-        response[:meta][:next] = url_replace(request.fullpath, :merge_query => {'offset' => offset + limit})
-      end
-      if offset - limit >= 0
-          response[:meta][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => offset - limit})
-        end
-      end
-
     return HESResponder(response)
   end
 
