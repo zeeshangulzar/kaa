@@ -57,6 +57,7 @@ Go::Application.routes.draw do
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
 
   resources :promotions do
+    post 'authenticate', :to => 'promotions#authenticate'
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
     resources :behaviors, :only => [:index, :create, :show]

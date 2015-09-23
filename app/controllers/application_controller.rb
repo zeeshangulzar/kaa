@@ -7,11 +7,12 @@ class ApplicationController < ActionController::Base
   before_filter :set_default_format_json
 
   HTTP_CODES = {
-    'OK'        => 200,
-    'BAD'       => 400,
-    'DENIED'    => 403,
-    'NOT_FOUND' => 404,
-    'ERROR'     => 422
+    'OK'           => 200,
+    'BAD'          => 400,
+    'UNAUTHORIZED' => 401,
+    'DENIED'       => 403,
+    'NOT_FOUND'    => 404,
+    'ERROR'        => 422
   }
 
   PAGE_SIZE = 20
