@@ -17,7 +17,7 @@ class GoMailer < ActionMailer::Base
   def welcome_email(user)
     @user = user
     @promotion = user.promotion
-    @base_url = "http://#{user.promotion.subdomain}.healthfortheholidays.com"
+    @base_url = "https://#{user.promotion.subdomain}.healthfortheholidays.com"
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
@@ -154,6 +154,7 @@ class GoMailer < ActionMailer::Base
       subject = "#{from_user.profile.full_name} invited you to join their team on #{Constant::AppName}"
     end
     @user = from_user
+    @base_url = "https://#{@user.promotion.subdomain}.healthfortheholidays.com"
     @from_user = from_user
     @to_user = to_user
     @invite_type = invite_type
@@ -165,6 +166,7 @@ class GoMailer < ActionMailer::Base
 
   def unregistered_team_invite_email(email, inviter, team, message = nil)
     @user = inviter
+    @base_url = "https://#{@user.promotion.subdomain}.healthfortheholidays.com"
     @inviter = inviter
     @message = message
     @team = team
@@ -188,7 +190,7 @@ class GoMailer < ActionMailer::Base
     return FormattedFromAddress if !user
     # todo: handle hiding emails based on promotion config and user preferences for future apps
     # KP doesn't care if they expose people's emails..
-    return "#{user.profile.full_name} <#{user.email}>"
+    return "#{user.profile.full_name} <no-reply@healthfortheholidays.com>"
   end
 
 end
