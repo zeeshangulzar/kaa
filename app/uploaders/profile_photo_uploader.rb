@@ -9,6 +9,8 @@ class ProfilePhotoUploader < ApplicationUploader
     process :resize_to_fit => [40, 40]
   end
 
+  process :resize_to_fit => [150, 150]
+
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   def original_filename
