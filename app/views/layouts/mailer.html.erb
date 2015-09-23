@@ -1,4 +1,4 @@
-<table align="center" cellpadding="0" cellspacing="0" style="min-width:700px;width:100%">
+<table align="center" cellpadding="0" cellspacing="0" style="min-width:700px;width:100%;font-family:Open Sans, Helvetica, Arial;">
   <tr>
     <td align="center" style="background-color:#ffffff">
       <table cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-spacing:0px;width:100%;width:630px;">
@@ -25,24 +25,13 @@
             <%= yield %>
           </td>
         </tr>
-        <tr style="background-color:#ffffff">
-          <td colspan="2" style="text-align:right">
-            <div style="margin:10px;">
-              <a href="%= @base_url %>" style="border:none;text-decoration:none;">
-                <img src="%= @base_url %>/images/emails/walk_this_way.png"/>
-              </a>
-            </div>
-          </td>
-        </tr>
         <tr style="background-color:#ffffff;padding:0px;">
-          <td colspan="2" style="padding:0px">
-            <br/>
-            <div style="width:100%;height:5px;background-color:#b6354b"></div>
+          <td colspan="2" style="padding:0px;height:5px;background-color:#b6354b">
           </td>
         </tr>
         <tr style="vertical-align:top">
           <td align="left">
-            <p style="margin-bottom:80px;margin-top:5px;">
+            <p style="margin-bottom:80px;margin-top:5px;font-family:Open Sans, Helvetica, Arial;">
               <% if @daily %>
                 <a href="<%= @base_url %>/unsubscribe/%%EMAIL_GOES_HERE" style="color: #50819c;font-size: 12px;">Unsubscribe</a>
               <% else %>
@@ -51,7 +40,7 @@
             </p>
           </td>
           <td align="right">
-            <p style="margin-bottom:80px;color: #508AA2; font-size: 12px; height: 30px;float:right;margin-top:5px;">
+            <p style="margin-bottom:80px;color: #508AA2; font-size: 12px; height: 30px;float:right;margin-top:5px;font-family:Open Sans, Helvetica, Arial;">
               &copy; 
               <%= Date.today.year  %>
               Health Enhancement Systems 
