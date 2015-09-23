@@ -17,7 +17,7 @@ class GoMailer < ActionMailer::Base
   def welcome_email(user)
     @user = user
     @promotion = user.promotion
-    @base_url = "http://#{user.promotion.subdomain}.staging.healthfortheholidays.com"
+    @base_url = "http://#{user.promotion.subdomain}.healthfortheholidays.com"
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
@@ -78,11 +78,11 @@ class GoMailer < ActionMailer::Base
     @base_url = "#{@promotion.subdomain}.#{GoMailer::Domain}"
     @daily = true
     @custom_message = custom_message
-#=begin
+=begin
 # debugging code remove me
 @tip ||= Tip.first
 @base_url = "#{@promotion.subdomain}.staging.#{GoMailer::Domain}"
-#=end
+=end
     to = "#{to_name} <#{to_email}>"
     from = FormattedFromAddress
     reply_to = FromAddress
