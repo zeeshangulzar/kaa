@@ -342,7 +342,7 @@ class UsersController < ApplicationController
       :sort_dir     => params[:sort_dir]
     }
     users = []
-    users = @promotion.individual_leaderboard
+    users = @promotion.individual_leaderboard(conditions)
     return HESResponder(users)
   end
 
