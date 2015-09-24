@@ -334,11 +334,7 @@ class UsersController < ApplicationController
   end
 
   def leaderboard
-    offset = (!params[:offset].nil? && params[:offset].is_i? && params[:offset].to_i > 0) ? params[:offset].to_i : 0
-    limit = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
     conditions = {
-      :offset       => offset > 0 ? offset : nil, # we need integers for paging calculations below, but nils are appreciated for model method
-      :limit        => limit > 0 ? limit : ApplicationController::PAGE_SIZE,
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir]
@@ -346,11 +342,7 @@ class UsersController < ApplicationController
     users = []
     users = @promotion.individual_leaderboard(conditions)
     count = @promotion.individual_leaderboard(conditions, true)
-    response = {
-      :data => users,
-      :meta => ApplicationController::meta(request, users, offset, limit, count)
-    }
-    return HESResponder(response)
+    return HESResponder(users, 'OK', nil, false, count)
   end
 
 end

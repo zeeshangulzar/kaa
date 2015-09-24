@@ -351,9 +351,11 @@ class Promotion < ApplicationModel
       return result.first['user_count']
     end
     users = []
-    rank = 0
+    rank_displayed = 0
+    count = 0
     previous_user = nil
     result.each{|row|
+      count += 1
       user = {}
       user['profile']                 = {}
       user['profile']['image']        = {}
@@ -361,12 +363,12 @@ class Promotion < ApplicationModel
       user['id']                      = row['id']
       user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
       user['profile']['first_name']   = row['first_name']
-      user['profile']['last_name']   = row['last_name']
+      user['profile']['last_name']    = row['last_name']
       user['location']['id']          = row['location_id']
       user['location']['name']        = row['location_name']
       user['total_points']            = row['total_points']
-      rank = rank + 1 if (!previous_user || previous_user['total_points'] > user['total_points'])
-      user['rank']         = rank
+      rank = count if (!previous_user || previous_user['total_points'] > user['total_points'])
+      user['rank']                    = rank
       users << user
       previous_user = user
     }

@@ -109,7 +109,7 @@ class ApplicationController < ActionController::Base
   end
 
   # page_size of 0 = all records
-  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false)
+  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false, total_records = nil)
 
     if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
       # allow a complete response to pass right thru
@@ -143,7 +143,7 @@ class ApplicationController < ActionController::Base
         # singular object
         data = [payload]
       end
-      total_records = payload.respond_to?('size') ? payload.size : 1
+      total_records ||= payload.respond_to?('size') ? payload.size : 1
       response = {
         :data => data,
         :meta => ApplicationController::meta(request, data, offset, page_size, total_records)

@@ -61,7 +61,7 @@ class TeamInvite < ApplicationModel
   def create_notifications
     if !self.id_was.nil? && self.user_id_was.nil? && !self.user_id.nil?
       # notify user he's been invited to a team
-      notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team?team_id=#{self.team_id}'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_#{self.team_id}_invite_#{self.id}_invite_made")
+      notify(self.user, "#{self.inviter.profile.full_name} invited you to join #{self.team.name}.", "#{self.inviter.profile.full_name} invited you to join \"<a href='/#/team'>#{self.team.name}</a>\".", :from => self.inviter, :key => "team_#{self.team_id}_invite_#{self.id}_invite_made")
     elsif self.user_id.nil? && !self.email.nil?
       # unregistered user, send them an e-mail to join
       Resque.enqueue(UnregisteredTeamInviteEmail, self.email, self.inviter.id, self.team_id, self.message)
