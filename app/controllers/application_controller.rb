@@ -123,7 +123,6 @@ class ApplicationController < ActionController::Base
 
     offset = !params[:offset].nil? && params[:offset].is_i? ? params[:offset].to_i : 0
     data = nil
-    total_records = 0
 
     if status != 'OK'
       # we have an error of some sort..
