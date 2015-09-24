@@ -42,7 +42,7 @@ class User < ApplicationModel
 
   def check_for_invites
     if self.promotion.current_competition
-      invites = TeamInvite.where("email = '#{self.email}' AND user_id IS NULL")
+      invites = TeamInvite.includes(:team, :competition).where("`team_invites`.`email` = '#{self.email}' AND `team_invites`.`user_id` IS NULL AND `competitions`.`promotion_id` = #{self.promotion_id}")
       invites.each{|invite|
         invite.user_id = self.id
         invite.save!
