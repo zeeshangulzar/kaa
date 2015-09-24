@@ -110,10 +110,11 @@ class Competition < ApplicationModel
     teams = []
     
     rank = 0
+    team_count = 0
     previous_team = nil
     neighbors_index = nil
-
     result.each{|row|
+      team_count += 1
       team = {}
       team['image']        = {}
       team['id']           = row['id']
@@ -124,7 +125,7 @@ class Competition < ApplicationModel
       team['avg_points']   = row['avg_points']
       team['status']       = row['status']
       team['member_count'] = row['member_count']
-      rank = rank + 1 if (!previous_team || previous_team['avg_points'] > team['avg_points'])
+      rank = team_count if (!previous_team || previous_team['avg_points'] > team['avg_points'])
       team['rank']         = rank
       teams << team
       previous_team = team
