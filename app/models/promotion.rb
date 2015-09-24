@@ -57,6 +57,7 @@ class Promotion < ApplicationModel
   flags :is_mapwalk_enabled, :default => true
   flags :is_resources_enabled, :default => true
   flags :is_address_enabled, :default => false
+  flags :is_feedback_enabled, :default => false
   
 
 
