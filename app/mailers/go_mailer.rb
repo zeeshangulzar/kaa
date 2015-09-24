@@ -47,11 +47,12 @@ class GoMailer < ActionMailer::Base
     else
       subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
     end
-
-    mail(:to => emails, :subject => subject, :from => fromHandler(@user)) do |format|
-      format.text { render model.underscore.downcase }
-      format.html { render model.underscore.downcase }
-    end
+    emails.each{|email|
+      mail(:to => email, :subject => subject, :from => fromHandler(@user)) do |format|
+        format.text { render model.underscore.downcase }
+        format.html { render model.underscore.downcase }
+      end
+    }
   end
 
   def tip(tip, emails, user, message)
