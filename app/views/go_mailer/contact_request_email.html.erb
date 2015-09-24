@@ -5,7 +5,7 @@
     </td>
     <td align="right">
       <p style="margin:18px;color:#aaa;font-family:Open Sans, Helvetica, Arial;font-size:12px;">
-        <%= @user.promotion.current_date.strftime("%A, %B %-d") %>
+        <%= @promotion.current_date.strftime("%A, %B %-d") %>
       </p>
     </td>
   </tr>
@@ -17,7 +17,7 @@
         <p>Regards,<br/>The <em><%= Constant::AppName %></em> Team</p>
         <p>You said:</p>
         <p><%= @contact_request['comments'] %></p>
-        <p><a href="http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+        <p><a href="http://<%= @base_url%>" style="color:#006ba6"><% @base_url %></a></p>
       </div>
     </td>
   </tr>

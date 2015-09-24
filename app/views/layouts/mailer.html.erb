@@ -10,7 +10,8 @@
           </td>
           <td style="text-align:right">
             <% unless @promotion.nil? %>
-              <img src="<%= @promotion.logo.url %>"/>
+            <% logo_url = @promotion.logo.file.nil? ? "#{@base_url}#{@promotion.logo.url}" : @promotion.logo.url %>
+              <img src="<%= logo_url %>"/>
             <% end %>
           </td>
         </tr>

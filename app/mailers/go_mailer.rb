@@ -14,10 +14,14 @@ class GoMailer < ActionMailer::Base
 
   helper :application
 
+  def base_url(subdomain)
+    return "https://#{subdomain}.#{GoMailer::Domain}"
+  end
+
   def welcome_email(user)
     @user = user
     @promotion = user.promotion
-    @base_url = "https://#{user.promotion.subdomain}.healthfortheholidays.com"
+    @base_url = self.base_url(user.promotion.subdomain)
     mail(:to => @user.email, :subject => "Welcome to #{Constant::AppName}!")
   end
 
@@ -25,6 +29,7 @@ class GoMailer < ActionMailer::Base
     @contact_request = contact_request
     @promotion = Promotion.find_by_subdomain(subdomain) || Promotion.first
     @user = @promotion.users.first
+    @base_url = self.base_url(@promotion.subdomain)
     mail(:to => contact_request['email'], :subject => "#{Constant::AppName}: Contact Request")
   end
 
@@ -32,6 +37,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
+    @base_url = self.base_url(@promotion.subdomain)
     subject = "#{@user.profile.full_name} invited you to join #{Constant::AppName}"
     mail(:to => emails, :subject => subject, :from => fromHandler(@user))
   end
@@ -41,7 +47,8 @@ class GoMailer < ActionMailer::Base
     @object = object
     @user = user
     @promotion = @user.promotion
-    @message = message
+    @message = message rescue ""
+    @base_url = self.base_url(@promotion.subdomain)
     if @model.name == 'CustomContent'
       subject = "#{Constant::AppName} #{object['category'].titleize}: #{ActionView::Base.full_sanitizer.sanitize(object['title_html'])}"
     else
@@ -60,6 +67,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
+    @base_url = self.base_url(@promotion.subdomain)
     mail(:to => emails, :subject => "#{Constant::AppName} Tip: #{tip.title}", :from => fromHandler(@user))
   end
 
@@ -68,6 +76,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @promotion = @user.promotion
     @message = message
+    @base_url = self.base_url(@promotion.subdomain)
     mail(:to => emails, :subject => "#{Constant::AppName} Recipe: #{recipe.title}", :from => fromHandler(@user))
   end
 
@@ -76,7 +85,7 @@ class GoMailer < ActionMailer::Base
     @recipe = Recipe.daily
     @promotion = promotion
     @user = user
-    @base_url = "#{@promotion.subdomain}.#{GoMailer::Domain}"
+    @base_url = self.base_url(@promotion.subdomain)
     @daily = true
     @custom_message = custom_message
 =begin
@@ -96,6 +105,7 @@ class GoMailer < ActionMailer::Base
 
   def reminder_email(reminder, promotion, to_name, to_email, base_url, user)
     @promotion = promotion
+    @base_url = self.base_url(@promotion.subdomain)
     @user = user
     @reminder = reminder
     to = "#{to_name} <#{to_email}>"
@@ -123,6 +133,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @host = "#{base_url}"
     @promotion = @user.promotion
+    @base_url = self.base_url(@promotion.subdomain)
 
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
@@ -144,6 +155,7 @@ class GoMailer < ActionMailer::Base
     @user = user
     @host = "#{base_url}"
     @promotion = @user.promotion
+    @base_url = self.base_url(@promotion.subdomain)
 
     mail(:to => recipient, :subject => subject, :from => from, :reply_to => reply_to)
   end
@@ -155,23 +167,23 @@ class GoMailer < ActionMailer::Base
       subject = "#{from_user.profile.full_name} invited you to join their team on #{Constant::AppName}"
     end
     @user = from_user
-    @base_url = "https://#{@user.promotion.subdomain}.healthfortheholidays.com"
     @from_user = from_user
     @to_user = to_user
     @invite_type = invite_type
     @message = message
     @team = team
     @promotion = @from_user.promotion
+    @base_url = self.base_url(@promotion.subdomain)
     mail(:to => to_user.email, :subject => subject, :from => fromHandler(@from_user))
   end
 
   def unregistered_team_invite_email(email, inviter, team, message = nil)
     @user = inviter
-    @base_url = "https://#{@user.promotion.subdomain}.healthfortheholidays.com"
     @inviter = inviter
     @message = message
     @team = team
     @promotion = @inviter.promotion
+    @base_url = self.base_url(@promotion.subdomain)
     mail(:to => email, :subject => "#{inviter.profile.full_name} invited you to join their team on #{Constant::AppName}", :from => fromHandler(@inviter))
   end
 
@@ -182,6 +194,7 @@ class GoMailer < ActionMailer::Base
     from_address = fromHandler(from)
     @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
     @promotion = @user.promotion
+    @base_url = self.base_url(@promotion.subdomain)
     if !emails.empty?
       mail(:to => emails, :subject => subject, :from => from_address)
     end
