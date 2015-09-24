@@ -144,7 +144,15 @@ class Post < ApplicationModel
   def create_post_owner_notification_of_like(like)
     return if like.user.id == self.user.id # don't notify user of his own likes..
     unless self.user.role == "Poster"
-      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/wall/#{self.id}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
+      case like.likeable.wallable.class.name
+        when 'Recipe'
+          url = 'recipes'
+        when 'Tip'
+          url = 'tips'
+        else
+          url = 'wall'
+      end
+      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}/#{self.id}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
     else
       self.postable.notify(self.user, HesPosts.post_liked_notification_title.call(self.postable, like), HesPosts.expert_post_liked_notification_message.call(self.postable, like), :from_user => like.user, :key => post_like_notification_key(like))
     end
