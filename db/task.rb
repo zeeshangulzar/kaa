@@ -32,7 +32,7 @@ class Task
         addresses=[]
 
         daily_email = false
-
+        custom_message = CustomContent.get('content_html', {:category => 'emails', :key => 'daily_main'}, p)
         users.each{ |u|
           what_to_send = 'daily_email'
           email_reminder = false
@@ -61,7 +61,7 @@ class Task
             when 'daily_email'
                 # cache rendered daily email..
                 if !daily_email
-                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u, custom_message)
                 end
                 mails << daily_email
               when 'reminder'
@@ -87,7 +87,9 @@ class Task
             mail.deliver
           }
         end
-
+        if !custom_message.empty?
+          CustomContent.for(p, {:category => 'emails', :key => 'daily_main'}).first.update_attributes(:content => nil)
+        end
       end # end wday not 0,6
   end
 
