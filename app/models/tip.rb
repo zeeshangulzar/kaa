@@ -56,4 +56,14 @@ class Tip < ContentModel
     return range.select{|d|(1..5).include?(d.wday)}.size
   end
 
+  def self.get_day_number_for_promotion(promotion)
+    weekdays = 0
+    date = promotion.current_date
+    while date > promotion.starts_on
+      weekdays += 1 unless [0,6].include?(date.wday)
+      date = date - 1.day
+    end
+    return weekdays
+  end
+
 end

@@ -21,13 +21,13 @@
       <div style="margin:10px 0px">
         <table border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td width="100" style="width:100px;vertical-align:top" valign="top">
-              <img width="100" height="100" src="<%= @recipe.image_url %>" style="display:block;float:left;width:100px;height:100px;" alt="<%= @recipe.title %>">
+            <td width="150" style="width:150px;vertical-align:top" valign="top">
+              <img width="150" src="<%= @tip.full_image.url %>" style="display:block;float:left;width:150px;height:auto;" alt="<%= @tip.title %>">
             </td>
-            <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;">
-              <span style="color:#777;font-size:14px;font-weight:bold;">RECIPE OF THE DAY:</span><br/>
-              <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= @recipe.title %></span>
-              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <a style="color:#b5364b" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe/<%= @recipe.id %>">MORE...</a></p>
+            <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;vertical-aign:top;" valign="top">
+              <span style="color:#777;font-size:14px;font-weight:bold;">DAILY TIP:</span><br/>
+              <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= @tip.title %></span>
+              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw strip_tags(@tip.summary_html) %> <a style="color:#b5364b" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tips/<%= @tip.id %>">MORE...</a></p>
             </td>
           </tr>
         </table>
@@ -39,20 +39,20 @@
       <div style="margin:10px 0px">
         <table border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td width="100" style="width:100px;vertical-align:top" valign="top">
-              <img width="100" height="100" src="<%= @tip.full_image.url %>" style="display:block;float:left;width:100px;height:100px;" alt="<%= @tip.title %>">
+            <td width="150" style="width:150px;vertical-align:top" valign="top">
+              <img width="150" src="<%= @recipe.image_url %>" style="display:block;float:left;width:150px;height:auto;" alt="<%= @recipe.title %>">
             </td>
-            <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;">
-              <span style="color:#777;font-size:14px;font-weight:bold;">DAILY TIP:</span><br/>
-              <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= @tip.title %></span>
-              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw strip_tags(@tip.summary_html) %> <a style="color:#b5364b" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/tip/<%= @tip.id %>">MORE...</a></p>
+            <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;vertical-align:top" valign="top">
+              <span style="color:#777;font-size:14px;font-weight:bold;">RECIPE OF THE DAY:</span><br/>
+              <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= @recipe.title %></span>
+              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <a style="color:#b5364b" href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipes/<%= @recipe.id %>">MORE...</a></p>
             </td>
           </tr>
         </table>
       </div>
     </td>
   </tr>
-  <% if !@custom_message.empty? %>
+  <% if !@custom_message.nil? && !@custom_message.empty? %>
     <tr>
       <td colspan="2">
         <div style="margin:16px;float:right;font-family:Open Sans, Helvetica, Arial;">
@@ -69,7 +69,7 @@
     </td>
     <td style="text-align:right;" align="right">
       <div style="margin:16px;float:right;font-family:Open Sans, Helvetica, Arial;">
-        <a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><img src="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/images/email/log_progress.png" alt="Log Progress" /></a>
+        <a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><img src="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/images/email/log_progress.jpg" alt="Log Progress" /></a>
       </div>
     </td>
   </tr>
