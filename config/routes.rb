@@ -227,4 +227,7 @@ Go::Application.routes.draw do
   match "/export" => "exports#index", :via => :post
 
   match 'promotions/:promotion_id/keywords' => 'promotions#keywords', :via => :get
+
+  match "/store" => "store#index", :via => :get, :controller => :store
+  match "/store/place_order" => "store#place_order", :via => :post, :controller => :store
 end

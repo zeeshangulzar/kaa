@@ -80,6 +80,27 @@ class UsersController < ApplicationController
         @target_user.attach('completed_evaluation_definition_ids', @target_user.completed_evaluation_definition_ids)
         @target_user.attach('active_evaluation_definition_ids', @target_user.active_evaluation_definition_ids)
       end
+
+      if @target_user.fitbit_user
+        device_sql = "SELECT fud.remote_id, fud.type_of_device, fud.device_version, fud.last_sync_time FROM fitbit_user_devices fud
+               INNER JOIN fitbit_users fbu ON fud.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        notification_sql = "SELECT fbn.id, fbn.status, fbn.date, fbn.updated_at FROM fitbit_notifications fbn
+               INNER JOIN fitbit_users fbu ON fbn.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        fitbit_devices = User.connection.select_all(device_sql)
+        fitbit_notifications = User.connection.select_all(notification_sql)
+
+        @target_user.attach('fitbit_devices', fitbit_devices)
+        @target_user.attach('fitbit_user', @target_user.fitbit_user)
+        @target_user.attach('fitbit_user_notifications', fitbit_notifications)
+        @target_user.attach('fitbit_weeks', @target_user.get_fitbit_weeks)
+        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions)
+      end
     end
 
     if @current_user.master?

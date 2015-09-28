@@ -80,6 +80,7 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+  has_many :orders, :dependent => :destroy
 
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
