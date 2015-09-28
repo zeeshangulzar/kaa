@@ -75,6 +75,7 @@ class UsersController < ApplicationController
       @target_user.attach('stats', @target_user.stats)
       #@target_user.attach('recent_activities', @target_user.recent_activities)
       @target_user.attach('team_id', !@target_user.current_team.nil? ? @target_user.current_team.id : nil)
+      @target_user.attach('order_count', @target_user.orders.count)
 
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.attach('completed_evaluation_definition_ids', @target_user.completed_evaluation_definition_ids)
