@@ -65,16 +65,6 @@ class Entry < ApplicationModel
     end
   end
 
-  def write_attribute_with_exercise(attr,val)
-    write_attribute_without_exercise(attr,val)
-    if [:exercise_minutes,:exercise_steps].include?(attr.is_a?(String) ? attr.to_sym : attr) && !self.user.nil?
-      calculate_exercise_points
-      # set_is_recorded
-    end
-  end
-
-  alias_method_chain :write_attribute,:exercise
-
   #Not quite sure the point of this... used to be is_logged
   def set_is_recorded
     write_attribute(:is_recorded, !exercise_minutes.to_i.zero? || !exercise_steps.to_i.zero?)
