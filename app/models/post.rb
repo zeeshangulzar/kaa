@@ -146,13 +146,13 @@ class Post < ApplicationModel
     unless self.user.role == "Poster"
       case like.likeable.wallable.class.name
         when 'Recipe'
-          url = 'recipes'
+          url = "recipes/#{self.wallable_id}"
         when 'Tip'
-          url = 'tips'
+          url = "tips/#{self.wallable_id}"
         else
-          url = 'wall'
+          url = "wall/#{self.id}"
       end
-      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}/#{self.id}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
+      notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
     else
       self.postable.notify(self.user, HesPosts.post_liked_notification_title.call(self.postable, like), HesPosts.expert_post_liked_notification_message.call(self.postable, like), :from_user => like.user, :key => post_like_notification_key(like))
     end
