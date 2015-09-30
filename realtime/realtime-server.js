@@ -28,6 +28,7 @@ redis.subscribe('fitbitEntrySaved');
 redis.subscribe('jawboneEntrySaved');
 redis.subscribe('newMessageCreated');
 redis.subscribe('newPostCreated');
+redis.subscribe('newTeamPostCreated');
 redis.subscribe('notificationPublished');
 redis.subscribe('newCoordinatorNotification');
 redis.subscribe('welcomeBackMessage');
@@ -67,6 +68,10 @@ redis.on('message', function(channel, data) {
 			promotionId = data.user.promotion_id.toString();
 			io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
 			break;
+		case 'newTeamPostCreated':
+			teamId = data.wallable_id.toString();
+			io.sockets.in('Team' + teamId).emit('newPostCreated', data);
+			break;
 		case 'notificationPublished':
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('notificationPublished', data);
@@ -75,7 +80,7 @@ redis.on('message', function(channel, data) {
 			promotionId = data.promotion_id.toString();
 			io.sockets.in('Promotion' + promotionId).emit('newCoordinatorNotification', data);
 			break;
-    case 'welcomeBackMessage':
+		case 'welcomeBackMessage':
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('welcomeBackPublished', data);
 			break;
@@ -87,7 +92,7 @@ redis.on('message', function(channel, data) {
 			userId = data.user_id.toString();
 			io.sockets.in('User' + userId).emit('TeamInviteAccepted', data);
 			break;
-    case 'promotionUpdated':
+		case 'promotionUpdated':
 			promotionId = data.id.toString();
 			io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
 			break;
@@ -108,15 +113,18 @@ io.sockets.on('connection', function(socket) {
 		socket.join('Promotion' + data.promotionId);
 	});
 
+	// Adds a user to their promotion's room.
+	socket.on('addTeamUser', function(data) {
+		socket.teamId = data.teamId;
+		socket.join('Team' + data.teamId);
+	});
+
 	// Adds a user to a chat room.
 	socket.on('addChatUser', function(data) {
-		
 		// Set a new property on the socket object.
 		socket.chatUserId = data.userId;
 		socket.join('ChatRoom' + data.room);
-
 		if(getUniqueUsersInChatRoom('ChatRoom' + data.room) === 2) {
-			
 			// Enable chat for this room.
 			io.sockets.in('ChatRoom' + data.room).emit('status', true);
 		}
@@ -135,9 +143,7 @@ io.sockets.on('connection', function(socket) {
 	// Removes a user from a chat room.
 	socket.on('leaveChat', function(data) {
 		socket.leave('ChatRoom' + data.room);
-		
 		if(getUniqueUsersInChatRoom(data.room) < 2) {
-			
 			// Disable chat for this room.
 			io.sockets.in('ChatRoom' + data.room).emit('status', false);
 		}
