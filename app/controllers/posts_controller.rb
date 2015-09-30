@@ -188,7 +188,8 @@ class PostsController < ApplicationController
       return HESResponder(post.errors.full_messages, "ERROR")
     end
     post.reload
-    $redis.publish('newPostCreated', post.to_json)
+    channel = (parent_obj.class == Team) ? 'newTeamPostCreated' : 'newPostCreated'
+    $redis.publish(channel, post.to_json)
     return HESResponder(post)
   end
 
