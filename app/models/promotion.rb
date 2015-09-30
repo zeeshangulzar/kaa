@@ -28,6 +28,7 @@ class Promotion < ApplicationModel
   has_many :resources
   has_many :competitions
   has_many :notifications, :as => :notificationable, :order => 'created_at DESC'
+  has_many :teams
 
   DEFAULT_SUBDOMAIN = 'www'
 
