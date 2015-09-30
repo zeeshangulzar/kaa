@@ -3,12 +3,11 @@ class BehaviorsController < ApplicationController
   authorize :index, :show, :user
   
   def index
-    behaviors = !@promotion.nil? ? @promotion.behaviors : Behavior.all
-    return HESResponder(behaviors)
+    return HESResponder(@promotion.behaviors)
   end
 
   def show
-    behavior = Behavior.find(params[:id]) rescue nil
+    behavior = @promotion.behaviors.find(params[:id]) rescue nil
     return HESResponder("Behavior", "NOT_FOUND") if !behavior
     return HESResponder(behavior)
   end
@@ -16,14 +15,14 @@ class BehaviorsController < ApplicationController
   def create
     behavior = nil;
     Behavior.transaction do
-      behavior = Behavior.create(params[:behavior])
+      behavior = @promotion.behaviors.create(params[:behavior])
     end
     return HESResponder(behavior.errors.full_messages, "ERROR") if !behavior.valid?
     return HESResponder(behavior)
   end
 
   def update
-    behavior = Behavior.find(params[:id]) rescue nil
+    behavior = @promotion.behaviors.find(params[:id]) rescue nil
     return HESResponder("Behavior", "NOT_FOUND") if !behavior
     Behavior.transaction do
       behavior.update_attributes(params[:behavior])
@@ -33,7 +32,7 @@ class BehaviorsController < ApplicationController
   end
 
   def destroy
-    behavior = Behavior.find(params[:id]) rescue nil
+    behavior = @promotion.behavior.find(params[:id]) rescue nil
     return HESResponder("Behavior", "NOT_FOUND") if !behavior
     Behavior.transaction do
       behavior.destroy

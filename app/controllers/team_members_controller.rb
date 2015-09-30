@@ -1,9 +1,10 @@
 class TeamMembersController < ApplicationController
-  authorize :all, :user
+  authorize :index, :show, :user
+  authorize :create, :update, :destroy, :master
 
   def index
     return HESResponder("Must provide a team.", "ERROR") if !params[:team_id]
-    team = Team.find(params[:team_id]) rescue nil
+    team = @promotion.teams.find(params[:team_id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") if !team
     return HESResponder(team.members)
   end
@@ -30,8 +31,8 @@ class TeamMembersController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
-    if !@current_user.master? && (!team.leader || team.leader.id != @current_user.id)
-      return HESResponder("You may not edit this team.", "DENIED")
+    if !@current_user.master? && @current_user.promotion_id != team.promotion_id)
+      return HESResponder("You may not edit this team member.", "DENIED")
     end
     team_member = team.team_members.build(:user_id => user.id, :competition_id => team.competition_id)
     if !team_member.valid?
@@ -54,6 +55,9 @@ class TeamMembersController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
+    if !@current_user.master? && @current_user.promotion_id != team.promotion_id)
+      return HESResponder("You may not edit this team member.", "DENIED")
+    end
     if !team_member.valid?
       return HESResponder(team_member.errors.full_messages, "ERROR")
     end
@@ -67,7 +71,7 @@ class TeamMembersController < ApplicationController
     team_member = TeamMember.find(params[:id]) rescue nil
     if !team_member
       return HESResponder("Team Member", "NOT_FOUND")
-    elsif @current_user.master?
+    elsif @current_user.master? || @current_user.promotion_id == team.promotion_id)
       if team_member.destroy
         return HESResponder(team_member)
       else

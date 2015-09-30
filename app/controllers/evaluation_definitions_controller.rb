@@ -39,7 +39,7 @@ class EvaluationDefinitionsController < ApplicationController
   end
 
   def show
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @promotion.evaluation_definitions.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     return HESResponder(evaluation_definition)
   end
@@ -51,7 +51,7 @@ class EvaluationDefinitionsController < ApplicationController
   end
 
   def update
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @promotion.evaluation_definitions.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     EvaluationDefinition.transaction do
       evaluation_definition.update_attributes(params[:evaluation_definition])
@@ -60,7 +60,7 @@ class EvaluationDefinitionsController < ApplicationController
   end
 
   def destroy
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @promotion.evaluation_definitions.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     EvaluationDefinition.transaction do
       if evaluation_definition.destroy

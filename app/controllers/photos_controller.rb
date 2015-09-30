@@ -12,6 +12,9 @@ class PhotosController < ApplicationController
       @photoable = nil if !@photoable.respond_to?('photos')
     end
     return HESResponder("Could not find photoable object.", "ERROR") if !@photoable
+    if @photoable.respond_to?('promotion_id') && @photoable.promotion_id != @current_user.promotion_od
+      return HESResponder("Denied.", "DENIED")
+    end
 	end
 
 	def index
@@ -21,6 +24,9 @@ class PhotosController < ApplicationController
 	def show
 		photo = Photo.find(params[:id]) rescue nil
     return HESResponder("Photo", "NOT_FOUND") if !photo
+    if photo.photoable.respond_to?('promotion_id') && photo.photoable.promotion_id != @current_user.promotion_id
+      return HESResponder("Denied.", "DENIED")
+    end
 		return HESResponder(photo)
 	end
 

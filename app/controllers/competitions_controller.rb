@@ -7,7 +7,7 @@ class CompetitionsController < ApplicationController
   end
 
   def show
-    competition = Competition.find(params[:id])
+    competition = @promotion.competitions.find(params[:id])
     return HESResponder(competition)
   end
 
@@ -22,7 +22,7 @@ class CompetitionsController < ApplicationController
   end
 
   def update
-    competition = Competition.find(params[:id]) rescue nil
+    competition = @promotion.competitions.find(params[:id]) rescue nil
     return HESResponder("Competition", "NOT_FOUND") if !competition
     Competition.transaction do
       competition.update_attributes(params[:competition])
@@ -32,7 +32,7 @@ class CompetitionsController < ApplicationController
   end
 
   def destroy
-    competition = Competition.find(params[:id]) rescue nil
+    competition = @promotion.competitions.find(params[:id]) rescue nil
     return HESResponder("Competition", "NOT_FOUND") if !competition
     Competition.transaction do
       competition.destroy
@@ -41,7 +41,7 @@ class CompetitionsController < ApplicationController
   end
 
   def members
-    competition = Competition.find(params[:id]) rescue nil
+    competition = @promotion.competitions.find(params[:id]) rescue nil
     return HESResponder("Competition", "NOT_FOUND") if !competition
     return HESResponder(competition.members)
   end

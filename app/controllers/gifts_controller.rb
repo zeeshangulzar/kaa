@@ -3,12 +3,11 @@ class GiftsController < ApplicationController
   authorize :index, :show, :user
   
   def index
-    gifts = !@promotion.nil? ? @promotion.gifts : Gift.all
-    return HESResponder(gifts)
+    return HESResponder(@promotion.gifts)
   end
 
   def show
-    gift = Gift.find(params[:id]) rescue nil
+    gift = @promotion.gifts.find(params[:id]) rescue nil
     return HESResponder("Gift", "NOT_FOUND") if !gift
     return HESResponder(gift)
   end
@@ -16,14 +15,14 @@ class GiftsController < ApplicationController
   def create
     gift = nil
     Gift.transaction do
-      gift = Gift.create(params[:gift])
+      gift = @promotion.gifts.create(params[:gift])
     end
     return HESResponder(gift.errors.full_messages, "ERROR") if !gift.valid?
     return HESResponder(gift)
   end
 
   def update
-    gift = Gift.find(params[:id]) rescue nil
+    gift = @promotion.gifts.find(params[:id]) rescue nil
     return HESResponder("Gift", "NOT_FOUND") if !gift
     Gift.transaction do
       gift.update_attributes(params[:gift])
@@ -33,7 +32,7 @@ class GiftsController < ApplicationController
   end
 
   def destroy
-    gift = Gift.find(params[:id])
+    gift = @promotion.gifts.find(params[:id])
     Gift.transaction do
       gift.destroy
     end

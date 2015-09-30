@@ -36,13 +36,14 @@ class RecipesController < ApplicationController
       recipe = Recipe.daily
     elsif params[:first]   
       # this is probably unnecessary 
-      recipe = Recipe.find(Recipe.minimum(:id))
+      recipe = Recipe.find(Recipe.minimum(:id)) rescue nil
     elsif params[:last]
       # this is probably unnecessary 
-      recipe = Recipe.find(Recipe.maximum(:id))
+      recipe = Recipe.find(Recipe.maximum(:id)) rescue nil
     else
-      recipe = Recipe.find(params[:id])
+      recipe = Recipe.find(params[:id]) rescue nil
     end
+    return HESResponder("Recipe", "NOT_FOUND") if !recipe
     return HESResponder(recipe)
   end
   

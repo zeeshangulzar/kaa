@@ -6,7 +6,8 @@ class NotificationsController < ApplicationController
   before_filter :get_notificationable, :only => [:index, :keyed_notifications, :create, :destroy]
 
   authorize :index, :show, :update, :user
-  authorize :create, :destroy, :get_past_notifications, :keyed_notifications, :coordinator
+  authorize :create, :get_past_notifications, :keyed_notifications, :coordinator
+  authorize :destroy, :master
 
   # Extra authorize parameters
   def authorization_parameters
@@ -79,16 +80,14 @@ class NotificationsController < ApplicationController
   def update
     updateable_attrs = ['hidden', 'viewed']
     attrs = scrub(params[:notification], updateable_attrs)
-    # TODO: only allow recipient to update maybe??
-
     if params[:id]
-      notification ||= Notification.find(params[:id]) rescue nil
-      return HESResponder("Notification", "NOT_FOUND") if !notification
+      notification ||= @current_user.notifications.find(params[:id]) rescue nil
+      return HESResponder("Notification", "NOT_FOUND") if !notification || notification.user_id != @current_user.id
       notification.update_attributes(attrs)
       return HESResponder(notification.errors.full_messages, "ERROR") if !notification.valid?
       return HESResponder(notification)
     elsif params[:ids]
-      notifications = Notification.where(:id => params[:ids])
+      notifications = @current_user.notifications.where(:id => params[:ids])
       notifications.each do |notification|
         notification.update_attributes(attrs)
       end
@@ -99,7 +98,7 @@ class NotificationsController < ApplicationController
   end
 
   def destroy
-    notification = Notification.find(params[:id])
+    notification = @current_user.notifications.find(params[:id])
     Notification.delete_group(notification.notificationable, notification.created_at)
     return HESResponder(notification)
   end

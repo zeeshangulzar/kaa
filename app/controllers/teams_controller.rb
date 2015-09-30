@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
 
-  authorize :all, :public
+  authorize :all, :user
 
   wrap_parameters :team
 
@@ -19,7 +19,7 @@ class TeamsController < ApplicationController
   end
   
   def show
-    team = Team.find(params[:id]) rescue nil
+    team = @promotion.teams.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
     team.attach(:team_members)
     return HESResponder(team)
@@ -41,7 +41,7 @@ class TeamsController < ApplicationController
 
   
   def update
-    team = Team.find(params[:id]) rescue nil
+    team = @promotion.teams.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
     if team.leader.id != @current_user.id && !@current_user.coordinator_or_above?
       return HESResponder("You may not edit this team.", "DENIED")
@@ -57,7 +57,7 @@ class TeamsController < ApplicationController
   end
 
   def destroy
-    team = Team.find(params[:id]) rescue nil
+    team = @promotion.teams.find(params[:id]) rescue nil
     if !team
       return HESResponder("Team", "NOT_FOUND")
     elsif team.leader.id != @current_user.id && !@current_user.master?
