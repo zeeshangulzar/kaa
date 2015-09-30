@@ -49,7 +49,11 @@ class PostsController < ApplicationController
       if !@current_user.master? && !@current_user.poster?
         if @wallable.class == Promotion && @wallable.id != @current_user.promotion_id
           return HESResponder("Denied.", "DENIED")
-        elsif !@wallable.wallable.nil? && @wallable.wallable.class == Promotion && @wallable.wallable.id != @current_user.promotion_id
+        elsif @wallable.class == Team && (!@current_user.current_team || @current_user.current_team.id != @wallable.id)
+          return HESResponder("Denied.", "DENIED")
+        elsif @wallable.respond_to?('promotion_id') && @wallable.promotion_id != @current_user.promotion_id
+          return HESResponder("Denied.", "DENIED")
+        elsif @wallable.respond_to?('wallable') && !@wallable.wallable.nil? && @wallable.wallable.class == Promotion && @wallable.wallable.id != @current_user.promotion_id
           return HESResponder("Denied.", "DENIED")
         end
       end
