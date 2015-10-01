@@ -6,9 +6,15 @@ class LocationsController < ApplicationController
   authorize :index, :show, :public
   authorize :update, :create, :destroy, :upload, :master
 
+  before_filter :set_sandbox
+  def set_sandbox
+    @SB = use_sandbox? ? @promotion.locations : Location
+  end
+  private :set_sandbox
+
   def index
     if !params[:location_id].nil?
-      location = @promotion.locations.find(params[:location_id]) rescue nil
+      location = @SB.find(params[:location_id]) rescue nil
       return HESResponder("Location", "NOT_FOUND") if !location
       locations = location.locations
     else
@@ -18,38 +24,40 @@ class LocationsController < ApplicationController
   end
 
   def show
-    @location = @promotion.locations.find(params[:id])
-    return HESResponder(@location)
+    location = @SB.find(params[:id])
+    return HESResponder(location)
   end
 
   def create
+    location = nil
     Location.transaction do
-      @location = @promotion.locations.create(params[:location])
-      return HESResponder(@location.errors.full_messages, "ERROR") if !@location.valid?
+      location = @SB.create(params[:location])
     end
-    return HESResponder(@location)
+    return HESResponder(location.errors.full_messages, "ERROR") if !location || !location.valid?
+    return HESResponder(location)
   end
 
   def update
-    @location = @promotion.locations.find(params[:id])
+    location = @SB.find(params[:id])
     Location.transaction do
-      @location.update_attributes(params[:location])
+      location.update_attributes(params[:location])
     end
-    return HESResponder(@location)
+    return HESResponder(location)
   end
 
   def destroy
-    @location = @promotion.locations.find(params[:id])
-    if @location.destroy
-      return HESResponder(@location)
+    location = @SB.find(params[:id])
+    if location.destroy
+      return HESResponder(location)
     else
       return HESResponder("Cannot destroy a location that has models assigned to it", "ERROR")
     end
   end
 
+  # TODO: this doesn't work...
   def upload
     Location.upload_list(@promotion, params[:promotion_location][:list])
-    @locations = @locationable.locations
-    return HESResponder(@locations)
+    locations = @locationable.locations
+    return HESResponder(locations)
   end
 end

@@ -2,9 +2,15 @@ class TeamMembersController < ApplicationController
   authorize :index, :show, :user
   authorize :create, :update, :destroy, :master
 
+  before_filter :set_sandbox
+  def set_sandbox
+    @SB = use_sandbox? ? @promotion.teams : Team
+  end
+  private :set_sandbox
+
   def index
     return HESResponder("Must provide a team.", "ERROR") if !params[:team_id]
-    team = @promotion.teams.find(params[:team_id]) rescue nil
+    team = @SB.find(params[:team_id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") if !team
     return HESResponder(team.members)
   end
