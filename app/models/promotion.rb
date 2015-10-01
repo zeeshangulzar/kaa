@@ -31,6 +31,7 @@ class Promotion < ApplicationModel
   has_many :teams
 
   DEFAULT_SUBDOMAIN = 'www'
+  DASHBOARD_SUBDOMAIN = 'dashboard'
 
   has_custom_prompts :with => :evaluations
 

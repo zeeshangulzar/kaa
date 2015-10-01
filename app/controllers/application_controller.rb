@@ -273,4 +273,9 @@ class ApplicationController < ActionController::Base
     return meta
   end
 
+  def use_sandbox?
+    return true unless @current_user.master? && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
+    return false
+  end
+
 end
