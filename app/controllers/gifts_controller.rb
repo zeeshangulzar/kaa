@@ -3,7 +3,6 @@ class GiftsController < ApplicationController
   authorize :index, :show, :user
 
   before_filter :set_sandbox
-
   def set_sandbox
     @SB = use_sandbox? ? @promotion.gifts : Gift
   end
