@@ -80,6 +80,22 @@ class Promotion < ApplicationModel
     ActiveSupport::TimeZone[time_zone].now()
   end
 
+  def current_day
+    return Promotion::get_day_from_date(self, self.current_date)
+  end
+
+  def self.get_day_from_date(promotion, date = nil)
+    weekdays = 0
+    if date.nil?
+      date = promotion.current_date
+    end
+    while date >= promotion.starts_on
+      weekdays += 1 unless [0,6].include?(date.wday)
+      date = date - 1.day
+    end
+    return weekdays
+  end
+
   def steps_point_thresholds
     self.point_thresholds.find(:all, :conditions => {:rel => "STEPS"}, :order => 'min DESC')
   end
