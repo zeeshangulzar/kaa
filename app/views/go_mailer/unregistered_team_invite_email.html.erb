@@ -12,7 +12,7 @@
   <tr>
     <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
       <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <p><%= @inviter.profile.full_name %> has invited you to join their team, "<%= @team.name %>" on  <em><%= Constant::AppName %></em>. Click <a style="color:#006ba6" href="https://<%= @base_url %>/#/register">here</a> to join now and accept their invitation.</p>
+        <p><%= @inviter.profile.full_name %> has invited you to join their team, "<%= @team.name %>" on  <em><%= Constant::AppName %></em>. Click <a style="color:#006ba6" href="<%= @base_url %>/#/register">here</a> to join now and accept their invitation.</p>
         <% if @message %>
         <p><strong>"<%= @message %>"</strong></p>
         <% end %>
