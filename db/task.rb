@@ -27,7 +27,7 @@ class Task
           queue = false
         end
 
-        day = Tip.get_day_number_for_promotion(p)
+        day = p.current_day
         mails=[]
         addresses=[]
 
