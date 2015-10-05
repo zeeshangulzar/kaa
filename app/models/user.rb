@@ -42,7 +42,7 @@ class User < ApplicationModel
 
   def check_for_invites
     if self.promotion.current_competition
-      invites = TeamInvite.where("email = '#{self.email}' AND user_id IS NULL")
+      invites = TeamInvite.includes(:team, :competition).where("`team_invites`.`email` = '#{self.email}' AND `team_invites`.`user_id` IS NULL AND `competitions`.`promotion_id` = #{self.promotion_id}")
       invites.each{|invite|
         invite.user_id = self.id
         invite.save!
@@ -66,8 +66,8 @@ class User < ApplicationModel
   attr_protected :role, :auth_key
   
   attr_privacy :email, :profile, :public
-  attr_privacy :location, :top_level_location_id, :any_user
-  attr_privacy :username, :flags, :role, :promotion_id, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
+  attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
+  attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :master
 
   attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard
@@ -80,6 +80,7 @@ class User < ApplicationModel
   belongs_to :location
   has_many :entries, :order => :recorded_on
   has_many :evaluations, :dependent => :destroy
+  has_many :orders, :dependent => :destroy
 
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions

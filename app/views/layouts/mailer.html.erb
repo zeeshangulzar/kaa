@@ -10,7 +10,8 @@
           </td>
           <td style="text-align:right">
             <% unless @promotion.nil? %>
-              <img src="<%= @promotion.logo.url %>"/>
+            <% logo_url = @promotion.logo.file.nil? ? "#{@base_url}#{@promotion.logo.url}" : @promotion.logo.url %>
+              <img src="<%= logo_url %>"/>
             <% end %>
           </td>
         </tr>
@@ -33,7 +34,7 @@
           <td align="left">
             <p style="margin-bottom:80px;margin-top:5px;font-family:Open Sans, Helvetica, Arial;">
               <% if @daily %>
-                <a href="<%= @base_url %>/unsubscribe/%%EMAIL_GOES_HERE" style="color: #50819c;font-size: 12px;">Unsubscribe</a>
+                <a href="<%= @base_url %>/#/unsubscribe/%%EMAIL_GOES_HERE" style="color: #50819c;font-size: 12px;">Unsubscribe</a>
               <% else %>
                 <a href="<%= @base_url %>" style="color: #50819c;font-size: 12px;"><%= @base_url %></a>
               <% end %>

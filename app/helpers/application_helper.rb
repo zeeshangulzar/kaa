@@ -3,7 +3,7 @@ module ApplicationHelper
     return false if x.nil?
     if x.class == String
       return x.is_i?
-    elsif x.respond_to('integer?')
+    elsif x.respond_to?('integer?')
       return x.integer?
     else
       return x.to_s.is_i?

@@ -1,11 +1,11 @@
 <table cellspacing="0" cellpadding="0" style="width:100%">
   <tr>
     <td align="left">
-      <h1 style="font-family:Open Sans, Helvetica, Arial;color:#57a635;margin:17px;font-weight:bold;font-size:14px;"><%= Constant::AppName %>: Contact Request</h1>
+      <h1 style="font-family:Open Sans, Helvetica, Arial;color:#b6354b;margin:17px;font-weight:bold;font-size:14px;"><em><%= Constant::AppName %></em>: Contact Request</h1>
     </td>
     <td align="right">
       <p style="margin:18px;color:#aaa;font-family:Open Sans, Helvetica, Arial;font-size:12px;">
-        <%= @user.promotion.current_date.strftime("%A, %B %-d") %>
+        <%= @promotion.current_date.strftime("%A, %B %-d") %>
       </p>
     </td>
   </tr>
@@ -14,10 +14,10 @@
       <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
         <p><%= @contact_request['first_name'] + ' ' + @contact_request['last_name'] %>,</p>
         <p>We've received your contact request and will get back to you shortly (within 1 business day).</p>
-        <p>Regards,<br/>The <%= Constant::AppName %> Team</p>
+        <p>Regards,<br/>The <em><%= Constant::AppName %></em> Team</p>
         <p>You said:</p>
         <p><%= @contact_request['comments'] %></p>
-        <p><a href="http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+        <p><a href="http://<%= @base_url%>" style="color:#006ba6"><% @base_url %></a></p>
       </div>
     </td>
   </tr>

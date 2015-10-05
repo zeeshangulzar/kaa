@@ -10,7 +10,7 @@
   <tr>
     <td align="left">
       <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <h1 style="color:#4A7628;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this Go KP Recipe</h1>
+        <h1 style="color:#b6354b;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this <em><%= Constant::AppName %></em> Recipe</h1>
         <% unless !@message || @message.empty? %>
         <p>
            <%= @user.profile.first_name %> says:<br/>
@@ -31,7 +31,7 @@
   <tr>
     <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
       <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <%= raw @recipe['description'] %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipe?id=<%= @recipe['id'] %>" style="color:#006BA6;">View More</a>
+        <%= raw @recipe['description'] %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipes/<%= @recipe['id'] %>" style="color:#006BA6;">View More</a>
       </div>
     </td>
   </tr>

@@ -75,10 +75,32 @@ class UsersController < ApplicationController
       @target_user.attach('stats', @target_user.stats)
       #@target_user.attach('recent_activities', @target_user.recent_activities)
       @target_user.attach('team_id', !@target_user.current_team.nil? ? @target_user.current_team.id : nil)
+      @target_user.attach('order_count', @target_user.orders.count)
 
       if @target_user.id == @current_user.id || @current_user.coordinator_or_above?
         @target_user.attach('completed_evaluation_definition_ids', @target_user.completed_evaluation_definition_ids)
         @target_user.attach('active_evaluation_definition_ids', @target_user.active_evaluation_definition_ids)
+      end
+
+      if @target_user.fitbit_user
+        device_sql = "SELECT fud.remote_id, fud.type_of_device, fud.device_version, fud.last_sync_time FROM fitbit_user_devices fud
+               INNER JOIN fitbit_users fbu ON fud.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        notification_sql = "SELECT fbn.id, fbn.status, fbn.date, fbn.updated_at FROM fitbit_notifications fbn
+               INNER JOIN fitbit_users fbu ON fbn.fitbit_user_id = fbu.id
+               INNER JOIN users u ON fbu.user_id = u.id
+               WHERE u.id = #{@target_user.id};"
+
+        fitbit_devices = User.connection.select_all(device_sql)
+        fitbit_notifications = User.connection.select_all(notification_sql)
+
+        @target_user.attach('fitbit_devices', fitbit_devices)
+        @target_user.attach('fitbit_user', @target_user.fitbit_user)
+        @target_user.attach('fitbit_user_notifications', fitbit_notifications)
+        @target_user.attach('fitbit_weeks', @target_user.get_fitbit_weeks)
+        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions)
       end
     end
 
@@ -335,15 +357,14 @@ class UsersController < ApplicationController
 
   def leaderboard
     conditions = {
-      :offset       => params[:offset],
-      :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir]
     }
     users = []
-    users = @promotion.individual_leaderboard
-    return HESResponder(users)
+    users = @promotion.individual_leaderboard(conditions)
+    count = @promotion.individual_leaderboard(conditions, true)
+    return HESResponder(users, 'OK', nil, false, count)
   end
 
 end

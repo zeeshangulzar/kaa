@@ -1,7 +1,7 @@
 class PromotionsController < ApplicationController
   authorize :index, :create, :update, :destroy, :master
 
-  authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :public
+  authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :authenticate, :public
   authorize :index, :poster
   authorize :create, :update, :destroy, :keywords, :master
 
@@ -89,6 +89,14 @@ class PromotionsController < ApplicationController
 
   def keywords
     return HESResponder(@promotion.keywords)
+  end
+
+  def authenticate
+    if params[:password] == @promotion.pilot_password
+      return HESResponder()
+    else
+      return HESResponder("Invalid pilot password.", "UNAUTHORIZED")
+    end
   end
 
 end

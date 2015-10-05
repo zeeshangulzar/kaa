@@ -34,8 +34,8 @@ class TipsController < ContentController
         # handle date range for dashboard
         start_date = params[:start].is_i? ? Time.at(params[:start].to_i).to_date : params[:start].to_date
         end_date = params[:end].is_i? ? Time.at(params[:end.to_i]).to_date : params[:end].to_date
-        s = Tip.get_day_number_from_date(start_date)
-        e = Tip.get_day_number_from_date(end_date)
+        s = Promotion::get_day_from_date(@promotion, start_date)
+        e = Promotion::get_day_from_date(@promotion, end_date)
         tips = Tip.for_promotion(@promotion).asc.where("day BETWEEN #{s} AND #{e}")
       else
         # non-average joe may need the markdown -- because master is the editor of the markdown... maybe others are, too

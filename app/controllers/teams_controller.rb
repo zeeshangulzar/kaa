@@ -5,20 +5,17 @@ class TeamsController < ApplicationController
   wrap_parameters :team
 
   def index
+    limit = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
     conditions = {
-      :offset       => params[:offset],
-      :limit        => (!params[:page_size].nil? && params[:page_size].is_i? && params[:page_size].to_i > 0 ? params[:page_size] : nil),
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :status       => params[:status].nil? ? 'official' : params[:status],
       :sort         => params[:sort],
       :sort_dir     => params[:sort_dir],
       :neighbors_id => params[:neighbors_id]
     }
-
-    teams = []
-    teams = @promotion.current_competition.leaderboard(conditions) unless @promotion.current_competition.nil?
-
-    return HESResponder(teams)
+    teams = @promotion.current_competition.nil? ? [] : @promotion.current_competition.leaderboard(conditions)
+    count = @promotion.current_competition.nil? ? 0 : @promotion.current_competition.leaderboard(conditions, true)
+    return HESResponder(teams, 'OK', nil, false, count)
   end
   
   def show

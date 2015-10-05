@@ -4,7 +4,7 @@ class Promotion < ApplicationModel
   
   attr_privacy_no_path_to_user
   
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :logo, :is_active, :flags, :current_date, :public
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :current_competition, :weekly_goal, :any_user
 
   belongs_to :organization
@@ -57,6 +57,7 @@ class Promotion < ApplicationModel
   flags :is_mapwalk_enabled, :default => true
   flags :is_resources_enabled, :default => true
   flags :is_address_enabled, :default => false
+  flags :is_feedback_enabled, :default => false
   
 
 
@@ -75,6 +76,22 @@ class Promotion < ApplicationModel
 
   def current_time
     ActiveSupport::TimeZone[time_zone].now()
+  end
+
+  def current_day
+    return Promotion::get_day_from_date(self, self.current_date)
+  end
+
+  def self.get_day_from_date(promotion, date = nil)
+    weekdays = 0
+    if date.nil?
+      date = promotion.current_date
+    end
+    while date >= promotion.starts_on
+      weekdays += 1 unless [0,6].include?(date.wday)
+      date = date - 1.day
+    end
+    return weekdays
   end
 
   def steps_point_thresholds
@@ -359,8 +376,10 @@ class Promotion < ApplicationModel
     end
     users = []
     rank = 0
+    user_count = 0
     previous_user = nil
     result.each{|row|
+      user_count += 1
       user = {}
       user['profile']                 = {}
       user['profile']['image']        = {}
@@ -368,12 +387,12 @@ class Promotion < ApplicationModel
       user['id']                      = row['id']
       user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
       user['profile']['first_name']   = row['first_name']
-      user['profile']['last_name']   = row['last_name']
+      user['profile']['last_name']    = row['last_name']
       user['location']['id']          = row['location_id']
       user['location']['name']        = row['location_name']
       user['total_points']            = row['total_points']
-      rank = rank + 1 if (!previous_user || previous_user['total_points'] > user['total_points'])
-      user['rank']         = rank
+      rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
+      user['rank']                    = rank
       users << user
       previous_user = user
     }

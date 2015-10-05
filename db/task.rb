@@ -1,11 +1,11 @@
 class Task
 
-  def self.execute_daily_tasks(send_emails=false)
+  def self.execute_daily_tasks(send_emails = false, single_email = nil)
     body = ""
-    Promotion.find(:all, :conditions => "subdomain <> 'www' AND is_active = 1 AND ends_on >= '#{Date.today.to_s(:db)}'").each do |p|
+    Promotion.find(:all, :conditions => "subdomain NOT IN ('www','dashboard') AND is_active = 1 AND ends_on >= '#{Date.today.to_s(:db)}'").each do |p|
       begin
         body<<"===================================================================================================\n"
-        send_daily_emails(p) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
+        send_daily_emails(p, single_email) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
         unless p.current_competition.nil?
           delete_pending_teams(p)
           team_notifications(p)
@@ -18,17 +18,21 @@ class Task
     GoMailer.daily_tasks(body).deliver!
   end
   
-  def self.send_daily_emails(p)
+  def self.send_daily_emails(p, single_email = nil)
     if ![0,6].include?(p.current_date.wday)
         queue = true#true unless IS_STAGING #|| RAILS_ENV=='development'
         users = p.users.includes(:profile).where("profiles.started_on <= '#{p.current_date}'")
+        if !single_email.nil?
+          users = users.where(:email => single_email)
+          queue = false
+        end
 
-        day = Tip.get_day_number_from_date(p.current_date)
+        day = p.current_day
         mails=[]
         addresses=[]
 
         daily_email = false
-
+        custom_message = CustomContent.get('content_html', {:category => 'emails', :key => 'daily_main'}, p)
         users.each{ |u|
           what_to_send = 'daily_email'
           email_reminder = false
@@ -57,7 +61,7 @@ class Task
             when 'daily_email'
                 # cache rendered daily email..
                 if !daily_email
-                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u)
+                  daily_email = GoMailer.daily_email(day, p, GoMailer::AppName,"admin@#{DomainConfig::DomainNames.first}", "#{p.subdomain}.#{DomainConfig::DomainNames.first}", u, custom_message)
                 end
                 mails << daily_email
               when 'reminder'
@@ -83,7 +87,9 @@ class Task
             mail.deliver
           }
         end
-
+        if !custom_message.empty?
+          CustomContent.for(p, {:category => 'emails', :key => 'daily_main'}).first.update_attributes(:content => nil)
+        end
       end # end wday not 0,6
   end
 

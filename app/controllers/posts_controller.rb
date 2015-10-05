@@ -93,20 +93,8 @@ class PostsController < ApplicationController
 
       response = {
         :data => posts,
-        :meta => {
-          :page_size => limit,
-          :total_records => count
-        }
+        :meta => ApplicationController::meta(request, posts, offset, limit, count)
       }
-
-      if !posts.empty?
-        if offset + limit < count.to_i
-          response[:meta][:next] = url_replace(request.fullpath, :merge_query => {'offset' => offset + limit})
-        end
-        if offset - limit >= 0
-          response[:meta][:prev] = url_replace(request.fullpath, :merge_query => {'offset' => offset - limit})
-        end
-      end
       return HESResponder(response)
     else
       # not the wall, not a post.. grab posts
@@ -189,7 +177,8 @@ class PostsController < ApplicationController
       return HESResponder(post.errors.full_messages, "ERROR")
     end
     post.reload
-    $redis.publish('newPostCreated', post.to_json)
+    channel = (parent_obj.class == Team) ? 'newTeamPostCreated' : 'newPostCreated'
+    $redis.publish(channel, post.to_json)
     return HESResponder(post)
   end
 

@@ -57,6 +57,7 @@ Go::Application.routes.draw do
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
 
   resources :promotions do
+    post 'authenticate', :to => 'promotions#authenticate'
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
     resources :behaviors, :only => [:index, :create, :show]
@@ -226,4 +227,7 @@ Go::Application.routes.draw do
   match "/export" => "exports#index", :via => :post
 
   match 'promotions/:promotion_id/keywords' => 'promotions#keywords', :via => :get
+
+  match "/store" => "store#index", :via => :get, :controller => :store
+  match "/store/place_order" => "store#place_order", :via => :post, :controller => :store
 end

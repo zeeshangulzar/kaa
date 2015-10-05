@@ -16,7 +16,7 @@
       <div style="margin:16px;font-family:Open Sans,Helvetica,Arial">
         <p><%= @user.profile.full_name %>,</p>
         <%= raw @reminder.body %>
-        <p><a href="https://www.healthyworkforce-gokp.org" style="color:#57a635;font-family:Open Sans,Helvetica,Arial">https://www.healthyworkforce-gokp.og</a></p>
+        <a href="https://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>"><img src="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/images/email/log_progress.png" alt="Log Progress" /></a>
       </div>
     </td>
   </tr>

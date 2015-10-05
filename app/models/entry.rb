@@ -36,8 +36,8 @@ class Entry < ApplicationModel
     where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_gifts, :entry_exercise_activities)
   }
 
-  before_save :calculate_points
   before_save :nullify_exercise_and_set_is_recorded_and_goals
+  before_save :calculate_points
 
   def custom_validation
     user = self.user
@@ -64,16 +64,6 @@ class Entry < ApplicationModel
       self.goal_steps = self.user.profile.goal_steps
     end
   end
-
-  def write_attribute_with_exercise(attr,val)
-    write_attribute_without_exercise(attr,val)
-    if [:exercise_minutes,:exercise_steps].include?(attr.is_a?(String) ? attr.to_sym : attr) && !self.user.nil?
-      calculate_exercise_points
-      # set_is_recorded
-    end
-  end
-
-  alias_method_chain :write_attribute,:exercise
 
   #Not quite sure the point of this... used to be is_logged
   def set_is_recorded

@@ -1,7 +1,7 @@
 <%
 @recipe = @object
 %>
-<%= @user.profile.full_name %> sent you this Go KP Recipe
+<%= @user.profile.full_name %> sent you this <%= Constant::AppName %> Recipe
 <% unless !@message || @message.empty? %>
    <%= @user.profile.first_name %> says:
   <%= @message %>
