@@ -320,8 +320,6 @@ class Promotion < ApplicationModel
       'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day.ordinalize}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
-     }
-   end
     }
   end
 
