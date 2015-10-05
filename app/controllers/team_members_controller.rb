@@ -37,7 +37,7 @@ class TeamMembersController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
-    if !@current_user.master? && @current_user.promotion_id != team.promotion_id)
+    if !@current_user.master? && @current_user.promotion_id != team.promotion_id
       return HESResponder("You may not edit this team member.", "DENIED")
     end
     team_member = team.team_members.build(:user_id => user.id, :competition_id => team.competition_id)
@@ -61,7 +61,7 @@ class TeamMembersController < ApplicationController
     elsif !user
       return HESResponder("User", "NOT_FOUND")
     end
-    if !@current_user.master? && @current_user.promotion_id != team.promotion_id)
+    if !@current_user.master? && @current_user.promotion_id != team.promotion_id
       return HESResponder("You may not edit this team member.", "DENIED")
     end
     if !team_member.valid?
@@ -77,7 +77,7 @@ class TeamMembersController < ApplicationController
     team_member = TeamMember.find(params[:id]) rescue nil
     if !team_member
       return HESResponder("Team Member", "NOT_FOUND")
-    elsif @current_user.master? || @current_user.promotion_id == team.promotion_id)
+    elsif @current_user.master? || @current_user.promotion_id == team.promotion_id
       if team_member.destroy
         return HESResponder(team_member)
       else
