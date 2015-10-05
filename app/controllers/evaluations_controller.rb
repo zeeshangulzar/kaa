@@ -3,6 +3,8 @@ class EvaluationsController < ApplicationController
 
   respond_to :json
 
+  before_filter :set_sandbox
+  
   # Get the user before each request
   before_filter :get_eval_definition, :only => [:index, :create]
   # Get the user before each request
@@ -11,7 +13,6 @@ class EvaluationsController < ApplicationController
   authorize :index, :destroy, :master
   authorize :show, :create, :user
 
-  before_filter :set_sandbox
   def set_sandbox
     # NOTE: this sandbox is PURPOSELY for EvaluationDefinitions, the parent resource of Evaluations
     @SB = use_sandbox? ? @promotion.evaluation_definitions : EvaluationDefinition
