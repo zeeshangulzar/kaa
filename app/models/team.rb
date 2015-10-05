@@ -125,7 +125,7 @@ class Team < ApplicationModel
         if s == Team::STATUS[:official]
           # official notification
           self.members.each{ |member|
-            notify(member, "Your team is now official", "\"<a href='/#/team?team_id=#{self.id}'>#{self.name}</a>\" is now official!", :from => self.leader, :key => "team_#{self.id}_official")
+            notify(member, "Your team is now official", "<a href='/#/team?team_id=#{self.id}'>#{self.name}</a> is now official!", :from => self.leader, :key => "team_#{self.id}_official")
           }
         end
       end
