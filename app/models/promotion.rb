@@ -60,8 +60,8 @@ class Promotion < ApplicationModel
   flags :is_resources_enabled, :default => true
   flags :is_address_enabled, :default => false
   flags :is_feedback_enabled, :default => false
-  
-
+  flags :is_video_enabled, :default => true
+  flags :fulfillment_monday, :fulfillment_tuesday, :fulfillment_wednesday, :fulfillment_thursday, :fulfillment_friday, :fulfillment_saturday, :fulfillment_sunday, :default => false
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
@@ -310,11 +310,11 @@ class Promotion < ApplicationModel
     return {
       'APP_NAME'        => Constant::AppName,
       'NAME'            => self.name,
-      'LAUNCHES_ON'     => self.launch_on.nil? ? Date.today : self.launch_on.strftime("%A, %B #{self.launch_on.day.ordinalize}, %Y"),
-      'STARTS_ON'       => self.starts_on.nil? ? Date.today : self.starts_on.strftime("%A, %B #{self.starts_on.day.ordinalize}, %Y"),
-      'ENDS_ON'         => self.ends_on.nil? ? Date.today : self.ends_on.strftime("%A, %B #{self.ends_on.day.ordinalize}, %Y"),
-      'REG_STARTS'      => self.registration_starts_on.nil? ? Date.today : self.registration_starts_on.strftime("%A, %B #{self.registration_starts_on.day.ordinalize}, %Y"),
-      'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day.ordinalize}, %Y"),
+      'LAUNCHES_ON'     => self.launch_on.nil? ? Date.today : self.launch_on.strftime("%A, %B #{self.launch_on.day}, %Y"),
+      'STARTS_ON'       => self.starts_on.nil? ? Date.today : self.starts_on.strftime("%A, %B #{self.starts_on.day}, %Y"),
+      'ENDS_ON'         => self.ends_on.nil? ? Date.today : self.ends_on.strftime("%A, %B #{self.ends_on.day}, %Y"),
+      'REG_STARTS'      => self.registration_starts_on.nil? ? Date.today : self.registration_starts_on.strftime("%A, %B #{self.registration_starts_on.day}, %Y"),
+      'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
     }

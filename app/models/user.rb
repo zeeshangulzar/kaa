@@ -11,6 +11,7 @@ class User < ApplicationModel
   flags :notify_email_teams, :default => true
   flags :allow_daily_emails_monday, :default => false
   flags :allow_daily_emails_all_week, :default => true
+  flags :has_seen_wellness_pdf, :default => false
 
   flags :stay_logged_in, :default => true
 
@@ -37,7 +38,7 @@ class User < ApplicationModel
   end
 
   def welcome_notification
-    notify(self, "User Created", "Welcome to #{Constant::AppName}! You will receive important notifications here.", :from => self, :key => "user_#{id}")
+    notify(self, "User Created", "Welcome to <em>#{Constant::AppName}</em>! You will receive important notifications here.", :from => self, :key => "user_#{id}")
   end
 
   def check_for_invites

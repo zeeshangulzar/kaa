@@ -98,8 +98,9 @@ class ApplicationController < ActionController::Base
       @current_user.process_last_accessed
     else
       # what if promotion does not exist or is not active????
-      info = DomainConfig.parse(request.host)
-      if info[:subdomain]
+      
+			info = DomainConfig.parse(request.host)
+			if info[:subdomain]
         promotion = Promotion.find_by_subdomain(info[:subdomain])
         if promotion && promotion.is_active
           @promotion = promotion
@@ -274,7 +275,7 @@ class ApplicationController < ActionController::Base
   end
 
   def use_sandbox?
-    return true unless @current_user.master? && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
+    return true unless @current_user && @current_user.master? && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
     return false
   end
 
