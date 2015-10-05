@@ -36,8 +36,8 @@ class Entry < ApplicationModel
     where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_gifts, :entry_exercise_activities)
   }
 
-  before_save :calculate_points
   before_save :nullify_exercise_and_set_is_recorded_and_goals
+  before_save :calculate_points
 
   def custom_validation
     user = self.user

@@ -173,11 +173,6 @@ Go::Application.routes.draw do
   match "/recipes/search/:search" => "recipes#search"
   resources :recipes, :only => [:index, :show]
 
-  # hes-commentable
-  resources :comments
-  match '*commentable_type/*commentable_id/comments' => 'comments#index', :via => :get
-  match '*commentable_type/*commentable_id/comments' => 'comments#create', :via => :post
-
   match "/posters/current" => "posters#current", :via => :get
   resources :posters
 

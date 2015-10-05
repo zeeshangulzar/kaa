@@ -5,14 +5,6 @@ class ProfilesController < ApplicationController
     # i don't think this should be a thing
   end
 
-  # Get a profile
-  #
-  # @url [GET] /users/1/profile
-  # @param [Integer] id The id of the user and grab their profile
-  # @return [Profile] Profile that matches the user's id
-  #
-  # [URL] /users/:id/profile [GET]
-  #  [200 OK] Successfully retrieved Profile
   def show
     return HESResponder(@target_user.profile)
   end

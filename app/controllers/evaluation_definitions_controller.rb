@@ -5,6 +5,12 @@ class EvaluationDefinitionsController < ApplicationController
   authorize :index, :show, :public
   authorize :create, :update, :destroy, :coordinator
 
+  before_filter :set_sandbox
+  def set_sandbox
+    @SB = use_sandbox? ? @promotion.evaluation_definitions : EvaluationDefinition
+  end
+  private :set_sandbox
+
   # Returns the list of parameters which will be selected for wrapped.
   # Override this method since multiple ruby instances cannot easily be notified
   # that a custom prompt has been added and more attributes are accessible
@@ -34,24 +40,24 @@ class EvaluationDefinitionsController < ApplicationController
 
 
   def index
-    evaluation_definitions = @promotion.evaluation_definitions
+    evaluation_definitions = @SB.all
     return HESResponder(evaluation_definitions)
   end
 
   def show
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @SB.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     return HESResponder(evaluation_definition)
   end
 
   def create
-    evaluation_definition = @promotion.evaluation_definitions.create(params[:evaluation_definition])
+    evaluation_definition = @SB.create(params[:evaluation_definition])
     return HESResponder(evaluation_definition.errors.full_messages, "ERROR") if !evaluation_definition.valid?
     return HESResponder(evaluation_definition)
   end
 
   def update
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @SB.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     EvaluationDefinition.transaction do
       evaluation_definition.update_attributes(params[:evaluation_definition])
@@ -60,7 +66,7 @@ class EvaluationDefinitionsController < ApplicationController
   end
 
   def destroy
-    evaluation_definition = EvaluationDefinition.find(params[:id]) rescue nil
+    evaluation_definition = @SB.find(params[:id]) rescue nil
     return HESResponder("Evaluation definition", "NOT_FOUND") if !evaluation_definition
     EvaluationDefinition.transaction do
       if evaluation_definition.destroy

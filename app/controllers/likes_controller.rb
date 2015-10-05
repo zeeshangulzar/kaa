@@ -5,7 +5,8 @@ class LikesController < ApplicationController
   # Get the user before each request
   before_filter :get_likeable
 
-  authorize :index, :create, :show, :destroy, :user_like_show, :user_like_create, :user_like_destroy, :user
+  authorize :index, :show, :destroy, :master
+  authorize :user_like_show, :user_like_create, :user_like_destroy, :create, :user
 
   # for the user that created the like
   authorize :destroy, lambda{ |user, like, params| params[:id].nil? || like.user_id == user.id || user.role == "Master"}

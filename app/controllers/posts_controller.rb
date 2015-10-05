@@ -3,7 +3,7 @@ class PostsController < ApplicationController
   respond_to :json
 
   # Get the wallable before each request
-  before_filter :get_wallable, :only => [:index, :create, :popular_posts, :recent_posts]
+  before_filter :get_wallable
 
   authorize :index, :show, :create, :update, :destroy, :recent_posts, :popular_posts, :user
 
@@ -46,8 +46,19 @@ class PostsController < ApplicationController
       if !@wallable
         return HESResponder(params[:wallable_type].singularize.camelcase, "NOT_FOUND")
       end
+      if !@current_user.master? && !@current_user.poster?
+        if @wallable.class == Promotion && @wallable.id != @current_user.promotion_id
+          return HESResponder("Denied.", "DENIED")
+        elsif @wallable.class == Team && (!@current_user.current_team || @current_user.current_team.id != @wallable.id)
+          return HESResponder("Denied.", "DENIED")
+        elsif @wallable.respond_to?('promotion_id') && @wallable.promotion_id != @current_user.promotion_id
+          return HESResponder("Denied.", "DENIED")
+        elsif @wallable.respond_to?('wallable') && !@wallable.wallable.nil? && @wallable.wallable.class == Promotion && @wallable.wallable.id != @current_user.promotion_id
+          return HESResponder("Denied.", "DENIED")
+        end
+      end
     else
-      return HESResponder("Must pass wallable id and wallable_type", "ERROR")
+      @wallable = @promotion
     end
   end
 
@@ -151,7 +162,7 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = Post.find(params[:id]) rescue nil
+    @post = @wallable.posts.find(params[:id]) rescue nil
     if !@post
       return HESResponder("Post", "NOT_FOUND")
     end
@@ -177,7 +188,8 @@ class PostsController < ApplicationController
       return HESResponder(post.errors.full_messages, "ERROR")
     end
     post.reload
-    $redis.publish('newPostCreated', post.to_json)
+    channel = (parent_obj.class == Team) ? 'newTeamPostCreated' : 'newPostCreated'
+    $redis.publish(channel, post.to_json)
     return HESResponder(post)
   end
 

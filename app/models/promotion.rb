@@ -28,8 +28,10 @@ class Promotion < ApplicationModel
   has_many :resources
   has_many :competitions
   has_many :notifications, :as => :notificationable, :order => 'created_at DESC'
+  has_many :teams
 
   DEFAULT_SUBDOMAIN = 'www'
+  DASHBOARD_SUBDOMAIN = 'dashboard'
 
   has_custom_prompts :with => :evaluations
 
@@ -76,6 +78,22 @@ class Promotion < ApplicationModel
 
   def current_time
     ActiveSupport::TimeZone[time_zone].now()
+  end
+
+  def current_day
+    return Promotion::get_day_from_date(self, self.current_date)
+  end
+
+  def self.get_day_from_date(promotion, date = nil)
+    weekdays = 0
+    if date.nil?
+      date = promotion.current_date
+    end
+    while date >= promotion.starts_on
+      weekdays += 1 unless [0,6].include?(date.wday)
+      date = date - 1.day
+    end
+    return weekdays
   end
 
   def steps_point_thresholds

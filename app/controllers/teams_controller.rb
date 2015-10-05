@@ -1,8 +1,14 @@
 class TeamsController < ApplicationController
 
-  authorize :all, :public
+  authorize :all, :user
 
   wrap_parameters :team
+
+  before_filter :set_sandbox
+  def set_sandbox
+    @SB = use_sandbox? ? @promotion.teams : Team
+  end
+  private :set_sandbox
 
   def index
     limit = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
@@ -19,7 +25,7 @@ class TeamsController < ApplicationController
   end
   
   def show
-    team = Team.find(params[:id]) rescue nil
+    team = @SB.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
     team.attach(:team_members)
     return HESResponder(team)
@@ -41,7 +47,7 @@ class TeamsController < ApplicationController
 
   
   def update
-    team = Team.find(params[:id]) rescue nil
+    team = @SB.find(params[:id]) rescue nil
     return HESResponder("Team", "NOT_FOUND") unless team && ( team.status != Team::STATUS[:deleted] || (@current_user && @current_user.master?) )
     if team.leader.id != @current_user.id && !@current_user.coordinator_or_above?
       return HESResponder("You may not edit this team.", "DENIED")
@@ -57,7 +63,7 @@ class TeamsController < ApplicationController
   end
 
   def destroy
-    team = Team.find(params[:id]) rescue nil
+    team = @SB.find(params[:id]) rescue nil
     if !team
       return HESResponder("Team", "NOT_FOUND")
     elsif team.leader.id != @current_user.id && !@current_user.master?

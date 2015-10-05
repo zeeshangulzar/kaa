@@ -2,7 +2,7 @@ class Task
 
   def self.execute_daily_tasks(send_emails = false, single_email = nil)
     body = ""
-    Promotion.find(:all, :conditions => "subdomain <> 'www' AND is_active = 1 AND ends_on >= '#{Date.today.to_s(:db)}'").each do |p|
+    Promotion.find(:all, :conditions => "subdomain NOT IN ('www','dashboard') AND is_active = 1 AND ends_on >= '#{Date.today.to_s(:db)}'").each do |p|
       begin
         body<<"===================================================================================================\n"
         send_daily_emails(p, single_email) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
@@ -27,7 +27,7 @@ class Task
           queue = false
         end
 
-        day = Tip.get_day_number_for_promotion(p)
+        day = p.current_day
         mails=[]
         addresses=[]
 

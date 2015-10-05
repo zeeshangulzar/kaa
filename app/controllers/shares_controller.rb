@@ -16,7 +16,8 @@ class SharesController < ApplicationController
 
   def get_shareable
     if params[:shareable_id] && params[:shareable_type]
-      @shareable = params[:shareable_type].singularize.camelcase.constantize.find(params[:shareable_id])
+      @shareable = params[:shareable_type].singularize.camelcase.constantize.find(params[:shareable_id]) rescue nil
+      return HESResponder("#{params[:shareable_type].singularize.camelcase.constantize}", "NOT_FOUND") if !@shareable
     elsif params[:action] == 'create'
       return HESResponder("Must pass shareable id", "ERROR")
     end
