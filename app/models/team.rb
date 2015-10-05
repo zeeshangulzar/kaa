@@ -26,6 +26,7 @@ class Team < ApplicationModel
     :deleted => 2
   }
 
+  before_save :set_defaults
   before_save :handle_status
   before_destroy :disband
   before_destroy :delete_team_members
@@ -41,6 +42,10 @@ class Team < ApplicationModel
   def as_json(options={})
     team_json = super(options.merge(:do_not_paginate=>['team_members']))
     return team_json
+  end
+
+  def set_defaults
+    self.promotion_id = self.competition.promotion_id unless self.competition.nil?
   end
 
   def leader
