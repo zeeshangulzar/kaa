@@ -310,6 +310,10 @@ class Promotion < ApplicationModel
     return {
       'APP_NAME'        => Constant::AppName,
       'NAME'            => self.name,
+      'COMP_REG_STARTS' => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_starts_on.strftime("%A, %B #{self.current_competition.enrollment_starts_on.day}, %Y"),
+      'COMP_REG_ENDS'   => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_ends_on.strftime("%A, %B #{self.current_competition.enrollment_ends_on.day}, %Y"),
+      'COMP_STARTS'     => self.current_competition.nil? ? Date.today : self.current_competition.competition_starts_on.strftime("%A, %B #{self.current_competition.competition_starts_on.day}, %Y"),
+      'COMP_END'        => self.current_competition.nil? ? Date.today : self.current_competition.competition_ends_on.strftime("%A, %B #{self.current_competition.competition_ends_on.day}, %Y"),
       'LAUNCHES_ON'     => self.launch_on.nil? ? Date.today : self.launch_on.strftime("%A, %B #{self.launch_on.day}, %Y"),
       'STARTS_ON'       => self.starts_on.nil? ? Date.today : self.starts_on.strftime("%A, %B #{self.starts_on.day}, %Y"),
       'ENDS_ON'         => self.ends_on.nil? ? Date.today : self.ends_on.strftime("%A, %B #{self.ends_on.day}, %Y"),
@@ -317,6 +321,8 @@ class Promotion < ApplicationModel
       'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
+     }
+   end
     }
   end
 
