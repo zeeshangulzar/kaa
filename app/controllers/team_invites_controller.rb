@@ -99,10 +99,22 @@ class TeamInvitesController < ApplicationController
             team_invite = existing_invite
           end
         else
-          emails = email.include?(',') ? email.split(',').map(&:strip) : [email.strip]
+          # we have a separate save process for unregistered invites, since we can send them to multiple emails at once..
+          team_invites = []
+          emails = email.include?(',') ? email.split(',') : [email.strip]
           emails.each{ |email|
+            email.strip!
             team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
+            if !team_invite.valid?
+              return HESResponder(team_invite.errors.full_messages, "ERROR")
+            else
+              TeamInvite.transaction do
+                team_invite.save!
+              end
+            end
+            team_invites << team_invite
           }
+          return HESResponder(team_invites)
         end
       end
     end
