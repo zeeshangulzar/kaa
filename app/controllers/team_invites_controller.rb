@@ -99,7 +99,10 @@ class TeamInvitesController < ApplicationController
             team_invite = existing_invite
           end
         else
-          team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
+          emails = email.include?(',') ? email.split(',').map(&:strip) : [email.strip]
+          emails.each{ |email|
+            team_invite = team.team_invites.build(:email => email, :competition_id => team.competition_id, :invited_by => @current_user.id, :invite_type => TeamInvite::TYPE[:invited], :message => params[:team_invite][:message])
+          }
         end
       end
     end
