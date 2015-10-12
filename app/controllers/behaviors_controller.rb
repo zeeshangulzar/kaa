@@ -4,7 +4,7 @@ class BehaviorsController < ApplicationController
 
   before_filter :set_sandbox
   def set_sandbox
-    @SB = use_sandbox? ? @promotion.gifts : Gift
+    @SB = use_sandbox? ? @promotion.behaviors : Behavior
   end
   private :set_sandbox
   
