@@ -400,4 +400,8 @@ class Promotion < ApplicationModel
     return users
   end
 
+  def total_participants
+    return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+  end
+
 end

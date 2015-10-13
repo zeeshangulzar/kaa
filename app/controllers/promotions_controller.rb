@@ -99,4 +99,9 @@ class PromotionsController < ApplicationController
     end
   end
 
+  def can_register
+    return HESResponder() if @promotion.max_participants.nil? || @promotion.max_participants > @promotion.total_participants
+    return HESResponder("Maximum participants reached.", "ERROR")
+  end
+
 end
