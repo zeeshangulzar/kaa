@@ -82,9 +82,9 @@ class XmlEmailDelivery
       end
       xmlRecipientEmailAddress = xmlRecipient.add_element "encrypted_address"
       if addresses.nil?
-        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(tmail.bcc.to_s).chomp)
+        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(Encryption::encrypt(tmail.bcc.to_s)).chomp)
       else
-        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(addresses[idx]).chomp)
+        xmlRecipientEmailAddress.text = CGI.escape(Base64.encode64(Encryption::encrypt(addresses[idx])).chomp)
       end
     end
 

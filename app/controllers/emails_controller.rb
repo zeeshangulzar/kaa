@@ -35,22 +35,19 @@ class EmailsController < ApplicationController
   end
 
   def unsubscribe
-    return HESResponder("Must provide email.", "ERROR") if params[:email].nil?
-    user = @promotion.users.where(:email => params[:email]).first rescue nil
-    if !user
-      unsubscribe = @promotion.unsubscribe_list.build(:email => params[:email])
-    elsif user && !@current_user || @current_user.id != user.id
-      return HESResponder("Please login to unsubscribe.", "DENIED")
-    elsif user && @current_user && @current_user.id == user.id
-      unsubscribe = @promotion.unsubscribe_list.build(:email => params[:email], :user_id => @current_user.id)
+    return HESResponder("Must provide email.", "ERROR") if params[:promotion_id].nil? || params[:email].nil?
+    email = Encryption::decrypt(Base64.decode64(CGI.unescape("#{params[:email]}")))
+    user = @promotion.users.where(:email => email).first rescue nil
+    if user
+      if user.allows_email
+        User.transaction do
+          user.update_attributes(:allows_email => false)
+        end
+      end
     else
       return HESResponder("General failure.", "ERROR")
     end
-    return HESResponder(unsubscribe.errors.full_messages, "ERROR") if !unsubscribe.valid?
-    UnsubscribeList.transaction do
-      unsubscribe.save!
-    end
-    return HESResponder(unsubscribe)
+    return HESResponder()
   end
 
   def send_mail
