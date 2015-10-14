@@ -6,7 +6,24 @@ class PromotionsController < ApplicationController
   authorize :create, :update, :destroy, :keywords, :master
 
   def index
-    promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : Promotion.all
+    promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : nil
+    if promotions.nil?
+      sql = "SELECT id, subdomain, registration_starts_on, registration_ends_on, program_length, name, launch_on FROM promotions"
+      rows = Promotion.connection.select_all(sql)
+      promotions = []
+      rows.each_with_index{ |row,index|
+        promotion = {
+          :id                           => row["id"],
+          :subdomain                    => row["subdomain"],
+          :registration_starts_on       => row["registration_starts_on"],
+          :registration_ends_on         => row["registration_ends_on"],
+          :program_length               => row["program_length"],
+          :name                         => row["name"],
+          :launch_on                    => row["launch_on"]
+        }
+        promotions[index] = promotion
+      }
+    end
     return HESResponder(promotions)
   end
 
