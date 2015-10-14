@@ -7,6 +7,8 @@ class ContentEmail
     # they are all converted to hashes and lose their methods and everything sucks
     ActiveRecord::Base.verify_active_connections!
     user = User.find(user_id)
-    GoMailer.content_email(model, object, emails, user, message).deliver!
+    emails.each{|email|
+      GoMailer.content_email(model, object, email, user, message).deliver!
+    }
   end
 end
