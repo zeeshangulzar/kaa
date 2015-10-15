@@ -57,7 +57,7 @@
       :filterable: true
       :role: Coordinator
       :display_name: Gender
-      :join: demographics
+      :join: gender_demographics
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -209,11 +209,11 @@
     "20": 
       :aggregate: false
       :sequence: 8
-      :sql_phrase: users.started_on `Started On`
+      :sql_phrase: DATE_FORMAT(profiles.started_on, '%c/%d/%Y') `Started On`
       :filterable: true
       :role: Coordinator
       :display_name: Started On
-      :join: users
+      :join: profiles
       :identification: false
       :sensitive: false
       :category: Participant Fields
@@ -634,11 +634,12 @@
       :nest_level: 1
       :sql: |
         INNER JOIN profiles p ON p.user_id = users.id
-        INNER JOIN locations r ON r.id = users.top_level_location_id
-        INNER JOIN locations l ON l.id = users.location_id
+        LEFT JOIN locations r ON r.id = users.top_level_location_id
+        LEFT JOIN locations l ON l.id = users.location_id
         LEFT JOIN team_members ON team_members.user_id = users.id
         LEFT JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
-        LEFT JOIN users leader_users ON (leader_users.id = team_members.user_id AND team_members.is_leader = 1)
+        LEFT JOIN team_members leader_team_members ON (leader_team_members.team_id = teams.id AND leader_team_members.is_leader = 1)
+        LEFT JOIN users leader_users ON (leader_users.id = leader_team_members.user_id)
         LEFT JOIN profiles leader_profiles ON leader_profiles.user_id = leader_users.id
       :alias: competitions
       :childof: users
@@ -678,6 +679,11 @@
       :nest_level: 1
       :sql: left join demographics on (demographics.user_id = users.id AND demographics.age IS NOT NULL AND demographics.age != '')
       :alias: age_demographics
+      :childof: users
+    "gender_demographics":
+      :nest_level: 1
+      :sql: left join demographics on (demographics.user_id = users.id AND demographics.gender IS NOT NULL AND demographics.gender != '')
+      :alias: gender_demographics
       :childof: users
     "115": 
       :nest_level: 1
