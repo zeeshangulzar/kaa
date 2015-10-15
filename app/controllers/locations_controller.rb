@@ -29,12 +29,17 @@ class LocationsController < ApplicationController
   end
 
   def create
-    location = nil
-    Location.transaction do
-      location = @SB.create(params[:location])
+    if params[:locations_file].nil?
+      location = nil
+      Location.transaction do
+        location = @SB.create(params[:location])
+      end
+      return HESResponder(location.errors.full_messages, "ERROR") if !location || !location.valid?
+      return HESResponder(location)
+    else
+      upload_locations(params[:locations_file])
+      return HESResponder(@promotion.nested_locations)
     end
-    return HESResponder(location.errors.full_messages, "ERROR") if !location || !location.valid?
-    return HESResponder(location)
   end
 
   def update
@@ -54,10 +59,44 @@ class LocationsController < ApplicationController
     end
   end
 
-  # TODO: this doesn't work...
-  def upload
-    Location.upload_list(@promotion, params[:promotion_location][:list])
-    locations = @locationable.locations
-    return HESResponder(locations)
+  def upload_locations(file)
+    require 'ftools'
+    Location.transaction do
+      row_index = 0
+      @cols = []
+      FasterCSV.foreach(file.path) do |row|
+        process_csv_row(row, row_index)
+        row_index += 1
+      end
+    #  PromotionLocation.connection.execute "update promotion_locations set sequence = id where promotion_id = #{@promotion.id}"
+    end
   end
+  private :upload_locations
+
+  def process_csv_row(row, row_index)
+    parent = @promotion
+    if row_index == 0
+      row.size.times do |t|
+        depth = @promotion.location_labels.index(row[t])
+        if !depth.nil?
+          @cols[depth] = t
+        end
+      end
+    end
+    if @cols.empty?
+      row.size.times do |t|
+        return if row[t].to_s.strip.empty?
+        parent_id = parent.is_a?(Promotion) ? nil : parent.id
+        parent = parent.locations.find_or_create_by_promotion_id_and_parent_location_id_and_name(@promotion.id, parent_id, row[t])
+      end
+    elsif row_index > 0
+      @cols.each{ |col|
+        return if row[col].to_s.strip.empty?
+        parent_id = parent.is_a?(Promotion) ? nil : parent.id
+        parent = parent.locations.find_or_create_by_promotion_id_and_parent_location_id_and_name(@promotion.id, parent_id, row[col])
+      }
+    end
+  end
+  private :process_csv_row
+
 end

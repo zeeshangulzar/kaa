@@ -30,6 +30,7 @@ Go::Application.routes.draw do
 
   match "/individual_leaderboard" => "users#leaderboard", :via => :get
   match "/promotions/:promotion_id/individual_leaderboard" => "users#leaderboard", :via => :get
+  match "/promotions/:promotion_id/can_register" => "promotions#can_register", :via => :get
 
   match "/competitions/:id/members" => "competitions#members", :via => :get
 

@@ -23,7 +23,11 @@ class EmailsController < ApplicationController
     object = params[:model].constantize.find(params[:id]) rescue nil
     return HESResponder("Object", "NOT_FOUND") if !object
     return HESResponder("Must include at least 1 email address.", "ERROR") if params[:emails].nil?
-    Resque.enqueue(ContentEmail, params[:model], object, params[:emails], @current_user.id, params[:message])
+    emails = params[:emails].is_a?(Array) ? params[:emails] : [params[:emails]]
+    emails.each_with_index{|email,index|
+      emails[index] = email.strip.gsub(/\A"|"\Z/, '').strip
+    }
+    Resque.enqueue(ContentEmail, params[:model], object, emails, @current_user.id, params[:message])
     return HESResponder()
   end
 

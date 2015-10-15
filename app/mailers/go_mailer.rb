@@ -42,24 +42,22 @@ class GoMailer < ActionMailer::Base
     mail(:to => emails, :subject => subject, :from => fromHandler(@user))
   end
   
-  def content_email(model, object, emails, user, message)
+  def content_email(model, object, email, user, message = '')
     @model = model.constantize
     @object = object
     @user = user
     @promotion = @user.promotion
-    @message = message rescue ""
+    @message = message
     @base_url = self.base_url(@promotion.subdomain)
     if @model.name == 'CustomContent'
       subject = "#{Constant::AppName} #{object['category'].titleize}: #{ActionView::Base.full_sanitizer.sanitize(object['title_html'])}"
     else
       subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
     end
-    emails.each{|email|
-      mail(:to => email, :subject => subject, :from => fromHandler(@user)) do |format|
-        format.text { render model.underscore.downcase }
-        format.html { render model.underscore.downcase }
-      end
-    }
+    mail(:to => email, :subject => subject, :from => fromHandler(@user)) do |format|
+      format.text { render model.underscore.downcase }
+      format.html { render model.underscore.downcase }
+    end
   end
 
   def tip(tip, emails, user, message)

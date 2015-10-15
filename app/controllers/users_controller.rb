@@ -145,6 +145,7 @@ class UsersController < ApplicationController
 
   def create
     return HESResponder("No user provided.", "ERROR") if params[:user].empty?
+    return HESResponder("Maximum participants reached.", "ERROR") if !@promotion.max_participants.nil? && @promotion.max_participants <= @promotion.total_participants
     demographic = false
     if !params[:user][:profile].nil?
       if !params[:user][:profile][:age].nil? || !params[:user][:profile][:gender].nil? || !params[:user][:profile][:ethnicity].nil?

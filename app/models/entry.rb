@@ -47,6 +47,8 @@ class Entry < ApplicationModel
         self.errors[:base] << "Cannot record earlier than user backlog date: " + self.user.profile.backlog_date.to_s
       elsif self.recorded_on > user.promotion.current_date
         self.errors[:base] << "Cannot record later than promotion current date: " + user.promotion.current_date.to_s
+      elsif !user.promotion.logging_ends_on.nil? && user.promotion.current_date > user.promotion.logging_ends_on
+        self.errors[:base] << "Logging has ended."
       end
     end
     if self.exercise_steps.to_i > 0 && self.exercise_minutes.to_i > 0
