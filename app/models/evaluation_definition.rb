@@ -31,7 +31,7 @@ class EvaluationDefinition < ApplicationModel
 
     # Include any custom prompts it's promotion might have.
     eval_definitionable.custom_prompts.each do |custom_prompt|
-      hash["questions"] << custom_prompt.serializable_hash.merge({"name" => custom_prompt.name, "type_of_prompt" => custom_prompt.type_of_prompt.upcase}) #if self.send("is_#{custom_prompt.short_label.downcase..gsub(' ', '_')}_displayed?")
+      hash["questions"] << custom_prompt.serializable_hash.merge({"name" => custom_prompt.udf_def.cfn, "type_of_prompt" => custom_prompt.type_of_prompt.upcase}) #if self.send("is_#{custom_prompt.short_label.downcase..gsub(' ', '_')}_displayed?")
     end
 
     hash

@@ -90,6 +90,7 @@ module HesUdf
         klass_new.send(:belongs_to, class_symbol)
         klass_new.send(:alias_method, :parent, class_symbol)
         klass_new.send(:table_name=, udf_table_name)
+        klass_new.send(:attr_accessible,:all)
 
         klass = Object.const_set(klass_name, klass_new)
         klass.reset_column_information

@@ -52,6 +52,15 @@ class EvaluationsController < ApplicationController
   def create
     params[:evaluation][:user_id] = @current_user.id
     evaluation = @evaluation_definition.evaluations.create(params[:evaluation])
+    custom_prompt_keys = params.keys.select{|k|k.to_s =~ /^custom_prompt_/}
+    unless custom_prompt_keys.empty?
+      udfs = EvaluationUdf.new(:evaluation_id=>evaluation.id)
+      custom_prompt_keys.each do |k|
+        udfs[k] = params[k]
+      end
+      udfs.save
+    end
+
     if !evaluation.valid?
       return HESResponder(evaluation.errors.full_messages, "ERROR")
     end
