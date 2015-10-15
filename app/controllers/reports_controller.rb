@@ -5,7 +5,7 @@ class ReportsController < ApplicationController
   before_filter :set_report, :only => [:run, :show]
   
   authorize :index, :show, :run, :location_coordinator
-  authorize :create, :update, :regional_coordinator
+  authorize :create, :update, :destroy, :regional_coordinator
 
 # this is throwing 500s for !master?
 =begin
@@ -19,8 +19,6 @@ raise 'get here'
     end
   }
 =end
-
-  authorize :destroy, lambda {|user, promotion, report, params| user.master? || (user.coordinator_or_above? && @promotion.id == user.promotion_id)}
 
 
   def get_promotion
@@ -129,10 +127,14 @@ raise 'get here'
   end
   
   def destroy
-    @report = @promotion.reports.find(params[:id])
-
-    @report.destroy
-    return HESResponder(@report)
+    report = @promotion.reports.find(params[:id]) rescue nil
+    return HESResponder("Report", "NOT_FOUND") if !report
+    if @current_user.master? || (@current_user.coordinator_or_above? && @promotion.id == @current_user.promotion_id)
+      report.destroy
+      return HESResponder(report)
+    else
+      return HESResponder("Access denied.", "DENIED")
+    end
   end
 
   def report_filters_to_special_hash(h = params[:report_filter] || {})
