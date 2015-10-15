@@ -443,7 +443,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     if special[:reported_on_min] && special[:reported_on_max]
       i,a = special[:reported_on_min], special[:reported_on_max]
-      sc << "entries.recorded_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'" if is_joined('entries')
+      #sc << "entries.recorded_on between '#{i.strftime('%Y-%m-%d')}' and '#{a.strftime('%Y-%m-%d')}'" if is_joined('entries')
     end
 
     lj =

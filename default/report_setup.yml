@@ -113,7 +113,7 @@
     "9": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.exercise_points) `Exercise Inches`
+      :sql_phrase: COALESCE(SUM(entries.exercise_points), 0) `Exercise Inches`
       :filterable: true
       :role: Coordinator
       :display_name: Exercise Inches
@@ -125,7 +125,7 @@
     "gift_inches": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.gift_points) `Gift Box Inches`
+      :sql_phrase: COALESCE(SUM(entries.gift_points), 0) `Gift Box Inches`
       :filterable: true
       :role: Coordinator
       :display_name: Gift Box Inches
@@ -149,7 +149,7 @@
     "behavior_inches": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.behavior_points) `Healthy Eating Inches`
+      :sql_phrase: COALESCE(SUM(entries.behavior_points), 0) `Healthy Eating Inches`
       :filterable: true
       :role: Coordinator
       :display_name: Healthly Eating Inches
@@ -185,7 +185,7 @@
     "18": 
       :aggregate: true
       :sequence: 28
-      :sql_phrase: COUNT(*) `Days Logged`
+      :sql_phrase: COUNT(entries.id) `Days Logged`
       :filterable: true
       :role: Coordinator
       :display_name: Days Logged
@@ -449,7 +449,7 @@
     "41": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.exercise_points) + SUM(entries.gift_points) + SUM(entries.behavior_points) `Total Inches`
+      :sql_phrase: COALESCE((SUM(entries.exercise_points) + SUM(entries.gift_points) + SUM(entries.behavior_points)), 0) `Total Inches`
       :filterable: true
       :role: Coordinator
       :display_name: Total Inches
@@ -602,7 +602,7 @@
       :alias: users
     "102": 
       :nest_level: 2
-      :sql: inner join entries on (entries.user_id = users.id)
+      :sql: left join entries on (entries.user_id = users.id AND `entries`.`recorded_on` BETWEEN :reported_on_min AND :reported_on_max)
       :alias: entries
       :childof: users
     "103": 
