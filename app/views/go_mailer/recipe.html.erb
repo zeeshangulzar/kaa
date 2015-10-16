@@ -3,11 +3,6 @@
 %>
 <table cellspacing="0" cellpadding="0">
   <tr>
-    <td colspan="2" style="text-align:center" align="center">
-      <img src="<%= @recipe['image_url'] %>" style="width:100%;max-height:500px"/>
-    </td>
-  </tr>
-  <tr>
     <td align="left">
       <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
         <h1 style="color:#b6354b;font-weight:bold;font-size:14px;"><%= @user.profile.full_name %> sent you this <em><%= Constant::AppName %></em> Recipe</h1>
@@ -23,15 +18,25 @@
       </div>
     </td>
     <td align="right" valign="top">
-      <p style="margin:16px;color:#aaa;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <%= @user.promotion.current_date.to_s %>
+      <p style="margin:10px 0px 5px;color:#aaa;font-family:Open Sans, Helvetica, Arial;">
+        <%= raw @user.promotion.current_date.strftime("%A, %B %-d").gsub(/ /, '&nbsp;')  %>
       </p>
     </td>
   </tr>
   <tr>
-    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
-      <div style="margin:16px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <%= raw @recipe['description'] %> <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/recipes/<%= @recipe['id'] %>" style="color:#006BA6;">View More</a>
+    <td style="" colspan="2">
+      <div style="margin:10px 0px">
+        <table border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="150" style="width:150px;vertical-align:top" valign="top">
+              <img width="150" src="<%= @recipe.image_url %>" style="display:block;float:left;width:150px;height:auto;" alt="<%= @recipe.title %>">
+            </td>
+            <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;vertical-align:top" valign="top">
+              <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= raw @recipe.title %></span>
+              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <a style="color:#b5364b" href="https://<%= @base_url %>/#/recipes/<%= @recipe.id %>">MORE...</a></p>
+            </td>
+          </tr>
+        </table>
       </div>
     </td>
   </tr>
