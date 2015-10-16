@@ -360,8 +360,8 @@ class UsersController < ApplicationController
     conditions = {
       :location_ids => (params[:location].nil? ? nil : params[:location].split(',')),
       :sort         => params[:sort],
-      :sort_dir     => params[:sort_dir],
-      :limit        => params[:page_size]
+      :sort_dir     => params[:sort_dir]
+      # :limit        => params[:page_size]
     }
     users = []
     users = @promotion.individual_leaderboard(conditions)
