@@ -164,6 +164,8 @@ raise 'get here'
     rh[:location] = params[:location] ? params[:location] : nil
     rh[:top_level_location] = params[:top_level_location] ? params[:top_level_location] : nil
 
+    rh[:evaluation_definition_id] = params[:evaluation_definition_id] ? params[:evaluation_definition_id] : nil
+
     # if filter_promo && filter_promo.flags[:is_location_displayed] && !h[:top_level_location].to_s.strip.empty?
     #   rh[:top_level_location] = h[:top_level_location]
     #   session[:report_filter_top_level_location] = h[:top_level_location]

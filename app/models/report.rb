@@ -184,6 +184,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       new_sql.gsub!(":promotion_id","'#{filters[:special][:promotion_id].to_s}'")
       new_sql.gsub!(":location_id","'#{filters[:special][:location].to_s}'")
       new_sql.gsub!(":top_level_location_id","'#{filters[:special][:top_level_location].to_s}'")
+      new_sql.gsub!(":evaluation_definition_id","'#{filters[:special][:evaluation_definition_id].to_s}'")
 
       joins = sql_joins([],filters[:hashes])
       new_sql.gsub!(":joins",joins)
@@ -204,6 +205,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       new_sql.gsub!(":promotion_id","'#{filters[:special][:promotion_id].to_s}'")
       new_sql.gsub!(":location_id","'#{filters[:special][:location].to_s}'")
       new_sql.gsub!(":top_level_location_id","'#{filters[:special][:top_level_location].to_s}'")
+      new_sql.gsub!(":evaluation_definition_id","'#{filters[:special][:evaluation_definition_id].to_s}'")
       return new_sql
     end
   end
