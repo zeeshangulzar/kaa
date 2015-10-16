@@ -18,12 +18,12 @@
         </p>
         <% end %> 
         <p>
-          <strong><%= @recipe['title'] %></strong>
+          <h1 style="color:#b6354b;font-weight:bold;font-size:14px;"><%= raw @recipe['title'] %></h1>
         </p>
       </div>
     </td>
     <td align="right" valign="top">
-      <p style="margin:16px;color:#aaa;">
+      <p style="margin:16px;color:#aaa;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
         <%= @user.promotion.current_date.to_s %>
       </p>
     </td>
