@@ -88,8 +88,8 @@
   limit:
   sql: SELECT DISTINCT(COALESCE(evaluations.days_active_per_week, 'No Answer')) AS `Days Active`, COUNT(COALESCE(evaluations.days_active_per_week,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.days_active_per_week ORDER BY `Days Active` ASC
   created_by_master: true
-  friendly_url_key: Days Active Per Week
-  name: Days Active Per Week
+  friendly_url_key: Days You Exercise Each Week
+  name: Days You Exercise Each Week
 - !ruby/object:Report
   id: 13
   stats: true
@@ -100,8 +100,8 @@
   limit:
   sql: SELECT DISTINCT(COALESCE(evaluations.fruit_vegetable_servings, 'No Answer')) AS `Servings`, COUNT(COALESCE(evaluations.fruit_vegetable_servings,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.fruit_vegetable_servings ORDER BY `Servings` ASC
   created_by_master: true
-  friendly_url_key: Fruit & Vegetable Servings
-  name: Fruit & Vegetable Servings
+  friendly_url_key: Average Servings of Fruits & Vegetables You Eat Each Day
+  name: Average Servings of Fruits & Vegetables You Eat Each Day
 - !ruby/object:Report
   id: 14
   stats: true
@@ -110,10 +110,10 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
   limit:
-  sql: SELECT DISTINCT(COALESCE(evaluations.breakfast, 'No Answer')) AS `Days`, COUNT(COALESCE(evaluations.breakfast,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.breakfast ORDER BY `Days` ASC
+  sql: SELECT DISTINCT(COALESCE(evaluations.breakfast, 'No Answer')) AS `Breakfast`, COUNT(COALESCE(evaluations.breakfast,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.breakfast ORDER BY `Breakfast` ASC
   created_by_master: true
-  friendly_url_key: Days Breakfast Eaten Per Week
-  name: Days Breakfast Eaten Per Week
+  friendly_url_key: Average Days Each Week You Eat Breakfast
+  name: Average Days Each Week You Eat Breakfast
 - !ruby/object:Report
   id: 15
   stats: true
@@ -124,8 +124,8 @@
   limit:
   sql: SELECT DISTINCT(COALESCE(evaluations.sugar_beverages, 'No Answer')) AS `Number of Beverages`, COUNT(COALESCE(evaluations.sugar_beverages,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.sugar_beverages ORDER BY `Number of Beverages` ASC
   created_by_master: true
-  friendly_url_key: Sugar-Sweetened Beverages Per Day
-  name: Sugar-Sweetened Beverages Per Day
+  friendly_url_key: Average Sugar-Sweetened Beverages Each Day
+  name:  Average Sugar-Sweetened Beverages You Drink Each Day
 - !ruby/object:Report
   id: 16
   stats: true
@@ -134,10 +134,10 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
   limit:
-  sql: SELECT DISTINCT(COALESCE(evaluations.snack_after_dinner, 'No Answer')) AS `Days`, COUNT(COALESCE(evaluations.snack_after_dinner,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.snack_after_dinner ORDER BY `Days` ASC
+  sql: SELECT DISTINCT(COALESCE(evaluations.snack_after_dinner, 'No Answer')) AS `Snacks`, COUNT(COALESCE(evaluations.snack_after_dinner,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.snack_after_dinner ORDER BY `Snacks` ASC
   created_by_master: true
-  friendly_url_key: Days Snack Eaten After Dinner Per Week
-  name: Days Snack Eaten After Dinner Per Week
+  friendly_url_key: Average Days Each Week You Snack After Dinner
+  name: Average Days Each Week You Snack After Dinner
 - !ruby/object:Report
   id: 17
   stats: true
@@ -146,10 +146,10 @@
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
   limit:
-  sql: SELECT DISTINCT(COALESCE(evaluations.energy, 'No Answer')) AS `Frequency`, COUNT(COALESCE(evaluations.energy,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.energy ORDER BY `Frequency` ASC
+  sql: SELECT DISTINCT(COALESCE(evaluations.energy, 'No Answer')) AS `Energy`, COUNT(COALESCE(evaluations.energy,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.energy ORDER BY `Energy` ASC
   created_by_master: true
-  friendly_url_key: Sufficient Energy Frequency
-  name: Sufficient Energy Frequency
+  friendly_url_key: How Often You Have Enough Energy To Do Things You Enjoy
+  name: How Often You Have Enough Energy To Do Things You Enjoy
 - !ruby/object:Report
   id: 18
   stats: true
@@ -160,5 +160,5 @@
   limit:
   sql: SELECT DISTINCT(COALESCE(evaluations.overall_health, 'No Answer')) AS `Health`, COUNT(COALESCE(evaluations.overall_health,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id AND evaluations.evaluation_definition_id = :evaluation_definition_id GROUP BY evaluations.overall_health ORDER BY `Health` ASC
   created_by_master: true
-  friendly_url_key: Overall Health
-  name: Overall Health
+  friendly_url_key: Describe Your Overall Health
+  name: Describe Your Overall Health
