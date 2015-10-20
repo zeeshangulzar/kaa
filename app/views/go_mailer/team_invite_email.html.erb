@@ -17,7 +17,7 @@
         <% else %>
           <p><%= @from_user.profile.full_name %> has invited you to join their team, "<%= @team.name %>" on  <em><%= Constant::AppName %></em>. Click <a style="color:#006ba6" href="<%= @base_url %>/#/team">here</a> to respond to their invitation.</p>
         <% end %>
-        <% if @message %>
+        <% if @message && !@message.empty? %>
           <p><strong>"<%= @message %>"</strong></p>
         <% end %>
       </div>

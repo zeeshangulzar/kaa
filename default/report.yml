@@ -11,17 +11,17 @@
   sql: SELECT COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and email NOT LIKE '%hesonline%' AND email NOT LIKE '%hesapps.com%';
   created_by_master: true
   friendly_url_key: 
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 2
-  stats: false
   report_type: SQL
+  name: Number of Users by Gender
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
-  name: Number of Users by Gender
   friendly_url_key: Number of Users by Gender
 - !ruby/object:Report 
   id: 4
@@ -29,18 +29,18 @@
   name: Total Participants by Day
   fields: []
 
-  filters: 
-    :hashes: []
-
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: !map:ActiveSupport::HashWithIndifferentAccess 
+      hashes: !map:ActiveSupport::HashWithIndifferentAccess 
+        hashes: 
   limit: 
-  sql: |
-    select dates.reported_on `Recorded On`, count(users.id) `Total Participants`
-    from (select distinct(entries.recorded_on) reported_on from entries where recorded_on between :reported_on_min and :reported_on_max) dates
-    left join users on (DATE(users.created_at) <= dates.reported_on)
+  sql: |-
+    select dates.registered_on `Recorded On`, count(users.id) `Total Participants`
+    from (select distinct(profiles.registered_on) registered_on from profiles where registered_on between :reported_on_min and :reported_on_max) dates
+    left join users on (DATE(users.created_at) <= dates.registered_on)
     where :conditions
-    group by dates.reported_on
-
-  created_by_master: false
+    group by dates.registered_on
+  created_by_master: true
   friendly_url_key: Total Participants by Day
 - !ruby/object:Report 
   id: 5
@@ -51,37 +51,27 @@
   - "18"
   filters: 
     :hashes: []
+
   limit: 
   sql: 
   created_by_master: false
   friendly_url_key: Days Logged by User
-#- !ruby/object:Report 
-#  id: nil
-#  report_type: SQL
-#  name: Total Fitbit Users
-#  fields: []
-#  filters: !map:ActiveSupport::HashWithIndifferentAccess 
-#    hashes: 
-#  limit: 
-#  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT';
-#  created_by_master: true
-#  friendly_url_key: Total Fitbit Users
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 11
-  stats: true
   report_type: SQL
+  name: Gender
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
   friendly_url_key: Gender
-  name: Gender
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 12
-  stats: true
   report_type: SQL
+  name: Days Active Per Week
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -92,8 +82,8 @@
   name: Days You Exercise Each Week
 - !ruby/object:Report
   id: 13
-  stats: true
   report_type: SQL
+  name: Fruit & Vegetable Servings
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -104,8 +94,8 @@
   name: Average Servings of Fruits & Vegetables You Eat Each Day
 - !ruby/object:Report
   id: 14
-  stats: true
   report_type: SQL
+  name: Days Breakfast Eaten Per Week
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -116,8 +106,8 @@
   name: Average Days Each Week You Eat Breakfast
 - !ruby/object:Report
   id: 15
-  stats: true
   report_type: SQL
+  name: Sugar-Sweetened Beverages Per Day
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -128,8 +118,8 @@
   name:  Average Sugar-Sweetened Beverages You Drink Each Day
 - !ruby/object:Report
   id: 16
-  stats: true
   report_type: SQL
+  name: Days Snack Eaten After Dinner Per Week
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -140,8 +130,8 @@
   name: Average Days Each Week You Snack After Dinner
 - !ruby/object:Report
   id: 17
-  stats: true
   report_type: SQL
+  name: Sufficient Energy Frequency
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -152,8 +142,8 @@
   name: How Often You Have Enough Energy To Do Things You Enjoy
 - !ruby/object:Report
   id: 18
-  stats: true
   report_type: SQL
+  name: Overall Health
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
