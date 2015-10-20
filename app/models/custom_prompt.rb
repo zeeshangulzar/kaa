@@ -70,26 +70,24 @@ class CustomPrompt < ApplicationModel
   #  class Promotion
   #   has_custom_prompts :with => :evalutions
   def add_udf
-    # don't bother making the UDF fields for headers and page breaks -- there's nothing to record
-    unless [HEADER, PAGEBREAK].include?(self.type_of_prompt)
-      self.custom_promptable && self.custom_promptable.class.udf_types.each do |udf_type|
-        udf_def = UdfDef.new
-        udf_def.owner_type = udf_type.to_s.singularize.camelcase
-        udf_def.parent_type = CustomPrompt.to_s
-        udf_def.parent_id = self.id
-        udf_def.data_type = self.data_type.to_s
-        udf_def.save!
+    # yes bother making the UDF fields for headers and page breaks -- they're necessary for eval def hash
+    self.custom_promptable && self.custom_promptable.class.udf_types.each do |udf_type|
+      udf_def = UdfDef.new
+      udf_def.owner_type = udf_type.to_s.singularize.camelcase
+      udf_def.parent_type = CustomPrompt.to_s
+      udf_def.parent_id = self.id
+      udf_def.data_type = self.data_type.to_s
+      udf_def.save!
 
-        field_name = name
-        udf_def.owner_type.constantize.send(:attr_accessible, field_name)
-        
-        udf_def.owner_type.constantize.send(:define_method, "#{field_name}=") do |value|
-          set_custom_prompt_field(field_name, value)
-        end
+      field_name = name
+      udf_def.owner_type.constantize.send(:attr_accessible, field_name)
 
-        udf_def.owner_type.constantize.send(:define_method, field_name) do
-          get_custom_prompt_field(field_name)
-        end
+      udf_def.owner_type.constantize.send(:define_method, "#{field_name}=") do |value|
+        set_custom_prompt_field(field_name, value)
+      end
+
+      udf_def.owner_type.constantize.send(:define_method, field_name) do
+        get_custom_prompt_field(field_name)
       end
     end
   end
