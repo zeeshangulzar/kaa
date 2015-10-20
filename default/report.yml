@@ -11,17 +11,17 @@
   sql: SELECT COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and email NOT LIKE '%hesonline%' AND email NOT LIKE '%hesapps.com%';
   created_by_master: true
   friendly_url_key: 
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 2
-  stats: false
   report_type: SQL
+  name: Number of Users by Gender
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
-  name: Number of Users by Gender
   friendly_url_key: Number of Users by Gender
 - !ruby/object:Report 
   id: 4
@@ -29,18 +29,18 @@
   name: Total Participants by Day
   fields: []
 
-  filters: 
-    :hashes: []
-
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: !map:ActiveSupport::HashWithIndifferentAccess 
+      hashes: !map:ActiveSupport::HashWithIndifferentAccess 
+        hashes: 
   limit: 
-  sql: |
-    select dates.reported_on `Recorded On`, count(users.id) `Total Participants`
-    from (select distinct(entries.recorded_on) reported_on from entries where recorded_on between :reported_on_min and :reported_on_max) dates
-    left join users on (DATE(users.created_at) <= dates.reported_on)
+  sql: |-
+    select dates.registered_on `Recorded On`, count(users.id) `Total Participants`
+    from (select distinct(profiles.registered_on) registered_on from profiles where registered_on between :reported_on_min and :reported_on_max) dates
+    left join users on (DATE(users.created_at) <= dates.registered_on)
     where :conditions
-    group by dates.reported_on
-
-  created_by_master: false
+    group by dates.registered_on
+  created_by_master: true
   friendly_url_key: Total Participants by Day
 - !ruby/object:Report 
   id: 5
@@ -51,114 +51,104 @@
   - "18"
   filters: 
     :hashes: []
+
   limit: 
   sql: 
   created_by_master: false
   friendly_url_key: Days Logged by User
-#- !ruby/object:Report 
-#  id: nil
-#  report_type: SQL
-#  name: Total Fitbit Users
-#  fields: []
-#  filters: !map:ActiveSupport::HashWithIndifferentAccess 
-#    hashes: 
-#  limit: 
-#  sql: SELECT COUNT(*) AS 'Number of Fitbit Users' FROM users WHERE :conditions_with_and active_device = 'FITBIT';
-#  created_by_master: true
-#  friendly_url_key: Total Fitbit Users
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 11
-  stats: true
   report_type: SQL
+  name: Gender
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
   friendly_url_key: Gender
-  name: Gender
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 12
-  stats: true
   report_type: SQL
+  name: Days Active Per Week
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.days_active_per_week, 'No Answer')) AS `Days Active`, COUNT(COALESCE(evaluations.days_active_per_week,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.days_active_per_week ORDER BY `Days Active` ASC
   created_by_master: true
   friendly_url_key: Days Active Per Week
-  name: Days Active Per Week
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 13
-  stats: true
   report_type: SQL
+  name: Fruit & Vegetable Servings
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.fruit_vegetable_servings, 'No Answer')) AS `Servings`, COUNT(COALESCE(evaluations.fruit_vegetable_servings,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.fruit_vegetable_servings ORDER BY `Servings` ASC
   created_by_master: true
   friendly_url_key: Fruit & Vegetable Servings
-  name: Fruit & Vegetable Servings
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 14
-  stats: true
   report_type: SQL
+  name: Days Breakfast Eaten Per Week
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.breakfast, 'No Answer')) AS `Days`, COUNT(COALESCE(evaluations.breakfast,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.breakfast ORDER BY `Days` ASC
   created_by_master: true
   friendly_url_key: Days Breakfast Eaten Per Week
-  name: Days Breakfast Eaten Per Week
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 15
-  stats: true
   report_type: SQL
+  name: Sugar-Sweetened Beverages Per Day
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.sugar_beverages, 'No Answer')) AS `Number of Beverages`, COUNT(COALESCE(evaluations.sugar_beverages,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.sugar_beverages ORDER BY `Number of Beverages` ASC
   created_by_master: true
   friendly_url_key: Sugar-Sweetened Beverages Per Day
-  name: Sugar-Sweetened Beverages Per Day
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 16
-  stats: true
   report_type: SQL
+  name: Days Snack Eaten After Dinner Per Week
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.snack_after_dinner, 'No Answer')) AS `Days`, COUNT(COALESCE(evaluations.snack_after_dinner,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.snack_after_dinner ORDER BY `Days` ASC
   created_by_master: true
   friendly_url_key: Days Snack Eaten After Dinner Per Week
-  name: Days Snack Eaten After Dinner Per Week
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 17
-  stats: true
   report_type: SQL
+  name: Sufficient Energy Frequency
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.energy, 'No Answer')) AS `Frequency`, COUNT(COALESCE(evaluations.energy,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.energy ORDER BY `Frequency` ASC
   created_by_master: true
   friendly_url_key: Sufficient Energy Frequency
-  name: Sufficient Energy Frequency
-- !ruby/object:Report
+- !ruby/object:Report 
   id: 18
-  stats: true
   report_type: SQL
+  name: Overall Health
   fields: []
-  filters: !map:ActiveSupport::HashWithIndifferentAccess
-    hashes:
-  limit:
+
+  filters: !map:ActiveSupport::HashWithIndifferentAccess 
+    hashes: 
+  limit: 
   sql: SELECT DISTINCT(COALESCE(evaluations.overall_health, 'No Answer')) AS `Health`, COUNT(COALESCE(evaluations.overall_health,1)) AS `Total Users` FROM users JOIN evaluations ON evaluations.user_id = users.id WHERE promotion_id = :promotion_id GROUP BY evaluations.overall_health ORDER BY `Health` ASC
   created_by_master: true
   friendly_url_key: Overall Health
-  name: Overall Health
