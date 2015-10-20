@@ -68,6 +68,7 @@
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
   friendly_url_key: Gender
+  stats: true
 - !ruby/object:Report 
   id: 12
   report_type: SQL
@@ -80,10 +81,11 @@
   created_by_master: true
   friendly_url_key: Days You Exercise Each Week
   name: Days You Exercise Each Week
+  stats: true
 - !ruby/object:Report
   id: 13
   report_type: SQL
-  name: Fruit & Vegetable Servings
+  stats: true
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -95,7 +97,6 @@
 - !ruby/object:Report
   id: 14
   report_type: SQL
-  name: Days Breakfast Eaten Per Week
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -104,10 +105,10 @@
   created_by_master: true
   friendly_url_key: Average Days Each Week You Eat Breakfast
   name: Average Days Each Week You Eat Breakfast
+  stats: true
 - !ruby/object:Report
   id: 15
   report_type: SQL
-  name: Sugar-Sweetened Beverages Per Day
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -116,10 +117,10 @@
   created_by_master: true
   friendly_url_key: Average Sugar-Sweetened Beverages Each Day
   name:  Average Sugar-Sweetened Beverages You Drink Each Day
+  stats: true
 - !ruby/object:Report
   id: 16
   report_type: SQL
-  name: Days Snack Eaten After Dinner Per Week
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -128,10 +129,10 @@
   created_by_master: true
   friendly_url_key: Average Days Each Week You Snack After Dinner
   name: Average Days Each Week You Snack After Dinner
+  stats: true
 - !ruby/object:Report
   id: 17
   report_type: SQL
-  name: Sufficient Energy Frequency
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -140,10 +141,10 @@
   created_by_master: true
   friendly_url_key: How Often You Have Enough Energy To Do Things You Enjoy
   name: How Often You Have Enough Energy To Do Things You Enjoy
+  stats: true
 - !ruby/object:Report
   id: 18
   report_type: SQL
-  name: Overall Health
   fields: []
   filters: !map:ActiveSupport::HashWithIndifferentAccess
     hashes:
@@ -152,3 +153,4 @@
   created_by_master: true
   friendly_url_key: Describe Your Overall Health
   name: Describe Your Overall Health
+  stats: true
