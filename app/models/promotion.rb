@@ -51,17 +51,17 @@ class Promotion < ApplicationModel
   flags :is_fitbit_enabled, :default => false
   flags :is_jawbone_enabled, :default => false
   flags :is_manual_override_enabled, :default => false
-  flags :is_teams_enabled, :default => true
-  flags :is_gender_displayed, :default => true
-  flags :is_show_individual_leaderboard, :default => true
+  flags :is_teams_enabled, :default => false
+  flags :is_gender_displayed, :default => false
+  flags :is_show_individual_leaderboard, :default => false
   flags :is_location_displayed, :default => false
   flags :is_social_media_displayed, :default => false
-  flags :is_wall_enabled, :default => true
-  flags :is_mapwalk_enabled, :default => true
-  flags :is_resources_enabled, :default => true
+  flags :is_wall_enabled, :default => false
+  flags :is_mapwalk_enabled, :default => false
+  flags :is_resources_enabled, :default => false
   flags :is_address_enabled, :default => false
   flags :is_feedback_enabled, :default => false
-  flags :is_video_enabled, :default => true
+  flags :is_video_enabled, :default => false
   flags :fulfillment_monday, :fulfillment_tuesday, :fulfillment_wednesday, :fulfillment_thursday, :fulfillment_friday, :fulfillment_saturday, :fulfillment_sunday, :default => false
 
   # Name, type of prompt and sequence are all required
