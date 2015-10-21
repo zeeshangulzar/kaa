@@ -1,7 +1,7 @@
 class PromotionsController < ApplicationController
   authorize :index, :create, :update, :destroy, :master
 
-  authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :authenticate, :public
+  authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :authenticate, :can_register, :public
   authorize :index, :poster
   authorize :create, :update, :destroy, :keywords, :master
 
