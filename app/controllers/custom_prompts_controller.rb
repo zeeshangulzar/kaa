@@ -36,7 +36,7 @@ class CustomPromptsController < ApplicationController
     CustomPrompt.transaction do
       custom_prompt.save!
     end
-    return HESResponder(@custom_prompt)
+    return HESResponder(custom_prompt)
   end
 
   def update
