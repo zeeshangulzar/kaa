@@ -32,10 +32,10 @@ class CustomPromptsController < ApplicationController
 
   def create
     custom_prompt = @custom_promptable.custom_prompts.build(params[:custom_prompt])
+    return HESResponder(custom_prompt.errors.full_messages, "ERROR") if !custom_prompt.valid?
     CustomPrompt.transaction do
       custom_prompt.save!
     end
-    return HESResponder(custom_prompt.errors.full_messages, "ERROR") if !custom_prompt.valid?
     return HESResponder(@custom_prompt)
   end
 
