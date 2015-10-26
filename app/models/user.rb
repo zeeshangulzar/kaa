@@ -65,6 +65,9 @@ class User < ApplicationModel
   has_one :profile
   has_one :demographic
 
+  has_one :eligibility
+  after_destroy :reset_eligibility
+
   # attrs
   attr_protected :role, :auth_key
   
@@ -393,6 +396,10 @@ class User < ApplicationModel
         users.total_gift_points = COALESCE(stats.total_gift_points, 0)
     "
     self.connection.execute(sql)
+  end
+
+  def reset_eligibility
+    self.eligibility.update_attributes(:user_id => nil) if !self.eligibility.nil?
   end
 
 end

@@ -10,6 +10,10 @@ class Promotion < ApplicationModel
 
   belongs_to :organization
 
+  has_many :eligibilities
+  has_many :custom_eligibility_fields, :order => "sequence ASC"
+  has_many :eligibility_files
+
   has_many :custom_content
   # override this for default promotion..
   def custom_content
@@ -402,6 +406,18 @@ class Promotion < ApplicationModel
 
   def total_participants
     return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+  end
+
+  def eligibility_fields
+    unless @eligibility_fields
+      fields = Eligibility::DEFAULT_FIELDS
+      if self.custom_eligibility_fields
+        custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
+        fields = fields + custom_fields
+      end
+      @eligibility_fields = fields
+    end
+    return @eligibility_fields
   end
 
 end
