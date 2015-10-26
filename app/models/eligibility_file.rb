@@ -80,9 +80,10 @@ class EligibilityFile < ApplicationModel
           self.kill_processing
         end
         self.process_csv_row(row, row_index)
-        sleep 1
+        # for testing...
+        # sleep 1
         row_index += 1
-        if (row_index == self.total_rows - 10) || (row_index % 5 == 0)
+        if (row_index == self.total_rows - 10) || (row_index % 20 == 0)
           Thread.new do
             if self.reload && self.status == EligibilityFile::STATUS[:canceled]
               @die = true
