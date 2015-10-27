@@ -10,6 +10,10 @@ class Promotion < ApplicationModel
 
   belongs_to :organization
 
+  has_many :eligibilities
+  has_many :custom_eligibility_fields, :order => "sequence ASC"
+  has_many :eligibility_files
+
   has_many :custom_content
   # override this for default promotion..
   def custom_content
@@ -63,6 +67,7 @@ class Promotion < ApplicationModel
   flags :is_feedback_enabled, :default => false
   flags :is_video_enabled, :default => false
   flags :fulfillment_monday, :fulfillment_tuesday, :fulfillment_wednesday, :fulfillment_thursday, :fulfillment_friday, :fulfillment_saturday, :fulfillment_sunday, :default => false
+  flags :is_eligibility_displayed, :default => false
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
@@ -402,6 +407,18 @@ class Promotion < ApplicationModel
 
   def total_participants
     return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+  end
+
+  def eligibility_fields
+    unless @eligibility_fields
+      fields = Eligibility::DEFAULT_FIELDS
+      if self.custom_eligibility_fields
+        custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
+        fields = fields + custom_fields
+      end
+      @eligibility_fields = fields
+    end
+    return @eligibility_fields
   end
 
 end
