@@ -53,7 +53,6 @@ class User < ApplicationModel
     end
   end
 
-  can_comment
   can_post
   can_like
   can_share
@@ -62,8 +61,8 @@ class User < ApplicationModel
   has_photos
 
   # relationships
-  has_one :profile
-  has_one :demographic
+  has_one :profile, :dependent => :destroy
+  has_one :demographic, :dependent => :destroy
 
   has_one :eligibility
   after_destroy :reset_eligibility
@@ -84,7 +83,7 @@ class User < ApplicationModel
 
   belongs_to :promotion
   belongs_to :location
-  has_many :entries, :order => :recorded_on
+  has_many :entries, :order => :recorded_on, :dependent => :destroy
   has_many :evaluations, :dependent => :destroy
   has_many :orders, :dependent => :destroy
 
