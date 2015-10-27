@@ -284,6 +284,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     
     cps.each do |cp|
       if cp.is_active && ![CustomPrompt::HEADER, CustomPrompt::PAGEBREAK].include?(cp.type_of_prompt)
+        next if cp.short_label.to_s.downcase =~ /weight/ && (cp.textbox? || cp.mltextbox?)
         promotion.evaluation_definitions.each_with_index do |pev, index|
           k = "evaluations_udfs:#{cp.id}|#{pev.id}"
           fields[k] = model.dup
