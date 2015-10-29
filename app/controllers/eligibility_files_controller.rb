@@ -1,6 +1,6 @@
 class EligibilityFilesController < ApplicationController
   authorize :index, :show, :create, :update, :destroy, :process, :coordinator
-  authorize :start_job, :cancel_job, :master
+  authorize :start_job, :cancel_job, :download, :master
 
   before_filter :set_sandbox
   def set_sandbox
@@ -72,6 +72,13 @@ class EligibilityFilesController < ApplicationController
       return HESResponder(queue_process[:errors], "ERROR")
     end
     return HESResponder(queue_process)
+  end
+
+  def download
+    eligibility_file = EligibilityFile.find(params[:eligibility_file_id]) rescue nil
+    return HESResponder("Eligibility File", "NOT_FOUND") if !eligibility_file
+    data = File.read(eligibility_file.filepath)
+    send_data(data, :filename => eligibility_file.filename, :type => "text/csv")
   end
 
 end
