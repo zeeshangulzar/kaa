@@ -321,7 +321,8 @@ class Promotion < ApplicationModel
       'REG_STARTS'      => self.registration_starts_on.nil? ? Date.today : self.registration_starts_on.strftime("%A, %B #{self.registration_starts_on.day}, %Y"),
       'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
-      'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil
+      'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil,
+      'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}"
     }
   end
 
