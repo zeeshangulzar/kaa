@@ -497,7 +497,7 @@
     "59": 
       :aggregate: false
       :sequence: 29
-      :sql_phrase: l.name `Team Location`
+      :sql_phrase: leader_locations.name `Team Location`
       :filterable: false
       :role: Coordinator
       :display_name: Team Location
@@ -533,7 +533,7 @@
     "73": 
       :aggregate: true
       :sequence: 73
-      :sql_phrase: SUM(COALESCE(team_members.total_points, 0))/COUNT(team_members.id) `Team Score`
+      :sql_phrase: team_score.score `Team Score`
       :filterable: true
       :role: Coordinator
       :display_name: Team Score
@@ -640,7 +640,16 @@
         LEFT JOIN teams ON (team_members.team_id = teams.id AND teams.status < 2)
         LEFT JOIN team_members leader_team_members ON (leader_team_members.team_id = teams.id AND leader_team_members.is_leader = 1)
         LEFT JOIN users leader_users ON (leader_users.id = leader_team_members.user_id)
+        LEFT JOIN locations leader_locations ON leader_locations.id = leader_users.location_id
         LEFT JOIN profiles leader_profiles ON leader_profiles.user_id = leader_users.id
+        LEFT JOIN (
+          SELECT team_id,
+          SUM(COALESCE(team_members.total_points, 0))/COUNT(team_members.id) `score`
+          FROM team_members
+          JOIN competitions on competitions.id = team_members.competition_id
+          WHERE competitions.promotion_id = :promotion_id
+        GROUP BY team_id) team_score on team_score.team_id = team_members.team_id
+
       :alias: competitions
       :childof: users
     "108": 
