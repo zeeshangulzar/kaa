@@ -3,6 +3,7 @@ class PromotionsController < ApplicationController
 
   authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :authenticate, :can_register, :public
   authorize :index, :poster
+  authorize :get_grouped_promotions, :coordinator
   authorize :create, :update, :destroy, :keywords, :master
 
   def index
@@ -27,6 +28,36 @@ class PromotionsController < ApplicationController
     return HESResponder(promotions)
   end
 
+  def get_grouped_promotions
+    conditions = (params[:active_only]=='true' || @current_user.poster?) ? "(promotions.disabled_on is null or promotions.disabled_on > now()) and " : ""
+    if @current_user.master?
+    elsif @current_user.reseller?
+      conditions << "organizations.reseller_id = #{User.sanitize @current_user.promotion.organization.reseller_id}"
+    elsif @current_user.coordinator? || @current_user.location_coordinator
+      conditions << "promotions.organization_id = #{User.sanitize @current_user.promotion.organization_id}"
+    elsif (@current_user.super_coordinator? rescue false)
+      conditions << "promotions.id in (#{@current_user.super_coordinator_promotions.all.collect{|scp|User.sanitize(scp.promotion_id)}.join(',')})"
+    end
+
+    sql = "SELECT promotions.id promotion_id, promotions.subdomain, promotions.launch_on, organizations.id organization_id, organizations.name organization_name
+          FROM promotions
+          inner join organizations on organizations.id = promotions.id
+          #{"WHERE #{conditions}" unless conditions.empty?}
+          order by organizations.name, promotions.subdomain"
+
+    rows = Promotion.connection.select_all sql
+
+    array = []
+    previous_org_id = nil
+    rows.each do |row|
+      if row['organization_id'] != previous_org_id
+        array << {:organization => {:id=>row['organization_id'],:name=>row['organization_name'],:promotions=>[]}}
+      end
+      array.last[:organization][:promotions] << {:id=>row['promotion_id'],:subdomain=>row['subdomain'],:launch_on=>row['launch_on']}
+    end
+
+    render :json => array.to_json 
+  end
 
   def show
     promotion = (params[:id] == 'current') ? @promotion : Promotion.find(params[:id]) rescue nil
