@@ -44,6 +44,10 @@ class Post < ApplicationModel
   event_accessor :after_reply_destroyed
   after_destroy lambda { |post| post.parent_post.fire_after_reply_destroyed(post) }, :if => lambda { |post| post.reply? && post.parent_post }
 
+  after_create :clone_wall_expert_post
+  after_update :update_wall_expert_post
+  after_destroy :destroy_wall_expert_post
+
   acts_as_likeable
 
   is_postable
@@ -400,6 +404,41 @@ class Post < ApplicationModel
 
     # all done!
     return posts
+  end
+
+  def is_wall_expert_dashboard_post?
+    return self.wallable && self.wallable.class == Promotion && self.wallable.is_dashboard? && self.user.poster? && self.parent_post_id.nil? && self.root_post_id.nil?
+  end
+
+  def clone_wall_expert_post
+    return unless self.is_wall_expert_dashboard_post?
+    Promotion.active.each{ |p|
+      next if p.is_dashboard? # Promotion.active SHOULD exclude dashboard but just in case, we don't need any infinite loops
+      post = self.dup
+      post.wallable_id = p.id
+      post.source_id = self.id
+      post.save!
+    }
+  end
+
+  def update_wall_expert_post
+    return unless self.is_wall_expert_dashboard_post?
+    posts = Post.where(:source_id => self.id)
+    posts.each{ |p|
+      p.is_flagged = self.is_flagged
+      p.is_deleted = self.is_deleted
+      p.content = self.content
+      p.title = self.title
+      p.save!
+    }
+  end
+
+  def destroy_wall_expert_post
+    return unless self.is_wall_expert_dashboard_post?
+    posts = Post.where(:source_id => self.id)
+    posts.each{ |p|
+      p.destroy
+    }
   end
 
 end

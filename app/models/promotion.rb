@@ -37,6 +37,8 @@ class Promotion < ApplicationModel
 
   DEFAULT_SUBDOMAIN = 'www'
   DASHBOARD_SUBDOMAIN = 'dashboard'
+  # apparently it's important that this scope be defined after DEFAULT_SUBDOMAIN & DASHBOARD_SUBDOMAIN constants. ruby is kinda stupid sometimes...
+  scope :active, where("is_active = 1 AND launch_on <= '#{Date.today.to_s(:db)}' AND (ends_on IS NULL OR ends_on >= '#{Date.today.to_s(:db)}') AND (disabled_on IS NULL OR disabled_on >= '#{Date.today.to_s(:db)}' AND subdomain NOT IN ('#{Promotion::DEFAULT_SUBDOMAIN}', '#{Promotion::DASHBOARD_SUBDOMAIN}'))")
 
   has_custom_prompts :with => :evaluations
 
@@ -306,6 +308,10 @@ class Promotion < ApplicationModel
 
   def is_default?
     return self.subdomain == Promotion::DEFAULT_SUBDOMAIN
+  end
+
+  def is_dashboard?
+    return self.subdomain == Promotion::DASHBOARD_SUBDOMAIN
   end
 
   def self.get_default
