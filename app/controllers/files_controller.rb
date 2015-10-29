@@ -61,6 +61,7 @@ class FilesController < ApplicationController
       img.write(filepath)
 
       begin
+        path = filepath
         tn_img = Magick::Image.read(filepath).first
         tn_img = tn_img.resize_to_fit(50, 50)
 
