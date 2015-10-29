@@ -41,15 +41,19 @@ class EmailsController < ApplicationController
   def unsubscribe
     return HESResponder("Must provide email.", "ERROR") if params[:promotion_id].nil? || params[:email].nil?
     email = Encryption::decrypt(Base64.decode64(CGI.unescape("#{params[:email]}")))
+    email = email[/.*<([^>]*)/,1] if email.include?('<')
     user = @promotion.users.where(:email => email).first rescue nil
     if user
       if user.allows_email
         User.transaction do
-          user.update_attributes(:allows_email => false)
+          user.flags[:allow_daily_emails_monday] = false
+          user.flags[:allow_daily_emails_all_week] = false
+          user.allows_email = false
+          user.save!
         end
       end
     else
-      return HESResponder("General failure.", "ERROR")
+      return HESResponder("User not found.", "NOT_FOUND")
     end
     return HESResponder()
   end
