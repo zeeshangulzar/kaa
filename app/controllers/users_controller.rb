@@ -236,7 +236,7 @@ class UsersController < ApplicationController
       User.transaction do
         @target_user.destroy
       end
-      return HESResponder(@target_user)
+      return HESResponder()
     end
   end
 
