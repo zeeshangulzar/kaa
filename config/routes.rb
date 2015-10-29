@@ -64,7 +64,8 @@ Go::Application.routes.draw do
     resources :behaviors, :only => [:index, :create, :show]
     resources :gifts, :only => [:index, :create, :show]
     resources :custom_content, :controller => "custom_content"
-    # CONTENT MODELS
+    resources :eligibilities
+    resources :eligibility_files
     resources :tips
     resources :facts
     resources :articles
@@ -226,4 +227,15 @@ Go::Application.routes.draw do
 
   match "/store" => "store#index", :via => :get, :controller => :store
   match "/store/place_order" => "store#place_order", :via => :post, :controller => :store
+
+
+  resources :eligibilities
+  match "/promotions/:id/eligibilities/validate" => "eligibilities#validate", :via => :post
+  match "/promotions/:id/eligibilities/upload" => "eligibilities#upload", :via => :post
+  match "/eligibilities/validate" => "eligibilities#validate", :via => :post
+  match "/eligibilities/upload" => "eligibilities#upload", :via => :post
+  resources :eligibility_files
+  match "/eligibility_files/:eligibility_file_id/process" => "eligibility_files#start_job", :via => :post
+  match "/promotions/:id/eligibility_files/:eligibility_file_id/process" => "eligibility_files#start_job", :via => :post
+ 
 end

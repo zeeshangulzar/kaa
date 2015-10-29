@@ -6,8 +6,8 @@ class Entry < ApplicationModel
 
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
 
-  has_many :entry_behaviors
-  has_many :entry_gifts
+  has_many :entry_behaviors, :dependent => :destroy
+  has_many :entry_gifts, :dependent => :destroy
   accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities, :entry_gifts
 
   attr_accessible :entry_behaviors, :entry_exercise_activities, :entry_gifts

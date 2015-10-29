@@ -186,6 +186,16 @@ class UsersController < ApplicationController
           demographic.user_id = user.id
           demographic.save!
         end
+        if !params[:eligibility_identifier].nil? && !params[:eligibility_identifier].empty?
+          eligibility = @promotion.eligibilities.find_by_identifier(params[:eligibility_identifier]) rescue nil
+          return HESResponder("Eligibility not found.", "ERROR") if !eligibility
+          if !eligibility.user_id.nil?
+            return HESResponder("Eligibility identifier already in use.", "ERROR")
+          else
+            eligibility.user_id = user.id
+            eligibility.save!
+          end
+        end
       end
     end
     user.welcome_notification
@@ -226,7 +236,7 @@ class UsersController < ApplicationController
       User.transaction do
         @target_user.destroy
       end
-      return HESResponder(@target_user)
+      return HESResponder()
     end
   end
 

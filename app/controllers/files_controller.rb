@@ -3,7 +3,11 @@ class FilesController < ApplicationController
   authorize :upload, :crop, :rotate, :public
   skip_before_filter :get_uploaded_image
 
-  DIRNAME = Rails.root.join("public/tmp/uploaded_files")
+  SECURE_DIR_NAME = "secure_uploads"
+  SECURE_DIR_PATH = Rails.root.join(SECURE_DIR_NAME)
+  PUBLIC_DIR_NAME = "public/tmp/uploaded_files"
+  PUBLIC_DIR_PATH = Rails.root.join(PUBLIC_DIR_NAME)
+
   TIMEOUT = 60 # quarter seconds
 
   # Uploads a photo and returns a temporary file path that can be used to assign to a model instance.
@@ -22,32 +26,45 @@ class FilesController < ApplicationController
   def upload
     require 'RMagick'
     uploaded_files = []
+    secure = !params[:secure].nil? && params[:secure]
     get_uploaded_files.each do |uploaded_file|
       name = uploaded_file.original_filename
       name = "#{params[:_t] || Time.now.to_i}-#{name}"
 
-      unless FileTest::directory?(DIRNAME)
-        Dir::mkdir(Rails.root.join("public")) unless File.exists?(Rails.root.join("public"))
-        Dir::mkdir(Rails.root.join("public/tmp")) unless File.exists?(Rails.root.join("public/tmp"))
-        Dir::mkdir(DIRNAME)
+      if secure
+        unless FileTest::directory?(SECURE_DIR_PATH)
+          Dir::mkdir(SECURE_DIR_PATH)
+        end
+        dirpath = SECURE_DIR_PATH
+        filepath = File.join(SECURE_DIR_PATH, name)
+        uploaded_files << {:url => "/#{SECURE_DIR_NAME}/#{name}", :name => name}
+      else
+        unless FileTest::directory?(PUBLIC_DIR_PATH)
+          Dir::mkdir(Rails.root.join("public")) unless File.exists?(Rails.root.join("public"))
+          Dir::mkdir(Rails.root.join("public/tmp")) unless File.exists?(Rails.root.join("public/tmp"))
+          Dir::mkdir(PUBLIC_DIR_PATH)
+        end
+        dirpath = PUBLIC_DIR_PATH
+        filepath = File.join(PUBLIC_DIR_PATH, name)
+        uploaded_files << {:url => "/#{filepath}".split('public').last, :name => name}
       end
 
-      path = File.join(DIRNAME, name)
+      File.open(filepath, "wb") { |f| f.write(uploaded_file.read) }
 
-      uploaded_files << {:url => "/#{path}".split('public').last, :name => name}
-      File.open(path, "wb") { |f| f.write(uploaded_file.read) }
+      img = Magick::Image.read(filepath).first rescue nil
 
-      img = Magick::Image.read(path).first
+      next if !img # skip processing the file cuz it's not an image, or not one imagemagick can handle for whatever reason
+      
       if !img.scene || img.scene == 0
         img.auto_orient!
       end
-      img.write(path)
+      img.write(filepath)
 
       begin
-        tn_img = Magick::Image.read(path).first
+        tn_img = Magick::Image.read(filepath).first
         tn_img = tn_img.resize_to_fit(50, 50)
 
-        tn_path = File.join(DIRNAME, "thumbnail-#{params[:_t]}-#{name}")
+        tn_path = File.join(dirpath, "thumbnail-#{params[:_t]}-#{name}")
         tn_img.write(tn_path)
         
         uploaded_files.last[:thumbnail_url] = "/#{tn_path}".split('public').last
@@ -112,15 +129,15 @@ class FilesController < ApplicationController
   def crop
     return HESResponder("Invalid image.", "ERROR") unless params[:image]
     require 'RMagick'
-    img_path = Dir["#{DIRNAME}/#{params[:image].split('/').last}"].first
+    img_path = Dir["#{PUBLIC_DIR_PATH}/#{params[:image].split('/').last}"].first
     return HESResponder("Invalid image.", "ERROR") unless img_path
     name = img_path.split('/').last
     ext_type = img_path.split('.').last
     new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
     new_img_path = img_path.gsub(name, new_name);
 
-    tn_path = File.join(DIRNAME, "thumbnail-#{new_name}")
-    blur_path = File.join(DIRNAME, "blur_#{new_name}")
+    tn_path = File.join(PUBLIC_DIR_PATH, "thumbnail-#{new_name}")
+    blur_path = File.join(PUBLIC_DIR_PATH, "blur_#{new_name}")
     if params[:type].nil? || params[:type] == 'rect' then
       crop_to_rect(img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], new_img_path, tn_path, blur_path)
     else 
@@ -159,7 +176,7 @@ class FilesController < ApplicationController
     if !thumb_filename.nil?
       tn_path = File.join(thumb_filename)
     else 
-      tn_path = File.join(DIRNAME, "thumbnail-#{out_filename}")
+      tn_path = File.join(PUBLIC_DIR_PATH, "thumbnail-#{out_filename}")
     end
 
     tn_img = img.resize_to_fit(50, 50)
@@ -183,13 +200,13 @@ class FilesController < ApplicationController
     if !thumb_filename.nil?
       tn_path = File.join(thumb_filename)
     else 
-      tn_path = File.join(DIRNAME, "thumbnail-#{out_filename}")
+      tn_path = File.join(PUBLIC_DIR_PATH, "thumbnail-#{out_filename}")
     end
 
     if !blur_filename.nil?
       blur_path = File.join(blur_filename)
     else
-      tn_path = File.join(DIRNAME, "blur-#{out_filename}")
+      tn_path = File.join(PUBLIC_DIR_PATH, "blur-#{out_filename}")
     end
 
     ratio = w/h
@@ -212,7 +229,7 @@ class FilesController < ApplicationController
     if params[:rotation].nil? || !params[:rotation].to_s.is_i?
       return HESResponder("Invalid rotation.", "ERROR")
     elsif !params[:image_path].nil?
-      img_path = Dir["#{DIRNAME}/#{params[:file][:image_path].original_filename}"].first
+      img_path = Dir["#{PUBLIC_DIR_PATH}/#{params[:file][:image_path].original_filename}"].first
       name = img_path.split('/').last
       ext_type = img_path.split('.').last
       new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')

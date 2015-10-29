@@ -27,7 +27,7 @@
             <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;vertical-aign:top;" valign="top">
               <span style="color:#777;font-size:14px;font-weight:bold;">DAILY TIP:</span><br/>
               <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= raw @tip.title %></span>
-              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw strip_tags(@tip.summary_html) %> <a style="color:#b5364b" href="https://<%= @base_url %>/#/tips/<%= @tip.id %>">MORE...</a></p>
+              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw strip_tags(@tip.summary_html) %> <a style="color:#b5364b" href="<%= @base_url %>/#/tips/<%= @tip.id %>">MORE...</a></p>
             </td>
           </tr>
         </table>
@@ -45,7 +45,7 @@
             <td style="padding-left:20px;font-family:Open Sans, Helvetica, Arial;vertical-align:top" valign="top">
               <span style="color:#777;font-size:14px;font-weight:bold;">RECIPE OF THE DAY:</span><br/>
               <span style="color:#1c7c88;font-weight:bold;font-size:16px;"><%= raw @recipe.title %></span>
-              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <a style="color:#b5364b" href="https://<%= @base_url %>/#/recipes/<%= @recipe.id %>">MORE...</a></p>
+              <p style="color:#acaba6; font-family:Open Sans, Helvetica, Arial;"><%= raw @recipe.description %> <a style="color:#b5364b" href="<%= @base_url %>/#/recipes/<%= @recipe.id %>">MORE...</a></p>
             </td>
           </tr>
         </table>
