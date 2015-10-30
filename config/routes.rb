@@ -57,6 +57,8 @@ Go::Application.routes.draw do
   get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
 
+  match 'promotions/get_grouped_promotions', :controller => :promotions, :action => :get_grouped_promotions, :via => :get
+
   resources :promotions do
     post 'authenticate', :to => 'promotions#authenticate'
     resources :users, :only => [:index, :create, :search, :show]
