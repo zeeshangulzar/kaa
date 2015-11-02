@@ -269,7 +269,7 @@ class Post < ApplicationModel
     # get top posts, all of the various conditions are applied here
     posts_sql = "
       SELECT
-      posts.id, posts.content, posts.photo, posts.is_flagged, posts.flagged_by, posts.created_at, posts.user_id
+      posts.id, posts.content, posts.photo, posts.is_flagged, posts.flagged_by, posts.created_at, posts.user_id, posts.wallable_id
       FROM
       posts
     "
@@ -304,6 +304,7 @@ class Post < ApplicationModel
       post['flagged_by']   = row['flagged_by']
       post['created_at']   = row['created_at']
       post['user_id']      = row['user_id']
+      post['wallable_id']      = row['wallable_id']
       posts << post
     }
 
