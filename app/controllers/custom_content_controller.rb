@@ -25,8 +25,18 @@ class CustomContentController < ApplicationController
   def create
     custom_content = CustomContent.new(params[:custom_content])
     return HESResponder(custom_content.errors.full_messages, "ERROR") if !custom_content.valid?
+    image_url = nil
+    if params[:custom_content][:image] && !params[:custom_content][:image].starts_with?("/tmp/uploaded_images")
+      image_url = params[:custom_content].delete(:image)
+    end
     CustomContent.transaction do
       custom_content.save!
+      if !image_url.nil? && custom_content.reload && !custom_content.id.nil?
+        CustomContent.connection.execute("UPDATE custom_content set image = #{CustomContent.sanitize(image_url)} WHERE id = #{custom_content.id} LIMIT 1")
+      end
+    end
+    CustomContent.uncached do
+      custom_content = CustomContent.find(custom_content.id)
     end
     return HESResponder(CustomContent.keyworded(custom_content, @promotion))
   end
@@ -45,7 +55,7 @@ class CustomContentController < ApplicationController
     CustomContent.transaction do
       custom_content.destroy
     end
-    return HESResponder(CustomContent.keyworded(custom_content, @promotion))
+    return HESResponder()
   end
 
   def copy
