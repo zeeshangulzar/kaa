@@ -9,7 +9,8 @@ class PromotionsController < ApplicationController
   def index
     promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : nil
     if promotions.nil?
-      sql = "SELECT id, subdomain, registration_starts_on, registration_ends_on, program_length, name, launch_on FROM promotions"
+      active_sql = (params[:active] && params[:active].to_i == 1) ? Promotion.active_scope_sql : '1 = 1'
+      sql = "SELECT id, subdomain, registration_starts_on, registration_ends_on, program_length, name, launch_on FROM promotions WHERE 1 = 1 AND #{active_sql}"
       rows = Promotion.connection.select_all(sql)
       promotions = []
       rows.each_with_index{ |row,index|
