@@ -73,7 +73,7 @@ class Promotion < ApplicationModel
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
 
   def self.active_scope_sql
-    return "is_active = 1 AND launch_on <= '#{Date.today.to_s(:db)}' AND (ends_on IS NULL OR ends_on >= '#{Date.today.to_s(:db)}') AND (disabled_on IS NULL OR disabled_on >= '#{Date.today.to_s(:db)}' AND subdomain NOT IN ('#{Promotion::DEFAULT_SUBDOMAIN}', '#{Promotion::DASHBOARD_SUBDOMAIN}'))"
+    return "is_active = 1 AND launch_on <= '#{Date.today.to_s(:db)}' AND (ends_on IS NULL OR ends_on >= '#{Date.today.to_s(:db)}') AND (disabled_on IS NULL OR disabled_on >= '#{Date.today.to_s(:db)}') AND subdomain NOT IN ('#{Promotion::DEFAULT_SUBDOMAIN}', '#{Promotion::DASHBOARD_SUBDOMAIN}')"
   end
 
   # apparently it's important that this scope be defined after everything it depends on..
