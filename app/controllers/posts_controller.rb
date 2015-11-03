@@ -87,17 +87,19 @@ class PostsController < ApplicationController
 
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
       flagged_only = (!params[:flagged].nil? && (params[:flagged] == 'true' || params[:flagged] == true)) ? true : false
+      by_popularity = (!params[:by_popularity].nil? && (params[:by_popularity] == 'true' || params[:by_popularity] == true)) ? true : false
       query = (!params[:query].nil? && !params[:query].strip.empty?) ? params[:query] : nil
 
       conditions = {
-        :offset       => offset,
-        :limit        => limit,
-        :user_ids     => user_ids,
-        :location_ids => location_ids,
-        :has_photo    => has_photo,
-        :current_year => @promotion.current_date.year,
-        :flagged_only => flagged_only,
-        :query        => query
+        :offset        => offset,
+        :limit         => limit,
+        :user_ids      => user_ids,
+        :location_ids  => location_ids,
+        :has_photo     => has_photo,
+        :current_year  => @promotion.current_date.year,
+        :flagged_only  => flagged_only,
+        :query         => query,
+        :by_popularity => by_popularity
       }
 
       count = Post.wall(@wallable, conditions, true).to_i

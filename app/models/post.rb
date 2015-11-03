@@ -71,6 +71,11 @@ class Post < ApplicationModel
 
   scope :from_users, lambda { |user_ids| where("`posts`.user_id in (:uids)", {:uids => user_ids}) }
 
+  POPULARITY_SCORE = {
+    :likes       => 3,
+    :replies     => 3,
+    :reply_likes => 1
+  }
   # Gets the key to be applied to the formula for popular weight based on created_at
   def days_old_weight
     difference = Date.today - self.created_at.to_date
@@ -226,14 +231,15 @@ class Post < ApplicationModel
   # it's ugly, but it's fast...
   def self.wall(wall, conditions = {}, count = false, reply_count = false)
     conditions = {
-      :offset       => 0,
-      :limit        => 50,
-      :user_ids     => [],
-      :location_ids => [],
-      :has_photo    => nil,
-      :current_year => Date.today.year,
-      :flagged_only => false,
-      :query        => nil
+      :offset        => 0,
+      :limit         => 50,
+      :user_ids      => [],
+      :location_ids  => [],
+      :has_photo     => nil,
+      :current_year  => Date.today.year,
+      :flagged_only  => false,
+      :query         => nil,
+      :by_popularity => false
     }.merge(conditions)
 
     if count
@@ -283,6 +289,21 @@ class Post < ApplicationModel
     if conditions[:flagged_only]
       posts_sql = posts_sql + " LEFT JOIN posts replies ON replies.parent_post_id = posts.id"
     end
+    if conditions[:by_popularity]
+      posts_sql = posts_sql + "
+        JOIN (
+          SELECT
+          posts.id, ( (#{Post::POPULARITY_SCORE[:replies]} * COUNT(DISTINCT(replies.id))) + (#{Post::POPULARITY_SCORE[:likes]} * COUNT(DISTINCT(likes.id))) + (#{Post::POPULARITY_SCORE[:reply_likes]} * COUNT(DISTINCT(reply_likes.id)))) score
+          FROM posts
+          LEFT JOIN posts replies ON replies.parent_post_id = posts.id
+          LEFT JOIN likes ON likes.likeable_type = 'Post' AND likes.likeable_id = posts.id
+          LEFT JOIN likes reply_likes ON reply_likes.likeable_type = 'Post' AND reply_likes.likeable_id = replies.id
+          WHERE
+          posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
+          GROUP BY posts.id
+        ) popularity ON popularity.id = posts.id
+      "
+    end
     posts_sql = posts_sql + "
       WHERE
       posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
@@ -290,7 +311,7 @@ class Post < ApplicationModel
       #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
       #{ "AND posts.content LIKE '%#{self.sanitize(conditions[:query],{:no_wrap=>true})}%'" if !conditions[:query].nil? }
       GROUP BY posts.id
-      ORDER BY posts.created_at DESC
+      ORDER BY #{conditions[:by_popularity] ? 'popularity.score DESC' : 'posts.created_at DESC'}
       LIMIT #{conditions[:offset]}, #{conditions[:limit]}
     "
 
@@ -443,6 +464,13 @@ class Post < ApplicationModel
     posts.each{ |p|
       p.destroy
     }
+  end
+
+  def score
+    likes_score = Post::POPULARITY_SCORE[:likes] * self.likes.count
+    reply_score = Post::POPULARITY_SCORE[:replies] * self.posts.count
+    reply_likes_score = Post::POPULARITY_SCORE[:reply_likes] * self.posts.collect{|r|r.likes.count}.sum + self.likes.count
+    return (likes_score + reply_score + reply_likes_score)
   end
 
 end
