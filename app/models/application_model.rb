@@ -179,5 +179,12 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   # END CACHING MAGIC
-  
+
+  def self.sanitize(input, options = {})
+    output = super(input)
+    if options[:no_wrap]
+      output = output[1..-2]
+    end
+    return output
+  end
 end

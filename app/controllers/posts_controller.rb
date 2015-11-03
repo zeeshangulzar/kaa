@@ -87,6 +87,7 @@ class PostsController < ApplicationController
 
       has_photo = (!params[:has_photo].nil? && (params[:has_photo] == 'true' || params[:has_photo] == true)) ? true : false
       flagged_only = (!params[:flagged].nil? && (params[:flagged] == 'true' || params[:flagged] == true)) ? true : false
+      query = (!params[:query].nil? && !params[:query].strip.empty?) ? params[:query] : nil
 
       conditions = {
         :offset       => offset,
@@ -95,7 +96,8 @@ class PostsController < ApplicationController
         :location_ids => location_ids,
         :has_photo    => has_photo,
         :current_year => @promotion.current_date.year,
-        :flagged_only => flagged_only
+        :flagged_only => flagged_only,
+        :query        => query
       }
 
       count = Post.wall(@wallable, conditions, true).to_i

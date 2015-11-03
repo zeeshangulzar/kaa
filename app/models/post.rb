@@ -232,7 +232,8 @@ class Post < ApplicationModel
       :location_ids => [],
       :has_photo    => nil,
       :current_year => Date.today.year,
-      :flagged_only => false
+      :flagged_only => false,
+      :query        => nil
     }.merge(conditions)
 
     if count
@@ -258,6 +259,7 @@ class Post < ApplicationModel
           posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
           #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
           #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
+          #{ "AND posts.content LIKE '%#{self.sanitize(conditions[:query],{:no_wrap=>true})}%'" if !conditions[:query].nil? }
           GROUP BY posts.id
           ORDER BY posts.created_at DESC
         ) X
@@ -286,6 +288,7 @@ class Post < ApplicationModel
       posts.parent_post_id IS NULL AND posts.wallable_id = #{wall.id} AND posts.wallable_type = '#{wall.class.to_s}'
       #{ 'AND posts.photo IS NOT NULL' if conditions[:has_photo] }
       #{ 'AND (posts.is_flagged = 1 OR replies.is_flagged = 1)' if conditions[:flagged_only] }
+      #{ "AND posts.content LIKE '%#{self.sanitize(conditions[:query],{:no_wrap=>true})}%'" if !conditions[:query].nil? }
       GROUP BY posts.id
       ORDER BY posts.created_at DESC
       LIMIT #{conditions[:offset]}, #{conditions[:limit]}
