@@ -99,12 +99,16 @@ class PostsController < ApplicationController
       }
 
       count = Post.wall(@wallable, conditions, true).to_i
-
+      reply_count_hash = nil
+      if params[:reply_count] && params[:reply_count].to_i == 1
+        reply_count_hash = {:reply_count => Post.wall(@wallable, conditions, true, true).to_i}
+      end
+      
       posts = Post.wall(@wallable, conditions)
 
       response = {
         :data => posts,
-        :meta => ApplicationController::meta(request, posts, offset, limit, count)
+        :meta => ApplicationController::meta(request, posts, offset, limit, count, reply_count_hash)
       }
       return HESResponder(response)
     else

@@ -255,7 +255,7 @@ class ApplicationController < ActionController::Base
     return host
   end
 
-  def self.meta(request, collection, offset = 0, page_size = ApplicationController::PAGE_SIZE, count = nil)
+  def self.meta(request, collection, offset = 0, page_size = ApplicationController::PAGE_SIZE, count = nil, custom = nil)
     meta = {
       :total_records => !count.nil? ? count : collection.size,
       :page_size     => page_size,
@@ -270,6 +270,12 @@ class ApplicationController < ActionController::Base
     end
     if offset - page_size >= 0
       meta[:links][:prev] = ApplicationController::url_replace(request.fullpath, :merge_query => {'offset' => offset - page_size})
+    end
+    if !custom.nil?
+      custom = HashWithIndifferentAccess.new(custom)
+      custom.each{|key,value|
+        meta[key.to_sym] = value
+      }
     end
     return meta
   end

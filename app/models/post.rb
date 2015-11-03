@@ -224,7 +224,7 @@ class Post < ApplicationModel
 
   # big ass method to get everything on the wall without active record junk
   # it's ugly, but it's fast...
-  def self.wall(wall, conditions = {}, count = false)
+  def self.wall(wall, conditions = {}, count = false, reply_count = false)
     conditions = {
       :offset       => 0,
       :limit        => 50,
@@ -239,9 +239,9 @@ class Post < ApplicationModel
       # handle count of top posts separately as we don't want to use ActiveRecord's yucky count method
       posts_sql = "
         SELECT
-        COUNT(*) AS count
+        SUM(IF(id > 0, 1, 0)) AS count
         FROM (
-          SELECT posts.id
+          SELECT #{reply_count ? "replies.id" : "posts.id"} AS id
           FROM
           posts
       "
@@ -250,7 +250,7 @@ class Post < ApplicationModel
         posts_sql = posts_sql + " AND ( users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}) )" if !conditions[:location_ids].empty?
         posts_sql = posts_sql + " AND users.id IN (#{conditions[:user_ids].join(',')}) " if !conditions[:user_ids].empty?
       end
-      if conditions[:flagged_only]
+      if conditions[:flagged_only] || reply_count
         posts_sql = posts_sql + " LEFT JOIN posts replies ON replies.parent_post_id = posts.id"
       end
       posts_sql = posts_sql + "
