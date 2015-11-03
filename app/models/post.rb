@@ -166,11 +166,7 @@ class Post < ApplicationModel
   # @param [Like] like that was generated from liking this post
   # @return [Boolean] true if notification was destroyed, false if it was not
   def destroy_post_owner_notification_of_like(like)
-    unless self.user.role == "Poster"
-      self.notifications.find_by_key(post_like_notification_key(like)).destroy rescue true
-    else
-      self.postable.notifications.find_by_key(post_like_notification_key(like)).destroy rescue true
-    end
+    self.notifications.find_by_key(post_like_notification_key(like)).destroy rescue true
   end
 
   # The key that is generated to find likes tied to a notification
@@ -187,21 +183,13 @@ class Post < ApplicationModel
   # @note Notification title and message can be edited in hes-posts_config file in config/initializers folder.
   def create_post_owner_notification_of_reply(reply)
     return if reply.user.id == self.user.id # don't notify user of his own replies..
-    unless self.user.role == "Poster"
-      notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
-    else
-      self.postable.notify(self.postable.user, HesPosts.post_replied_notification_title.call(self.postable, reply), HesPosts.expert_post_replied_notification_message.call(self.postable, reply), :from_user => reply.user, :key => post_reply_notification_key(reply))
-    end
+    notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/wall/#{self.id}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
   end
 
   # Destroys the notification after a post reply is destroyed
   # @return [Boolean] true if notification was destroyed, false if it was not
   def destroy_post_owner_notification_of_reply(reply)
-    unless self.user.role == "Poster"
-      self.notifications.find_by_key(post_reply_notification_key(reply)).destroy rescue true
-    else
-      self.postable.notifications.find_by_key(post_reply_notification_key(reply)).destroy rescue true
-    end
+    self.notifications.find_by_key(post_reply_notification_key(reply)).destroy rescue true
   end
 
   # The key that is generated to find replies tied to a notification
