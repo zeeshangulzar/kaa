@@ -8,7 +8,6 @@ class FitbitLogger
       if entry.save
         log "- updated Entry##{entry.id} on: #{entry.recorded_on}; steps is now #{fds.steps}", 2 if write_to_log
         
-        # *****
         behaviors_array = []
         entry.entry_behaviors.each_with_index{|eb,eb_index|
           behavior_hash = {
@@ -39,28 +38,27 @@ class FitbitLogger
           gifts_array[eg_index] = gift_hash
         }
 
-        entry_hash = {
-          :id                           => entry.id,
-          :recorded_on                  => entry.recorded_on,
-          :is_recorded                  => entry.is_recorded,
-          :exercise_minutes             => entry.exercise_minutes,
-          :exercise_steps               => entry.exercise_steps,
-          :exercise_points              => entry.exercise_points,
-          :behavior_points              => entry.behavior_points,
-          :gift_points                  => entry.gift_points,
-          :url                          => "/entries/" + entry.id.to_s,
-          :notes                        => entry.notes,
-          :entry_behaviors              => behaviors_array,
-          :entry_gifts                  => gifts_array,
-          # :entry_exercise_activities    => activities_array,
-          :goal_steps                   => entry.goal_steps,
-          :goal_minutes                 => entry.goal_minutes,
-          :updated_at                   => entry.updated_at,
-          :manually_recorded            => entry.manually_recorded
-        }
-        # *****
+        entry_object = {}
 
-        $redis.publish('fitbitEntrySaved', entry_hash)
+        entry_object['id'] = entry.id
+        entry_object['user_id'] = entry.user_id
+        entry_object['recorded_on'] = entry.recorded_on
+        entry_object['is_recorded'] = entry.is_recorded
+        entry_object['exercise_minutes'] = entry.exercise_minutes
+        entry_object['exercise_steps'] = entry.exercise_steps
+        entry_object['exercise_points'] = entry.exercise_points
+        entry_object['behavior_points'] = entry.behavior_points
+        entry_object['gift_points'] = entry.gift_points
+        entry_object['url'] = "/entries/" + entry.id.to_s
+        entry_object['notes'] = entry.notes
+        entry_object['entry_behaviors'] = behaviors_array
+        entry_object['entry_gifts'] = gifts_array
+        entry_object['goal_steps'] = entry.goal_steps
+        entry_object['goal_minutes'] = entry.goal_minutes
+        entry_object['updated_at'] = entry.updated_at
+        entry_object['manually_recorded'] = entry.manually_recorded
+
+        $redis.publish('fitbitEntrySaved', entry_object.to_json)
       else
         log "- FALSE returned when updating Entry##{entry.id} on: #{entry.recorded_on}", 2 if write_to_log
       end
@@ -78,7 +76,6 @@ class FitbitLogger
     if entry.save
       log "- Created new entry (#{entry.id}) for User##{fbu.user.id}", 2 if write_to_log
       
-      # *****
       behaviors_array = []
       entry.entry_behaviors.each_with_index{|eb,eb_index|
         behavior_hash = {
@@ -109,28 +106,27 @@ class FitbitLogger
         gifts_array[eg_index] = gift_hash
       }
 
-      entry_hash = {
-        :id                           => entry.id,
-        :recorded_on                  => entry.recorded_on,
-        :is_recorded                  => entry.is_recorded,
-        :exercise_minutes             => entry.exercise_minutes,
-        :exercise_steps               => entry.exercise_steps,
-        :exercise_points              => entry.exercise_points,
-        :behavior_points              => entry.behavior_points,
-        :gift_points                  => entry.gift_points,
-        :url                          => "/entries/" + entry.id.to_s,
-        :notes                        => entry.notes,
-        :entry_behaviors              => behaviors_array,
-        :entry_gifts                  => gifts_array,
-        # :entry_exercise_activities    => activities_array,
-        :goal_steps                   => entry.goal_steps,
-        :goal_minutes                 => entry.goal_minutes,
-        :updated_at                   => entry.updated_at,
-        :manually_recorded            => entry.manually_recorded
-      }
-      # *****
+      entry_object = {}
 
-      $redis.publish('fitbitEntrySaved', entry_hash)
+        entry_object['id'] = entry.id
+        entry_object['user_id'] = entry.user_id
+        entry_object['recorded_on'] = entry.recorded_on
+        entry_object['is_recorded'] = entry.is_recorded
+        entry_object['exercise_minutes'] = entry.exercise_minutes
+        entry_object['exercise_steps'] = entry.exercise_steps
+        entry_object['exercise_points'] = entry.exercise_points
+        entry_object['behavior_points'] = entry.behavior_points
+        entry_object['gift_points'] = entry.gift_points
+        entry_object['url'] = "/entries/" + entry.id.to_s
+        entry_object['notes'] = entry.notes
+        entry_object['entry_behaviors'] = behaviors_array
+        entry_object['entry_gifts'] = gifts_array
+        entry_object['goal_steps'] = entry.goal_steps
+        entry_object['goal_minutes'] = entry.goal_minutes
+        entry_object['updated_at'] = entry.updated_at
+        entry_object['manually_recorded'] = entry.manually_recorded
+
+        $redis.publish('fitbitEntrySaved', entry_object.to_json)
       # not sure why passport required a double-save... assuming Go KP does not
       #self.update_entry(entry, act, fbu, fds, write_to_log)
     else
