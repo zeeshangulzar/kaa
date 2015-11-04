@@ -41,61 +41,66 @@ redis.on('message', function(channel, data) {
 	var userId;
 	var friendId;
 
-	if(typeof data === 'string') {
-		data = JSON.parse(data);
-	}
+	try {
+		if(typeof data === 'string') {
+			data = JSON.parse(data);
+		}
 
-	switch(channel) {
-		case 'entrySaved':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('entrySaved', data);
-			break;
-		case 'fitbitEntrySaved':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('fitbitEntrySaved', data);
-			break;
-		case 'jawboneEntrySaved':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('jawboneEntrySaved', data);
-			break;
-		case 'newMessageCreated':
-			userId = data.user_id.toString();
-			friendId = data.friend_id.toString();
-			io.sockets.in('User' + userId).emit('newMessageCreated', data);
-			io.sockets.in('User' + friendId).emit('newMessageCreated', data);
-			break;
-		case 'newPostCreated':
-			promotionId = data.user.promotion_id.toString();
-			io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
-			break;
-		case 'newTeamPostCreated':
-			teamId = data.wallable_id.toString();
-			io.sockets.in('Team' + teamId).emit('newPostCreated', data);
-			break;
-		case 'notificationPublished':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('notificationPublished', data);
-			break;
-		case 'newCoordinatorNotification':
-			promotionId = data.promotion_id.toString();
-			io.sockets.in('Promotion' + promotionId).emit('newCoordinatorNotification', data);
-			break;
-		case 'welcomeBackMessage':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('welcomeBackPublished', data);
-			break;
-		case 'userUpdated':
-			userId = data.id.toString();
-			io.sockets.in('User' + userId).emit('userUpdated', data);
-			break;
-		case 'TeamInviteAccepted':
-			userId = data.user_id.toString();
-			io.sockets.in('User' + userId).emit('TeamInviteAccepted', data);
-			break;
-		case 'promotionUpdated':
-			promotionId = data.id.toString();
-			io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
-			break;
+		switch(channel) {
+			case 'entrySaved':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('entrySaved', data);
+				break;
+			case 'fitbitEntrySaved':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('fitbitEntrySaved', data);
+				break;
+			case 'jawboneEntrySaved':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('jawboneEntrySaved', data);
+				break;
+			case 'newMessageCreated':
+				userId = data.user_id.toString();
+				friendId = data.friend_id.toString();
+				io.sockets.in('User' + userId).emit('newMessageCreated', data);
+				io.sockets.in('User' + friendId).emit('newMessageCreated', data);
+				break;
+			case 'newPostCreated':
+				promotionId = data.user.promotion_id.toString();
+				io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
+				break;
+			case 'newTeamPostCreated':
+				teamId = data.wallable_id.toString();
+				io.sockets.in('Team' + teamId).emit('newPostCreated', data);
+				break;
+			case 'notificationPublished':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('notificationPublished', data);
+				break;
+			case 'newCoordinatorNotification':
+				promotionId = data.promotion_id.toString();
+				io.sockets.in('Promotion' + promotionId).emit('newCoordinatorNotification', data);
+				break;
+			case 'welcomeBackMessage':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('welcomeBackPublished', data);
+				break;
+			case 'userUpdated':
+				userId = data.id.toString();
+				io.sockets.in('User' + userId).emit('userUpdated', data);
+				break;
+			case 'TeamInviteAccepted':
+				userId = data.user_id.toString();
+				io.sockets.in('User' + userId).emit('TeamInviteAccepted', data);
+				break;
+			case 'promotionUpdated':
+				promotionId = data.id.toString();
+				io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
+				break;
+		}
+	}
+	catch(e) {
+		// console.log(e);
 	}
 });
 
