@@ -158,11 +158,9 @@ class Post < ApplicationModel
       when 'Tip'
         url = "tips/#{self.wallable_id}"
       else
-        if self.user.role == "Poster"
-          url = "wall_expert/#{self.id}"
-        else
-          url = "wall/#{self.id}"
-        end
+        base = self.user.poster? ?  "wall_expert" : "wall"
+        url = !self.parent_post_id.nil? ? "#{base}/#{self.parent_post_id}?reply=#{self.id}" : "#{base}/#{self.id}"
+      end
     end
     notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
   end
