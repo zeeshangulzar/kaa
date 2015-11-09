@@ -169,6 +169,21 @@ class UsersController < ApplicationController
       eval_params = nil
     end
 
+    if @promotion.organization.is_sso_enabled
+      if cookies['sso_session_token'].nil? || cookies['sso_session_token'].strip.empty?
+        return HESResponder("Must provide SSO session token for SSO enabled organizations.", "ERROR")
+      else
+        sso = Sso.find_by_session_token(cookies['sso_session_token']) rescue nil
+        if !sso 
+          return HESResponder("SSO not found.", "ERROR")
+        elsif !@promotion.users.where(:sso_identifier => sso.identifier).empty?
+          return HESResponder("SSO identifier already in use.", "ERROR")
+        else
+          params[:user][:sso_identifier] = sso.identifier
+        end
+      end
+    end
+
     user = @promotion.users.new(params[:user])
     User.transaction do
       if !user.valid?
@@ -199,6 +214,7 @@ class UsersController < ApplicationController
       end
     end
     user.welcome_notification
+    user.attach('auth_basic_header', user.auth_basic_header)
     return HESResponder(user)
   end
   

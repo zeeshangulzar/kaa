@@ -50,8 +50,6 @@ class SsoController < ApplicationController
         # find all active promotions, sorted by launch_on;  then choose the one that launched before today, or the first of those, or the first promotion within the organization
         promos = org.promotions.find(:all,:conditions=>{:is_active=>true},:order=>:launch_on) 
         promo = promos.select{|p|p.launch_on <= Date.today}.first || promos.first || org.promotions.first
-        # gokp "hack" grab first promotion (www) for now...
-        promo = org.promotions.first
 
         if (!promo.flags[:is_verification_displayed]) || promo.eligibilities.find_by_identifier(@identifier)
           token = SecureRandom.hex(16) 
