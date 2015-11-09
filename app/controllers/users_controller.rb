@@ -176,7 +176,7 @@ class UsersController < ApplicationController
         sso = Sso.find_by_session_token(cookies['sso_session_token']) rescue nil
         if !sso 
           return HESResponder("SSO not found.", "ERROR")
-        elsif !@promotion.users.where(:sso_identifer => sso.identifier).empty?
+        elsif !@promotion.users.where(:sso_identifier => sso.identifier).empty?
           return HESResponder("SSO identifier already in use.", "ERROR")
         else
           params[:user][:sso_identifier] = sso.identifier
