@@ -214,6 +214,7 @@ class UsersController < ApplicationController
       end
     end
     user.welcome_notification
+    user.attach('auth_basic_header', user.auth_basic_header)
     return HESResponder(user)
   end
   
