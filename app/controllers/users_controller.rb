@@ -170,12 +170,12 @@ class UsersController < ApplicationController
     end
 
     if @promotion.organization.is_sso_enabled
-      if cookies['sso_session_token'].nil? || if cookies['sso_session_token'].strip.empty?
+      if cookies['sso_session_token'].nil? || cookies['sso_session_token'].strip.empty?
         return HESResponder("Must provide SSO session token for SSO enabled organizations.", "ERROR")
       else
         sso = Sso.find_by_session_token(cookies['sso_session_token']) rescue nil
         if !sso 
-          return HESResponder("SSO not found.". "ERROR")
+          return HESResponder("SSO not found.", "ERROR")
         elsif !@promotion.users.where(:sso_identifer => sso.identifier).empty?
           return HESResponder("SSO identifier already in use.", "ERROR")
         else
