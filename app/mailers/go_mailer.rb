@@ -50,7 +50,7 @@ class GoMailer < ActionMailer::Base
     @message = message
     @base_url = self.base_url(@promotion.subdomain)
     if @model.name == 'CustomContent'
-      subject = "#{Constant::AppName} #{object['category'].titleize}: #{ActionView::Base.full_sanitizer.sanitize(object['title_html'])}"
+      subject = "#{Constant::AppName} #{object['category'].titleize.singularize}: #{ActionView::Base.full_sanitizer.sanitize(HTMLEntities.new.decode(object['title_html'])).gsub(/[^a-z0-9\s]/i, '')}"
     else
       subject = "#{Constant::AppName} #{@model.name.titleize}: #{object['title'] || object['name'] || ''}"
     end
