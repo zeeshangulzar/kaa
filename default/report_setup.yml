@@ -590,6 +590,18 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
+    "78":
+      :identification: true
+      :visible: false
+      :display_name: SSO Identifier
+      :aggregate: false
+      :join: users
+      :sequence: 16
+      :filterable: true
+      :sql_phrase: users.sso_identifier `SSO Identifier`
+      :role: Coordinator
+      :sensitive: false
+      :category: Participant Fields
   joins: 
     "100": 
       :nest_level: 1

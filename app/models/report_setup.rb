@@ -166,15 +166,15 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
-    # if promotion.organization.is_sso_enabled
-    #   fields.each_key do |k|
-    #       if fields[k][:sql_phrase]=~/sso_identifier/
-    #         fields[k][:visible] = true
-    #         fields[k][:display_name] = promotion.organization.sso_label.to_s.empty? ? 'SSO Identifier' : promotion.organization.sso_label
-    #         fields[k][:sql_phrase] = "users.sso_identifier `#{fields[k][:display_name]}`"
-    #       end
-    #   end
-    # end
+    if promotion.organization.is_sso_enabled
+      fields.each_key do |k|
+        if fields[k][:sql_phrase]=~/sso_identifier/
+          fields[k][:visible] = true
+          fields[k][:display_name] = promotion.organization.sso_label.to_s.empty? ? 'SSO Identifier' : promotion.organization.sso_label
+          fields[k][:sql_phrase] = "users.sso_identifier `#{fields[k][:display_name]}`"
+        end
+      end
+    end
     # if promotion.flags[:is_age_displayed]
     #   fields.each_key do |k|
     #       if fields[k][:sql_phrase]=~/born_on/
