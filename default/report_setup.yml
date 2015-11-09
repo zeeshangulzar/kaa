@@ -557,7 +557,7 @@
     "75": 
       :aggregate: true
       :sequence: 75
-      :sql_phrase: IF(COUNT(entries.id) > 0, "Yes", "No") `Days Logged`
+      :sql_phrase: IF(COUNT(entries.id) > 0, "Yes", "No") `Logged Today?`
       :filterable: true
       :role: Coordinator
       :display_name: Logged Today?

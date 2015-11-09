@@ -182,12 +182,14 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #       end
     #   end
     # end
-    # if promotion.flags[:is_address_displayed]
-    #   fields.each_key do |k|
-    #       if fields[k][:join]=='addresses'
-    #         fields[k][:visible] = true
-    #       end
-    #   end
+    if promotion.flags[:is_address_displayed]
+      fields.each_key do |k|
+        if fields[k][:join]=='profiles'
+          # address is on profiles now. every other field that uses profiles join is always visible so we're good here...
+          fields[k][:visible] = true
+        end
+      end
+    end
     return fields
   end
   
