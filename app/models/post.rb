@@ -161,7 +161,6 @@ class Post < ApplicationModel
       base_url = self.user.poster? ? "wall_expert" : "wall"
       url = !self.parent_post_id.nil? ? "#{base_url}/#{self.parent_post_id}?reply=#{self.id}" : "#{base_url}/#{self.id}"
     end
-url = 'test'
     notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
   end
 
