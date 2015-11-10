@@ -138,9 +138,10 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
     # posted variable looks like this: profiles_udfs:27 evaluations_udfs:27|1  (where 27 is the custom prompt id and 3 is pev id)
     #first_udf_field = fields.detect{|f|f.include?('evaluations_udfs')||f.include?('profiles_udfs')}||':|'
-    @setup.fields = @setup.add_custom_prompts(@setup.fields,promotion)
+    #@setup.fields = @setup.add_custom_prompts(@setup.fields,promotion)
     # @setup.fields = @setup.add_locations(@setup.fields, promotion)
     @setup.fields = @setup.add_other_promotion_specific_fields(@setup.fields,promotion)
+    @setup.fields = @setup.add_eval_questions(@setup.fields,promotion)
 
     # see lib/behaviors_for_reports.rb
     @setup.joins = BehaviorsForReports.add_behavior_joins(@setup.joins,promotion)

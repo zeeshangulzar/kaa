@@ -21,7 +21,7 @@ class ReportFieldsController < ApplicationController
       fields = @report_setup.fields
 
       fields = @report_setup.add_one_to_many_fields(fields, @promotion)
-      fields = @report_setup.add_custom_prompts(fields, @promotion)
+      fields = @report_setup.add_eval_questions(fields, @promotion)
       fields = @report_setup.add_other_promotion_specific_fields(fields, @promotion)
       # see lib/behaviors_for_reports.rb
       fields = BehaviorsForReports.add_behavior_fields(fields,@promotion)
