@@ -199,6 +199,8 @@ class SsoController < ApplicationController
     cookies['sso_info'] = {:first_name => sso.first_name, :last_name => sso.last_name, :email => sso.email}.to_json
     cookies['clear_local_storage'] = "true"
     headers['X-SSO-ACTION'] = 'register'
-    redirect_to '/#/register'
+    redirect_to '/'
+    # apparently they don't want to redirect to register now...
+    # redirect_to '/#/register'
   end
 end
