@@ -458,18 +458,6 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "45": 
-      :aggregate: false
-      :sequence: 4
-      :sql_phrase: demographics.ethnicity `Ethnicity Group`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Ethnicity Group
-      :join: ethnicity_demographics
-      :identification: false
-      :sensitive: false
-      :category: Registration Fields
-      :visible: true
     "46": 
       :aggregate: false
       :sequence: 4
@@ -506,18 +494,6 @@
       :sensitive: false
       :category: Competition Fields
       :visible: false
-    "60": 
-      :aggregate: false
-      :sequence: 4
-      :sql_phrase: demographics.age `Age Group`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Age Group
-      :join: age_demographics
-      :identification: false
-      :sensitive: false
-      :category: Registration Fields
-      :visible: true
     "61": 
       :aggregate: false
       :sequence: 50
@@ -557,7 +533,7 @@
     "75": 
       :aggregate: true
       :sequence: 75
-      :sql_phrase: IF(COUNT(entries.id) > 0, "Yes", "No") `Days Logged`
+      :sql_phrase: IF(COUNT(entries.id) > 0, "Yes", "No") `Logged Today?`
       :filterable: true
       :role: Coordinator
       :display_name: Logged Today?
@@ -590,6 +566,18 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
+    "78":
+      :identification: true
+      :visible: false
+      :display_name: SSO Identifier
+      :aggregate: false
+      :join: users
+      :sequence: 16
+      :filterable: true
+      :sql_phrase: users.sso_identifier `SSO Identifier`
+      :role: Coordinator
+      :sensitive: false
+      :category: Participant Fields
   joins: 
     "100": 
       :nest_level: 1

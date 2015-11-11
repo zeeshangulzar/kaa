@@ -17,4 +17,5 @@
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable "CustomContent"
   inflect.uncountable "Store"
+  inflect.uncountable "Sso"
 end

@@ -137,7 +137,7 @@ module HESPrivacy
               #user now has a method named has_made_self_known_to_public? to the user model that executes a SQL query that returns whether the user has likes or posts
               if target_user
                 if target_user.respond_to?(:has_made_self_known_to_public?)
-                  ok = (requester.poster? || target_user.promotion_id == requester.promotion_id) && target_user.has_made_self_known_to_public?
+                  ok = target_user.poster? || ((requester.poster? || target_user.promotion_id == requester.promotion_id) && target_user.has_made_self_known_to_public?)
                 else
                   Rails.logger.warn "HESPrivacy warning: :public_comment was specified but #{target_user.class.to_s} does not have a method named has_made_self_known_to_public?"
                 end

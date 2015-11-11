@@ -170,15 +170,21 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post = @wallable.posts.find(params[:id]) rescue nil
-    if !@post
+    if @current_user.poster? || @current_user.master?
+      post = Post.find(params[:id]) rescue nil
+    else
+      post = @wallable.posts.find(params[:id]) rescue nil
+    end
+    if !post
       return HESResponder("Post", "NOT_FOUND")
     end
-    Post.transaction do
-      @post.views = @post.views + 1
-      @post.save!
+    if !@current_user.poster? && !@current_user.master?
+      Post.transaction do
+        post.views = post.views + 1
+        post.save!
+      end
     end
-    return HESResponder(@post)
+    return HESResponder(post)
   end
 
   def create

@@ -45,3 +45,5 @@ gem 'memcache-client'
 gem 'fastercsv'
 
 gem 'newrelic_rpm'
+
+gem 'htmlentities', "4.3.0"

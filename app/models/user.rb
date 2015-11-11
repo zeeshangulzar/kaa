@@ -75,10 +75,11 @@ class User < ApplicationModel
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :master
 
-  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard
+  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
+  #validates_presence_of :password, :unless => Proc.new { |user| user.promotion.organization.is_sso_enabled }
   validates_uniqueness_of :email, :scope => :promotion_id
 
   belongs_to :promotion
@@ -93,8 +94,8 @@ class User < ApplicationModel
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
   before_validation :set_parents, :on => :create
+  before_validation :set_sso_password, :on => :create
   before_save :set_top_level_location
-
 
   # includes
   include HESUserMixins
@@ -399,6 +400,12 @@ class User < ApplicationModel
 
   def reset_eligibility
     self.eligibility.update_attributes(:user_id => nil) if !self.eligibility.nil?
+  end
+
+  def set_sso_password
+    if self.promotion.organization.is_sso_enabled && (self.password.nil? || self.password.empty?)
+      self.password = SecureRandom.hex(16) 
+    end
   end
 
 end

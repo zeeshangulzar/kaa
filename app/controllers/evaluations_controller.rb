@@ -56,7 +56,14 @@ class EvaluationsController < ApplicationController
     unless custom_prompt_keys.empty?
       udfs = EvaluationUdf.new(:evaluation_id=>evaluation.id)
       custom_prompt_keys.each do |k|
-        udfs[k] = params[k]
+        cpid = k.gsub(/custom_prompt_/,'')
+        cp = CustomPrompt.find(cpid) rescue nil
+        next if !cp
+        val = params[k]
+        if cp.type_of_prompt == 'CHECKBOX' && cp.data_type == 'string'
+          val = (params[k].to_i == 1) ? 'Y' : 'N'
+        end
+        udfs[k] = val
       end
       udfs.save
     end

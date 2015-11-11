@@ -1,7 +1,7 @@
 # Models a evaluation definition that is used to create an evaluation
 class EvaluationDefinition < ApplicationModel
   attr_accessible :name, :days_from_start, :message, :visible_questions, :start_date, :end_date
-  attr_privacy :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :public
+  attr_privacy :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :questions, :public
   belongs_to :eval_definitionable, :polymorphic => true
   attr_privacy_no_path_to_user
 
@@ -18,22 +18,17 @@ class EvaluationDefinition < ApplicationModel
     where("eval_definitionable_type = 'Promotion' AND eval_definitionable_id = #{user.promotion_id} AND ((start_date <= '#{user.promotion.current_date}' AND end_date >= '#{user.promotion.current_date}') OR days_from_start <= #{days})").order("start_date ASC")
   }
 
-  # Overrides serializable_hash so that questions and custom prompts can be included
-  def serializable_hash(options = {})
-    hash = super(options)
-
-    hash["questions"] = []
-
-    # Include the default questions.
+  def questions
+    return @questions if @questions
+    @questions = []
     EvaluationQuestion.all.each do |question|
-      hash["questions"] << question.serializable_hash
+      @questions << question.serializable_hash
     end
-
     # Include any custom prompts it's promotion might have.
     eval_definitionable.custom_prompts.each do |custom_prompt|
-      hash["questions"] << custom_prompt.serializable_hash.merge({"name" => custom_prompt.udf_def.cfn, "type_of_prompt" => custom_prompt.type_of_prompt.upcase}) #if self.send("is_#{custom_prompt.short_label.downcase..gsub(' ', '_')}_displayed?")
+      @questions << custom_prompt.serializable_hash.merge({"name" => custom_prompt.udf_def.cfn, "type_of_prompt" => custom_prompt.type_of_prompt.upcase, "custom_prompt" => true}) #if self.send("is_#{custom_prompt.short_label.downcase..gsub(' ', '_')}_displayed?")
     end
-
-    hash
+    return @questions
   end
+
 end

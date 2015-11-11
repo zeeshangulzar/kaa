@@ -241,5 +241,7 @@ Go::Application.routes.draw do
   match "/promotions/:id/eligibility_files/:eligibility_file_id/process" => "eligibility_files#start_job", :via => :post
   match "eligibility_files/:eligibility_file_id/download" => "eligibility_files#download", :via => :get
   match "/promotions/:id/eligibility_files/:eligibility_file_id/download" => "eligibility_files#download", :via => :get
+
+  match "/sso" => "sso#index"
  
 end

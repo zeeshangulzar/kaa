@@ -282,7 +282,7 @@ class ApplicationController < ActionController::Base
 
   def use_sandbox?
     return true if !params[:promotion_id].nil?
-    return true unless @current_user && @current_user.master? && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
+    return true unless @current_user && (@current_user.poster? || @current_user.master?) && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
     return false
   end
 

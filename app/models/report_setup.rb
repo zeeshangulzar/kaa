@@ -166,15 +166,15 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         end
       end
     end
-    # if promotion.organization.is_sso_enabled
-    #   fields.each_key do |k|
-    #       if fields[k][:sql_phrase]=~/sso_identifier/
-    #         fields[k][:visible] = true
-    #         fields[k][:display_name] = promotion.organization.sso_label.to_s.empty? ? 'SSO Identifier' : promotion.organization.sso_label
-    #         fields[k][:sql_phrase] = "users.sso_identifier `#{fields[k][:display_name]}`"
-    #       end
-    #   end
-    # end
+    if promotion.organization.is_sso_enabled
+      fields.each_key do |k|
+        if fields[k][:sql_phrase]=~/sso_identifier/
+          fields[k][:visible] = true
+          fields[k][:display_name] = promotion.organization.sso_label.to_s.empty? ? 'SSO Identifier' : promotion.organization.sso_label
+          fields[k][:sql_phrase] = "users.sso_identifier `#{fields[k][:display_name]}`"
+        end
+      end
+    end
     # if promotion.flags[:is_age_displayed]
     #   fields.each_key do |k|
     #       if fields[k][:sql_phrase]=~/born_on/
@@ -182,12 +182,14 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #       end
     #   end
     # end
-    # if promotion.flags[:is_address_displayed]
-    #   fields.each_key do |k|
-    #       if fields[k][:join]=='addresses'
-    #         fields[k][:visible] = true
-    #       end
-    #   end
+    if promotion.flags[:is_address_displayed]
+      fields.each_key do |k|
+        if fields[k][:join]=='profiles'
+          # address is on profiles now. every other field that uses profiles join is always visible so we're good here...
+          fields[k][:visible] = true
+        end
+      end
+    end
     return fields
   end
   
@@ -213,6 +215,41 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
     #@categories
     #fields.collect{
   #end
+
+  # new method of populating evaluation questions and custom prompts
+  def add_eval_questions(fields, promotion)
+    new_fields = {}
+    field = {
+      :aggregate      => false,
+      :filterable     => true,
+      :role           => "Coordinator",
+      :join           => "evaluations",
+      :identification => false,
+      :sensitive      => false,
+      :visible        => true
+    }
+    promotion.evaluation_definitions.each{|eval_def|
+      visible_questions = eval_def.visible_questions.split(',')
+      i = 1
+      eval_def.questions.each{|question|
+        if visible_questions.include?(question['name'])
+          newk = "#{question['name']}|#{eval_def.id}"
+          new_fields[newk] = field.dup
+          new_fields[newk][:sequence] = i
+          new_fields[newk][:category] = eval_def.name
+          if question['custom_prompt']
+            new_fields[newk][:sql_phrase] = "evaluations#{eval_def.id}_udfs.#{question['name']} `#{question['short_label']}`"
+            new_fields[newk][:join] = 'evaluationsN_udfs'
+          else
+            new_fields[newk][:sql_phrase] = "evaluations#{eval_def.id}.#{question['name']} `#{question['short_label']}`"
+          end
+          new_fields[newk][:display_name] = question['short_label']
+          i += 1
+        end
+      }
+    }
+    return fields.merge(new_fields)
+  end
   
   def add_one_to_many_fields(fields, promotion)
     # for each one-to-many relationship, add it to new_fields
@@ -225,7 +262,7 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
         promotion.send(o2m).reload unless promotion.send(o2m).loaded?
         fields.delete(k)
 
-        if o2m == 'evaluations'
+        if o2m == 'evaluationsdontmatch' # now using add_eval_questions()
           promotion.evaluation_definitions.each_with_index do |eval_def, index|
             newk = "#{k}|#{eval_def.sequence}"
             new_fields[newk] = v.dup
