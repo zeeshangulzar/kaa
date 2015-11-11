@@ -1,7 +1,7 @@
 class Location < ApplicationModel
   belongs_to :promotion
   belongs_to :parent_location, :class_name=>'Location'
-  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'name'
+  has_many :locations, :class_name=>'Location', :foreign_key=>'parent_location_id', :order=>'sequence ASC, name ASC'
   has_many :contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is null'
   has_many :truncated_contents, :class_name=>'LocationContent', :order=>'sequence', :conditions=>'name is not null'
   attr_accessible *column_names
@@ -13,6 +13,7 @@ class Location < ApplicationModel
   flags :has_content
 
   before_save :set_root_location
+  before_save :set_sequence
 
   validates_presence_of :name
 
@@ -42,6 +43,10 @@ class Location < ApplicationModel
 
   def set_root_location
     self.root_location_id = self.top_location
+  end
+
+  def set_sequence
+    self.sequence ||= self.top? ? self.promotion.locations.top.maximum('sequence').to_i + 1 : self.parent_location.locations.maximum('sequence').to_i + 1 
   end
 
   def top_location(this_location = self, i = 0)
