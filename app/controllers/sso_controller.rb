@@ -62,7 +62,10 @@ class SsoController < ApplicationController
             return HESResponder('Unable to create SSO record.', "ERROR")
           else
             new_url = construct_url(info[:host],request.port,"/sso?token=#{token}")
-            return HESResponder({:url => new_url})
+            # current sso clients are expecting a text response..
+            response.headers["Content-Length"] = new_url.length.to_s
+            render :text => new_url, :status => 200, :content_type => "text/html" and return
+            #return HESResponder({:url => new_url}) 
           end
         else
           return HESResponder('Eligibility record not found', "DENIED")
@@ -193,6 +196,7 @@ class SsoController < ApplicationController
   def send_to_register(sso)
     cookies.delete 'basic'
     cookies['sso_session_token'] = sso.session_token
+    cookies['sso_info'] = {:first_name => sso.first_name, :last_name => sso.last_name, :email => sso.email}.to_json
     cookies['clear_local_storage'] = "true"
     headers['X-SSO-ACTION'] = 'register'
     redirect_to '/#/register'
