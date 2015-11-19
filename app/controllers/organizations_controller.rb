@@ -4,8 +4,6 @@ class OrganizationsController < ApplicationController
 
   authorize :all, :master
 
-  get_parent :organization, :only => [:index, :create], :ignore_missing => [:index, :create]
-
   def index
     organizations = params[:reseller_id] ? Reseller.find(params[:reseller_id]).organizations : Organization.all
     return HESResponder(organizations)

@@ -34,7 +34,7 @@ class ApplicationModel < ActiveRecord::Base
       return hash
     end
 
-    tables = self.connection.tables
+    tables = self.get_tables
 
     hash.keys.each do |key|
       if !options.nil? && !options[:do_not_paginate].nil? && options[:do_not_paginate].is_a?(Array)
@@ -186,5 +186,9 @@ class ApplicationModel < ActiveRecord::Base
       output = output[1..-2]
     end
     return output
+  end
+
+  def get_tables
+    @@tables ||= self.connection.tables
   end
 end
