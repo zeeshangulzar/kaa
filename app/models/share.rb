@@ -1,7 +1,7 @@
 # Like active record class for keeping track of likes that users have
 class Share < ApplicationModel
   belongs_to :shareable, :polymorphic => true
-  belongs_to :user, :in_json => true
+  belongs_to :user
 
   attr_privacy_path_to_user :user
   attr_privacy :shareable, :shareable_type, :shareable_id, :via, :me

@@ -5,7 +5,7 @@ class Rating < ApplicationModel
   MAX_SCORE = 5
 
   belongs_to :rateable, :polymorphic => true
-  belongs_to :user, :in_json => true
+  belongs_to :user
 
   attr_privacy_path_to_user :user
   attr_privacy :rateable, :rateable_type, :rateable_id, :score, :me
