@@ -29,7 +29,7 @@ class NotificationsController < ApplicationController
 
   def index
     notification_owner = @notificationable || @current_user
-    notifications = params[:show_hidden].nil? ? notification_owner.notifications.visible : notification_owner.notifications
+    notifications = params[:show_hidden].nil? ? notification_owner.notifications.includes(:from_user => [:profile, :location]).visible : notification_owner.notifications.includes(:from_user => [:profile, :location])
     return HESResponder(notifications)
   end
 
