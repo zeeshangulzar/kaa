@@ -30,6 +30,10 @@ class HESSecurityMiddleware
       user_id,auth_key = request.user_name_and_password(request)
       user = User.find(:first,:conditions=>{:id => user_id.to_i, :auth_key => auth_key}) rescue nil
       self.class.set_current_user(user)
+    elsif !request.cookies.nil? && !request.cookies['basic'].nil?
+      user_id,auth_key = Base64.decode64(request.cookies['basic'].split(' ', 2).second).split(':', 2)
+      user = User.find(:first,:conditions=>{:id => user_id.to_i, :auth_key => auth_key}) rescue nil
+      self.class.set_current_user(user)
     end
     if @@authenticated_user
       Rails.logger.warn "    HES Security - authenticated user is: User##{@@authenticated_user.id}"
