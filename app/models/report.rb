@@ -44,7 +44,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
 
   # Method to override the default YAML settings
   def to_yaml_properties
-    return ['@id','@report_type','@name','@fields','@filters','@limit','@sql','@created_by_master','@friendly_url_key']
+    return ['@id','@report_type','@name','@fields','@filters','@limit','@sql','@created_by_master','@friendly_url_key', '@stats']
   end
 
   def attributes
@@ -64,6 +64,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
     @sql = attributes[:sql] unless attributes[:sql].nil?
     @created_by_master = attributes[:created_by_master] unless attributes[:created_by_master].nil?
     @friendly_url_key = attributes[:friendly_url_key] unless attributes[:friendly_url_key].nil?
+    @stats = attributes[:stats] unless attributes[:stats].nil?
   end
 
   def update_attributes(attributes)
