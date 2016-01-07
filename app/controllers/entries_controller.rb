@@ -103,11 +103,6 @@ class EntriesController < ApplicationController
     return HESResponder(entries)
   end
 
-  def aggregate
-    year = !params[:year].nil? ? params[:year].to_i : @promotion.current_date.year
-    return HESResponder(Entry.aggregate({:year => year, :user_id => @current_user.id}), "OK", 0)
-  end
-
   def create_or_update(entry_params)
     entry = entry_id = nil
     if !entry_params[:id].nil?
