@@ -8,9 +8,13 @@ class EligibilitiesController < ApplicationController
     @SB = use_sandbox? ? @promotion.eligibilities : Eligibility
   end
   private :set_sandbox
-  
+
   def index  
-    return HESResponder(@SB.all)
+    sql = "SELECT id, first_name, last_name, email, identifier, user_id
+          FROM eligibilities
+          WHERE eligibilities.promotion_id = #{@promotion.id};"
+    rows = ActiveRecord::Base.connection.select_all(sql)
+    return HESResponder(rows)
   end
 
   def validate

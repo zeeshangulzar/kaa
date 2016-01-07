@@ -226,7 +226,6 @@ class Post < ApplicationModel
       :user_ids      => [],
       :location_ids  => [],
       :has_photo     => nil,
-      :current_year  => Date.today.year,
       :flagged_only  => false,
       :query         => nil,
       :by_popularity => false

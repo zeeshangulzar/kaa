@@ -178,7 +178,7 @@ class User < ApplicationModel
     return users
   end
 
-  def self.stats(user_ids,year)
+  def self.stats(user_ids)
     user_ids = [user_ids] unless user_ids.is_a?(Array)
     user = self
     sql = "
@@ -196,7 +196,6 @@ class User < ApplicationModel
       entries
       WHERE
       user_id in (#{user_ids.join(',')})
-      AND YEAR(recorded_on) = #{year}
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
@@ -209,9 +208,9 @@ class User < ApplicationModel
     return user_stats
   end
 
-  def stats(year = self.promotion.current_date.year)
+  def stats()
     unless @stats
-      arr =  self.class.stats([self.id],year)
+      arr =  self.class.stats([self.id])
       @stats = arr[self.id]
     end
     return @stats

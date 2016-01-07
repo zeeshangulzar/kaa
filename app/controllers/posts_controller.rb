@@ -96,7 +96,6 @@ class PostsController < ApplicationController
         :user_ids      => user_ids,
         :location_ids  => location_ids,
         :has_photo     => has_photo,
-        :current_year  => @promotion.current_date.year,
         :flagged_only  => flagged_only,
         :query         => query,
         :by_popularity => by_popularity

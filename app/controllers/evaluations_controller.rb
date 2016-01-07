@@ -54,7 +54,8 @@ class EvaluationsController < ApplicationController
     evaluation = @evaluation_definition.evaluations.create(params[:evaluation])
     custom_prompt_keys = params.keys.select{|k|k.to_s =~ /^custom_prompt_/}
     unless custom_prompt_keys.empty?
-      udfs = EvaluationUdf.new(:evaluation_id=>evaluation.id)
+      udfs = evaluation.udfs
+      udfs = EvaluationUdf.new(:evaluation_id=>evaluation.id) if udfs.nil?
       custom_prompt_keys.each do |k|
         cpid = k.gsub(/custom_prompt_/,'')
         cp = CustomPrompt.find(cpid) rescue nil
