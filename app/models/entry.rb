@@ -1,5 +1,13 @@
 class Entry < ApplicationModel
-
+=begin
+  @@CACHE_CONFIG['Entry'] = {
+    :self         => false,
+    :parents      => false,
+    :ancestors    => false,
+    :children     => false,
+    :descendants  => false
+  }
+=end
   attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :entry_gifts, :goal_steps, :goal_minutes, :manually_recorded, :user_id
   # All entries are tied to a user
   belongs_to :user
@@ -263,7 +271,6 @@ UNION
     points_columns = ['exercise_points', 'gift_points', 'behavior_points']
     columns_to_check = activity_columns + points_columns
     columns_to_check.each{|column|
-      Rails.logger.warn("#{column} is: #{self.send(column).to_i} was: #{self.send(column + "_was").to_i}")
       if self.send(column).to_i != self.send(column + "_was").to_i
         publish = true
         if points_columns.include?(column)
