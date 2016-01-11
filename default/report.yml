@@ -11,6 +11,7 @@
   sql: SELECT COUNT(*) AS 'Number of Users' FROM users WHERE :conditions_with_and email NOT LIKE '%hesonline%' AND email NOT LIKE '%hesapps.com%';
   created_by_master: true
   friendly_url_key: 
+  stats: 
 - !ruby/object:Report 
   id: 2
   report_type: SQL
@@ -23,14 +24,25 @@
   sql: SELECT CASE `demographics`.`gender` WHEN 'm' THEN 'Male' WHEN 'f' THEN 'Female' WHEN 'x' THEN 'Transgender' WHEN 'g' THEN 'Genderqueer' ELSE 'Unspecified' END AS `Participant Gender`, COUNT(users.id) AS `Total Users` FROM users LEFT JOIN demographics ON users.id = demographics.user_id WHERE users.promotion_id = :promotion_id GROUP BY `Participant Gender`
   created_by_master: true
   friendly_url_key: Number of Users by Gender
+  stats: 
 - !ruby/object:Report 
   id: 4
   report_type: Simple
-  name: Division Average Total Inches
+  name: Total Participant Activity
   fields: 
   - "1"
-  - 25|2
-  - "41"
+  - gift_inches
+  - behavior_inches
+  - "9"
+  - gift_times_recorded
+  - entry_behaviors_times:188
+  - entry_behaviors_times:187
+  - entry_behaviors_times:190
+  - entry_behaviors_times:189
+  - minutes_times_recorded
+  - steps_times_recorded
+  - "7"
+  - "6"
   filters: !map:ActiveSupport::HashWithIndifferentAccess 
     hashes: 
   limit: 
@@ -42,6 +54,7 @@
     group by dates.registered_on
   created_by_master: true
   friendly_url_key: Total Participants by Day
+  stats: 
 - !ruby/object:Report 
   id: 5
   report_type: Simple
@@ -56,6 +69,7 @@
   sql: 
   created_by_master: false
   friendly_url_key: Days Logged by User
+  stats: 
 - !ruby/object:Report 
   id: 11
   report_type: SQL
