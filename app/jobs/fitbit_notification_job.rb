@@ -64,7 +64,7 @@ class FitbitNotificationJob
                 if fds
                   if fds.steps > 0
                     # Only need to deal with an entry if the date is within the logging period of the promotion.  does gokp end???
-                    if notification.date >= fitbit_user.user.promotion.starts_on #&& notification.date <= fitbit_user.user.promotion.ends_on
+                    if notification.date >= fitbit_user.user.promotion.starts_on && notification.date <= fitbit_user.user.promotion.ends_on
                       if entry
 
                         # Update the entry.
