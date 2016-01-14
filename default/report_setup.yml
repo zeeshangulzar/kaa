@@ -65,7 +65,7 @@
     "6": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.exercise_steps) `Total Steps`
+      :sql_phrase: SUM(COALESCE(entries.exercise_steps, 0)) `Total Steps`
       :filterable: true
       :role: Coordinator
       :display_name: Total Steps
@@ -89,7 +89,7 @@
     "7": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: SUM(entries.exercise_minutes) `Total Minutes`
+      :sql_phrase: SUM(COALESCE(entries.exercise_minutes, 0)) `Total Minutes`
       :filterable: true
       :role: Coordinator
       :display_name: Total Minutes
@@ -509,7 +509,7 @@
     "73": 
       :aggregate: true
       :sequence: 73
-      :sql_phrase: team_score.score `Team Score`
+      :sql_phrase: COALESCE(team_score.score, 0) `Team Score`
       :filterable: true
       :role: Coordinator
       :display_name: Team Score
