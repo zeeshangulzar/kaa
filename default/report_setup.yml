@@ -578,6 +578,18 @@
       :role: Coordinator
       :sensitive: false
       :category: Participant Fields
+    "78":
+      :identification: true
+      :visible: true
+      :display_name: Eligibility ID
+      :aggregate: false
+      :join: eligibilities
+      :sequence: 17
+      :filterable: true
+      :sql_phrase: eligibilities.identifier `Eligibility ID`
+      :role: Coordinator
+      :sensitive: false
+      :category: Participant Fields
   joins: 
     "100": 
       :nest_level: 1
