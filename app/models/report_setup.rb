@@ -247,6 +247,13 @@ class ReportSetup < HesReportsYaml::HasYamlContent::YamlContentBase
           i += 1
         end
       }
+    
+      newk = "completed_on|#{eval_def.id}"
+      new_fields[newk] = field.dup
+      new_fields[newk][:sequence] = i
+      new_fields[newk][:category] = eval_def.name
+      new_fields[newk][:sql_phrase] = "DATE_FORMAT(evaluations#{eval_def.id}.created_at, '%Y-%m-%d') `Completed On`"
+      new_fields[newk][:display_name] = 'Completed On'
     }
     return fields.merge(new_fields)
   end
