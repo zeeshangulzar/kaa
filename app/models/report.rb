@@ -196,6 +196,10 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
         having = sql_having_from_hashes(filters[:hashes]||[]).strip
         new_sql.gsub!(':having'," HAVING #{having} ")
       end
+      
+      unless new_sql[-20...(new_sql.size)].to_s.downcase =~ /limit/
+        new_sql << " LIMIT 50000"
+      end
 
       return new_sql
     else
@@ -208,7 +212,7 @@ class Report < HesReportsYaml::HasYamlContent::YamlContentBase
       new_sql.gsub!(":location_id","'#{filters[:special][:location].to_s}'")
       new_sql.gsub!(":top_level_location_id","'#{filters[:special][:top_level_location].to_s}'")
       new_sql.gsub!(":evaluation_definition_id","'#{filters[:special][:evaluation_definition_id].to_s}'")
-      return new_sql
+      return "#{new_sql} LIMIT 50000"
     end
   end
 
