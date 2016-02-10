@@ -9,8 +9,6 @@ class EvaluationDefinition < ApplicationModel
 
   many_to_many :with => :custom_prompt, :primary => :evaluation_definition
 
-  maintain_sequence
-
   scope :active, where("start_date <= '#{Date.today}' AND end_date >= '#{Date.today}'").order("start_date ASC")
 
   scope :active_with_user, lambda{ |user|
