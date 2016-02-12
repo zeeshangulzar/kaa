@@ -19,6 +19,7 @@ class FitbitsController < ApplicationController
   def begin
     unless params[:return_url].to_s.strip.empty?
       redirect_url = HESFitbit.begin_authorization(@current_user,:return_url=>params[:return_url])
+      redirect_url << "&requestCredentials=true"
       render :json => {:url=>redirect_url}
     else
       render :json => {:url=>"missing return_url parameter"}, :status => 422
