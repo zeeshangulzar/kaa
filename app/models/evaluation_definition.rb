@@ -1,6 +1,6 @@
 # Models a evaluation definition that is used to create an evaluation
 class EvaluationDefinition < ApplicationModel
-  attr_accessible :name, :days_from_start, :message, :visible_questions, :start_date, :end_date
+  attr_accessible :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :questions
   attr_privacy :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :questions, :public
   belongs_to :eval_definitionable, :polymorphic => true
   attr_privacy_no_path_to_user
@@ -8,8 +8,6 @@ class EvaluationDefinition < ApplicationModel
   has_many :evaluations
 
   many_to_many :with => :custom_prompt, :primary => :evaluation_definition
-
-  maintain_sequence
 
   scope :active, where("start_date <= '#{Date.today}' AND end_date >= '#{Date.today}'").order("start_date ASC")
 

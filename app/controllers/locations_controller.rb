@@ -99,4 +99,24 @@ class LocationsController < ApplicationController
   end
   private :process_csv_row
 
+  # resequencing of a custom content category, follow along cuz this one gets a bit hairy
+  def reorder
+    # must include a promotion, the sequence and the category
+    return HESResponder("Must provide parent location and sequence.", "ERROR") if params[:sequence].nil? || !params[:sequence].is_a?(Array) || !defined?(params[:parent_location_id])
+    
+    locations = params[:parent_location_id].nil? ? @promotion.locations.top : @promotion.locations.find_by_id(params[:parent_location_id]).locations
+    
+    # make sure the posted sequence contains every content id for the category
+    location_ids = locations.collect{|location|location.id}
+    return HESResponder("Location ids are mismatched.", "ERROR") if (location_ids & params[:sequence]) != location_ids
+    
+    sequence = 0
+    params[:sequence].each{ |location_id|
+      location = Location.find(location_id)
+      location.update_attributes(:sequence => sequence)
+      sequence += 1
+    }
+    return HESResponder() # bob just wants a 200...
+  end
+  
 end

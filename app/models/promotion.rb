@@ -40,7 +40,7 @@ class Promotion < ApplicationModel
 
   has_custom_prompts :with => :evaluations
 
-  has_many :locations, :order => "parent_location_id, name", :dependent => :destroy
+  has_many :locations, :order => "parent_location_id, sequence, name", :dependent => :destroy
 
   has_wall
   has_evaluations
@@ -71,6 +71,7 @@ class Promotion < ApplicationModel
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
+  validates_uniqueness_of :subdomain
 
   def self.active_scope_sql
     return "is_active = 1 AND launch_on <= '#{Date.today.to_s(:db)}' AND (disabled_on IS NULL OR disabled_on >= '#{Date.today.to_s(:db)}') AND subdomain NOT IN ('#{Promotion::DEFAULT_SUBDOMAIN}', '#{Promotion::DASHBOARD_SUBDOMAIN}')"
