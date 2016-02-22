@@ -1,6 +1,6 @@
 # Models a evaluation definition that is used to create an evaluation
 class EvaluationDefinition < ApplicationModel
-  attr_accessible :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :questions
+  attr_accessible :name, :days_from_start, :message, :visible_questions, :start_date, :end_date
   attr_privacy :name, :days_from_start, :message, :visible_questions, :start_date, :end_date, :questions, :public
   belongs_to :eval_definitionable, :polymorphic => true
   attr_privacy_no_path_to_user
