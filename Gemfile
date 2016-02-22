@@ -29,7 +29,7 @@ gem 'oj'
 gem "bluecloth", '2.2.0'
 #gem 'yajl-ruby', :require => "yajl"
 gem "resque", "1.25.2", :require => "resque/server"
-gem "resque-multi-job-forks"
+gem "hes-resque-multi-job-forks"
 
 gem "hes-fitbit","1.0.21"
 gem "hes-jawbone","1.0.7"
