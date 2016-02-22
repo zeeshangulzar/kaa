@@ -60,10 +60,18 @@ class CustomPrompt < ApplicationModel
 
   validates_uniqueness_of :prompt, :short_label, :scope => [:custom_promptable_id, :custom_promptable_type]
 
+  before_create :set_data_type
+  
   # Add udf definitions after each custom prompt is created
   after_create :add_udf
 
   after_create :trigger_after_custom_prompt_add
+
+  def set_data_type
+    if self.type_of_prompt == MULTILINETEXTBOX
+      self.data_type = 'text'
+    end
+  end
 
   # Adds a user defined field definition for each custom prompt. The models that own these definitions are set when declaring a model to have custom prompts.
   # @example
