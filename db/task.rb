@@ -123,4 +123,33 @@ class Task
     end
   end
 
+  def self.check_resque
+    problem_messages = []
+    if Resque.info[:pending] > 500
+      problem_messages << ">There are #{Resque.info[:pending]} pending jobs in Resque"
+    end
+
+    if Resque.workers.size > 0
+      Resque.workers.each do |worker|
+        job = worker.job
+        if job.size > 0
+          running_since = Time.parse(job['run_at'])
+          if running_since < 10.minutes.ago
+            problem_messages << ">The worker and job below have been running since #{job['run_at']}\n#{worker.inspect}\n#{job.inspect}"
+          end
+        end
+      end
+    else
+      problem_messages << ">There are 0 Resque workers running"
+    end
+
+    if !problem_messages.empty?
+      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("\n")).deliver
+      puts ">Detected issues with Resque #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
+      puts problem_messages.join("\n")
+    else
+      puts ">No issues detected #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
+    end
+  end
+
 end
