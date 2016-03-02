@@ -144,7 +144,7 @@ class Task
     end
 
     if !problem_messages.empty?
-      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("\n")).deliver
+      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("\n"), User.first, Promotion.first).deliver
       puts ">Detected issues with Resque #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
       puts problem_messages.join("\n")
     else
