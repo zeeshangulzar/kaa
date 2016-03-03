@@ -135,7 +135,25 @@ class Task
         if job.size > 0
           running_since = Time.parse(job['run_at'])
           if running_since < 10.minutes.ago
-            problem_messages << ">The worker and job below have been running since #{job['run_at']}\n#{worker.inspect}\n#{job.inspect}"
+            problem_messages << "The worker and job below have been running since #{job['run_at']}"
+            problem_messages << "#{worker.to_yaml}"
+            problem_messages << "#{job.to_yaml}"
+            if running_since < 2.hours.ago
+              worker_pid = worker.to_s.split(':')[1]
+              if worker_pid.to_i > 0
+                ps_line = `ps -p #{worker_pid} u | tail -n1`
+                child_pid = ps_line.split('Forked ')[1].to_i
+                if child_pid > 0
+                  cmd = "kill -s KILL #{child_pid}"
+                  `#{cmd}`
+                  problem_messages << "The job was killed because it was running for #{((Time.now - running_since)/60).to_i} minutes.\n#{cmd}"
+                else
+                  problem_messages << "The job could not be killed because the PID of the forked worker could not be found."
+                end
+              else
+                problem_messages << "The job could not be killed because the PID of the worker could not be found."
+              end
+            end
           end
         end
       end
@@ -144,11 +162,11 @@ class Task
     end
 
     if !problem_messages.empty?
-      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("\n"), User.first, Promotion.first).deliver
-      puts ">Detected issues with Resque #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
+      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("<br/><br/>").gsub("\n","<br/>"), User.first, Promotion.first).deliver
+      puts "Detected issues with Resque #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
       puts problem_messages.join("\n")
     else
-      puts ">No issues detected #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
+      puts "No issues detected #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
     end
   end
 
