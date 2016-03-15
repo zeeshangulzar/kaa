@@ -1,6 +1,6 @@
 class FitbitsController < ApplicationController
   authorize :begin, :disconnect, :get_daily_summaries, :use_fitbit_data, :user
-  authorize :post_authorize, :notify, :public
+  authorize :post_authorize, :notify, :callback2, :public
 
   # Begin the Fitbit OAuth connection process, and return a fitbit.com URL
   #
@@ -205,14 +205,56 @@ class FitbitsController < ApplicationController
 
   def notify
     Rails.logger.warn "FITBIT NOTIFICATION!!!\n#{params.inspect}"
+    if params[:verify]
+      if params[:verify] == '138d582a4cab407f490390460377ac21ea2c3409359c29133afcae2fa116649b'
+        head :no_content
+      else
+        head :not_found
+      end
+    else
+      begin
+        Resque.enqueue(FitbitNotificationJob, params[:_json])
+      rescue => ex
+        Rails.logger.warn "FITBIT NOTIFICATION FAILED!!!\n#{params.inspect}\n#{ex.backtrace.join("\n")}: #{ex.message} (#{ex.class})"
+      end
 
-    begin
-      Resque.enqueue(FitbitNotificationJob, params[:_json])
-    rescue => ex
-      Rails.logger.warn "FITBIT NOTIFICATION FAILED!!!\n#{params.inspect}\n#{ex.backtrace.join("\n")}: #{ex.message} (#{ex.class})"
+      head :no_content
     end
-
-    head :no_content
   end
+
+
+  #________________________________________
+  #  Copied from devices_test
+  #________________________________________
+
+  # this is where Fitbit returns the user to fitbit.hesapps.com, 
+  # and we now need to return the user to his/her promotion URL
+  # This is for OAuth 2 ***ONLY***
+  def callback2
+    oauth_token = FitbitOauthToken.where(:token=>params[:state]).last
+    verifier = params[:code]
+    if oauth_token
+      return_url = request.original_url
+      #xd = YAML::load oauth_token.extra_data
+      # if return_url already has a ? in it, then this needs to add an & and not a ? 
+      #question_mark_or_ampersand = xd[:return_url].to_s =~ /\?/ ? '&' : '?'
+      question_mark_or_ampersand = return_url.to_s =~ /\?/ ? '&' : '?'
+      #There's a code and a state that need to go with:
+      url = ""
+      url += "#{return_url.gsub("callback2","post_authorize")}"
+      if !verifier.nil? && !verifier.empty? 
+        #Only add the token and verifier if we have both
+        #This way, the recieving application can respond if they're missing
+        url += "#{question_mark_or_ampersand}"
+        url += "oauth_token=#{params[:state]}"
+        url += "&oauth_verifier=#{params[:code]}"
+      end
+      redirect_to url
+    else
+      render :text=>"error processing oauth token", :layout=>false
+    end
+  end
+
+
 
 end

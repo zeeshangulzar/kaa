@@ -30,6 +30,7 @@ GEM
     activesupport (3.2.19)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
+    addressable (2.3.6)
     arel (3.0.3)
     bcrypt-ruby (3.0.1)
     bluecloth (2.2.0)
@@ -48,10 +49,11 @@ GEM
       rails (~> 3)
     hes-events (0.0.2)
       rails (~> 3)
-    hes-fitbit (1.0.15)
-      hes-fitgem (= 1.0.0)
-    hes-fitgem (1.0.0)
-      oauth
+    hes-fitbit (2.0.5)
+      hes-fitgem (= 2.0.5)
+    hes-fitgem (2.0.5)
+      addressable (= 2.3.6)
+      oauth2-client
     hes-jawbone (1.0.7)
       hes-jawbone-api (= 0.4.3)
       mime-types (~> 1.25.0)
@@ -59,6 +61,9 @@ GEM
     hes-jawbone-api (0.4.3)
       httparty (= 0.11.0)
     hes-many_to_many (1.0.0)
+    hes-resque-multi-job-forks (0.4.3)
+      json
+      resque (~> 1.22)
     hes-sequencer (0.0.1)
       hes-many_to_many
       rails (~> 3.2.11)
@@ -68,6 +73,7 @@ GEM
       i18n (< 7.0)
       rspec (>= 3.0.0)
     hike (1.2.3)
+    htmlentities (4.3.0)
     httparty (0.11.0)
       multi_json (~> 1.0)
       multi_xml (>= 0.5.2)
@@ -85,7 +91,9 @@ GEM
     multipart-post (2.0.0)
     mysql2 (0.3.16)
     newrelic_rpm (3.13.0.299)
-    oauth (0.4.7)
+    oauth2-client (2.0.0)
+      addressable (~> 2.3)
+      bcrypt-ruby (~> 3.0)
     oj (2.12.13)
     polyglot (0.3.5)
     rack (1.4.7)
@@ -170,10 +178,12 @@ DEPENDENCIES
   fastercsv
   hes-authorization
   hes-events
-  hes-fitbit (= 1.0.15)
+  hes-fitbit (= 2.0.5)
   hes-jawbone (= 1.0.7)
+  hes-resque-multi-job-forks
   hes-sequencer
   hes_route_docs
+  htmlentities (= 4.3.0)
   i18n (= 0.6.11)
   json
   memcache-client
@@ -188,3 +198,6 @@ DEPENDENCIES
   resque (= 1.25.2)
   rest-client (= 1.6.7)
   rmagick (~> 2.13)
+
+BUNDLED WITH
+   1.10.2

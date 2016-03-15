@@ -192,11 +192,13 @@ Go::Application.routes.draw do
     collection do
       post :begin
       get :post_authorize
+      get :callback2
       post :disconnect
       post :refresh_week
       post :use_fitbit_data
       post :master_info
       post :notify
+      get :notify
     end
   end
 
