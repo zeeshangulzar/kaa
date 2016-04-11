@@ -201,14 +201,18 @@ class UsersController < ApplicationController
           demographic.user_id = user.id
           demographic.save!
         end
-        if !params[:eligibility_identifier].nil? && !params[:eligibility_identifier].empty?
-          eligibility = @promotion.eligibilities.find_by_identifier(params[:eligibility_identifier]) rescue nil
-          return HESResponder("Eligibility not found.", "ERROR") if !eligibility
-          if !eligibility.user_id.nil?
-            return HESResponder("Eligibility identifier already in use.", "ERROR")
+        if self.promotion.flags[:is_eligibility_displayed]
+          if params[:eligibility_identifier].nil? || params[:eligibility_identifier].empty?
+            return HESResponder("Eligibility identifier required.", "ERROR")
           else
-            eligibility.user_id = user.id
-            eligibility.save!
+            eligibility = @promotion.eligibilities.find_by_identifier(params[:eligibility_identifier]) rescue nil
+            return HESResponder("Eligibility not found.", "ERROR") if !eligibility
+            if !eligibility.user_id.nil?
+              return HESResponder("Eligibility identifier already in use.", "ERROR")
+            else
+              eligibility.user_id = user.id
+              eligibility.save!
+            end
           end
         end
       end
