@@ -111,7 +111,7 @@ class Competition < ApplicationModel
     teams = []
     
     rank = 0
-    team_count = 0
+    team_count = !conditions[:offset].nil? ? conditions[:offset].to_i : 0
     previous_team = nil
     neighbors_index = nil
     result.each{|row|
