@@ -407,4 +407,13 @@ class User < ApplicationModel
     end
   end
 
+  def keywords
+    current_team = self.current_team
+    return {
+      'USER_FULLNAME'            => "#{self.profile.first_name} #{self.profile.last_name}",
+      'USER_TEAM_SIZE' => current_team.nil? ? 0 : current_team.member_count,
+      'USER_TEAM_MEMBERS_TO_OFFICIAL' => current_team.nil? ? 0 : current_team.status == Team::STATUS[:pending] ?  current_team.competition.team_size_min - current_team.member_count : 0
+    }
+  end
+
 end

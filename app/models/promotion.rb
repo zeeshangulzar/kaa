@@ -327,7 +327,7 @@ class Promotion < ApplicationModel
   def keywords
     return {
       'APP_NAME'        => Constant::AppName,
-      'NAME'            => self.name,
+      'PROMOTION_NAME'  => self.name,
       'COMP_REG_STARTS' => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_starts_on.strftime("%A, %B #{self.current_competition.enrollment_starts_on.day}, %Y"),
       'COMP_REG_ENDS'   => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_ends_on.strftime("%A, %B #{self.current_competition.enrollment_ends_on.day}, %Y"),
       'COMP_STARTS'     => self.current_competition.nil? ? Date.today : self.current_competition.competition_starts_on.strftime("%A, %B #{self.current_competition.competition_starts_on.day}, %Y"),
@@ -339,7 +339,8 @@ class Promotion < ApplicationModel
       'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil,
-      'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}"
+      'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}",
+      'COMP_TEAM_SIZE'  => self.current_competition.nil? ? 0 : self.current_competition.team_size_message
     }
   end
 

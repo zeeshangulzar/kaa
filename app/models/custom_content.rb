@@ -116,7 +116,7 @@ class CustomContent < ApplicationModel
   end
 
   # substitute promotion keywords for markdown columns
-  def self.keyworded(custom_content, promotion = nil)
+  def self.keyworded(custom_content, promotion = nil, user = nil)
     array_passed = custom_content.is_a?(Array)
     custom_contents = array_passed ? custom_content : [custom_content]
     promotion ||= self.promotion
@@ -125,6 +125,10 @@ class CustomContent < ApplicationModel
         original = custom_content.send(column)
         re = Regexp.union(promotion.keywords.keys)
         with_keywords = original.gsub(re) { |m| promotion.keywords[m] }
+        if !user.nil?
+          re = Regexp.union(user.keywords.keys)
+          with_keywords = with_keywords.gsub(re) { |m| user.keywords[m] }
+        end
         custom_content.send("#{column}=", with_keywords)
       }
     }
