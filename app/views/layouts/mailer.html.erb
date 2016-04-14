@@ -40,6 +40,7 @@
               <% end %>
             </p>
           </td>
+          <% unless @promotion.organization.is_hes_info_removed %>
           <td align="right">
             <p style="margin-bottom:80px;color: #508AA2; font-size: 12px; height: 30px;float:right;margin-top:5px;font-family:Open Sans, Helvetica, Arial;">
               &copy; 
@@ -47,6 +48,7 @@
               Health Enhancement Systems 
             </p>
           </td>
+          <% end %>
         </tr>
       </table>
     </td>
