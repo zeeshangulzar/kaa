@@ -201,7 +201,7 @@ class UsersController < ApplicationController
           demographic.user_id = user.id
           demographic.save!
         end
-        if self.promotion.flags[:is_eligibility_displayed]
+        if @promotion.flags[:is_eligibility_displayed]
           if params[:eligibility_identifier].nil? || params[:eligibility_identifier].empty?
             return HESResponder("Eligibility identifier required.", "ERROR")
           else
