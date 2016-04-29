@@ -2,7 +2,7 @@ class Competition < ApplicationModel
 
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :team_size_min, :team_size_max, :promotion_id, :public
+  attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :team_size_min, :team_size_max, :promotion_id, :freeze_team_scores_on, :public
   attr_privacy :freeze_team_scores, :master
   
   # Associations
