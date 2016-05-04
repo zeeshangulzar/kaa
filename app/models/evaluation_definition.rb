@@ -29,4 +29,18 @@ class EvaluationDefinition < ApplicationModel
     return @questions
   end
 
+  def add_visible_question(name)
+    vqArray = []
+    vqArray = self.visible_questions.split(",") unless self.visible_questions.nil?
+    vqArray.push name if (vqArray.index name).nil?
+    self.visible_questions = vqArray.join(",")
+  end
+
+  def remove_visible_question(name)
+    vqArray = []
+    vqArray = self.visible_questions.split(",") unless self.visible_questions.nil?
+    vqArray.delete_if {|question| question == name}
+    self.visible_questions = vqArray.join(",")
+  end
+
 end
