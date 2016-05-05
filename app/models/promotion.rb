@@ -359,80 +359,122 @@ class Promotion < ApplicationModel
       :location_ids => [],
       :sort         => "total_points",
       :sort_dir     => "DESC"
-    }.nil_merge!(conditions)
+      }.nil_merge!(conditions)
 
-    users_sql = "
+      users_sql = "
       SELECT
-    "
-    if count
-      users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
-    else
-      users_sql = users_sql + "
+      "
+      if count
+        users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
+      else
+        users_sql = users_sql + "
         users.id, profiles.first_name, profiles.last_name, profiles.image, users.location_id, users.top_level_location_id, users.total_points,
         locations.id AS location_id, locations.name AS location_name
-      "
-    end
-    users_sql = users_sql + "
-      FROM users
-        JOIN profiles ON profiles.user_id = users.id
-        LEFT JOIN locations ON locations.id = users.location_id
-      WHERE
-        users.promotion_id = #{self.id}
-        AND users.opted_in_individual_leaderboard = 1
-        #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
-    "
-    if !count
+        "
+      end
       users_sql = users_sql + "
+      FROM users
+      JOIN profiles ON profiles.user_id = users.id
+      LEFT JOIN locations ON locations.id = users.location_id
+      WHERE
+      users.promotion_id = #{self.id}
+      AND users.opted_in_individual_leaderboard = 1
+      #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
+      "
+      if !count
+        users_sql = users_sql + "
         GROUP BY users.id
         ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
         #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
         #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
-      "
-    end
-    result = self.connection.exec_query(users_sql)
-    if count
-      return result.first['user_count']
-    end
-    users = []
-    rank = 0
-    user_count = 0
-    previous_user = nil
-    result.each{|row|
-      user_count += 1
-      user = {}
-      user['profile']                 = {}
-      user['profile']['image']        = {}
-      user['location']                = {}
-      user['id']                      = row['id']
-      user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
-      user['profile']['first_name']   = row['first_name']
-      user['profile']['last_name']    = row['last_name']
-      user['location']['id']          = row['location_id']
-      user['location']['name']        = row['location_name']
-      user['total_points']            = row['total_points']
-      rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
-      user['rank']                    = rank
-      users << user
-      previous_user = user
-    }
-
-    return users
-  end
-
-  def total_participants
-    return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
-  end
-
-  def eligibility_fields
-    unless @eligibility_fields
-      fields = Eligibility::DEFAULT_FIELDS
-      if self.custom_eligibility_fields
-        custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
-        fields = fields + custom_fields
+        "
       end
-      @eligibility_fields = fields
-    end
-    return @eligibility_fields
-  end
+      result = self.connection.exec_query(users_sql)
+      if count
+        return result.first['user_count']
+      end
+      users = []
+      rank = 0
+      user_count = 0
+      previous_user = nil
+      result.each{|row|
+        user_count += 1
+        user = {}
+        user['profile']                 = {}
+        user['profile']['image']        = {}
+        user['location']                = {}
+        user['id']                      = row['id']
+        user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
+        user['profile']['first_name']   = row['first_name']
+        user['profile']['last_name']    = row['last_name']
+        user['location']['id']          = row['location_id']
+        user['location']['name']        = row['location_name']
+        user['total_points']            = row['total_points']
+        rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
+        user['rank']                    = rank
+        users << user
+        previous_user = user
+      }
 
-end
+      return users
+    end
+
+    def total_participants
+      return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+    end
+
+    def eligibility_fields
+      unless @eligibility_fields
+        fields = Eligibility::DEFAULT_FIELDS
+        if self.custom_eligibility_fields
+          custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
+          fields = fields + custom_fields
+        end
+        @eligibility_fields = fields
+      end
+      return @eligibility_fields
+    end
+
+    def all_user_emails
+      sql = "
+      SELECT
+      users.email
+      FROM users
+      WHERE users.promotion_id = #{self.id}"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+    def all_team_leaders_current_competition_emails
+      sql = "SELECT
+      users.email
+      from users
+      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+      inner join teams on team_members.team_id = teams.id and teams.status in (1,0)
+      where users.promotion_id = #{self.id} and users.id is not null"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+    def all_unofficial_current_competition_team_leaders_emails
+      sql = "
+      SELECT
+      users.email
+      from users
+      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+      inner join teams on team_members.team_id = teams.id and teams.status = 0
+      where users.promotion_id = #{self.id} and users.id is not null"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+  end

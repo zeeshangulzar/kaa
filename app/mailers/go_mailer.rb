@@ -193,6 +193,19 @@ class GoMailer < ActionMailer::Base
     end
   end
 
+  def one_time_email(emails, subject, message, from = nil, promotion = nil)
+    @message = message
+    # set the address first based on the from user
+    # because we have to get some sort of user for the template and we don't want their email showing up...
+    from_address = fromHandler(from)
+    @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
+    @promotion = promotion
+    @no_preferences = true
+    if !emails.empty?
+      mail(:to => emails, :subject => subject, :from => from_address)
+    end
+  end
+
   def fromHandler(user = nil)
     return FormattedFromAddress if !user
     # todo: handle hiding emails based on promotion config and user preferences for future apps

@@ -53,6 +53,7 @@ Go::Application.routes.draw do
 
   get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
+  post '/promotions/:promotion_id/one_time_email', :to=>'promotions#one_time_email'
 
   match 'promotions/get_grouped_promotions', :controller => :promotions, :action => :get_grouped_promotions, :via => :get
 

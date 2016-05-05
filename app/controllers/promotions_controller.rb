@@ -4,7 +4,7 @@ class PromotionsController < ApplicationController
   authorize :show, :current, :top_location_stats, :verify_users_for_achievements, :authenticate, :can_register, :public
   authorize :index, :poster
   authorize :get_grouped_promotions, :coordinator
-  authorize :create, :update, :destroy, :keywords, :master
+  authorize :create, :update, :destroy, :keywords, :one_time_email, :master
 
   def index
     promotions = params[:organization_id] ? Organization.find(params[:organization_id]).promotions : params[:reseller_id] ? Reseller.find(params[:reseller_id]).promotions : nil
@@ -41,10 +41,10 @@ class PromotionsController < ApplicationController
     end
 
     sql = "SELECT promotions.id promotion_id, promotions.subdomain, promotions.launch_on, organizations.id organization_id, organizations.name organization_name
-          FROM promotions
-          inner join organizations on organizations.id = promotions.id
-          #{"WHERE #{conditions}" unless conditions.empty?}
-          order by organizations.name, promotions.subdomain"
+    FROM promotions
+    inner join organizations on organizations.id = promotions.id
+    #{"WHERE #{conditions}" unless conditions.empty?}
+    order by organizations.name, promotions.subdomain"
 
     rows = Promotion.connection.select_all sql
 
@@ -151,6 +151,59 @@ class PromotionsController < ApplicationController
   def can_register
     return HESResponder() if @promotion.max_participants.nil? || @promotion.max_participants > @promotion.total_participants
     return HESResponder("Maximum participants reached.", "ERROR")
+  end
+
+  def one_time_email
+    promotion = Promotion.find(params[:promotion_id]) rescue nil
+    head :not_found and return unless promotion
+
+    recipients = 
+    if params[:email][:recipients].is_a?(Array)
+      params[:email][:recipients]
+    else
+      arr = params[:email][:recipients].split("\n")
+      other_splitters = [",",";","|"]
+      other_splitters.each do |splitter|
+        arr = arr.collect{|r|r.split(splitter)}.flatten
+      end
+      arr.delete("\r")
+      arr.delete("")
+      arr
+    end
+
+    if params[:email][:include_all] == true
+      recipients = (recipients.concat promotion.all_user_emails).uniq
+    end
+
+    if params[:email][:include_team_leaders] == true
+      recipients = (recipients.concat promotion.all_team_leaders_current_competition_emails).uniq
+    end
+
+    if params[:email][:include_unofficial_team_leaders] == true
+      recipients = (recipients.concat promotion.all_unofficial_current_competition_team_leaders_emails).uniq
+    end
+
+    markdown_body = Markdown.new(params[:email][:body]).to_html #.gsub(/^<p>/,'').gsub(/<\/p>$/,'')
+
+    #host=DomainConfig.swap_subdomain(request.host,@promotion.subdomain)
+    host="#{promotion.subdomain}.#{DomainConfig::DomainNames.first}"
+    way=""
+    if recipients.size >= 10
+      # QUEUE
+      tmail = GoMailer.one_time_email(recipients,params[:email][:subject],markdown_body, nil, promotion)
+      tag = "#{APPLICATION_NAME.downcase}-one-time-email-#{@promotion.subdomain}-#{Time.now.strftime('%Y%m%d-%H%M%S')}"
+      Rails.logger.info "recipients are #{recipients.inspect}"
+      tmails = recipients.collect{|x|tmail}
+      XmlEmailDelivery.deliver_many(tmails,tag,recipients)
+      way=" were queued for delivery tomorrow."
+    else 
+      # SEND NOW 
+      recipients.each do |recipient|
+        GoMailer.one_time_email(recipient,params[:email][:subject],markdown_body, nil, promotion).deliver
+      end
+      way=" have been delivered."
+    end
+    render :json=>{:message=>"#{recipients.size} messages #{way}"}
   end
 
 end
