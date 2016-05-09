@@ -154,8 +154,8 @@ raise 'get here'
     
     filter_promo = p == @promotion.id ? @promotion : p != "*" ? Promotion.find(p) : nil
     
-    rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).users.entries.minimum(:recorded_on) || Date.today,Date.today].min
-    rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).users.entries.maximum(:recorded_on) || Date.today,Date.today].min
+    rh[:reported_on_min] = params[:min_date] ? Date.parse(params[:min_date]) : [(filter_promo||@promotion).starts_on || Date.today,Date.today].min
+    rh[:reported_on_max] = params[:max_date] ? Date.parse(params[:max_date]) : [(filter_promo||@promotion).ends_on || Date.today,Date.today].min
 
     # force this for specific roles
     params[:location] = @current_user.location_id if @current_user.location_coordinator?
