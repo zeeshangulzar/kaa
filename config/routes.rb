@@ -198,6 +198,7 @@ Go::Application.routes.draw do
       post :use_fitbit_data
       post :master_info
       post :notify
+      post :get_daily_summaries
     end
   end
 
