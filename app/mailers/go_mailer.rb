@@ -200,6 +200,7 @@ class GoMailer < ActionMailer::Base
     from_address = fromHandler(from)
     @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
     @promotion = promotion
+    @base_url = self.base_url(@promotion.subdomain)
     @no_preferences = true
     if !emails.empty?
       mail(:to => emails, :subject => subject, :from => from_address)
