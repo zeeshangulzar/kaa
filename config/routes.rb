@@ -43,6 +43,7 @@ Go::Application.routes.draw do
     end
     resources :profiles, :only => [:update]
     resources :team_invites
+    resources :friendships
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
@@ -242,5 +243,8 @@ Go::Application.routes.draw do
   match "/promotions/:id/eligibility_files/:eligibility_file_id/download" => "eligibility_files#download", :via => :get
 
   match "/sso" => "sso#index"
+
+  # friendships...
+  resources :friendships
  
 end

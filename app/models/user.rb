@@ -167,6 +167,16 @@ class User < ApplicationModel
       AND
       (
         users.id <> #{self.id}
+    "
+    if unassociated
+      sql = sql + "
+        AND (
+          friendships.status IS NULL
+          OR friendships.status = 'D'
+        )
+      "
+    end
+    sql = sql + "
         AND users.promotion_id = #{promotion_id}
       )
       GROUP BY users.id
@@ -178,7 +188,7 @@ class User < ApplicationModel
     return users
   end
 
-  def self.stats(user_ids)
+  def self.stats(user_ids, year = Date.today.year)
     user_ids = [user_ids] unless user_ids.is_a?(Array)
     user = self
     sql = "
@@ -196,6 +206,7 @@ class User < ApplicationModel
       entries
       WHERE
       user_id in (#{user_ids.join(',')})
+      AND YEAR(recorded_on) = #{year}
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
@@ -208,12 +219,16 @@ class User < ApplicationModel
     return user_stats
   end
 
-  def stats()
+  def stats(year = self.promotion.current_date.year)
     unless @stats
-      arr =  self.class.stats([self.id])
+      arr =  self.class.stats([self.id],year)
       @stats = arr[self.id]
     end
-    return @stats
+    @stats
+  end
+
+  def stats=(hash)
+    @stats=hash
   end
 
   def location_ids
@@ -415,5 +430,44 @@ class User < ApplicationModel
       'USER_TEAM_MEMBERS_TO_OFFICIAL' => current_team.nil? ? 0 : current_team.status == Team::STATUS[:pending] ?  current_team.competition.team_size_min - current_team.member_count : 0
     }
   end
+
+
+  has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
+  has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy
+
+  after_create :associate_requested_friendships
+  after_update :check_if_email_has_changed_and_associate_requested_friendships
+
+  def friend_ids
+    return self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
+  end
+
+  def request_friend(user_or_email)
+    if user_or_email.is_i?
+      user_or_email = User.find(user_or_email) rescue nil
+    end
+    return false if user_or_email.nil?
+    if user_or_email.is_a?(String)
+      friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
+    else
+      friendships.create(:friendee => user_or_email, :status => Friendship::STATUS[:requested])
+    end
+  end
+
+  def associate_requested_friendships(email = nil)
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
+      friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
+      f.update_attributes(:friendee => self)
+    end
+  end
+
+  def check_if_email_has_changed_and_associate_requested_friendships
+    if email_was != email
+      associate_requested_friendships
+    end
+  end
+  
+
+
 
 end
