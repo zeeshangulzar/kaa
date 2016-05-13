@@ -3,23 +3,8 @@ class JawbonesController < ApplicationController
   authorize :post_authorize, :notify, :public
 
   def authorize
-    devices_host = Rails.env.production? ? nil : "http://devices.dev" # change this in dev if necessary
-    #session[:jawbone_user_id] = @current_user.id
-    #unless params[:return_url].to_s.strip.empty?
-
-   if @current_user.jawbone_user
-      @current_user.jawbone_user.disconnect
-      @current_user.update_column(:active_device, nil) if @current_user.active_device == 'JAWBONE'
-      #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
-      ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
-    end
-   
-      return_url = "#{request.host_with_port}/jawbones/post_authorize?auth_key=#{@current_user.auth_key}"
-      redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => return_url, :devices_host => devices_host)
-      render :json => {:url=>redirect_url}
-    #else
-    #  render :json => {:url=>"missing return_url parameter"}, :status => 422
-    #end
+    devices_host = IS_STAGING ? "http://devices.staging.hesapps.com" : Rails.env.development? ? 'http://localhost:3001' : nil
+    redirect_to HESJawbone.begin_authorization(@user, :return_url => "#{request.host_with_port}/jawbone/post_authorize", :devices_host => devices_host)
   end
 
   def settings
@@ -27,7 +12,6 @@ class JawbonesController < ApplicationController
 
   def post_authorize
     if params[:message].nil?
-      #u = User.find(session[:jawbone_user_id])
       u = User.find_by_auth_key(params[:auth_key])
       HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
@@ -47,27 +31,28 @@ class JawbonesController < ApplicationController
  
         # queue the data to be logged; but first set any notifications to 'new' so that the resque task will see and reprocess them
         User.connection.execute "update jawbone_notifications set status = '#{JawboneNotification::Status[:new]}' where jawbone_user_id = #{u.jawbone_user.id}"
-        Resque.enqueue(JawboneNotificationJob, [u.jawbone_user.xid])
+        hash = {u.jawbone_user.xid => {:range=>u.started_on..Date.tomorrow}}
+        Resque.enqueue(JawboneNotificationJob, hash)
 
-        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} shortly."
+        notification.update_attributes :title=> "Jawbone Connected", :message=>"Your Jawbone tracker will sync with #{Constant::AppName} shortly."
       end
 
-      redirect_to = "http://#{u.promotion.subdomain}.healthfortheholidays.com/#/settings"
-
-      redirect_to Rails.env.production? ? redirect_to : 'http://www.go.dev:9000/#/settings'
+      redirect_to = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
     else
-      redirect_to Rails.env.production? ? redirect_to : 'http://www.go.dev:9000/#/settings'
+
+      # TODO: Is this right?
+      redirect_to = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
     end
     #session[:jawbone_user_id] = nil
   end
 
   def disconnect 
-    if @current_user.jawbone_user
+    # if @current_user.jawbone_user
       @current_user.jawbone_user.disconnect
       @current_user.update_column(:active_device,nil) if @current_user.active_device == 'JAWBONE'
       #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
       ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
-    end
+    # end
     head :ok 
   end
 
@@ -111,11 +96,10 @@ class JawbonesController < ApplicationController
     end
   end
 
-  def notify                   
-
+  def notify
     Rails.logger.warn "JAWBONE NOTIFICATION!!!\n#{params.inspect}"
 
-    user_xids = []
+    hash = {}
     begin
       events = params[:events]
       events.each do |event|
@@ -125,7 +109,8 @@ class JawbonesController < ApplicationController
             if jbu && jbu.user
               HESSecurityMiddleware.set_current_user(jbu.user) 
               jn = jbu.add_notification(event)
-              user_xids << event[:user_xid]
+              hash[event[:user_xid]] ||= {:xids=>[]}
+              hash[event[:user_xid]][:xids] << event[:event_xid]
             else
               Rails.logger.warn "Exception: no user matches: #{event.inspect}"
             end
@@ -138,7 +123,7 @@ class JawbonesController < ApplicationController
       Rails.logger.warn "Exception <#{ex.class}>: #{ex.message}\n#{ex.backtrace.join("\n")}"
     end
 
-    Resque.enqueue(JawboneNotificationJob, user_xids.uniq)
+    Resque.enqueue(JawboneNotificationJob, hash)
 
     head :ok
   end
