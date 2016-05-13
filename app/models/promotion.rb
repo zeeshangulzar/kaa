@@ -68,6 +68,7 @@ class Promotion < ApplicationModel
   flags :is_video_enabled, :default => false
   flags :fulfillment_monday, :fulfillment_tuesday, :fulfillment_wednesday, :fulfillment_thursday, :fulfillment_friday, :fulfillment_saturday, :fulfillment_sunday, :default => false
   flags :is_eligibility_displayed, :default => false
+  flags :is_buddy_feature_displayed, :default => false
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on

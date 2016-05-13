@@ -32,11 +32,10 @@ class FriendshipsController < ApplicationController
     # find all accepted friendships, get all their stats in 1 query, apply those stats to the friender and/or friendee of the friendship 
     accepted = f.select{|friendship|friendship.accepted?}
     stats_ids = accepted.collect{|friendship|[friendship.friendee_id,friendship.friender_id]}.flatten.uniq
-    stats = User.stats(stats_ids, @promotion.current_date.year) unless stats_ids.empty?
+    stats = User.stats(stats_ids) unless stats_ids.empty?
     accepted.each do |accepted|
       # check loaded? to ensure it doesn't unnecessarily load friender or friendee
-      accepted.friender.stats=stats[accepted.friender_id] if accepted.association(:friender).loaded?
-      accepted.friendee.stats=stats[accepted.friendee_id] if accepted.association(:friendee).loaded?
+      accepted.friendee.attach('total_points', stats[accepted.friendee_id]['total_points']) if accepted.association(:friendee).loaded?
     end
 
     return HESResponder(f)
@@ -56,6 +55,7 @@ class FriendshipsController < ApplicationController
   end
 
   def create
+    friendship = nil;
     if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You can't alter other users' friendships.", "DENIED")
     end
@@ -89,7 +89,7 @@ class FriendshipsController < ApplicationController
       end
       return HESResponder(friendship.errors.full_messages, "ERROR") if !friendship.valid?
       if friendship.accepted?
-        stats = User.stats(friendship.friendee_id, @promotion.current_date.year)
+        stats = User.stats(friendship.friendee_id)
         friendship.friendee.stats = stats[friendship.friendee_id]
       end
       return HESResponder(friendship)

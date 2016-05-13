@@ -74,6 +74,9 @@ class User < ApplicationModel
   attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :sso_identifier, :master
+  attr_privacy :stats, :friender
+  attr_privacy :stats, :friendee
+  attr_privacy :stats, :friendship
 
   attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier
 
@@ -157,6 +160,7 @@ class User < ApplicationModel
         users.*
       FROM users
       JOIN profiles ON profiles.user_id = users.id
+      LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
       WHERE
       (
         users.email LIKE '%#{search}%'
@@ -188,7 +192,7 @@ class User < ApplicationModel
     return users
   end
 
-  def self.stats(user_ids, year = Date.today.year)
+  def self.stats(user_ids)
     user_ids = [user_ids] unless user_ids.is_a?(Array)
     user = self
     sql = "
@@ -206,7 +210,6 @@ class User < ApplicationModel
       entries
       WHERE
       user_id in (#{user_ids.join(',')})
-      AND YEAR(recorded_on) = #{year}
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
@@ -219,9 +222,9 @@ class User < ApplicationModel
     return user_stats
   end
 
-  def stats(year = self.promotion.current_date.year)
+  def stats()
     unless @stats
-      arr =  self.class.stats([self.id],year)
+      arr =  self.class.stats([self.id])
       @stats = arr[self.id]
     end
     @stats
