@@ -30,15 +30,17 @@ class FriendshipsController < ApplicationController
     f.sort!{|a,b|a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase}
 
     f.sort!{ |a,b| 
+      result = false
       if a.friendee.nil? && b.friendee.nil?
-        return (a.friend_email.to_s.downcase <=> b.friend_email.to_s.downcase)
+        result = (a.friend_email.to_s.downcase <=> b.friend_email.to_s.downcase)
       elsif a.friendee.nil?
-        return (a.friend_email.to_s.downcase <=> b.friendee.profile.last_name.downcase)
+        result = (a.friend_email.to_s.downcase <=> b.friendee.profile.last_name.downcase)
       elsif b.friendee.nil?
-        return (a.friendee.profile.last_name.downcase <=> b.friend_email.to_s.downcase)
+        result = (a.friendee.profile.last_name.downcase <=> b.friend_email.to_s.downcase)
       else
-        return (a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase)
+        result = (a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase)
       end
+      result
     }
 
     # find all accepted friendships, get all their stats in 1 query, apply those stats to the friender and/or friendee of the friendship 
