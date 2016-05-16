@@ -74,9 +74,6 @@ class User < ApplicationModel
   attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :sso_identifier, :master
-  attr_privacy :stats, :friender
-  attr_privacy :stats, :friendee
-  attr_privacy :stats, :friendship
 
   attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier
 
