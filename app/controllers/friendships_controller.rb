@@ -91,8 +91,8 @@ class FriendshipsController < ApplicationController
 
     if params[:resend] && friendship.sender_id == @current_user.id
       # resending invite email
-      f.send_requested_notification
-      return HESResponder(f)
+      friendship.send_requested_notification
+      return HESResponder(friendship)
     end
 
     # don't want them changing the user ids..
