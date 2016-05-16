@@ -72,9 +72,8 @@ class Friendship < ApplicationModel
         self.do_notification
         Resque.enqueue(FriendInviteEmail, friendee.id, friender.id)
       else
-      end
-    else
       Resque.enqueue(InviteEmail, [self.friend_email], self.sender_id, self.message)
+      end
     end
   end
 
@@ -254,6 +253,8 @@ class Friendship < ApplicationModel
   end
 
   def do_notification
+    ns = Notification.find(:all, :conditions => {:user_id => self.friendee_id, :key => "friendship_#{self.id}"})
+    ns.each{|n|n.destroy}
     notify(self.friendee, "#{Label} Request", "#{self.friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => self.friender, :key => "friendship_#{self.id}")
   end
 

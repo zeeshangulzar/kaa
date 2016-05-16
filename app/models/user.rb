@@ -435,7 +435,7 @@ class User < ApplicationModel
   has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy
 
-  after_create :associate_requested_friendships
+  after_commit :associate_requested_friendships, :on => :create
   after_update :check_if_email_has_changed_and_associate_requested_friendships
 
   def friend_ids
@@ -457,7 +457,7 @@ class User < ApplicationModel
   def associate_requested_friendships(email = nil)
     Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:pending]}'", {:email => email || self.email}]).each do |f|
       f.update_attributes(:friendee => self)
-      f.do_notification
+      f.reload.do_notification
     end
   end
 
