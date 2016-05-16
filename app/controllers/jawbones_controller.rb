@@ -3,8 +3,9 @@ class JawbonesController < ApplicationController
   authorize :post_authorize, :notify, :public
 
   def authorize
-    devices_host = IS_STAGING ? "http://devices.staging.hesapps.com" : Rails.env.development? ? 'http://localhost:3001' : nil
-    redirect_to HESJawbone.begin_authorization(@user, :return_url => "#{request.host_with_port}/jawbone/post_authorize", :devices_host => devices_host)
+    devices_host = Rails.env.development? ? 'http://devices.dev' : nil
+    redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize?auth_key=#{@current_user.auth_key}", :devices_host => devices_host)
+    render :json => {:url=>redirect_url}
   end
 
   def settings
@@ -13,6 +14,7 @@ class JawbonesController < ApplicationController
   def post_authorize
     if params[:message].nil?
       u = User.find_by_auth_key(params[:auth_key])
+      # u = @current_user
       HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
       u.reload.jawbone_user.reload
@@ -31,18 +33,20 @@ class JawbonesController < ApplicationController
  
         # queue the data to be logged; but first set any notifications to 'new' so that the resque task will see and reprocess them
         User.connection.execute "update jawbone_notifications set status = '#{JawboneNotification::Status[:new]}' where jawbone_user_id = #{u.jawbone_user.id}"
-        hash = {u.jawbone_user.xid => {:range=>u.started_on..Date.tomorrow}}
+        hash = {u.jawbone_user.xid => {:range=>u.profile.started_on..Date.tomorrow}}
         Resque.enqueue(JawboneNotificationJob, hash)
 
         notification.update_attributes :title=> "Jawbone Connected", :message=>"Your Jawbone tracker will sync with #{Constant::AppName} shortly."
       end
 
-      redirect_to = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
+      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
     else
 
       # TODO: Is this right?
-      redirect_to = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
+      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
     end
+
+    redirect_to redirect_url
     #session[:jawbone_user_id] = nil
   end
 
