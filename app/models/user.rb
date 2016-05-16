@@ -455,7 +455,7 @@ class User < ApplicationModel
   end
 
   def associate_requested_friendships(email = nil)
-    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:pending]}'", {:email => email || self.email}]).each do |f|
       friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
       f.update_attributes(:friendee => self)
     end
