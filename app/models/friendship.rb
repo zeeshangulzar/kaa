@@ -55,6 +55,7 @@ class Friendship < ApplicationModel
   before_create :set_sender
   # Creates an inverse relationship
   after_create :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil?}
+  after_update :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil? && friendee_id_was.nil? }
   before_update :update_sender
   after_update :set_inverse_friendship
   
