@@ -27,8 +27,6 @@ class FriendshipsController < ApplicationController
     else
       f = @target_user.friendships.includes(:friendee => :profile)
     end
-    f.sort!{|a,b|a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase}
-
     f.sort!{ |a,b| 
       result = false
       if a.friendee.nil? && b.friendee.nil?
@@ -80,13 +78,7 @@ class FriendshipsController < ApplicationController
         attrs = params[:friendship].merge({:status => Friendship::STATUS[:pending]})
         friendship.update_attributes(attrs)
       else
-        if params[:friendship][:id] && params[:resend]
-          f = @target_user.friendships.find(params[:friendship][:id]) rescue nil
-          return HESResponder("Friendship", "NOT_FOUND") if f.nil?
-          f.send_requested_notification
-        else
-          friendship = @target_user ? @target_user.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
-        end
+        friendship = @target_user ? @target_user.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
       end
     end 
     return HESResponder(friendship.errors.full_messages, "ERROR") if !friendship.valid?
@@ -96,6 +88,12 @@ class FriendshipsController < ApplicationController
   def update
     friendship = Friendship.find(params[:id]) rescue nil
     return HESResponder("Friendship", "NOT_FOUND") if friendship.nil?
+
+    if params[:resend] && friendship.sender_id == @current_user.id
+      # resending invite email
+      f.send_requested_notification
+      return HESResponder(f)
+    end
 
     # don't want them changing the user ids..
     [:friender_id, :friendee_id].each { |k| params[:friendship].delete(k) rescue nil }

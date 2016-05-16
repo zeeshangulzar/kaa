@@ -69,7 +69,7 @@ class Friendship < ApplicationModel
   def send_requested_notification
     unless status == Friendship::STATUS[:accepted] || is_inverse
       if !friendee.nil?
-        notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
+        self.do_notification
         Resque.enqueue(FriendInviteEmail, friendee.id, friender.id)
       else
       end
@@ -251,6 +251,10 @@ class Friendship < ApplicationModel
   def destroy_inverse_and_associations
     # Destroy inverse friendship if it exists
     inverse_friendship.destroy if !inverse_friendship.nil?
+  end
+
+  def do_notification
+    notify(self.friendee, "#{Label} Request", "#{self.friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => self.friender, :key => "friendship_#{self.id}")
   end
 
 end
