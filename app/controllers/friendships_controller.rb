@@ -80,7 +80,13 @@ class FriendshipsController < ApplicationController
         attrs = params[:friendship].merge({:status => Friendship::STATUS[:pending]})
         friendship.update_attributes(attrs)
       else
-        friendship = @target_user ? @target_user.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
+        if params[:friendship][:id] && params[:resend]
+          f = @target_user.friendships.find(params[:friendship][:id]) rescue nil
+          return HESResponder("Friendship", "NOT_FOUND") if f.nil?
+          f.send_requested_notification
+        else
+          friendship = @target_user ? @target_user.friendships.create(params[:friendship]) : Friendship.create(params[:friendship])
+        end
       end
     end 
     return HESResponder(friendship.errors.full_messages, "ERROR") if !friendship.valid?

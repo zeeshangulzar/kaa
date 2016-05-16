@@ -70,9 +70,7 @@ class Friendship < ApplicationModel
     unless status == Friendship::STATUS[:accepted] || is_inverse
       if !friendee.nil?
         notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
-        if friendee.flags[:notify_email_friend_requests]
-          Resque.enqueue(FriendInviteEmail, friendee.id, friender.id)
-        end
+        Resque.enqueue(FriendInviteEmail, friendee.id, friender.id)
       else
       end
     else
@@ -104,7 +102,7 @@ class Friendship < ApplicationModel
 
   # Makes sure there are only unique friendship relationships
   validates_uniqueness_of :friendee_id, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friendee_id.nil? }
-  validates_uniqueness_of :friend_email, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friend_email.nil? }
+  validates_uniqueness_of :friend_email, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friend_email.nil? }, :message => "An invite has already been sent to this email address."
   validates_presence_of :friendee_id, :if => Proc.new {|friendship| friendship.accepted? }
   validate :friendee_id_or_friend_email
   validate :friender_not_friendee
