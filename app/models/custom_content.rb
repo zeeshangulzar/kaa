@@ -122,10 +122,10 @@ class CustomContent < ApplicationModel
     array_passed = custom_content.is_a?(Array)
     custom_contents = array_passed ? custom_content : [custom_content]
     promotion ||= self.promotion
+    re = Regexp.union(promotion.keywords.keys)
     custom_contents.each{ |custom_content|
       MARKDOWN_COLUMNS.each{ |column|
         original = custom_content.send(column)
-        re = Regexp.union(promotion.keywords.keys)
         with_keywords = original.gsub(re) { |m| promotion.keywords[m] }
         if !user.nil?
           re = Regexp.union(user.keywords.keys)
