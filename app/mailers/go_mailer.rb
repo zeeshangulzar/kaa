@@ -214,4 +214,13 @@ class GoMailer < ActionMailer::Base
     return "#{user.profile.full_name} <no-reply@healthfortheholidays.com>"
   end
 
+  def friend_invite_email(invitee, inviter)
+    @invitee = invitee
+    @user = invitee # NOTE: always need a @user for email templates
+    @inviter = inviter
+    @promotion = @inviter.promotion
+    @base_url = self.base_url(@promotion.subdomain)
+    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request", :from => fromHandler(@inviter))
+  end
+
 end

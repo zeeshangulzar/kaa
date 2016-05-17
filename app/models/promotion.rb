@@ -70,6 +70,7 @@ class Promotion < ApplicationModel
   flags :is_eligibility_displayed, :default => false
   flags :hide_privacy_link, :default => false
   flags :show_opt_in_participation_link, :default => false
+  flags :is_buddy_feature_displayed, :default => false
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
