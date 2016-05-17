@@ -299,20 +299,12 @@ class Promotion < ApplicationModel
   end
 
   def current_competition(today = self.current_date)
-    if today != current_date
-      #if you pass in some other date, i don't want it to affect the class variable
-      #(i.e. i don't want to cache "some other" competition and call it current)
-      comp = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= enrollment_ends_on", {:today=>today}])
-    else
-      # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
-      if @current_competition.nil?
-        # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
-        comp = @current_competition = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= competition_ends_on", {:today=>today}])
-      else
-        comp = @current_competition
-      end
-    end
-    comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => today } ] )
+    # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
+    return @current_competition if !!defined?(@current_competition)
+    # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
+    comp = competitions.find( :first, :conditions => [ "enrollment_starts_on <= :today and :today <= competition_ends_on", { :today=>self.current_date } ] )
+    @current_competition = comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => self.current_date } ] )
+    return @current_competition
   end
 
   def is_default?
