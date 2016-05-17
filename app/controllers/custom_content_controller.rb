@@ -5,8 +5,9 @@ class CustomContentController < ApplicationController
   def index
     conditions = {
       :category => params[:category].nil? ? nil : params[:category],
-      :key => params[:key].nil? ? nil : params[:key],
-      :group => params[:group].nil? ? nil : params[:group]
+      :key      => params[:key].nil? ? nil : params[:key],
+      :group    => params[:group].nil? ? nil : params[:group],
+      :hidden   => (params[:hidden].nil? || params[:hidden] == 'false') ? false : true
     }
     custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(CustomContent.keyworded(custom_content, @promotion, @current_user))
@@ -72,7 +73,7 @@ class CustomContentController < ApplicationController
   def reorder
     # must include a promotion, the sequence and the category
     return HESResponder("Must provide promotion, sequence and category.", "ERROR") if params[:sequence].nil? || !params[:sequence].is_a?(Array) || params[:category].nil? || params[:promotion_id].nil?
-    custom_content = CustomContent.for(@promotion, {:category => params[:category]})
+    custom_content = CustomContent.for(@promotion, {:category => params[:category], :hidden => true})
     
     # make sure the posted sequence contains every content id for the category
     cc_ids = custom_content.collect{|content|content.id}
@@ -101,7 +102,7 @@ class CustomContentController < ApplicationController
     
     # just for giggles, regrab everything uncached...
     CustomContent.uncached do
-      custom_content = CustomContent.for(@promotion, {:category => params[:category]})
+      custom_content = CustomContent.for(@promotion, {:category => params[:category], :hidden => true})
     end
     return HESResponder(custom_content)
   end
