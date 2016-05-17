@@ -27,7 +27,19 @@ class FriendshipsController < ApplicationController
     else
       f = @target_user.friendships.includes(:friendee => :profile)
     end
-    f.sort!{|a,b|a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase}
+    f.sort!{ |a,b| 
+      result = false
+      if a.friendee.nil? && b.friendee.nil?
+        result = (a.friend_email.to_s.downcase <=> b.friend_email.to_s.downcase)
+      elsif a.friendee.nil?
+        result = (a.friend_email.to_s.downcase <=> b.friendee.profile.last_name.downcase)
+      elsif b.friendee.nil?
+        result = (a.friendee.profile.last_name.downcase <=> b.friend_email.to_s.downcase)
+      else
+        result = (a.friendee.profile.last_name.downcase <=> b.friendee.profile.last_name.downcase)
+      end
+      result
+    }
 
     # find all accepted friendships, get all their stats in 1 query, apply those stats to the friender and/or friendee of the friendship 
     accepted = f.select{|friendship|friendship.accepted?}
@@ -76,6 +88,12 @@ class FriendshipsController < ApplicationController
   def update
     friendship = Friendship.find(params[:id]) rescue nil
     return HESResponder("Friendship", "NOT_FOUND") if friendship.nil?
+
+    if params[:resend] && friendship.sender_id == @current_user.id
+      # resending invite email
+      friendship.send_requested_notification
+      return HESResponder(friendship)
+    end
 
     # don't want them changing the user ids..
     [:friender_id, :friendee_id].each { |k| params[:friendship].delete(k) rescue nil }

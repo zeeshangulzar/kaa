@@ -74,9 +74,6 @@ class User < ApplicationModel
   attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
   attr_privacy :nuid_verified, :sso_identifier, :master
-  attr_privacy :stats, :friender
-  attr_privacy :stats, :friendee
-  attr_privacy :stats, :friendship
 
   attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier
 
@@ -438,7 +435,7 @@ class User < ApplicationModel
   has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
   has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy
 
-  after_create :associate_requested_friendships
+  after_commit :associate_requested_friendships, :on => :create
   after_update :check_if_email_has_changed_and_associate_requested_friendships
 
   def friend_ids
@@ -458,9 +455,9 @@ class User < ApplicationModel
   end
 
   def associate_requested_friendships(email = nil)
-    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:requested]}'", {:email => email || self.email}]).each do |f|
-      friendships.create(:friendee => f.friender, :status => Friendship::STATUS[:pending])
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:pending]}'", {:email => email || self.email}]).each do |f|
       f.update_attributes(:friendee => self)
+      f.reload.do_notification
     end
   end
 

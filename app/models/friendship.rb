@@ -1,6 +1,6 @@
 class Friendship < ApplicationModel
 
-  attr_accessible :friendee, :friender, :friender_id, :friendee_id, :status, :friend_email, :sender_id
+  attr_accessible :friendee, :friender, :friender_id, :friendee_id, :status, :friend_email, :sender_id, :message
   attr_privacy :friender_id, :friendee_id, :friendee, :status, :friend_email, :sender_id, :me
   attr_privacy_path_to_user :friender
   attr_accessor :is_inverse
@@ -55,6 +55,7 @@ class Friendship < ApplicationModel
   before_create :set_sender
   # Creates an inverse relationship
   after_create :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil?}
+  after_update :create_inverse_friendship, :if => Proc.new {|friendship| !friendee_id.nil? && friendee_id_was.nil? }
   before_update :update_sender
   after_update :set_inverse_friendship
   
@@ -66,10 +67,12 @@ class Friendship < ApplicationModel
   # Sends notification to the user that friendship was requested of
   # @note Sent after friendships is created
   def send_requested_notification
-    unless friendee.nil? || status == Friendship::STATUS[:accepted] || is_inverse
-      notify(friendee, "#{Label} Request", "#{friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => friender, :key => "friendship_#{id}")
-      if friendee.flags[:notify_email_friend_requests]
+    unless status == Friendship::STATUS[:accepted] || is_inverse
+      if !friendee.nil?
+        self.do_notification
         Resque.enqueue(FriendInviteEmail, friendee.id, friender.id)
+      else
+      Resque.enqueue(InviteEmail, [self.friend_email], self.sender_id, self.message)
       end
     end
   end
@@ -97,7 +100,8 @@ class Friendship < ApplicationModel
   
 
   # Makes sure there are only unique friendship relationships
-  validates_uniqueness_of :friender_id, :scope => [:friendee_id]
+  validates_uniqueness_of :friendee_id, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friendee_id.nil? }
+  validates_uniqueness_of :friend_email, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friend_email.nil? }, :message => "An invite has already been sent to this email address."
   validates_presence_of :friendee_id, :if => Proc.new {|friendship| friendship.accepted? }
   validate :friendee_id_or_friend_email
   validate :friender_not_friendee
@@ -246,6 +250,12 @@ class Friendship < ApplicationModel
   def destroy_inverse_and_associations
     # Destroy inverse friendship if it exists
     inverse_friendship.destroy if !inverse_friendship.nil?
+  end
+
+  def do_notification
+    ns = Notification.find(:all, :conditions => {:user_id => self.friendee_id, :key => "friendship_#{self.id}"})
+    ns.each{|n|n.destroy}
+    notify(self.friendee, "#{Label} Request", "#{self.friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => self.friender, :key => "friendship_#{self.id}")
   end
 
 end

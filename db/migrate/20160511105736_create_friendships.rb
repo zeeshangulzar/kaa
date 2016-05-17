@@ -6,6 +6,7 @@ class CreateFriendships < ActiveRecord::Migration
       t.string :status, :limit => 1, :default => 'P'
       t.string :friend_email
       t.integer :sender_id
+      t.text :message
       t.timestamps
     end
 
