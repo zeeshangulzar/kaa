@@ -270,10 +270,10 @@ class User < ApplicationModel
   end
 
   def current_team
-    return nil if self.promotion.current_competition.nil?
+    return @current_team if !!defined?(@current_team)
     current_competition_id = self.promotion.current_competition.id
-    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id} AND teams.status <> #{Team::STATUS[:deleted]}")
-    return teams.first
+    @current_team = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id} AND teams.status <> #{Team::STATUS[:deleted]}").first rescue nil
+    return @current_team
   end
 
   def current_team_member
