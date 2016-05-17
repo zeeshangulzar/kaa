@@ -40,24 +40,14 @@ class PromotionsController < ApplicationController
       conditions << "promotions.id in (#{@current_user.super_coordinator_promotions.all.collect{|scp|User.sanitize(scp.promotion_id)}.join(',')})"
     end
 
-    sql = "SELECT promotions.id promotion_id, promotions.subdomain, promotions.launch_on, organizations.id organization_id, organizations.name organization_name
+    sql = "SELECT promotions.id promotion_id, promotions.subdomain, promotions.launch_on, promotions.starts_on, organizations.id organization_id, organizations.name organization_name
     FROM promotions
-    inner join organizations on organizations.id = promotions.id
+    inner join organizations on organizations.id = promotions.organization_id
     #{"WHERE #{conditions}" unless conditions.empty?}
     order by organizations.name, promotions.subdomain"
 
     rows = Promotion.connection.select_all sql
-
-    array = []
-    previous_org_id = nil
-    rows.each do |row|
-      if row['organization_id'] != previous_org_id
-        array << {:organization => {:id=>row['organization_id'],:name=>row['organization_name'],:promotions=>[]}}
-      end
-      array.last[:organization][:promotions] << {:id=>row['promotion_id'],:subdomain=>row['subdomain'],:launch_on=>row['launch_on']}
-    end
-
-    render :json => array.to_json 
+    render :json => rows.to_json
   end
 
   def show

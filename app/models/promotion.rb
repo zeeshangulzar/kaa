@@ -6,7 +6,7 @@ class Promotion < ApplicationModel
   
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :current_competition, :weekly_goal, :any_user
-  attr_privacy :pilot_password, :total_participants, :master
+  attr_privacy :pilot_password, :total_participants, :coordinators, :master
 
   belongs_to :organization
 
@@ -51,6 +51,8 @@ class Promotion < ApplicationModel
   after_create :copy_defaults
 
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
+
+  after_save :update_coordinators
 
   flags :is_fitbit_enabled, :default => false
   flags :is_jawbone_enabled, :default => false
@@ -481,6 +483,29 @@ class Promotion < ApplicationModel
         user_emails.push row['email']
       end
       return user_emails
+    end
+
+    def update_coordinators
+      oldCoordinators = self.coordinators_was.nil? ? [] : self.coordinators_was.split(',')
+      newCoordinators = self.coordinators.nil? ? [] : self.coordinators.split(',')
+       #DEMOTE the ones that WERE in the old list, but NOT in the new list
+       demoteList = oldCoordinators - newCoordinators
+       #PROMOTE the ones that ARE in the new list, but WEREN't in the old list
+       promoteList = newCoordinators - oldCoordinators
+       demoteList.each do |demoteEmail|
+          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", demoteEmail, self.id])
+          unless user.nil?
+             user.role = User::Role[:user]
+             user.save
+          end
+       end
+       promoteList.each do |promoteEmail|
+          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", promoteEmail, self.id])
+          unless user.nil?
+             user.role = User::Role[:coordinator]
+             user.save
+          end
+       end
     end
 
   end
