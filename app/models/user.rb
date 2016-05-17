@@ -34,7 +34,7 @@ class User < ApplicationModel
   has_many :requests, :order => "created_at DESC"
   after_commit :welcome_email, :on => :create
   after_commit :check_for_invites, :on => :create
-  after_commit :check_for_coordinator, :on => :create
+  before_create :check_for_coordinator
 
   def welcome_email
     Resque.enqueue(WelcomeEmail, self.id)
@@ -472,7 +472,6 @@ class User < ApplicationModel
     unless self.promotion.coordinators.nil?
       if self.promotion.coordinators.downcase.include?(self.email.downcase)
         self.role = User::Role[:coordinator]
-				self.save!
       end
     end
   end
