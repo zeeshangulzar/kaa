@@ -157,10 +157,10 @@ class UsersController < ApplicationController
       params[:user][:profile] = Profile.new(params[:user][:profile])
     end
 
-    if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
-      ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id]) rescue nil
-      if ed && ed.promotion_id == @promotion.id
-        eval_params = params[:user][:evaluation]
+    if params[:evaluation] && params[:evaluation][:evaluation_definition_id]
+      ed = EvaluationDefinition.find(params[:evaluation][:evaluation_definition_id]) rescue nil
+      if ed && ed.eval_definitionable_type == "Promotion" && ed.eval_definitionable_id == @promotion.id
+        eval_params = params[:evaluation]
         params[:user].delete(:evaluation)
       else
         return HESResponder("Invalid evaluation definition.", "ERROR")
