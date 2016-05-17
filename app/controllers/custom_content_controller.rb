@@ -7,7 +7,7 @@ class CustomContentController < ApplicationController
       :category => params[:category].nil? ? nil : params[:category],
       :key      => params[:key].nil? ? nil : params[:key],
       :group    => params[:group].nil? ? nil : params[:group],
-      :hidden   => (params[:hidden].nil? || params[:hidden] == 'false') ? false : true
+      :hidden   => (params[:hidden].nil? || params[:hidden] == 'false') ? false : nil
     }
     custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(CustomContent.keyworded(custom_content, @promotion, @current_user))

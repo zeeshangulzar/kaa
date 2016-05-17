@@ -59,7 +59,7 @@ class CustomContent < ApplicationModel
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
         #{"AND `group` = #{sanitize(conditions[:group])}" if !conditions[:group].nil?}
-        #{"AND `hidden` = #{sanitize(conditions[:hidden])}" if !conditions[:hidden].nil?}
+        #{"AND (`hidden` = #{sanitize(conditions[:hidden])} OR `hidden` is NULL)" if !conditions[:hidden].nil?}
       UNION
       SELECT
         *
