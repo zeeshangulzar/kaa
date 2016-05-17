@@ -72,6 +72,9 @@ class Promotion < ApplicationModel
   flags :show_opt_in_participation_link, :default => false
   flags :is_buddy_feature_displayed, :default => false
 
+  # Disable manual logging (forces you to use a device) 
+  flags :disable_manual_logging, :default => false
+
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
   validates_uniqueness_of :subdomain
