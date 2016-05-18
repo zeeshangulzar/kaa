@@ -73,6 +73,7 @@ class Promotion < ApplicationModel
   flags :hide_privacy_link, :default => false
   flags :show_opt_in_participation_link, :default => false
   flags :is_buddy_feature_displayed, :default => false
+  flags :is_goal_page_enabled, :default => false
 
   # Disable manual logging (forces you to use a device) 
   flags :disable_manual_logging, :default => false
