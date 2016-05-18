@@ -4,7 +4,8 @@ class JawbonesController < ApplicationController
 
   def authorize
     devices_host = Rails.env.development? ? 'http://devices.dev' : nil
-    redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize?auth_key=#{@current_user.auth_key}", :devices_host => devices_host)
+    cookies['jawbone_auth'] = @current_user.auth_key
+    redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize", :devices_host => devices_host)
     render :json => {:url=>redirect_url}
   end
 
@@ -13,8 +14,8 @@ class JawbonesController < ApplicationController
 
   def post_authorize
     if params[:message].nil?
-      u = User.find_by_auth_key(params[:auth_key])
-      # u = @current_user
+      u = User.find_by_auth_key(cookies['jawbone_auth'])
+      cookies.delete 'jawbone_auth'
       HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
       u.reload.jawbone_user.reload
