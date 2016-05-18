@@ -20,120 +20,167 @@ class JawboneNotificationJob
     log "#{ex.backtrace.join("\n")}: #{ex.message} (#{ex.class})"
   end
 
-  def self.flag_all_as_exception(jawbone_user_id)
+  def self.flag_all_as(jawbone_user_id,status,event_xids=nil)
     JawboneNotification.find(:all,:conditions=>["jawbone_user_id = ? and status = ?",jawbone_user_id,JawboneNotification::Status[:new]]).each do |nf| 
-      nf.update_attributes :status=>JawboneNotification::Status[:exception]
+      if !event_xids || event_xids.include?(nf.event_xid)
+        nf.update_attributes :status=>status
+      end
     end
   end
+
+  def self.flag_all_as_exception(jawbone_user_id)
+    flag_all_as jawbone_user_id,JawboneNotification::Status[:exception]
+  end
+
 
   def self.validUserTrip(jbu)
     true 
   end
 
-  def self.perform(user_xids)
-    ActiveRecord::Base.verify_active_connections!
-    log "JawboneNotificationJob performing work on #{user_xids.inspect}"
-    begin
-          #Process notifications
-          begin
-            st = Time.now
-            processed = {}
+  def self.perform(hash)
+    if !hash.empty?
+      ActiveRecord::Base.verify_active_connections!
+      log "JawboneNotificationJob performing work on #{hash.inspect}"
+      begin
+            #Process notifications
+            begin
+              st = Time.now
+              processed = {}
 
-            in_clause = user_xids.collect{|x|User.sanitize(x)} 
-            jbus = JawboneUser.find(:all,:include=>:jawbone_notifications,:conditions=>"xid in (#{in_clause}) and jawbone_notifications.status = '#{JawboneNotification::Status[:new]}'", :order=>'jawbone_notifications.created_at asc')
-            jbus.each do |jbu|
-              begin
-                  processed[jbu.id] ||= []
-                if jbu.user 
-                  if jbu.user.active_device == 'JAWBONE'
-                    otherJbus = JawboneUser.find(:all, :conditions => "id <> #{jbu.id} AND xid = '#{jbu.xid}'")
-                    notifications = jbu.jawbone_notifications
-                    log "Processing #{notifications.size} notifications for JawboneUser##{jbu.id} (#{jbu.user.email rescue 'unknown email'} / #{jbu.xid}) from #{notifications.first.created_at} to #{notifications.last.created_at}",2
-                    log "- user belongs to promotion: #{jbu.user.promotion.subdomain} and has #{notifications.size} days to update",3
-                    lastSync = jbu.last_sync.nil? ? 999.hours.ago : Time.at(jbu.last_sync)
-                    if lastSync < 1.hour.ago
-                      jbu.pull_moves_since_last_sync(2)
-                      jbu.jawbone_move_datas.find(:all, :conditions => "on_date > '#{(Date.today - 2)}'", :order => 'on_date desc').each do |jawMoveData|
+              hash.keys.each do |jbu_xid|
+              # find the most recent non-orphaned user
+              jbu = JawboneUser.find(:last,:conditions=>["xid=? and promotions.id is not null",jbu_xid],:include=>{:user=>[:promotion]})
+              unless jbu && jbu.user
+                log "- JawboneUser with xid #{jbu_xid} is orphaned",2
+                next
+              end
 
-                        if validUserTrip(jbu)
-                          JawboneLogger.log_entry(jawMoveData.date,jbu,jawMoveData,true)
-                          jbu.update_attributes :last_sync => Time.now.to_i
-                        end
+              log "Processing JawboneUser##{jbu.id} (#{jbu.user.email rescue 'unknown email'} / #{jbu.xid})",2
+
+              if !jbu.user.promotion.is_active
+                # ???  jbu.unsubscribe_from_notifications
+
+                # TODO: Define 'inactive_on'. Any replacement for 'individual_logging_frozen'?
+                # log "- promotion went inactive on #{jbu.user.promotion.inactive_on}. unsubscribed from notifications.",2
+              else
+                HESSecurityMiddleware.set_current_user(jbu.user)
+                #STEP 1 - get the requested data from Jawbone
+                processing_message = ''
+                k = hash[jbu_xid].keys.first
+                v = hash[jbu_xid][k]
+                dates = []
+                event_xids = []
+                if k.to_s == 'date'
+                  date = Date.parse(v)
+                  processing_message = "on #{date}"
+                  log "- pulling Jawbone data #{processing_message}",3
+                  dates << date
+                  jbu.pull_move_for_date(date)
+                elsif k.to_s == 'range'
+                  dates = v.collect{|s|Date.parse(s)}.sort
+                  processing_message = "from #{dates.first} to #{dates.last}"
+                  log "- pulling Jawbone data #{processing_message}",3
+                  jbu.pull_moves_in_range(dates.first,dates.last)
+                elsif k.to_s == 'dates'
+                  dates = v.collect{|s|Date.parse(s)}
+                  processing_message = "on #{dates.join(',')}"
+                  dates.each do |d|
+                    log "- pulling Jawbone data for: #{d}",3
+                    jbu.pull_move_for_date(d)
+                  end
+                elsif k.to_s == 'xids'
+                  v.each do |mv|
+                    log "- pulling Jawbone data for xid: #{mv}",3
+                    move = jbu.pull_move_by_xid(mv)
+                    if move
+                      if move.is_a?(JawboneMoveData)
+                        dates << move.on_date
+                        processing_message = "on #{dates.first}"
+                      else
+                        log "- JawboneMoveData was not returned when pulling move by xid #{mv.inspect}     #{move.inspect}",2
                       end
+                    else
+                      log "- nil returned when pulling move by xid: #{mv.inspect}",2
                     end
-                    notifications.each_with_index do |notification,i|
-                      #unless jbu.user.promotion.individual_logging_frozen?
-                      #don't import data for  duplicate event_xid
-                        unless processed[jbu.id].include?(notification.event_xid)
-                          begin
-                            processed[jbu.id] << notification.event_xid
-
-                            #Pull Data from Jawbone
-                            log "- getting event xid : #{notification.event_xid}", 3
-                            jmd = jbu.pull_move_by_xid(notification.event_xid)
-
-                            if jmd 
-                              #DuplicateIfLogic1
-                              if validUserTrip(jbu)
-                                Entry.transaction do
-                                  entry = JawboneLogger.log_entry(jmd.date,jbu,jmd,true)
-
-                                  # Other users for the application with the same JAWBONE XID. Notifications only get mapped
-                                  # to the last JawboneUser created per xid. Most likely these are done promotions, but 
-                                  # it's possible they are still going OR used by QA/DEV
-                                  otherJbus.each do |otherJbu|
-                                    if otherJbu.user
-                                      JawboneLogger.log_entry(jmd.date,otherJbu,jmd,true)
-                                    else
-                                      log "JawboneUser##{otherJbu.id} does not have a User associated with it", 1
-                                    end
-                                  end 
-
-                                  notification.update_attributes :status=>JawboneNotification::Status[:processed]
-                                end
-                              else
-                                log "- user has not chosen a map.  data will be held.",3
-                                # TODO:  update the FITBIT notification message so the user knows to choose a map
-                                notification.update_attributes :status=>JawboneNotification::Status[:hold]
-                              end
-                            else
-                              log "- JawboneMoveData for notification: #{notification.id} with event_xid: #{notification.event_xid} not found",3
-                            end
-                          rescue => ex
-                            log "NOTIFICATION EXCEPTION"
-                            log_ex ex
-                            notification.update_attributes :status=>JawboneNotification::Status[:exception]
-                          end
-                        else
-                          log "- already processed #{notification.event_xid}.",3
-                          notification.update_attributes :status=>JawboneNotification::Status[:processed]
-                        end
-                      #else
-                      #  log "- Individual logging frozen for promotion #{jbu.user.promotion_id}.",2
-                      #  notification.update_attributes :status=>JawboneNotification::Status[:hold]
-                      #end
-                    end
-                  else
-                    log "JawboneUser##{jbu.id} does not have active_device = 'JAWBONE' -- User##{jbu.user_id} active_device is '#{jbu.user.active_device}'",2
-                    flag_all_as_exception jbu.id
+                    event_xids << mv
                   end
                 else
-                  log "JawboneUser##{jbu.id} not tied to user -- User##{jbu.user_id} not found",2
-                  flag_all_as_exception jbu.id
+                  log "- item '#{k}' not understood: #{v.inspect}",2
+                end 
+
+                log "- user belongs to promotion: #{jbu.user.promotion.subdomain rescue 'unknown'} and has #{dates.size} days to update #{processing_message}",3
+
+                #STEP 2 - apply the requested data to the user's entries
+                begin
+                  processed[jbu.id] ||= []
+                  if jbu.user 
+                    if jbu.user.active_device == 'JAWBONE'
+                      otherJbus = JawboneUser.find(:all, :conditions => "id <> #{jbu.id} AND xid = '#{jbu.xid}'")
+                      allJbus = [jbu,otherJbus].flatten.uniq
+                      allJbus.each_with_index do |this_jbu,jbu_index|
+                        if this_jbu
+                          if jbu_index > 0
+                            log "- additional user #{this_jbu.user.contact.email} belongs to promotion: #{this_jbu.user.promotion.subdomain rescue 'unknown'} and has #{dates.size} days to update #{processing_message}",3
+                          end
+                          if !this_jbu.user.promotion
+                            # this_jbu.user belongs to a deleted promotion -- silently skip
+                            next
+                          elsif !this_jbu.user.promotion.is_active
+                            log "- promotion went inactive on #{this_jbu.user.promotion.inactive_on}.",4
+                          # TODO: Any replacement for 'individual_logging_frozen'?
+                          elsif validUserTrip(this_jbu)
+                            dates.each do |date|
+                              jmd = allJbus.first.jawbone_move_datas.find(:first,:conditions=>{:on_date=>date})
+                              if jmd
+                                if jmd.steps > 0
+                                  User.transaction do 
+                                    JawboneLogger.log_entry(jmd.date,jbu,jmd,true)
+                                  end
+                                else
+                                  log "- steps are 0, not importing #{date}",4
+                                end
+                              else
+                                log "- jawbone_move_data not found for #{date}",4
+                              end
+                            end
+                            this_jbu.update_attributes :last_sync => Time.now.to_i
+                            if event_xids.empty?
+                              flag_all_as jbu.id,JawboneNotification::Status[:processed]
+                            else
+                              flag_all_as jbu.id,JawboneNotification::Status[:processed],event_xids
+                            end
+                          else
+                            log "- user has not chosen a map.  data will be held.",4
+                            flag_all_as jbu.id,JawboneNotification::Status[:hold]
+                          end
+                        end
+                      end
+                    else
+                      log "JawboneUser##{jbu.id} does not have active_device = 'JAWBONE' -- User##{jbu.user_id} active_device is '#{jbu.user.active_device}'",2
+                      flag_all_as_exception jbu.id
+                    end
+                  else
+                    log "JawboneUser##{jbu.id} not tied to user -- User##{jbu.user_id} not found",2
+                    flag_all_as_exception jbu.id
+                  end
+                rescue => ex
+                  log "ROW EXCEPTION"
+                  log_ex ex
+                  raise
                 end
-              rescue => ex
-                log "ROW EXCEPTION"
-                log_ex ex
               end
-            end #end each jbu
-          rescue => ex
-            log "GLOBAL EXCEPTION"
-            log_ex ex
-            ActiveRecord::Base.connection.disconnect!
-            ActiveRecord::Base.connection.reconnect!
-          end
-    rescue Exception => ex
-      log_ex ex
+            end
+            rescue => ex
+              log "GLOBAL EXCEPTION"
+              log_ex ex
+              ActiveRecord::Base.connection.disconnect!
+              ActiveRecord::Base.connection.reconnect!
+            end
+      rescue Exception => ex
+        log_ex ex
+      ensure
+        HESSecurityMiddleware.set_current_user(nil)
+      end
     end
   end
 end
