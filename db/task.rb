@@ -37,9 +37,9 @@ class Task
           what_to_send = 'daily_email'
           email_reminder = false
 
-          if !u.flags[:allow_daily_emails_all_week]
+          if !u.allow_daily_email
             what_to_send = 'nothing'
-          elsif p.current_date.wday != 1 && u.flags[:allow_daily_emails_monday]
+          elsif p.current_date.wday != 1 && u.allows_daily_email_monday_only
             what_to_send = 'nothing'
           end
 
