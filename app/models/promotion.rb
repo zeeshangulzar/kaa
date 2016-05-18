@@ -141,9 +141,9 @@ class Promotion < ApplicationModel
       self.copy_point_thresholds
       self.copy_behaviors
       self.copy_gifts
-      self.copy_custom_prompts
+      custom_prompts_map = self.copy_custom_prompts
     end
-    self.create_evaluations
+    self.create_evaluations(custom_prompts_map)
   end
 
   def copy_point_thresholds
@@ -180,6 +180,7 @@ class Promotion < ApplicationModel
 
   # copy default promo custom prompts for evals, etc.
   def copy_custom_prompts
+    map = {}
     default = Promotion::get_default
     if default
       default.custom_prompts.each{|cp|
@@ -187,12 +188,14 @@ class Promotion < ApplicationModel
         copied_cp.id = nil
         copied_cp.custom_promptable_id = self.id
         copied_cp.save!
+        map[cp.udf_def.cfn] = copied_cp.udf_def.cfn
       }
     end
+    return map
   end
 
   # Creates the initial assesement used at registration and the final assessment used at the program end
-  def create_evaluations
+  def create_evaluations(map = nil)
     Promotion.transaction do
       default = Promotion::get_default
       if default
@@ -201,6 +204,19 @@ class Promotion < ApplicationModel
           copied_ed = ed.dup
           copied_ed.id = nil
           copied_ed.eval_definitionable_id = self.id
+          # mapped custom_prompts from copy_custom_prompts so that we can update visible questions in newly created eval defs to new prompts
+          if !map.nil? && !map.empty?
+            new_visible_questions = []
+            visible_questions = copied_ed.visible_questions.split(',')
+            visible_questions.each{|q|
+              if map.key?(q)
+                new_visible_questions << map[q]
+              else
+                new_visible_questions << q
+              end
+            }
+            copied_ed.visible_questions = new_visible_questions.join(',')
+          end
           copied_ed.save!
         }
       else
