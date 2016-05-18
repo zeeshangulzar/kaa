@@ -13,10 +13,10 @@ class JawbonesController < ApplicationController
   end
 
   def post_authorize
+    u = User.find_by_auth_key(cookies['jawbone_auth'])
+    cookies.delete 'jawbone_auth'
+    HESSecurityMiddleware.set_current_user(u)
     if params[:message].nil?
-      u = User.find_by_auth_key(cookies['jawbone_auth'])
-      cookies.delete 'jawbone_auth'
-      HESSecurityMiddleware.set_current_user(u)
       HESJawbone.finalize_authorization(u)
       u.reload.jawbone_user.reload
       u.update_column :active_device, 'JAWBONE'
@@ -44,7 +44,7 @@ class JawbonesController < ApplicationController
     else
 
       # TODO: Is this right?
-      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
+      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/settings" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/settings"
     end
 
     redirect_to redirect_url
