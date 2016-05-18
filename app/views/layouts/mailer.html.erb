@@ -26,6 +26,13 @@
             <%= yield %>
           </td>
         </tr>
+        <% if @global_email_message %>
+          <tr style="background-color:#ffffff">
+            <td colspan="2" style="background-color:#ffffff;color:#000000;padding:10px">
+              <%= raw(@global_email_message) %>
+            </td>
+          </tr>
+        <% end %>
         <tr style="background-color:#ffffff;padding:0px;">
           <td colspan="2" style="padding:0px;height:5px;background-color:#b6354b">
           </td>

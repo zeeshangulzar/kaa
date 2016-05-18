@@ -223,4 +223,15 @@ class GoMailer < ActionMailer::Base
     mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request", :from => fromHandler(@inviter))
   end
 
+  def mail(*args)
+    # hooks the mail method to make the current instance variables accessible
+    # for more processing before the email is rendered into the template
+    cc = Array.new
+    if @promotion
+      cc = CustomContent.for(@promotion, :key => "global_email_message")
+    end
+    @global_email_message = !cc.empty? ? cc.first.content_html : nil
+    super(*args)
+  end
+
 end
