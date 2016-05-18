@@ -226,11 +226,10 @@ class GoMailer < ActionMailer::Base
   def mail(*args)
     # hooks the mail method to make the current instance variables accessible
     # for more processing before the email is rendered into the template
-    cc = Array.new
     if @promotion
       cc = CustomContent.for(@promotion, :key => "global_email_message")
+      @global_email_message = (!cc.empty? && !cc[0].hidden && cc[0].content_html != '') ? cc[0].content_html : nil
     end
-    @global_email_message = !cc.empty? ? cc.first.content_html : nil
     super(*args)
   end
 
