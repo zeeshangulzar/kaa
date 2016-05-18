@@ -45,7 +45,7 @@ class FitbitNotificationJob
               pending = Resque.info[:pending]
               exp = (pending/500.0)
               exp = 15 if exp < 15
-              Rails.cache.write(cache_key,Time.now,:expires_in=>exp.seconds)
+              Rails.cache.write(cache_key,Time.now,:expires_in=>exp)
               log "Caching data for FitbitUser##{fitbit_user.id} / User##{fitbit_user.user.id} for #{date} for #{exp} seconds (#{pending} jobs in Resque queue)"
             end
 
