@@ -3,6 +3,12 @@ class JawbonesController < ApplicationController
   authorize :post_authorize, :notify, :public
 
   def authorize
+    # First time users jawbone_oauth_tokens would have an id of 0, this fixes this instead of in the Gem...
+    if @current_user.jawbone_oauth_token.nil?
+	newOauthToken = @current_user.build_jawbone_oauth_token
+        newOauthToken.save!
+        @current_user.reload
+    end 
     devices_host = Rails.env.development? ? 'http://devices.dev' : nil
     redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize", :devices_host => devices_host)
     render :json => {:url=>redirect_url}
