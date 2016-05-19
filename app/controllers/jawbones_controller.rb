@@ -4,8 +4,6 @@ class JawbonesController < ApplicationController
 
   def authorize
     devices_host = Rails.env.development? ? 'http://devices.dev' : nil
-    cookies['jawbone_auth'] = @current_user.auth_key
-    Rails.logger.warn "PRE AUTH COOKIE IS #{cookies['jawbone_auth']}"
     redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize", :devices_host => devices_host)
     render :json => {:url=>redirect_url}
   end
