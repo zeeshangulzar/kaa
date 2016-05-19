@@ -5,31 +5,31 @@ class JawbonesController < ApplicationController
   def authorize
     # First time users jawbone_oauth_tokens would have an id of 0, this fixes this instead of in the Gem...
     if @current_user.jawbone_oauth_token.nil?
-	newOauthToken = @current_user.build_jawbone_oauth_token
-        newOauthToken.save!
-        @current_user.reload
-    end 
-    devices_host = Rails.env.development? ? 'http://devices.dev' : nil
-    redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize", :devices_host => devices_host)
-    render :json => {:url=>redirect_url}
-  end
+     newOauthToken = @current_user.build_jawbone_oauth_token
+     newOauthToken.save!
+     @current_user.reload
+   end 
+   devices_host = Rails.env.development? ? 'http://devices.dev' : nil
+   redirect_url = HESJawbone.begin_authorization(@current_user, :return_url => "#{request.host_with_port}/jawbones/post_authorize", :devices_host => devices_host)
+   render :json => {:url=>redirect_url}
+ end
 
-  def settings
-  end
+ def settings
+ end
 
-  def post_authorize
-    if params[:message].nil?
-     oauth_token = JawboneOauthToken.find(params[:oauth_id])
-     u = oauth_token.user
-     HESSecurityMiddleware.set_current_user(u)
-     HESJawbone.finalize_authorization(u)
-     u.reload.jawbone_user.reload
-     u.update_column :active_device, 'JAWBONE'
+ def post_authorize
+  if params[:message].nil?
+   oauth_token = JawboneOauthToken.find(params[:oauth_id])
+   u = oauth_token.user
+   HESSecurityMiddleware.set_current_user(u)
+   HESJawbone.finalize_authorization(u)
+   u.reload.jawbone_user.reload
+   u.update_column :active_device, 'JAWBONE'
 
-     notification = u.notifications.find_by_key('JAWBONE') || u.notifications.build(:key=>'JAWBONE')
-     if u.profile.started_on > u.promotion.current_date
-      notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} starting #{u.profile.started_on.strftime('%B %e')}."
-    else
+   notification = u.notifications.find_by_key('JAWBONE') || u.notifications.build(:key=>'JAWBONE')
+   if u.profile.started_on > u.promotion.current_date
+    notification.update_attributes :title=> "Jawbone Connected", :message=>"Your UP tracker will sync with #{Constant::AppName} starting #{u.profile.started_on.strftime('%B %e')}."
+  else
         # backlog data... 
         daysBack = (u.promotion.current_date - u.profile.started_on).to_i
         daysBack = [daysBack,u.promotion.backlog_days].min if u.promotion.backlog_days.to_i > 0
@@ -55,12 +55,15 @@ class JawbonesController < ApplicationController
   end
 
   def disconnect 
-    # if @current_user.jawbone_user
-    @current_user.jawbone_user.disconnect
-    @current_user.update_column(:active_device,nil) if @current_user.active_device == 'JAWBONE'
-      #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
-      ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
-    # end
+   if @current_user.jawbone_user
+    User.transaction do
+      @current_user.jawbone_user.disconnect
+        #@current_user.jawbone_user.destroy (MySQL error when deleting from view... have to do it manually)
+        ActiveRecord::Base.connection.execute "delete from fbskeleton.jawbone_users where id = #{@current_user.jawbone_user.id}"
+        @current_user.update_attributes :active_device => nil
+        User.connection.execute "delete from notifications where user_id = #{@current_user.id} and `key` = 'JAWBONE'"
+      end
+    end
     head :ok 
   end
 
