@@ -147,3 +147,12 @@ StoreConfig::STORE_PACKAGES['fitbit2'][0][:sales_limit] = {:max => 2, :keys => [
 StoreConfig::STORE_PACKAGES[:fifty_cent] = StoreConfig::STORE_PACKAGES[:flex_only].collect{|h|h.dup}
 StoreConfig::STORE_PACKAGES[:fifty_cent][0][:price] = 0.5
 StoreConfig::STORE_PACKAGES['qa'] = :fifty_cent
+
+
+StoreConfig::STORE_PACKAGES['byofitbitorbuy'] = :zip_only
+StoreConfig::STORE_PACKAGES['buyfitbitormanual'] = :zip_only
+
+StoreConfig::STORE_PACKAGES['fitbitsaleslimit'] = []
+StoreConfig::STORE_PACKAGES['fitbitsaleslimit'] << StoreConfig::STORE_PACKAGES[:zip_only].first.dup
+StoreConfig::STORE_PACKAGES['fitbitsaleslimit'][0][:sales_limit] = {:max => 1, :keys => ['ZIP_ONLY']}
+StoreConfig::STORE_PACKAGES['fitbitsaleslimit'][0][:price] = 0.5
