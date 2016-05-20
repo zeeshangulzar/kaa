@@ -1,7 +1,7 @@
 class Team < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
-  attr_privacy :id, :name, :motto, :image, :leader, :total_points, :avg_points, :member_count, :status, :competition_id, :any_user
+  attr_privacy :id, :name, :motto, :image, :leader, :total_points, :avg_points, :member_count, :status, :competition_id, :rank, :any_user
 
   has_many :team_members
   has_many :members, :through => :team_members, :source => :user
@@ -141,6 +141,49 @@ class Team < ApplicationModel
         invite.destroy
       }
     end
+  end
+
+  def self.rank(team)
+    if team.is_a?(Integer)
+      team = Team.find(team) rescue nil
+      return false if !team
+    end
+    rank = nil
+    return rank if team.status != Team::STATUS[:official]
+    sql = "
+      SELECT
+      (COUNT(team_id) + 1) AS rank
+      FROM (
+        SELECT
+        team_id,
+        AVG(total_points) as team_rank
+        FROM team_members
+        JOIN teams ON teams.id = team_members.team_id AND teams.status = #{Team::STATUS[:official]} and teams.competition_id = #{team.competition_id}
+        GROUP BY team_id
+        HAVING team_rank > (
+          SELECT 
+          AVG(total_points) 
+          FROM team_members 
+          WHERE
+          team_id = #{team.id}
+        )
+      ) ranking
+    "
+    result = self.connection.exec_query(sql)
+    result.first.each{|k,v|
+      rank = v
+    }
+    return rank
+  end
+
+  def rank
+    return @rank if !@rank.nil?
+    @rank = Team::rank(self)
+    return @rank
+  end
+
+  def full?
+    return !self.competition.team_size_max.nil? && self.member_count >= self.competition.team_size_max
   end
 
 end

@@ -6,7 +6,7 @@ class Promotion < ApplicationModel
   
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :current_competition, :weekly_goal, :any_user
-  attr_privacy :pilot_password, :master
+  attr_privacy :pilot_password, :total_participants, :coordinators, :master
 
   belongs_to :organization
 
@@ -52,6 +52,8 @@ class Promotion < ApplicationModel
 
   after_update :update_evaluations, :if => lambda { self.program_length != self.program_length_was }
 
+  after_save :update_coordinators
+
   flags :is_fitbit_enabled, :default => false
   flags :is_jawbone_enabled, :default => false
   flags :is_manual_override_enabled, :default => false
@@ -68,6 +70,13 @@ class Promotion < ApplicationModel
   flags :is_video_enabled, :default => false
   flags :fulfillment_monday, :fulfillment_tuesday, :fulfillment_wednesday, :fulfillment_thursday, :fulfillment_friday, :fulfillment_saturday, :fulfillment_sunday, :default => false
   flags :is_eligibility_displayed, :default => false
+  flags :hide_privacy_link, :default => false
+  flags :show_opt_in_participation_link, :default => false
+  flags :is_buddy_feature_displayed, :default => false
+  flags :is_goal_page_enabled, :default => false
+
+  # Disable manual logging (forces you to use a device) 
+  flags :disable_manual_logging, :default => false
 
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :subdomain, :launch_on, :starts_on, :registration_starts_on
@@ -132,9 +141,9 @@ class Promotion < ApplicationModel
       self.copy_point_thresholds
       self.copy_behaviors
       self.copy_gifts
-      self.copy_custom_prompts
+      custom_prompts_map = self.copy_custom_prompts
     end
-    self.create_evaluations
+    self.create_evaluations(custom_prompts_map)
   end
 
   def copy_point_thresholds
@@ -171,6 +180,7 @@ class Promotion < ApplicationModel
 
   # copy default promo custom prompts for evals, etc.
   def copy_custom_prompts
+    map = {}
     default = Promotion::get_default
     if default
       default.custom_prompts.each{|cp|
@@ -178,12 +188,14 @@ class Promotion < ApplicationModel
         copied_cp.id = nil
         copied_cp.custom_promptable_id = self.id
         copied_cp.save!
+        map[cp.udf_def.cfn] = copied_cp.udf_def.cfn
       }
     end
+    return map
   end
 
   # Creates the initial assesement used at registration and the final assessment used at the program end
-  def create_evaluations
+  def create_evaluations(map = nil)
     Promotion.transaction do
       default = Promotion::get_default
       if default
@@ -192,6 +204,19 @@ class Promotion < ApplicationModel
           copied_ed = ed.dup
           copied_ed.id = nil
           copied_ed.eval_definitionable_id = self.id
+          # mapped custom_prompts from copy_custom_prompts so that we can update visible questions in newly created eval defs to new prompts
+          if !map.nil? && !map.empty?
+            new_visible_questions = []
+            visible_questions = copied_ed.visible_questions.split(',')
+            visible_questions.each{|q|
+              if map.key?(q)
+                new_visible_questions << map[q]
+              else
+                new_visible_questions << q
+              end
+            }
+            copied_ed.visible_questions = new_visible_questions.join(',')
+          end
           copied_ed.save!
         }
       else
@@ -296,20 +321,12 @@ class Promotion < ApplicationModel
   end
 
   def current_competition(today = self.current_date)
-    if today != current_date
-      #if you pass in some other date, i don't want it to affect the class variable
-      #(i.e. i don't want to cache "some other" competition and call it current)
-      comp = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= enrollment_ends_on", {:today=>today}])
-    else
-      # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
-      if @current_competition.nil?
-        # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
-        comp = @current_competition = competitions.find(:first,:conditions=>["enrollment_starts_on <= :today and :today <= competition_ends_on", {:today=>today}])
-      else
-        comp = @current_competition
-      end
-    end
-    comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => today } ] )
+    # this is stuffed into a class variable because this could get called multiple times in a request, resulting in redundant queries
+    return @current_competition if !!defined?(@current_competition)
+    # any idea how to make :conditions not be glued to MySQL?  do we care?  should we care?  could we care if we were capable of caring?
+    comp = competitions.find( :first, :conditions => [ "enrollment_starts_on <= :today and :today <= competition_ends_on", { :today=>self.current_date } ] )
+    @current_competition = comp || competitions.find( :last, :conditions => [ "enrollment_starts_on <= :today", { :today => self.current_date } ] )
+    return @current_competition
   end
 
   def is_default?
@@ -327,7 +344,7 @@ class Promotion < ApplicationModel
   def keywords
     return {
       'APP_NAME'        => Constant::AppName,
-      'NAME'            => self.name,
+      'PROMOTION_NAME'  => self.name,
       'COMP_REG_STARTS' => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_starts_on.strftime("%A, %B #{self.current_competition.enrollment_starts_on.day}, %Y"),
       'COMP_REG_ENDS'   => self.current_competition.nil? ? Date.today : self.current_competition.enrollment_ends_on.strftime("%A, %B #{self.current_competition.enrollment_ends_on.day}, %Y"),
       'COMP_STARTS'     => self.current_competition.nil? ? Date.today : self.current_competition.competition_starts_on.strftime("%A, %B #{self.current_competition.competition_starts_on.day}, %Y"),
@@ -339,7 +356,8 @@ class Promotion < ApplicationModel
       'REG_ENDS'        => self.registration_ends_on.nil? ? Date.today : self.registration_ends_on.strftime("%A, %B #{self.registration_ends_on.day}, %Y"),
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil,
-      'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}"
+      'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}",
+      'COMP_TEAM_SIZE'  => self.current_competition.nil? ? 0 : self.current_competition.team_size_message
     }
   end
 
@@ -358,80 +376,145 @@ class Promotion < ApplicationModel
       :location_ids => [],
       :sort         => "total_points",
       :sort_dir     => "DESC"
-    }.nil_merge!(conditions)
+      }.nil_merge!(conditions)
 
-    users_sql = "
+      users_sql = "
       SELECT
-    "
-    if count
-      users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
-    else
-      users_sql = users_sql + "
+      "
+      if count
+        users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
+      else
+        users_sql = users_sql + "
         users.id, profiles.first_name, profiles.last_name, profiles.image, users.location_id, users.top_level_location_id, users.total_points,
         locations.id AS location_id, locations.name AS location_name
-      "
-    end
-    users_sql = users_sql + "
-      FROM users
-        JOIN profiles ON profiles.user_id = users.id
-        LEFT JOIN locations ON locations.id = users.location_id
-      WHERE
-        users.promotion_id = #{self.id}
-        AND users.opted_in_individual_leaderboard = 1
-        #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
-    "
-    if !count
+        "
+      end
       users_sql = users_sql + "
+      FROM users
+      JOIN profiles ON profiles.user_id = users.id
+      LEFT JOIN locations ON locations.id = users.location_id
+      WHERE
+      users.promotion_id = #{self.id}
+      AND users.opted_in_individual_leaderboard = 1
+      #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
+      "
+      if !count
+        users_sql = users_sql + "
         GROUP BY users.id
         ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
         #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
         #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
-      "
-    end
-    result = self.connection.exec_query(users_sql)
-    if count
-      return result.first['user_count']
-    end
-    users = []
-    rank = 0
-    user_count = 0
-    previous_user = nil
-    result.each{|row|
-      user_count += 1
-      user = {}
-      user['profile']                 = {}
-      user['profile']['image']        = {}
-      user['location']                = {}
-      user['id']                      = row['id']
-      user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
-      user['profile']['first_name']   = row['first_name']
-      user['profile']['last_name']    = row['last_name']
-      user['location']['id']          = row['location_id']
-      user['location']['name']        = row['location_name']
-      user['total_points']            = row['total_points']
-      rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
-      user['rank']                    = rank
-      users << user
-      previous_user = user
-    }
-
-    return users
-  end
-
-  def total_participants
-    return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
-  end
-
-  def eligibility_fields
-    unless @eligibility_fields
-      fields = Eligibility::DEFAULT_FIELDS
-      if self.custom_eligibility_fields
-        custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
-        fields = fields + custom_fields
+        "
       end
-      @eligibility_fields = fields
-    end
-    return @eligibility_fields
-  end
+      result = self.connection.exec_query(users_sql)
+      if count
+        return result.first['user_count']
+      end
+      users = []
+      rank = 0
+      user_count = 0
+      previous_user = nil
+      result.each{|row|
+        user_count += 1
+        user = {}
+        user['profile']                 = {}
+        user['profile']['image']        = {}
+        user['location']                = {}
+        user['id']                      = row['id']
+        user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
+        user['profile']['first_name']   = row['first_name']
+        user['profile']['last_name']    = row['last_name']
+        user['location']['id']          = row['location_id']
+        user['location']['name']        = row['location_name']
+        user['total_points']            = row['total_points']
+        rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
+        user['rank']                    = rank
+        users << user
+        previous_user = user
+      }
 
-end
+      return users
+    end
+
+    def total_participants
+      return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+    end
+
+    def eligibility_fields
+      unless @eligibility_fields
+        fields = Eligibility::DEFAULT_FIELDS
+        if self.custom_eligibility_fields
+          custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
+          fields = fields + custom_fields
+        end
+        @eligibility_fields = fields
+      end
+      return @eligibility_fields
+    end
+
+    def all_user_emails
+      sql = "
+      SELECT
+      users.email
+      FROM users
+      WHERE users.promotion_id = #{self.id}"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+    def all_team_leaders_current_competition_emails
+      sql = "SELECT
+      users.email
+      from users
+      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+      inner join teams on team_members.team_id = teams.id and teams.status in (1,0)
+      where users.promotion_id = #{self.id} and users.id is not null"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+    def all_unofficial_current_competition_team_leaders_emails
+      sql = "
+      SELECT
+      users.email
+      from users
+      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+      inner join teams on team_members.team_id = teams.id and teams.status = 0
+      where users.promotion_id = #{self.id} and users.id is not null"
+      user_emails = []
+      self.connection.select_all(sql).each do |row|
+        user_emails.push row['email']
+      end
+      return user_emails
+    end
+
+    def update_coordinators
+      oldCoordinators = self.coordinators_was.nil? ? [] : self.coordinators_was.split(',')
+      newCoordinators = self.coordinators.nil? ? [] : self.coordinators.split(',')
+       #DEMOTE the ones that WERE in the old list, but NOT in the new list
+       demoteList = oldCoordinators - newCoordinators
+       #PROMOTE the ones that ARE in the new list, but WEREN't in the old list
+       promoteList = newCoordinators - oldCoordinators
+       demoteList.each do |demoteEmail|
+          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", demoteEmail, self.id])
+          unless user.nil?
+             user.role = User::Role[:user]
+             user.save
+          end
+       end
+       promoteList.each do |promoteEmail|
+          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", promoteEmail, self.id])
+          unless user.nil?
+             user.role = User::Role[:coordinator]
+             user.save
+          end
+       end
+    end
+
+  end

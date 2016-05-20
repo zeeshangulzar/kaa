@@ -157,10 +157,10 @@ class UsersController < ApplicationController
       params[:user][:profile] = Profile.new(params[:user][:profile])
     end
 
-    if params[:user][:evaluation] && params[:user][:evaluation][:evaluation_definition_id]
-      ed = EvaluationDefinition.find(params[:user][:evaluation][:evaluation_definition_id]) rescue nil
-      if ed && ed.promotion_id == @promotion.id
-        eval_params = params[:user][:evaluation]
+    if params[:evaluation] && params[:evaluation][:evaluation_definition_id]
+      ed = EvaluationDefinition.find(params[:evaluation][:evaluation_definition_id]) rescue nil
+      if ed && ed.eval_definitionable_type == "Promotion" && ed.eval_definitionable_id == @promotion.id
+        eval_params = params[:evaluation]
         params[:user].delete(:evaluation)
       else
         return HESResponder("Invalid evaluation definition.", "ERROR")
@@ -201,14 +201,18 @@ class UsersController < ApplicationController
           demographic.user_id = user.id
           demographic.save!
         end
-        if !params[:eligibility_identifier].nil? && !params[:eligibility_identifier].empty?
-          eligibility = @promotion.eligibilities.find_by_identifier(params[:eligibility_identifier]) rescue nil
-          return HESResponder("Eligibility not found.", "ERROR") if !eligibility
-          if !eligibility.user_id.nil?
-            return HESResponder("Eligibility identifier already in use.", "ERROR")
+        if @promotion.flags[:is_eligibility_displayed]
+          if params[:eligibility_identifier].nil? || params[:eligibility_identifier].empty?
+            return HESResponder("Eligibility identifier required.", "ERROR")
           else
-            eligibility.user_id = user.id
-            eligibility.save!
+            eligibility = @promotion.eligibilities.find_by_identifier(params[:eligibility_identifier]) rescue nil
+            return HESResponder("Eligibility not found.", "ERROR") if !eligibility
+            if !eligibility.user_id.nil?
+              return HESResponder("Eligibility identifier already in use.", "ERROR")
+            else
+              eligibility.user_id = user.id
+              eligibility.save!
+            end
           end
         end
       end

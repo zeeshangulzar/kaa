@@ -54,7 +54,7 @@ GEM
     hes-fitgem (2.0.5)
       addressable (= 2.3.6)
       oauth2-client
-    hes-jawbone (1.0.7)
+    hes-jawbone (1.0.8)
       hes-jawbone-api (= 0.4.3)
       mime-types (~> 1.25.0)
       rest-client (= 1.6.7)
@@ -94,6 +94,7 @@ GEM
     oauth2-client (2.0.0)
       addressable (~> 2.3)
       bcrypt-ruby (~> 3.0)
+    oauth (0.5.1)
     oj (2.12.13)
     polyglot (0.3.5)
     rack (1.4.7)
@@ -200,4 +201,4 @@ DEPENDENCIES
   rmagick (~> 2.13)
 
 BUNDLED WITH
-   1.10.2
+   1.11.2

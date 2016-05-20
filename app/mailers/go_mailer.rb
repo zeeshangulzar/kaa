@@ -193,11 +193,44 @@ class GoMailer < ActionMailer::Base
     end
   end
 
+  def one_time_email(emails, subject, message, from = nil, promotion = nil)
+    @message = message
+    # set the address first based on the from user
+    # because we have to get some sort of user for the template and we don't want their email showing up...
+    from_address = fromHandler(from)
+    @user = from.nil? ? promotion.nil? ? Promotion.first.users.first : promotion.users.first : from
+    @promotion = promotion
+    @base_url = self.base_url(@promotion.subdomain)
+    @no_preferences = true
+    if !emails.empty?
+      mail(:to => emails, :subject => subject, :from => from_address)
+    end
+  end
+
   def fromHandler(user = nil)
     return FormattedFromAddress if !user
     # todo: handle hiding emails based on promotion config and user preferences for future apps
     # KP doesn't care if they expose people's emails..
     return "#{user.profile.full_name} <no-reply@healthfortheholidays.com>"
+  end
+
+  def friend_invite_email(invitee, inviter)
+    @invitee = invitee
+    @user = invitee # NOTE: always need a @user for email templates
+    @inviter = inviter
+    @promotion = @inviter.promotion
+    @base_url = self.base_url(@promotion.subdomain)
+    mail(:to => @invitee.email, :subject => "#{Constant::AppName}: #{@inviter.profile.full_name} sent you a #{Friendship::Label} request", :from => fromHandler(@inviter))
+  end
+
+  def mail(*args)
+    # hooks the mail method to make the current instance variables accessible
+    # for more processing before the email is rendered into the template
+    if @promotion
+      cc = CustomContent.for(@promotion, :key => "global_email_message")
+      @global_email_message = (!cc.empty? && !cc[0].hidden && cc[0].content_html != '') ? cc[0].content_html : nil
+    end
+    super(*args)
   end
 
 end

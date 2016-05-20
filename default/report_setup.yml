@@ -173,7 +173,7 @@
     "17": 
       :aggregate: false
       :sequence: 17
-      :sql_phrase: DATE_FORMAT(users.created_at, '%c/%d/%Y') `Registered On`
+      :sql_phrase: users.created_at `Registered On`
       :filterable: true
       :role: Coordinator
       :display_name: Registered On
@@ -209,7 +209,7 @@
     "20": 
       :aggregate: false
       :sequence: 8
-      :sql_phrase: DATE_FORMAT(profiles.started_on, '%c/%d/%Y') `Started On`
+      :sql_phrase: profiles.started_on  `Started On`
       :filterable: true
       :role: Coordinator
       :display_name: Started On

@@ -80,7 +80,7 @@ module HESPrivacy
       return target if target.is_a?(User)
       
       path_to_user = @@hes_privacy_config[self][:path_to_user]
-      return User.find(:first,:conditions=>{:role=>User::Role[:master]}) if path_to_user == NoPathToUser
+      return get_master_user if path_to_user == NoPathToUser
 
       tgt = target
       ptu = path_to_user.is_a?(Array) ? path_to_user : [path_to_user]
@@ -96,6 +96,12 @@ module HESPrivacy
         end
       end
       tgt
+    end
+
+    def get_master_user
+      return @@master_user if !!defined?(@@master_user)
+      @@master_user = User.find(:first, :conditions => {:role => User::Role[:master]})
+      return @@master_user
     end
 
     def reduce_keys(requester,target)

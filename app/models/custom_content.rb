@@ -5,7 +5,7 @@ class CustomContent < ApplicationModel
   attr_accessible *column_names
   attr_privacy_no_path_to_user
   attr_privacy :promotion_id, :location_id, :category, :key, :group, :title_html, :description_html, :summary_html, :content_html, :image, :caption_html, :sequence, :public
-  attr_privacy :title, :description, :summary, :content, :caption, :master
+  attr_privacy :title, :description, :summary, :content, :caption, :hidden, :master
 
   belongs_to :promotion
   has_many :custom_content_archives, :order => "archived_at DESC"
@@ -43,8 +43,9 @@ class CustomContent < ApplicationModel
   def self.for(promotion, conditions)
     conditions = {
       :category => nil,
-      :key => nil,
-      :group => nil
+      :key      => nil,
+      :group    => nil,
+      :hidden   => false
     }.merge(conditions)
 
     promotion_id = promotion.is_default? ? 'null' : promotion.id
@@ -58,6 +59,7 @@ class CustomContent < ApplicationModel
         #{"AND `category` = #{sanitize(conditions[:category])}" if !conditions[:category].nil?}
         #{"AND `key` = #{sanitize(conditions[:key])}" if !conditions[:key].nil?}
         #{"AND `group` = #{sanitize(conditions[:group])}" if !conditions[:group].nil?}
+        #{"AND (`hidden` = #{sanitize(conditions[:hidden])} OR `hidden` is NULL)" if !conditions[:hidden].nil?}
       UNION
       SELECT
         *
@@ -116,15 +118,19 @@ class CustomContent < ApplicationModel
   end
 
   # substitute promotion keywords for markdown columns
-  def self.keyworded(custom_content, promotion = nil)
+  def self.keyworded(custom_content, promotion = nil, user = nil)
     array_passed = custom_content.is_a?(Array)
     custom_contents = array_passed ? custom_content : [custom_content]
     promotion ||= self.promotion
+    re = Regexp.union(promotion.keywords.keys)
     custom_contents.each{ |custom_content|
       MARKDOWN_COLUMNS.each{ |column|
         original = custom_content.send(column)
-        re = Regexp.union(promotion.keywords.keys)
         with_keywords = original.gsub(re) { |m| promotion.keywords[m] }
+        if !user.nil?
+          re = Regexp.union(user.keywords.keys)
+          with_keywords = with_keywords.gsub(re) { |m| user.keywords[m] }
+        end
         custom_content.send("#{column}=", with_keywords)
       }
     }

@@ -34,6 +34,7 @@ class User < ApplicationModel
   has_many :requests, :order => "created_at DESC"
   after_commit :welcome_email, :on => :create
   after_commit :check_for_invites, :on => :create
+  before_create :check_for_coordinator
 
   def welcome_email
     Resque.enqueue(WelcomeEmail, self.id)
@@ -72,10 +73,10 @@ class User < ApplicationModel
   
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
-  attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :me
+  attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :allows_daily_email, :allows_daily_email_monday_only, :me
   attr_privacy :nuid_verified, :sso_identifier, :master
 
-  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier
+  attr_accessible :username, :email, :username, :altid, :promotion_id, :password, :profile, :profile_attributes, :flags, :location_id, :top_level_location_id, :active_device, :last_accessed, :role, :opted_in_individual_leaderboard, :sso_identifier, :allows_daily_email, :allows_daily_email_monday_only
 
   # validation
   validates_presence_of :email, :role, :promotion_id, :organization_id, :reseller_id, :password
@@ -157,6 +158,7 @@ class User < ApplicationModel
         users.*
       FROM users
       JOIN profiles ON profiles.user_id = users.id
+      LEFT JOIN friendships ON (((friendships.friendee_id = users.id AND friendships.friender_id = #{self.id}) OR (friendships.friendee_id = #{self.id} AND friendships.friender_id = users.id)))
       WHERE
       (
         users.email LIKE '%#{search}%'
@@ -167,6 +169,16 @@ class User < ApplicationModel
       AND
       (
         users.id <> #{self.id}
+    "
+    if unassociated
+      sql = sql + "
+        AND (
+          friendships.status IS NULL
+          OR friendships.status = 'D'
+        )
+      "
+    end
+    sql = sql + "
         AND users.promotion_id = #{promotion_id}
       )
       GROUP BY users.id
@@ -213,7 +225,11 @@ class User < ApplicationModel
       arr =  self.class.stats([self.id])
       @stats = arr[self.id]
     end
-    return @stats
+    @stats
+  end
+
+  def stats=(hash)
+    @stats=hash
   end
 
   def location_ids
@@ -255,9 +271,10 @@ class User < ApplicationModel
 
   def current_team
     return nil if self.promotion.current_competition.nil?
+    return @current_team if !!defined?(@current_team)
     current_competition_id = self.promotion.current_competition.id
-    teams = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id} AND teams.status <> #{Team::STATUS[:deleted]}")
-    return teams.first
+    @current_team = Team.includes(:team_members).where("team_members.user_id = #{self.id} AND team_members.competition_id = #{current_competition_id} AND teams.competition_id = #{current_competition_id} AND teams.status <> #{Team::STATUS[:deleted]}").first rescue nil
+    return @current_team
   end
 
   def current_team_member
@@ -404,6 +421,59 @@ class User < ApplicationModel
   def set_sso_password
     if self.promotion.organization.is_sso_enabled && (self.password.nil? || self.password.empty?)
       self.password = SecureRandom.hex(16) 
+    end
+  end
+
+  def keywords
+    current_team = self.current_team
+    return {
+      'USER_FULLNAME'            => "#{self.profile.first_name} #{self.profile.last_name}",
+      'USER_TEAM_SIZE' => current_team.nil? ? 0 : current_team.member_count,
+      'USER_TEAM_MEMBERS_TO_OFFICIAL' => current_team.nil? ? 0 : current_team.status == Team::STATUS[:pending] ?  current_team.competition.team_size_min - current_team.member_count : 0
+    }
+  end
+
+
+  has_many :friendships, :foreign_key => "friender_id", :dependent => :destroy
+  has_many :inverse_friendships, :class_name => "Friendship", :foreign_key => :friendee_id, :dependent => :destroy
+
+  after_commit :associate_requested_friendships, :on => :create
+  after_update :check_if_email_has_changed_and_associate_requested_friendships
+
+  def friend_ids
+    return self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
+  end
+
+  def request_friend(user_or_email)
+    if user_or_email.is_i?
+      user_or_email = User.find(user_or_email) rescue nil
+    end
+    return false if user_or_email.nil?
+    if user_or_email.is_a?(String)
+      friendships.create(:friend_email => user_or_email, :status => Friendship::STATUS[:requested])
+    else
+      friendships.create(:friendee => user_or_email, :status => Friendship::STATUS[:requested])
+    end
+  end
+
+  def associate_requested_friendships(email = nil)
+    Friendship.all(:conditions => ["(`#{Friendship.table_name}`.`friend_email` = :email) AND `#{Friendship.table_name}`.`status` = '#{Friendship::STATUS[:pending]}'", {:email => email || self.email}]).each do |f|
+      f.update_attributes(:friendee => self)
+      f.reload.do_notification
+    end
+  end
+
+  def check_if_email_has_changed_and_associate_requested_friendships
+    if email_was != email
+      associate_requested_friendships
+    end
+  end
+  
+  def check_for_coordinator
+    unless self.promotion.coordinators.nil?
+      if self.promotion.coordinators.downcase.include?(self.email.downcase)
+        self.role = User::Role[:coordinator]
+      end
     end
   end
 

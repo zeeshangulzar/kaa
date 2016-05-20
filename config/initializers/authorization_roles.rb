@@ -1,2 +1,0 @@
-# Authorization roles from highest access (administrator) to lowest access (public)
-#HesAuthorization.role_hierarchy = [:master, :reseller, :poster, :coordinator, :sub_promotion_coordinator, :location_coordinator, :user, :public]

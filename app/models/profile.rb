@@ -4,9 +4,7 @@ class Profile < ApplicationModel
   
   attr_accessible *column_names
   attr_privacy :first_name,:last_name,:image,:public_comment
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :me
-
-
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :goal, :me
 
   # validation
   validates_presence_of :first_name, :last_name
@@ -16,11 +14,6 @@ class Profile < ApplicationModel
 
   mount_uploader :image, ProfilePhotoUploader
 
-  # includes
-  include TrackChangedFields
-  # udfable is breaking things..
-  # none of the methods below were defined with udfable "enabled" (not commented out)
-  # udfable
 
   # flags
   flags :has_changed_password_at_least_once, :default => false

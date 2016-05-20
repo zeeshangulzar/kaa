@@ -35,6 +35,9 @@ class CustomPromptsController < ApplicationController
     return HESResponder(custom_prompt.errors.full_messages, "ERROR") if !custom_prompt.valid?
     CustomPrompt.transaction do
       custom_prompt.save!
+      if params[:custom_prompt_evaluation] 
+        add_prompt_to_evaluations(custom_prompt, params[:custom_prompt_evaluation])
+      end
     end
     return HESResponder(custom_prompt)
   end
@@ -44,6 +47,9 @@ class CustomPromptsController < ApplicationController
     return HESResponder("Custom prompt", "NOT_FOUND") if !custom_prompt
     CustomPrompt.transaction do
       custom_prompt.update_attributes(params[:custom_prompt])
+      if params[:custom_prompt_evaluation] 
+        add_prompt_to_evaluations(custom_prompt, params[:custom_prompt_evaluation])
+      end
     end
     return HESResponder(custom_prompt.errors.full_messages, "ERROR") if !custom_prompt.valid?
     return HESResponder(custom_prompt)
@@ -53,5 +59,22 @@ class CustomPromptsController < ApplicationController
   	custom_prompt = CustomPrompt.find(params[:id])
   	custom_prompt.destroy
   	return HESResponder(custom_prompt)
+  end
+
+
+  def add_prompt_to_evaluations(custom_prompt, custom_prompt_evaluation)
+    if(custom_prompt.custom_promptable_type == "Promotion")
+      cp_promotion = Promotion.find(custom_prompt.custom_promptable_id)
+      cp_promotion.evaluation_definitions.each do |ed|
+        evaluationId = ed.id
+        Rails.logger.warn  "CUSTOM PROMPT SYMBOL #{custom_prompt_evaluation["evaluation_#{evaluationId}".to_sym]}"
+        if custom_prompt_evaluation["evaluation_#{evaluationId}".to_sym] == 1 || custom_prompt_evaluation["evaluation_#{evaluationId}".to_sym] == true
+          ed.add_visible_question("custom_prompt_#{custom_prompt.id}")
+        else 
+          ed.remove_visible_question("custom_prompt_#{custom_prompt.id}")
+        end
+        ed.save!
+      end
+    end
   end
 end

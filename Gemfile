@@ -33,7 +33,7 @@ gem "hes-resque-multi-job-forks"
 
 #gem "hes-fitbit","1.0.21"
 gem "hes-fitbit","2.0.5"
-gem "hes-jawbone","1.0.7"
+gem "hes-jawbone","1.0.8"
 
 group :test do
   gem 'hes_route_docs'

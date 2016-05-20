@@ -43,6 +43,7 @@ Go::Application.routes.draw do
     end
     resources :profiles, :only => [:update]
     resources :team_invites
+    resources :friendships
   end
 
   match '/get_user_from_auth_key/:auth_key' => 'users#get_user_from_auth_key', :via => :get
@@ -53,6 +54,7 @@ Go::Application.routes.draw do
 
   get '/facts/current', :to=>'facts#current'
   get '/promotions/:promotion_id/facts/current', :to=>'facts#current'
+  post '/promotions/:promotion_id/one_time_email', :to=>'promotions#one_time_email'
 
   match 'promotions/get_grouped_promotions', :controller => :promotions, :action => :get_grouped_promotions, :via => :get
 
@@ -199,6 +201,7 @@ Go::Application.routes.draw do
       post :master_info
       post :notify
       get :notify
+      post :get_daily_summaries
     end
   end
 
@@ -242,5 +245,8 @@ Go::Application.routes.draw do
   match "/promotions/:id/eligibility_files/:eligibility_file_id/download" => "eligibility_files#download", :via => :get
 
   match "/sso" => "sso#index"
+
+  # friendships...
+  resources :friendships
  
 end
