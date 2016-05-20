@@ -42,6 +42,7 @@ namespace :devices do
         :subdomain=>subdomain,
         :launch_on=>d1,
         :starts_on=>d1,
+        :ends_on=>dx,
         :registration_starts_on=>d1,
         :registration_ends_on=>dx,
         :late_registration_ends_on=>dx,
