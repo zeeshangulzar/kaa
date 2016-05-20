@@ -234,14 +234,42 @@ class FitbitsController < ApplicationController
     oauth_token = FitbitOauthToken.where(:token=>params[:state]).last
     verifier = params[:code]
     if oauth_token
-      return_url = request.original_url
-      #xd = YAML::load oauth_token.extra_data
+
+      #post_authorize with altered params and slight modifications to support oauth2
+      params[:oauth_token] = params[:state]
+      params[:oauth_verifier] = params[:code]
+      user = oauth_token.user
+      client = user.get_fitbit_client 
+      access_token = client.authorize(oauth_token.token,oauth_token.secret,{:oauth_verifier=>params[:oauth_verifier]})
+      if !user.respond_to?(:authorized_full_scope) || user.authorized_full_scope
+        User.transaction do
+          oauth_token.update_attributes :token => access_token.token, :secret => access_token.secret
+          user.retrieve_fitbit_user
+          user.reload
+          user.fitbit_user.subscribe_to_notifications
+          user.fitbit_user.request_activity_through_today(false)
+          notification = user.notifications.find_by_key('FITBIT') || user.notifications.build(:key=>'FITBIT')
+          
+          if user.started_on >= user.promotion.current_date
+            notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with <em>#{Constant::AppName}</em> starting #{user.started_on.strftime('%B %e')}."
+          else
+            notification.update_attributes :title => "Fitbit Connected", :message=>"Your Fitbit data will sync with <em>#{Constant::AppName}</em> shortly."
+          end
+          
+          user.update_column :active_device, 'FITBIT'
+          user.touch
+        end
+      else
+        render :text=>"Please return to the Fitbit site, be sure all the boxes are checked, then click Allow."
+      end
+
+      xd = YAML::load oauth_token.extra_data
+
       # if return_url already has a ? in it, then this needs to add an & and not a ? 
-      #question_mark_or_ampersand = xd[:return_url].to_s =~ /\?/ ? '&' : '?'
-      question_mark_or_ampersand = return_url.to_s =~ /\?/ ? '&' : '?'
-      #There's a code and a state that need to go with:
-      url = ""
-      url += "#{return_url.gsub("callback2","post_authorize")}"
+      question_mark_or_ampersand = xd[:return_url].to_s =~ /\?/ ? '&' : '?'
+
+      url = xd[:return_url]
+
       if !verifier.nil? && !verifier.empty? 
         #Only add the token and verifier if we have both
         #This way, the recieving application can respond if they're missing
@@ -249,6 +277,7 @@ class FitbitsController < ApplicationController
         url += "oauth_token=#{params[:state]}"
         url += "&oauth_verifier=#{params[:code]}"
       end
+
       redirect_to url
     else
       render :text=>"error processing oauth token", :layout=>false
