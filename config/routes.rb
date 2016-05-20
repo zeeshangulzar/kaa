@@ -204,7 +204,7 @@ Go::Application.routes.draw do
       post :get_daily_summaries
     end
   end
-
+  match 'fitbit/:action', :controller => :fitbits
   match '/jawbones/:action', :controller => :jawbones
 
   match '/numbers' => "promotions#top_location_stats", :via => :get
