@@ -100,7 +100,7 @@ class UsersController < ApplicationController
         @target_user.attach('fitbit_user', @target_user.fitbit_user)
         @target_user.attach('fitbit_user_notifications', fitbit_notifications)
         @target_user.attach('fitbit_weeks', @target_user.get_fitbit_weeks)
-        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions)
+        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions) rescue nil
       end
     end
 
@@ -123,7 +123,7 @@ class UsersController < ApplicationController
         @target_user.attach('fitbit_user', @target_user.fitbit_user)
         @target_user.attach('fitbit_user_notifications', fitbit_notifications)
         @target_user.attach('fitbit_weeks', @target_user.get_fitbit_weeks)
-        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions)
+        @target_user.attach('subscriptions', @target_user.fitbit_user.retrieve_subscriptions) rescue nil
       end
 
       if @target_user.jawbone_user
