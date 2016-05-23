@@ -123,13 +123,16 @@ class CustomContent < ApplicationModel
     custom_contents = array_passed ? custom_content : [custom_content]
     promotion ||= self.promotion
     re = Regexp.union(promotion.keywords.keys)
+    userRe = nil
+    if !user.nil?
+      userRe = Regexp.union(user.keywords.keys)
+    end
     custom_contents.each{ |custom_content|
       MARKDOWN_COLUMNS.each{ |column|
         original = custom_content.send(column)
         with_keywords = original.gsub(re) { |m| promotion.keywords[m] }
-        if !user.nil?
-          re = Regexp.union(user.keywords.keys)
-          with_keywords = with_keywords.gsub(re) { |m| user.keywords[m] }
+        if !userRe.nil?
+          with_keywords = with_keywords.gsub(userRe) { |m| user.keywords[m] }
         end
         custom_content.send("#{column}=", with_keywords)
       }
