@@ -2,7 +2,9 @@
   <tr>
     <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
       <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
-        <p><%= @user.profile.full_name %> has invited you to join <em><%= Constant::AppName %></em>. Click <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/register" style="color:#006ba6">here</a> to register.</p>
+        <h4 style="font-size: 16px; color:#b6354b" ><%= @user.profile.full_name %> wants to be your <%= Friendship::Label %> on <em><%= Constant::AppName %></em>.</h4>
+        <p><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/welcome" style="color:#006ba6">Learn</a> about <em><%= Constant::AppName %></em>.</p>
+        <p><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/register" style="color:#006ba6">Register</a> for <em><%= Constant::AppName %></em>.</p>
         <% if !@message.nil? && @message.length > 0 %>
           <p>"<%= @message %>"</p>
           <p>- <%= @user.profile.full_name %></p>
