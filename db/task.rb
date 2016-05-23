@@ -3,17 +3,18 @@ class Task
   def self.execute_daily_tasks(send_emails = false, single_email = nil)
     body = ""
     Promotion.find(:all, :conditions => "subdomain NOT IN ('www','dashboard') AND is_active = 1 AND ends_on >= '#{Date.today.to_s(:db)}'").each do |p|
+puts "processing promotion: #{p.subdomain}(#{p.id})"
       begin
-        body<<"===================================================================================================\n"
+        puts "===================================================================================================\n"
         send_daily_emails(p, single_email) if send_emails && ![0,6].include?(Date.today.wday) # Use the && condition if you want skip sending emails for certain days. See SkipDays in tip.rb.
         unless p.current_competition.nil?
           delete_pending_teams(p)
           team_notifications(p)
         end
       rescue Exception => ex
-        body<<"ERROR processing promotion #{p.subdomain} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
+        puts "ERROR processing promotion #{p.subdomain} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
       end
-      body<<"===================================================================================================\n\n\n\n"
+      puts "===================================================================================================\n\n\n\n"
     end
     GoMailer.daily_tasks(body).deliver!
   end
@@ -26,18 +27,17 @@ class Task
           users = users.where(:email => single_email)
           queue = false
         end
-
         day = p.current_day
         mails=[]
         addresses=[]
 
         daily_email = false
-        custom_message = CustomContent.get('content_html', {:category => 'emails', :key => 'daily_main'}, p)
+        custom_message = CustomContent.get('content_html', {:category => 'emails', :key => 'daily_main'}, p) rescue nil
         users.each{ |u|
           what_to_send = 'daily_email'
           email_reminder = false
 
-          if !u.allow_daily_email
+          if !u.allows_daily_email
             what_to_send = 'nothing'
           elsif p.current_date.wday != 1 && u.allows_daily_email_monday_only
             what_to_send = 'nothing'
@@ -72,7 +72,7 @@ class Task
               end
               to = u.email_with_name
               addresses << CGI.unescapeHTML(to) unless skip
-              puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to}"
+              puts "#{queue ? 'Queue' : 'Deliver'} #{what_to_send} to #{to} (#{u.id})"
             rescue Exception => ex
               puts "ERROR processing user #{u.id} #{ex.to_s}\n#{ex.backtrace.join("\n")}"
             end
