@@ -43,7 +43,10 @@ class StoreController < ApplicationController
   def index
     # only allow 1 order
     if @target_user.orders.count == 0
-      hash = {:payment_types=>['C']}
+      hash = {:payment_types => []}
+      if @item[:price] > 0
+        hash[:payment_types] = ['C']
+      end
       hash[:items] = StoreConfig.get_items_for_promotion(@promotion,@target_user)
       respond_with hash
     else
