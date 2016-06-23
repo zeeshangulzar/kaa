@@ -122,30 +122,6 @@
       :sensitive: false
       :category: Participant Fields
       :visible: true
-    "gift_inches": 
-      :aggregate: true
-      :sequence: 17
-      :sql_phrase: COALESCE(SUM(entries.gift_points), 0) `Gift Box Inches`
-      :filterable: true
-      :role: Coordinator
-      :display_name: Gift Box Inches
-      :join: entries
-      :identification: false
-      :sensitive: false
-      :category: Participant Fields
-      :visible: true
-    "gift_times_recorded":
-      :aggregate: true
-      :sequence: 17
-      :sql_phrase: "coalesce(sum(if((entries.gift_points > 0),1,0)),0) `Gift Box - Times Recorded`"
-      :filterable: true
-      :role: Coordinator
-      :display_name: Gift Box - Times Recorded
-      :join: entries
-      :identification: false
-      :sensitive: false
-      :category: Activity Fields
-      :visible: true
     "behavior_inches": 
       :aggregate: true
       :sequence: 17
@@ -449,7 +425,7 @@
     "41": 
       :aggregate: true
       :sequence: 17
-      :sql_phrase: COALESCE((SUM(entries.exercise_points) + SUM(entries.gift_points) + SUM(entries.behavior_points)), 0) `Total Inches`
+      :sql_phrase: COALESCE((SUM(entries.exercise_points) + SUM(entries.behavior_points)), 0) `Total Inches`
       :filterable: true
       :role: Coordinator
       :display_name: Total Inches

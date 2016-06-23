@@ -5,7 +5,7 @@ module HesReportsYaml
       extend ActiveModel::Naming if defined?(ActiveModel::Naming)
       include ActiveModel::Conversion if defined?(ActiveModel::Conversion)
 
-      require 'ftools'
+      require 'fileutils'
 
       DefaultPath = "default"
       CopyDefault = true

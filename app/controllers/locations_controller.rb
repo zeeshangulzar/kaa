@@ -60,7 +60,7 @@ class LocationsController < ApplicationController
   end
 
   def upload_locations(file)
-    require 'ftools'
+    require 'fileutils'
     Location.transaction do
       row_index = 0
       @cols = []

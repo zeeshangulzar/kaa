@@ -8,19 +8,18 @@ class Entry < ApplicationModel
     :descendants  => false
   }
 =end
-  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :entry_gifts, :goal_steps, :goal_minutes, :manually_recorded, :user_id
+  attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :manually_recorded, :user_id
   # All entries are tied to a user
   belongs_to :user
 
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
 
   has_many :entry_behaviors, :dependent => :destroy
-  has_many :entry_gifts, :dependent => :destroy
-  accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities, :entry_gifts
+  accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities
 
-  attr_accessible :entry_behaviors, :entry_exercise_activities, :entry_gifts
+  attr_accessible :entry_behaviors, :entry_exercise_activities
 
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :gift_points, :behavior_points, :updated_at, :entry_behaviors, :entry_gifts, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
@@ -41,7 +40,7 @@ class Entry < ApplicationModel
     else
       sql += " AND `entries`.`recorded_on` <= '#{Date.today.to_s}'"
     end
-    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_gifts, :entry_exercise_activities)
+    where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities)
   }
 
   before_save :nullify_exercise_and_set_is_recorded_and_goals
@@ -121,28 +120,9 @@ class Entry < ApplicationModel
     self.behavior_points = points
   end
 
-  def calculate_gift_points
-    points = 0
-    point_thresholds = self.user.promotion.gifts_point_thresholds
-    gifts_logged = 0
-    self.entry_gifts.each{ |entry_gift|
-      if entry_gift.value && entry_gift.value.to_i > 0
-        gifts_logged += 1
-      end
-    }
-    point_thresholds.each{ |point_threshold|
-      if gifts_logged >= point_threshold.min
-        points = point_threshold.value
-        break
-      end
-    }
-    self.gift_points = points
-  end
-
   def calculate_points
     calculate_exercise_points
     calculate_behavior_points
-    calculate_gift_points
   end
 
   def as_json(options={})
@@ -158,7 +138,7 @@ class Entry < ApplicationModel
   def check_for_changes
     publish = false
     activity_columns = ['exercise_minutes', 'exercise_steps']
-    points_columns = ['exercise_points', 'gift_points', 'behavior_points']
+    points_columns = ['exercise_points', 'behavior_points']
     columns_to_check = activity_columns + points_columns
     columns_to_check.each{|column|
       if self.send(column).to_i != self.send(column + "_was").to_i

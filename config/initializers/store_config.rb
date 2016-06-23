@@ -58,7 +58,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_flexonly.png",
          :price => 50.00,
          :shippable => true, 
-         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       }
     ],
 
@@ -70,7 +70,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_oneonly.png",
          :price => 40.00,
          :shippable => true, 
-         :email_confirmation => "Your One&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your One&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       }
     ],
 
@@ -82,7 +82,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_ziponly.png",
          :price => 30.00,
          :shippable => true, 
-         :email_confirmation => "Your Zip&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your Zip&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       }
     ],
 
@@ -94,7 +94,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_flexonly.png",
          :price => 50.00,
          :shippable => true, 
-         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       },
       {
          :key => "ONE_ONLY",
@@ -103,7 +103,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_oneonly.png",
          :price => 40.00,
          :shippable => true, 
-         :email_confirmation => "Your One&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your One&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       }
     ],
 
@@ -115,7 +115,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_ziponly.png",
          :price => 30.00,
          :shippable => true, 
-         :email_confirmation => "Your Zip&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your Zip&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       },
       {
          :key => "FLEX_ONLY",
@@ -124,7 +124,7 @@ module StoreConfig
          :gray_image => "/images/fitbit/gray-item_flexonly.png",
          :price => 50.00,
          :shippable => true, 
-         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Health for the Holidays</i> account."
+         :email_confirmation => "Your Flex&trade; will ship in 3-5 business days. Review the <a href=\"http://files.hesapps.com/passport/Passport-Fitbit-Getting-Started.pdf\">Getting Started Guide</a> to learn how to connect your Fitbit with your <i>Keep America Active</i> account."
       }
     ]
   }

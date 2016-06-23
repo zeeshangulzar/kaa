@@ -5,9 +5,9 @@ try{
 	var fs = require('fs');
 	
 	var options = {
-		key: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h.key'),
-		cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h.crt'),
-		ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/h4h_ca_bundle.crt')
+		key: fs.readFileSync('/etc/httpd/conf/apps/ssl/kaa.key'),
+		cert: fs.readFileSync('/etc/httpd/conf/apps/ssl/kaa.crt'),
+		ca: fs.readFileSync('/etc/httpd/conf/apps/ssl/kaa_ca_bundle.crt')
 	};
 
 	app = require('https').createServer(options);

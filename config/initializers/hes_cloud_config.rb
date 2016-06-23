@@ -1,6 +1,6 @@
 HesCloudStorage.configuration = {
   :app_key => "PijBOCvgWhxrCYkBDGOvylaMtJXknyrY",
-  :app_folder => "h4h",
+  :app_folder => APPLICATION_NAME,
   :use_ssl => Rails.env.production?,
   :domain => Rails.env.production? ? 'hesapps.com' : 'staging.hesapps.com'
 }

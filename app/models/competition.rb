@@ -191,10 +191,9 @@ class Competition < ApplicationModel
       UPDATE team_members
       LEFT JOIN (
         SELECT
-          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.gift_points, 0)) AS total_points, 
+          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0)) AS total_points, 
           SUM(entries.exercise_points) AS total_exercise_points, 
           SUM(entries.behavior_points) AS total_behavior_points,
-          SUM(entries.gift_points) AS total_gift_points, 
           user_id
         FROM entries
         WHERE entries.recorded_on BETWEEN '#{self.competition_starts_on}' AND '#{self.competition_ends_on}'
@@ -203,8 +202,7 @@ class Competition < ApplicationModel
       SET
         team_members.total_points = COALESCE(stats.total_points, 0),
         team_members.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
-        team_members.total_behavior_points = COALESCE(stats.total_behavior_points, 0),
-        team_members.total_gift_points = COALESCE(stats.total_gift_points, 0)
+        team_members.total_behavior_points = COALESCE(stats.total_behavior_points, 0)
     "
     self.connection.execute(sql)
   end

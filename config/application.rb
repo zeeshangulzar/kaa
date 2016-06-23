@@ -1,7 +1,7 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
-require 'lib/hes_security/hes_security'
+require './lib/hes_security/hes_security'
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
@@ -10,7 +10,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-APPLICATION_NAME = 'H4H'
+APPLICATION_NAME = 'KAA'
 
 module Go
   class Application < Rails::Application
@@ -80,7 +80,7 @@ module Go
     }
 
     # memcache
-    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => 'h4h'}
+    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => APPLICATION_NAME}
 
 end
 end

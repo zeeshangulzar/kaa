@@ -31,10 +31,8 @@
   name: Total Participant Activity
   fields: 
   - "1"
-  - gift_inches
   - behavior_inches
   - "9"
-  - gift_times_recorded
   - entry_behaviors_times:188
   - entry_behaviors_times:187
   - entry_behaviors_times:190

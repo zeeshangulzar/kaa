@@ -61,7 +61,7 @@ module Flaggable
         def initialize
           @@visible_flags||={}
           @@visible_flags[self.to_s]||=[]
-          unless self.constants.include?('FlaggableInitialized')
+          unless self.constants.include?(:FlaggableInitialized)
             initialize_flag_definitions_table
             initialize_flag_fields_for_self
             self.const_set('FlaggableInitialized',true)

@@ -211,7 +211,7 @@ class GoMailer < ActionMailer::Base
     return FormattedFromAddress if !user
     # todo: handle hiding emails based on promotion config and user preferences for future apps
     # KP doesn't care if they expose people's emails..
-    return "#{user.profile.full_name} <no-reply@healthfortheholidays.com>"
+    return "#{user.profile.full_name} <no-reply@#{DomainConfig::DomainNames.first}>"
   end
 
   def friend_invite_email(invitee, inviter)

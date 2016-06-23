@@ -45,7 +45,7 @@ class JawbonesController < ApplicationController
         notification.update_attributes :title=> "Jawbone Connected", :message=>"Your Jawbone tracker will sync with #{Constant::AppName} shortly."
       end
 
-      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.healthfortheholidays.com/#/connection_successful" : "http://#{u.promotion.subdomain}.h4h-api.dev:9000/#/connection_successful"
+      redirect_url = Rails.env.production? ? "https://#{u.promotion.subdomain}.#{DomainConfig::DomainNames.first}/#/connection_successful" : "http://#{u.promotion.subdomain}.kaa-api.dev:9000/#/connection_successful"
     else
 
       redirect_url = '/#/settings'

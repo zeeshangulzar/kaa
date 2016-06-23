@@ -16,7 +16,6 @@ class CreateUsers < ActiveRecord::Migration
       t.integer     :total_points,                                    :default => 0
       t.integer     :total_exercise_points,                           :default => 0
       t.integer     :total_behavior_points,                           :default => 0
-      t.integer     :total_gift_points,                               :default => 0
       t.timestamps
     end
   end

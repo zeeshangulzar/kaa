@@ -66,7 +66,7 @@ Go::Application.configure do
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
 
   Go::Application.config.middleware.use ExceptionNotifier,
-    :email_prefix => "H4H API Error: ",
+    :email_prefix => "KAA API Error: ",
     :sender_address => %{"Developer" <developer@hesonline.com>},
     :exception_recipients => %w{developer@hesonline.com}
 end

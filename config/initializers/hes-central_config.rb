@@ -1,4 +1,4 @@
-HesCentral.application_name = "Health For The Holidays"
-HesCentral.application_repository_name = 'h4h'
-HesCentral.application_domain = 'https://www.healthfortheholidays.com'
-HesCentral.application_sso_url = 'https://www.healthfortheholidays.com/sso'
+HesCentral.application_name = "Keep America Active"
+HesCentral.application_repository_name = APPLICATION_NAME
+HesCentral.application_domain = 'https://www.keepamericaactive.com'
+HesCentral.application_sso_url = 'https://www.keepamericaactive.com/sso'

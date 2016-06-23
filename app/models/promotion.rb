@@ -5,7 +5,7 @@ class Promotion < ApplicationModel
   attr_privacy_no_path_to_user
   
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :public
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :gifts_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :gifts, :current_competition, :weekly_goal, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :resources_title, :name, :status, :version, :program_name, :current_competition, :weekly_goal, :any_user
   attr_privacy :pilot_password, :total_participants, :coordinators, :master
 
   belongs_to :organization
@@ -25,7 +25,6 @@ class Promotion < ApplicationModel
 
   has_many :users
   has_many :behaviors, :order => "sequence ASC"
-  has_many :gifts
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
   has_many :email_reminders
@@ -127,10 +126,6 @@ class Promotion < ApplicationModel
     self.point_thresholds.find(:all, :conditions => {:rel => "MINUTES"}, :order => 'min DESC')
   end
 
-  def gifts_point_thresholds
-    self.point_thresholds.find(:all, :conditions => {:rel => "GIFTS"}, :order => 'min DESC')
-  end
-
   def behaviors_point_thresholds
     self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
   end
@@ -140,7 +135,6 @@ class Promotion < ApplicationModel
     if default
       self.copy_point_thresholds
       self.copy_behaviors
-      self.copy_gifts
       custom_prompts_map = self.copy_custom_prompts
     end
     self.create_evaluations(custom_prompts_map)
@@ -164,17 +158,6 @@ class Promotion < ApplicationModel
       copied_b.id = nil
       copied_b.promotion_id = self.id
       copied_b.save!
-    }
-  end
-
-  # TODO: test copying of images
-  def copy_gifts
-    default = Promotion::get_default
-    default.gifts.each{|g|
-      copied_g = g.dup
-      copied_g.id = nil
-      copied_g.promotion_id = self.id
-      copied_g.save!
     }
   end
 

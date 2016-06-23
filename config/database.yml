@@ -21,16 +21,16 @@
 
 development:
    adapter: mysql2
-   encoding: latin1
-   database: h4h_development
+   encoding: utf8
+   database: kaa_development
    username: hesdev
    password: l0ngd@y
    host: 10.100.1.249
 
 test:
     adapter: mysql2
-    encoding: latin1
-    database: h4h_test
+    encoding: utf8
+    database: kaa_test
     username: hesdev
     password: l0ngd@y
     host: 10.100.1.249

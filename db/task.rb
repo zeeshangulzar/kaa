@@ -79,7 +79,7 @@ puts "processing promotion: #{p.subdomain}(#{p.id})"
         } # end each user
         if queue
           # make the XML file for this promotion
-          tag = "h4h-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
+          tag = "#{APPLICATION_NAME}-#{Date.today.strftime('%Y%m%d')}-daily-email-#{p.id}-#{p.subdomain}"
           XmlEmailDelivery.deliver_many(mails,tag,addresses) unless mails.empty?
         else
           mails.each_with_index{ |mail, idx|
@@ -120,53 +120,6 @@ puts "processing promotion: #{p.subdomain}(#{p.id})"
       subject = "Team enrollment has ended"
       message = "Team enrollment has ended and unfortunately your team did not have minimum number of participants to qualify for the competition (#{c.team_size_min} min.). Your team has been removed but you can still follow the action <a href='https://#{promotion.subdomain + '.' + DomainConfig::DomainNames.first}/#/team'>here</a>."
       Resque.enqueue(GenericEmail, emails, subject, message, nil, p) unless emails.empty?
-    end
-  end
-
-  def self.check_resque
-    problem_messages = []
-    if Resque.info[:pending] > 500
-      problem_messages << ">There are #{Resque.info[:pending]} pending jobs in Resque"
-    end
-
-    if Resque.workers.size > 0
-      Resque.workers.each do |worker|
-        job = worker.job
-        if job.size > 0
-          running_since = Time.parse(job['run_at'])
-          if running_since < 10.minutes.ago
-            problem_messages << "The worker and job below have been running since #{job['run_at']}"
-            problem_messages << "#{worker.to_yaml}"
-            problem_messages << "#{job.to_yaml}"
-            if running_since < 2.hours.ago
-              worker_pid = worker.to_s.split(':')[1]
-              if worker_pid.to_i > 0
-                ps_line = `ps -p #{worker_pid} u | tail -n1`
-                child_pid = ps_line.split('Forked ')[1].to_i
-                if child_pid > 0
-                  cmd = "kill -s KILL #{child_pid}"
-                  `#{cmd}`
-                  problem_messages << "The job was killed because it was running for #{((Time.now - running_since)/60).to_i} minutes.\n#{cmd}"
-                else
-                  problem_messages << "The job could not be killed because the PID of the forked worker could not be found."
-                end
-              else
-                problem_messages << "The job could not be killed because the PID of the worker could not be found."
-              end
-            end
-          end
-        end
-      end
-    else
-      problem_messages << ">There are 0 Resque workers running"
-    end
-
-    if !problem_messages.empty?
-      GoMailer.generic_email("developer@hesonline.com", "Detected issues with Resque", problem_messages.join("<br/><br/>").gsub("\n","<br/>"), User.first, Promotion.first).deliver
-      puts "Detected issues with Resque #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
-      puts problem_messages.join("\n")
-    else
-      puts "No issues detected #{Time.now.strftime("%d/%m/%Y %H:%M")}\n"
     end
   end
 

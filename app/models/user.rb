@@ -197,11 +197,10 @@ class User < ApplicationModel
       SELECT
       entries.user_id AS user_id,
       SUM(exercise_points) AS total_exercise_points,
-      SUM(gift_points) AS total_gift_points,
       SUM(behavior_points) AS total_behavior_points,
       SUM(exercise_steps) AS total_exercise_steps,
       SUM(exercise_minutes) AS total_exercise_minutes,
-      SUM(exercise_points) + SUM(gift_points) + SUM(behavior_points) AS total_points,
+      SUM(exercise_points) + SUM(behavior_points) AS total_points,
       AVG(exercise_minutes) AS average_exercise_minutes,
       AVG(exercise_steps) AS average_exercise_steps
       FROM
@@ -211,7 +210,7 @@ class User < ApplicationModel
       GROUP BY user_id
     "
     # turns [1,2,3] into {1=>{},2=>{},3=>{}} where each sub-hash is missing data (to be replaced by query)
-    keys = ['total_exercise_points','total_gift_points','total_behavior_points','total_exercise_steps','total_exercise_minutes','total_points','average_exercise_minutes','average_exercise_steps']
+    keys = ['total_exercise_points','total_behavior_points','total_exercise_steps','total_exercise_minutes','total_points','average_exercise_minutes','average_exercise_steps']
     zeroes = Hash[*keys.collect{|k|[k,0]}.flatten]
     user_stats = Hash[*user_ids.collect{|id|[id,zeroes]}.flatten]
     self.connection.select_all(sql).each do |row|
@@ -396,10 +395,9 @@ class User < ApplicationModel
       JOIN (
         SELECT
           user_id,
-          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(entries.gift_points, 0)) AS total_points,
+          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0)) AS total_points,
           SUM(entries.exercise_points) AS total_exercise_points,
-          SUM(entries.behavior_points) AS total_behavior_points,
-          SUM(entries.gift_points) AS total_gift_points
+          SUM(entries.behavior_points) AS total_behavior_points
         FROM entries
         WHERE
           user_id = #{self.id}
@@ -408,8 +406,7 @@ class User < ApplicationModel
       SET
         users.total_points = COALESCE(stats.total_points, 0),
         users.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
-        users.total_behavior_points = COALESCE(stats.total_behavior_points, 0),
-        users.total_gift_points = COALESCE(stats.total_gift_points, 0)
+        users.total_behavior_points = COALESCE(stats.total_behavior_points, 0)
     "
     self.connection.execute(sql)
   end

@@ -6,7 +6,6 @@ class CreateEntriesTable < ActiveRecord::Migration
       t.date :recorded_on
       t.text :notes
       t.integer :daily_points, :default => 0
-      t.integer :gift_points, :default => 0
       t.integer :behavior_points, :default => 0
       t.integer :exercise_minutes, :default => 0
       t.integer :exercise_steps, :default => 0

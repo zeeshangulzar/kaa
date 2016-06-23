@@ -18,26 +18,6 @@ class FitbitLogger
           behaviors_array[eb_index] = behavior_hash
         }
 
-        gifts_array = []
-        entry.entry_gifts.each_with_index{|eg,eg_index|
-          gift_hash = {
-            :id       => eg.id,
-            :gift_id  => eg.gift_id,
-            :value    => eg.value
-          }
-          gifts_array[eg_index] = gift_hash
-        }
-        
-        gifts_array = []
-        entry.entry_gifts.each_with_index{|eg,eg_index|
-          gift_hash = {
-            :id      => eg.id,
-            :gift_id => eg.gift_id,
-            :value   => eg.value
-          }
-          gifts_array[eg_index] = gift_hash
-        }
-
         entry_object = {}
 
         entry_object['id'] = entry.id
@@ -48,11 +28,9 @@ class FitbitLogger
         entry_object['exercise_steps'] = entry.exercise_steps
         entry_object['exercise_points'] = entry.exercise_points
         entry_object['behavior_points'] = entry.behavior_points
-        entry_object['gift_points'] = entry.gift_points
         entry_object['url'] = "/entries/" + entry.id.to_s
         entry_object['notes'] = entry.notes
         entry_object['entry_behaviors'] = behaviors_array
-        entry_object['entry_gifts'] = gifts_array
         entry_object['goal_steps'] = entry.goal_steps
         entry_object['goal_minutes'] = entry.goal_minutes
         entry_object['updated_at'] = entry.updated_at
@@ -86,26 +64,6 @@ class FitbitLogger
         behaviors_array[eb_index] = behavior_hash
       }
 
-      gifts_array = []
-      entry.entry_gifts.each_with_index{|eg,eg_index|
-        gift_hash = {
-          :id       => eg.id,
-          :gift_id  => eg.gift_id,
-          :value    => eg.value
-        }
-        gifts_array[eg_index] = gift_hash
-      }
-      
-      gifts_array = []
-      entry.entry_gifts.each_with_index{|eg,eg_index|
-        gift_hash = {
-          :id      => eg.id,
-          :gift_id => eg.gift_id,
-          :value   => eg.value
-        }
-        gifts_array[eg_index] = gift_hash
-      }
-
       entry_object = {}
 
         entry_object['id'] = entry.id
@@ -116,11 +74,9 @@ class FitbitLogger
         entry_object['exercise_steps'] = entry.exercise_steps
         entry_object['exercise_points'] = entry.exercise_points
         entry_object['behavior_points'] = entry.behavior_points
-        entry_object['gift_points'] = entry.gift_points
         entry_object['url'] = "/entries/" + entry.id.to_s
         entry_object['notes'] = entry.notes
         entry_object['entry_behaviors'] = behaviors_array
-        entry_object['entry_gifts'] = gifts_array
         entry_object['goal_steps'] = entry.goal_steps
         entry_object['goal_minutes'] = entry.goal_minutes
         entry_object['updated_at'] = entry.updated_at

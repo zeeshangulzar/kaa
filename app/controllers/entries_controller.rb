@@ -27,26 +27,6 @@ class EntriesController < ApplicationController
         behaviors_array[eb_index] = behavior_hash
       }
 
-      gifts_array = []
-      entry.entry_gifts.each_with_index{|eg,eg_index|
-        gift_hash = {
-          :id       => eg.id,
-          :gift_id  => eg.gift_id,
-          :value    => eg.value
-        }
-        gifts_array[eg_index] = gift_hash
-      }
-      
-      gifts_array = []
-      entry.entry_gifts.each_with_index{|eg,eg_index|
-        gift_hash = {
-          :id      => eg.id,
-          :gift_id => eg.gift_id,
-          :value   => eg.value
-        }
-        gifts_array[eg_index] = gift_hash
-      }
-
       entry_hash = {
         :id                           => entry.id,
         :recorded_on                  => entry.recorded_on,
@@ -55,12 +35,9 @@ class EntriesController < ApplicationController
         :exercise_steps               => entry.exercise_steps,
         :exercise_points              => entry.exercise_points,
         :behavior_points              => entry.behavior_points,
-        :gift_points                  => entry.gift_points,
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
         :entry_behaviors              => behaviors_array,
-        :entry_gifts                  => gifts_array,
-        # :entry_exercise_activities    => activities_array,
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,
@@ -116,7 +93,6 @@ class EntriesController < ApplicationController
 
     entry_exercise_activities = entry_params.delete(:entry_exercise_activities)
     entry_behaviors = entry_params.delete(:entry_behaviors)
-    entry_gifts = entry_params.delete(:entry_gifts)
 
     if !entry
       entry = @target_user.entries.find_by_recorded_on(entry_params[:recorded_on]) || @target_user.entries.build(entry_params)
@@ -161,26 +137,6 @@ class EntriesController < ApplicationController
               eb.update_attributes(hash)
             else
               entry.entry_behaviors.create(hash)
-            end
-          end
-        end
-      end
-
-      if !entry_gifts.nil?
-        entry_gift_ids = entry_gifts.map{|x| x[:id]}
-        remove_gifts = entry.entry_gifts.reject{|x| entry_gift_ids.include?(x.id)}
-        remove_gifts.each do |gift|
-          # Remove from array and delete from db
-           entry.entry_gifts.delete(gift).first.destroy
-        end
-        entry_gifts.each do |entry_gift|
-          hash = scrub(entry_gift, EntryGift)
-          if entry_gift[:gift_id] && entry_gift[:value] && entry_gift[:gift_id].to_s.is_i? && entry_gift[:value].to_s.is_i?
-            if entry_gift[:id]
-              eg = entry.entry_gifts.detect{|x|x.id == entry_gift[:id].to_i}
-              eg.update_attributes(hash)
-            else
-              entry.entry_gifts.create(hash)
             end
           end
         end

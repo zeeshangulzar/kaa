@@ -2,8 +2,10 @@ source 'http://dev:dev@gems.staging.hesapps.com'
 source 'http://gems.github.com'
 source 'http://rubygems.org/'
 
-gem 'rails', '3.2.19'
+gem 'rails', '3.2.22.2'
 gem 'rake', '10.3.2'
+
+gem 'test-unit', '~> 3.0'
 
 gem 'mysql2', '0.3.16'
 gem 'rmagick', '~> 2.13'

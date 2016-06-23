@@ -68,7 +68,7 @@ class EligibilityFile < ApplicationModel
 
   def process
     self.connection.execute("UPDATE eligibility_files SET status = '#{EligibilityFile::STATUS[:processing]}', updated_at = '#{self.promotion.current_time.to_formatted_s(:db)}' WHERE id = #{self.id}")
-    require 'ftools'
+    require 'fileutils'
     file = self.filepath
     row_index = 0
     @cols = []

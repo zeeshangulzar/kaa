@@ -63,7 +63,6 @@ Go::Application.routes.draw do
     resources :users, :only => [:index, :create, :search, :show]
     resources :activities, :only => [:index, :create, :show]
     resources :behaviors, :only => [:index, :create, :show]
-    resources :gifts, :only => [:index, :create, :show]
     resources :custom_content, :controller => "custom_content"
     resources :eligibilities
     resources :eligibility_files
@@ -79,8 +78,6 @@ Go::Application.routes.draw do
   end
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
-
-  match 'promotions/:promotion_id/gifts/reorder', :controller => :gifts, :action => :reorder, :via => :post
 
   match 'promotions/:promotion_id/behaviors/reorder', :controller => :behaviors, :action => :reorder, :via => :post
 
@@ -98,7 +95,6 @@ Go::Application.routes.draw do
 
   resources :resources
   resources :behaviors
-  resources :gifts
 
   # locations...
   resources :locations do
