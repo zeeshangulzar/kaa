@@ -19,8 +19,6 @@ module HesCustomPrompts
 				self.send(:has_many, :custom_prompts, :as => :custom_promptable, :order => '`custom_prompts`.`sequence`', :dependent => :destroy)
 				self.send(:cattr_accessor, :udf_types)
 				self.send("udf_types=", options[:with] ? options[:with].is_a?(Array) ? options[:with] : [options[:with]] : [])
-				self.send(:event_accessor, :after_custom_prompt_added)
-				
 				options[:with].to_s.singularize.camelcase.constantize.send(:include, CustomPromptOwner)
 			end
 		end

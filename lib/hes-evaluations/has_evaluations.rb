@@ -17,7 +17,6 @@ module HesEvaluations
         self.send(:has_custom_prompts, :with => :evaluations)
 
         self.send(:include, HasEvaluationsInstanceMethods)
-        self.send(:after_custom_prompt_added, :add_custom_prompt_to_evaluation_definitions)
       end
     end
 

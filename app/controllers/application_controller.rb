@@ -127,7 +127,7 @@ class ApplicationController < ActionController::Base
 
     if status != 'OK'
       # we have an error of some sort..
-      payload = payload.strip + " doesn't exist" if status == 'NOT_FOUND'
+      payload = payload.to_s.strip + " doesn't exist" if status == 'NOT_FOUND'
       payload = [payload] if !payload.is_a?(Array)
       response = {:errors => payload}
     elsif payload.is_a?(String)

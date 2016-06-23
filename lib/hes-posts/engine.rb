@@ -1,8 +1,4 @@
 require "hes-authorization"
-#require "hes-api"
-#require "hes-likeable"
-#require "hes-notifier"
-require 'hes-events'
 require 'carrierwave'
 
 require File.dirname(__FILE__) + "/post_validator"
