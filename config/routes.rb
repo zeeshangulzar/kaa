@@ -69,7 +69,6 @@ Go::Application.routes.draw do
     resources :tips
     resources :facts
     resources :articles
-    resources :resources
     resources :locations
     resources :reports
     resources :report_fields
@@ -93,13 +92,11 @@ Go::Application.routes.draw do
   match 'promotions/:promotion_id/custom_content/reorder' => 'custom_content#reorder', :via => :post
   match 'custom_content/copy' => 'custom_content#copy', :via => :post
 
-  resources :resources
   resources :behaviors
 
   # locations...
   resources :locations do
     resources :locations, :only => [:index, :show]
-    resources :resources
   end
 
   resources :entries
