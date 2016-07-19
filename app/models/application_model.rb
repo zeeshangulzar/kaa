@@ -7,6 +7,7 @@ class ApplicationModel < ActiveRecord::Base
   # }
 
   self.abstract_class = true
+
   def all_attrs
     return *self.class.column_names
   end
@@ -16,54 +17,56 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   def as_json(options = nil)
-    parent_class = self.class.table_name
-    hash = serializable_hash(options)
+    ApplicationModel.benchmark 'ApplicationModel::as_json' do
+      parent_class = self.class.table_name
+      hash = serializable_hash(options)
 
-    if @attachments
-      # nice way to inject associations or whatever else into json from controller methods
-      @attachments.each{ |attachment|
-        if attachment.is_a?(Symbol) && self.respond_to?(attachment)
-          hash[attachment] = self.send(attachment)
-        elsif attachment.is_a?(Array)
-          hash[attachment[0].to_sym] = attachment[1]
-        end
-      }
-    end
-
-    if defined?(options[:meta]) && options[:meta] === false
-      return hash
-    end
-
-    tables = self.get_tables
-
-    hash.keys.each do |key|
-      if !options.nil? && !options[:do_not_paginate].nil? && options[:do_not_paginate].is_a?(Array)
-        if options[:do_not_paginate].include?(key)
-          next
-        end
+      if @attachments
+        # nice way to inject associations or whatever else into json from controller methods
+        @attachments.each{ |attachment|
+          if attachment.is_a?(Symbol) && self.respond_to?(attachment)
+            hash[attachment] = self.send(attachment)
+          elsif attachment.is_a?(Array)
+            hash[attachment[0].to_sym] = attachment[1]
+          end
+        }
       end
-      if tables.include?(key) && hash[key].is_a?(Array) && key != 'posts'
-        data = hash[key].clone
-        total_pages = (data.size.to_f / ApplicationController::PAGE_SIZE.to_f).ceil
-        hash[key] = {
-          :data => data.first(ApplicationController::PAGE_SIZE),
-          :meta => {
-            :messages       => nil,
-            :page_size      => ApplicationController::PAGE_SIZE,
-            :page           => 1,
-            :total_pages    => total_pages,
-            :total_records  => data.size,
-            :links  => {
-              :current   => '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s
+
+      if defined?(options[:meta]) && options[:meta] === false
+        return hash
+      end
+
+      tables = self.get_tables
+
+      hash.keys.each do |key|
+        if !options.nil? && !options[:do_not_paginate].nil? && options[:do_not_paginate].is_a?(Array)
+          if options[:do_not_paginate].include?(key)
+            next
+          end
+        end
+        if tables.include?(key) && hash[key].is_a?(Array) && key != 'posts'
+          data = hash[key].clone
+          total_pages = (data.size.to_f / ApplicationController::PAGE_SIZE.to_f).ceil
+          hash[key] = {
+            :data => data.first(ApplicationController::PAGE_SIZE),
+            :meta => {
+              :messages       => nil,
+              :page_size      => ApplicationController::PAGE_SIZE,
+              :page           => 1,
+              :total_pages    => total_pages,
+              :total_records  => data.size,
+              :links  => {
+                :current   => '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s
+              }
             }
           }
-        }
-        if data.size > ApplicationController::PAGE_SIZE
-          hash[key][:meta][:links][:next] = '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s + '?offset=' + ApplicationController::PAGE_SIZE.to_s
+          if data.size > ApplicationController::PAGE_SIZE
+            hash[key][:meta][:links][:next] = '/' + parent_class + '/' + hash['id'].to_s + '/' + key.to_s + '?offset=' + ApplicationController::PAGE_SIZE.to_s
+          end
         end
       end
+      return hash
     end
-    hash
   end
 
   # call Model.attach(:attachment) to include the assc. or object in json for a particular request/method
@@ -76,110 +79,6 @@ class ApplicationModel < ActiveRecord::Base
     end
   end
 
-  # BEGIN CACHING MAGIC
-
-  CLEAR_CACHES_DEFAULT = {
-    :self         => true,
-    :parents      => true,
-    :ancestors    => false,
-    :children     => false,
-    :descendants  => false # THIS COULD BE DANGEROUS, NOT EVEN ENABLING ATM
-  }
-
-  @@CACHE_CONFIG = {}
-
-  after_commit :clear_caches
-
-  def cache_key
-    return nil if !self.id
-    return self.class.name.underscore.pluralize + "_" + self.id.to_s
-  end
-
-  def clear_cache
-    Rails.logger.info "HESCACHE - clearing cache for: #{self.class.name}: #{self.id} (#{self.cache_key})"
-    ApplicationController.hes_cache_clear(self.cache_key)
-  end
-
-  def clear_parent_caches(objects = [], ancestors = false)
-    self.clear_cache
-    Rails.logger.info "HESCACHE - clearing parent caches for #{self.class.name}: #{self.id}"
-    objects = [objects] if !objects.is_a?(Array)
-    objects.each{ |obj|
-      obj.clear_parent_caches
-    }
-    refs = self.reflections.select do |association, reflection|
-      reflection.macro == :belongs_to
-    end
-    refs.each{|ref|
-      obj = self.send(ref.second.name)
-      if obj && obj.class.attr_privacy
-        obj.class.attr_privacy.each{ |rule|
-          if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym) || (self.class.const_defined?('ASSOCIATED_CACHE_SYMBOLS') && !(rule[:attrs] & self.class::ASSOCIATED_CACHE_SYMBOLS).empty?)
-            Rails.logger.info "HESCACHE - found belongs_to assoc. with privacy/json rule for: #{obj.class.name}"
-            if ancestors
-              obj.clear_parent_caches([], true)
-            else
-              obj.clear_cache
-            end
-          end
-        }
-      end
-    }
-  end
-
-  def clear_child_caches(objects = [], descendants = false)
-    self.clear_cache
-    Rails.logger.info "HESCACHE - clearing child caches for #{self.class.name}: #{self.id}"
-    objects = [objects] if !objects.is_a?(Array)
-    objects.each{ |obj|
-      obj.clear_child_caches
-    }
-    refs = self.reflections.select do |association, reflection|
-      reflection.macro == :has_many || reflection.macro == :has_one
-    end
-    refs.each{|ref|
-      objs = self.send(ref.second.name)
-      next if !objs
-      objs = [objs] if !objs.is_a?(Array)
-      objs.each{ |obj|
-        if obj.class.attr_privacy
-          obj.class.attr_privacy.each{ |rule|
-            if rule[:attrs].include?(self.class.table_name.to_sym) || rule[:attrs].include?(self.class.name.downcase.to_sym)
-              Rails.logger.info "HESCACHE - found has_many or has_one assoc. with privacy/json for: #{obj.class.name}"
-              if descendants
-                # I HOPE YOU KNOW WHAT YOU'RE DOING!
-                obj.clear_child_caches([], true)
-              else
-                obj.clear_cache
-              end
-            end
-          }
-        end
-      }
-    }
-  end
-
-  def clear_caches
-    @@CACHE_CONFIG[self::class::name] = CLEAR_CACHES_DEFAULT.dup if !@@CACHE_CONFIG[self::class::name]
-    cc = @@CACHE_CONFIG[self::class::name]
-    self.clear_cache if cc[:self]
-    self.clear_parent_caches if cc[:parents] && !cc[:ancestors]
-    self.clear_parent_caches([], true) if cc[:ancestors]
-    self.clear_child_caches if cc[:children] && !cc[:descendants]
-    # NOT EVEN ENABLING THIS NEXT ONE UNTIL IF EVER IT MAKES SENSE OR WE CAN MAKE IT SAFE
-    # self.clear_child_caches if cc[:descendants]
-  end
-
-  def self.clear_cache_for(*args)
-    @@CACHE_CONFIG[self::name] = CLEAR_CACHES_DEFAULT.dup if !@@CACHE_CONFIG[self::name]
-    cc = @@CACHE_CONFIG[self::name]
-    cc.each{|k,v|
-      cc[k.to_sym] = args.include?(k)
-    }
-  end
-
-  # END CACHING MAGIC
-
   def self.sanitize(input, options = {})
     output = super(input)
     if options[:no_wrap]
@@ -191,4 +90,41 @@ class ApplicationModel < ActiveRecord::Base
   def get_tables
     @@tables ||= self.connection.tables
   end
+
+  # BEGIN NEW CACHING MAGIC
+  def self.max_timestamp(*things)
+    timestamps = []
+    things.each do |thing|
+      if thing.is_a?(Time)
+        timestamps << thing
+      elsif thing.is_a?(Date)
+        timestamps << thing.to_time
+      elsif thing.is_a?(Array)
+        timestamps << thing.maximum(:updated_at).to_time
+      elsif thing.is_a?(ApplicationModel)
+        if thing.respond_to?(:updated_at)
+          ttimestamp << thing.maximum(:updated_at).to_time
+        elsif thing.respond_to?(:created_at)
+          timestamps << thing.maximum(:created_at).to_time
+        end
+      end
+    end
+    return timestamps.max.to_time.to_s(:number)
+  end
+
+  def cache_key(*things)
+    case
+    when timestamp = self[:updated_at]
+      timestamp = timestamp.utc.to_s(:number)
+      key = "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
+    else
+      key = "#{self.class.model_name.cache_key}/#{id}"
+    end
+    if !things.empty?
+      return "#{key}/#{ApplicationModel.max_timestamp(*things)}"
+    end
+    return key
+  end
+  # END NEW CACHING MAGIC
+
 end

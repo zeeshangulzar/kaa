@@ -1,8 +1,4 @@
 class ApplicationController < ActionController::Base
-  protect_from_forgery
-
-  respond_to :json
-
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
 
@@ -110,13 +106,17 @@ class ApplicationController < ActionController::Base
   end
 
   # page_size of 0 = all records
-  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false, total_records = nil)
+  def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false, total_records = nil, do_not_render = false, just_dump = false)
 
-    if payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)
+    if (payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)) || just_dump
       # allow a complete response to pass right thru
-      render :json => MultiJson.dump(payload), :status => HTTP_CODES['OK'] and return
+      payload = MultiJson.my_dump(payload)
+      if do_not_render
+        return payload
+      end
+      render :json => payload, :status => HTTP_CODES['OK'] and return
     end
-    
+
     unless !page_size.nil?
       # only allow overriding of page_size if it isn't passed
       page_size = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
@@ -150,74 +150,41 @@ class ApplicationController < ActionController::Base
       }
     end
     code = HTTP_CODES.has_key?(status) ? HTTP_CODES[status] : (status.is_a? Integer) ? status : HTTP_CODES['ERROR']
-    payload_hash = MultiJson.dump(response)
+    payload_dump = MultiJson.dump(response)
     if status != 'OK' && !raised
       # catch everything except 200s and immediately render the error UNLESS already in a rescue attempt (raised = true)
       # see rescue_from HESError
-      raise HESError, render_to_string(:json => payload_hash, :status => code)
+      raise HESError, render_to_string(:json => payload_dump, :status => code)
     else
-      render(:json => payload_hash, :status => code) and return payload_hash
+      if do_not_render
+        return payload_dump
+      else
+        render(:json => payload_dump, :status => code) and return payload_dump
+      end
     end
   end
 
-  # BEGIN CACHING RELATED METHODS
+  # wrapper to dump some json, either to browser or string...
+  def HESDumpResponder(payload = 'AOK', do_not_render = false)
+    return HESResponder(payload, 'OK', nil, false, nil, do_not_render, true)
+  end
+
   def HESCachedResponder(cache_key, payload = 'AOK', options = {})
     options = {
       :page_size => nil,
-      :include_params_slug => false,
+      :total_records => nil,
+      :status => 'OK',
       :cache_options => {}
     }.nil_merge!(options)
-
-    cache_miss = false
-
-    if block_given?
-      response = hes_cache_fetch(cache_key, options){
-        cache_miss = true;
-        HESResponder(yield, 'OK', options[:page_size])
-      }
-    else
-      response = hes_cache_fetch(cache_key, options){
-        cache_miss = true;
-        HESResponder(payload, 'OK', options[:page_size])
-      }
+    cache_status = 'hit'
+    text = Rails.cache.fetch(cache_key, options[:cache_options]) do
+      cache_status = 'miss'
+      payload = block_given? ? yield : payload
+      HESResponder(payload, options[:status], options[:page_size], false, options[:total_records], true)
     end
-    render :json => response, :status => HTTP_CODES['OK'] unless cache_miss
+    Rails.logger.warn("cache #{cache_status} for: #{cache_key}")
+    render :text => text
   end
-
-  def hes_cache_fetch(cache_key, options= {})
-    params_appendage = options[:include_params_slug] ? "_" + params_slug : ""
-    timestamp_key = "HESCacheTimestamp_#{cache_key}"
-    cached_timestamp = Rails.cache.read(timestamp_key)
-    complete_cache_key = "HESCache_#{cache_key}#{params_appendage}"
-
-    if cached_timestamp
-      item = Rails.cache.read(complete_cache_key)
-      if item && item.is_a?(Hash) && item[:timestamp] == cached_timestamp
-        Rails.logger.warn "cache hit for #{complete_cache_key}"
-        return item[:data]
-      end
-    end
-
-    Rails.logger.warn "cache miss for #{complete_cache_key}"
-    timestamp =  Time.now.utc
-    Rails.cache.write(timestamp_key, timestamp, options[:cache_options])
-    data = yield
-    Rails.cache.write(complete_cache_key, {:timestamp=>timestamp, :data=>data}, options[:cache_options])
-    return data
-  end
-
-  def self.hes_cache_clear(cache_key)
-    timestamp_key = "HESCacheTimestamp_#{cache_key}"
-    Rails.cache.delete(timestamp_key)
-  end
-
-  def params_slug
-    params.
-        keys.sort{|x,y| x.to_s<=>y.to_s}.
-          collect{|k,v|"#{k}_#{params[k]}"}.
-            join('_')
-  end
-  # END CACHING RELATED METHODS
 
   # Takes incoming param (expected to be a hash) and removes anything that cannot be
   # written in accordance with the incoming model or array. Then returns the scrubbed hash
