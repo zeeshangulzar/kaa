@@ -79,8 +79,19 @@ module Go
       :domain     =>  'email.hesonline.com'
     }
 
-    # memcache
-    config.cache_store = :mem_cache_store, 'localhost:11211', {:compress => true, :namespace => APPLICATION_NAME}
+    # set memcached server, TODO: is this the best place? No - should have a config for this, resque server, etc.
+    case Rails.env
+    when 'production'
+      memcached_server = 'kaa.memcached.hesapps.com:11211'
+    when 'development'
+      memcached_server = 'localhost:11211'
+    else
+      memcached_server = 'localhost:11211'
+    end
+    config.memcached_server = memcached_server
 
-end
+    # memcache
+    config.cache_store = :dalli_store, Rails.application.config.memcached_server, {:compress => true, :namespace => APPLICATION_NAME, :expires_in => 1.day}
+
+  end
 end
