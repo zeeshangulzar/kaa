@@ -2,6 +2,7 @@ require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
 require './lib/hes_security/hes_security'
+require './lib/h_e_s_rescue_bad_request'
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
@@ -15,6 +16,7 @@ APPLICATION_NAME = 'KAA'
 module Go
   class Application < Rails::Application
     config.middleware.insert_after Rails::Rack::Logger, HESSecurityMiddleware
+    config.middleware.insert_before ActionDispatch::ParamsParser, HESRescueBadRequest
     config.middleware.insert_before HESSecurityMiddleware, Rack::Cors do
         allow do
             origins '*'

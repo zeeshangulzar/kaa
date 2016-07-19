@@ -9,6 +9,16 @@ class CustomContentController < ApplicationController
       :group    => params[:group].nil? ? nil : params[:group],
       :hidden   => (params[:hidden].nil? || params[:hidden] == 'false') ? false : nil
     }
+    # TODO:
+    # figure out a way to cache this
+    # need to take into account conditions above
+    # custom content timestamps
+    # user and their team/members' timestamps
+    # maybe more? yuck.. here's a start:
+    # 
+    # ts = CustomContent.where("promotion_id IS NULL OR promotion_id = #{@promotion.id}").max(:updated_at) rescue nil
+    #
+    # you're welcome.
     custom_content = CustomContent.for(@promotion, conditions)
     return HESResponder(CustomContent.keyworded(custom_content, @promotion, @current_user))
   end

@@ -1,4 +1,4 @@
-class CustomContentImageUploader < ApplicationUploader
+class CustomContentImage1Uploader < ApplicationUploader
 
   def self.store_dir
     "custom_content/"

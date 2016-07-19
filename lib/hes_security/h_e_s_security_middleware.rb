@@ -8,13 +8,19 @@ class HESSecurityMiddleware
   def call(env)
     begin
       request = AuthBasicRequest.new(env)
-
       authenticate(request)
-
       response_code = authorize(request,env)
       if response_code
         Rails.logger.warn "    HES Security - authorization failed. returning #{response_code}"
-        return [response_code,{},''] 
+        case response_code
+        when 403
+          error_msg = 'Forbidden.'
+        when 404
+          error_msg = 'Not found.'
+        else
+          error_msg = 'General failure.'
+        end
+        return [response_code,{"Content-Type" => "application/json" }, MultiJson.dump({:errors=>[error_msg]})]
       else
         return @app.call(env)
       end
@@ -51,7 +57,7 @@ class HESSecurityMiddleware
       env['REDIRECT_X_HTTP_AUTHORIZATION']
     end
   end
- 
+
   def authorize(request,env)
     # examine request:
     #   what controller + action is the user going to?
@@ -90,7 +96,7 @@ class HESSecurityMiddleware
 
     return 403 # ensure we don't accidentally fall through...
   end
- 
+
   def finalize_request
     @@authenticated_user = nil
     Rails.logger.debug "    HES Security - cleared authenticated user"
@@ -102,7 +108,7 @@ class HESSecurityMiddleware
   end
 
   def self.set_current_user(user)
-    @@authenticated_user = user 
+    @@authenticated_user = user
   end
 
   def self.disabled?
