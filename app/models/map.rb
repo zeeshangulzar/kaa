@@ -5,6 +5,8 @@ class Map < ApplicationModel
 
   many_to_many :with => :promotion, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
 
+  has_many :routes
+
   # TODO: do these make sense?
   STATUS = {
     :inactive => 0,
@@ -40,7 +42,7 @@ class Map < ApplicationModel
 
   def destroy
     # TODO: we want to do a soft delete, so figure out what this should do...
-    self.deleted = true
+    self.status = STATUS[:deleted]
     self.save!
   end
   

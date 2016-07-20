@@ -243,6 +243,11 @@ Go::Application.routes.draw do
   # friendships...
   resources :friendships
 
-  resources :maps
+  resources :maps do
+    resources :routes
+  end
+  resources :routes
+
+  match "/promotions/:promotion_id/update_maps" => "maps#update_maps", :via => :post
  
 end
