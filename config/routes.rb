@@ -74,6 +74,7 @@ Go::Application.routes.draw do
     resources :report_fields
     resources :report_joins
     resources :competitions
+    resources :maps
   end
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
@@ -241,5 +242,7 @@ Go::Application.routes.draw do
 
   # friendships...
   resources :friendships
+
+  resources :maps
  
 end

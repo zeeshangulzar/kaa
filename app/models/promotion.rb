@@ -35,6 +35,8 @@ class Promotion < ApplicationModel
   has_many :notifications, :as => :notificationable, :order => 'created_at DESC'
   has_many :teams
 
+  many_to_many :with => :map, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
+
   accepts_nested_attributes_for :behaviors
 
   DEFAULT_SUBDOMAIN = 'www'
