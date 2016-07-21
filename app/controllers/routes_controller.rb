@@ -38,8 +38,14 @@ class RoutesController < ApplicationController
   end
   def create
     route = nil
+    points = nil
+    if !params[:route][:points].nil?
+      points = params[:route].delete(:points) rescue nil
+      points = points.to_json # serialized json
+    end
     Route.transaction do
-      route = @SB.build(params[:route]) rescue nil
+      route = @SB.new(params[:route]) rescue nil
+      route.points = points unless points.nil?
       return HESResponder(route.errors.full_messages, "ERROR") if !route.valid?
       route.save!
     end
@@ -48,8 +54,15 @@ class RoutesController < ApplicationController
   def update
     route = Route.find(params[:id]) rescue nil
     return HESResponder("Route", "NOT_FOUND") if route.nil?
+    points = nil
     Route.transaction do
-      route.update_attributes(params[:route])
+      if !params[:route][:points].nil?
+        points = params[:route].delete(:points) rescue nil
+        points = points.to_json # serialized json
+      end
+      route.assign_attributes(params[:route])
+      route.points = points unless points.nil?
+      route.save!
     end
     return HESResponder(route)
   end

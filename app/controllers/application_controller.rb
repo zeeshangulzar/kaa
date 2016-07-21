@@ -1,4 +1,4 @@
-class ApplicationController < ActionController::Base
+class ApplicationController < CustomBaseController
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
 

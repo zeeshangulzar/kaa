@@ -35,3 +35,19 @@ module Resque
     end
   end
 end
+
+module RedisExtensions
+  def publish(channel, message)
+    begin
+      super
+    rescue Redis::CannotConnectError
+      Rails.logger.warn("REDIS CONNECTION FAILURE: Cannot connect to Redis. Need a good way of notifying devs without emailing every single instance, cause that could get crazy, fast.")
+    rescue Exception => e
+      raise e
+    end
+  end
+end
+
+class Redis
+  prepend RedisExtensions
+end
