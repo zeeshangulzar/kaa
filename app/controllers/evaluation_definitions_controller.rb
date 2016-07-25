@@ -1,7 +1,5 @@
 class EvaluationDefinitionsController < ApplicationController
 
-  respond_to :json
-
   authorize :index, :show, :public
   authorize :create, :update, :destroy, :coordinator
 

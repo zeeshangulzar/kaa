@@ -1,8 +1,6 @@
 # Controller for handling all evaluation requests
 class EvaluationsController < ApplicationController
 
-  respond_to :json
-
   before_filter :set_sandbox
   
   # Get the user before each request

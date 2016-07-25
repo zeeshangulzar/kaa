@@ -1,7 +1,6 @@
 # Controller for handling wall expert posts feature
 class WallExpertPostsController < ApplicationController
 
-  respond_to :json
   authorize :all, :poster
 
   # Gets a list of all wall expert posts

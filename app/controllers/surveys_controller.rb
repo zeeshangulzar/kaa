@@ -1,7 +1,5 @@
 # Adds ability to create surveys through ActiveResource in application
 class SurveysController < ApplicationController
-  respond_to :json
-
   authorize :create, :public
 
   # Creates a contact request for a user

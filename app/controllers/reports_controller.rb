@@ -1,5 +1,4 @@
 class ReportsController < ApplicationController
-  respond_to :json
 
   before_filter :get_promotion
   before_filter :set_report, :only => [:run, :show]
@@ -91,12 +90,9 @@ raise 'get here'
 
     @rows = data.empty? ? [] : data
 
-    respond_to do |wants|
-      wants.csv { render :text => @rows.collect{|r|r.to_csv}.join }
-      wants.json do
-        return HESResponder(@rows)
-      end
-    end
+    # TODO: fix below so export works
+    # render :text => @rows.collect{|r|r.to_csv}.join
+    return HESResponder(@rows)
   end
 
   def create

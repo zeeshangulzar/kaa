@@ -1,5 +1,4 @@
 class ReportFieldsController < ApplicationController
-  respond_to :json
   wrap_parameters :report_field, :include => [:category, :sql_phrase, :sensitive, :sequence, :join, :filterable, :visible, :role, :display_name, :aggregate, :identification]
   before_filter :get_report_setup
 

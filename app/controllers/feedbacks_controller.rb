@@ -1,6 +1,5 @@
 # Adds ability to create feedback through ActiveResource in application
 class FeedbacksController < ApplicationController
-  respond_to :json
   
   authorize :create, :public
 

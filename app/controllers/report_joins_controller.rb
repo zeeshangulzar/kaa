@@ -1,5 +1,4 @@
 class ReportJoinsController < ApplicationController
-  respond_to :json
   wrap_parameters :report_join, :include => [:alias, :childof, :parentof, :nest_level, :sql]
   before_filter :get_report_setup
 

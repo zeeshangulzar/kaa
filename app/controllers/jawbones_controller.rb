@@ -199,8 +199,6 @@ class JawbonesController < ApplicationController
       end
     end
 
-    respond_to do |format|
-      format.json {render :json => complete_summary}
-    end
+    render :json => complete_summary and return
   end
 end

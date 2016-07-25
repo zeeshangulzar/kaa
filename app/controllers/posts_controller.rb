@@ -1,6 +1,5 @@
 # Controller for handling all post requests
 class PostsController < ApplicationController
-  respond_to :json
 
   # Get the wallable before each request
   before_filter :get_wallable

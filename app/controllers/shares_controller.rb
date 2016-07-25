@@ -1,7 +1,5 @@
 # Controller for handling all share requests
 class SharesController < ApplicationController
-  respond_to :json
-
   # Get the user before each request
   before_filter :get_shareable, :only => [:index, :create, :destroy]
 

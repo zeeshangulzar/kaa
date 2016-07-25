@@ -1,8 +1,5 @@
 # Controller for handling all location type requests
 class LocationsController < ApplicationController
-
-  respond_to :json
-  
   authorize :index, :show, :public
   authorize :update, :create, :destroy, :upload, :master
 

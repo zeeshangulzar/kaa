@@ -1,5 +1,4 @@
 class FilesController < ApplicationController
-  respond_to :html
   authorize :upload, :crop, :rotate, :public
   skip_before_filter :get_uploaded_image
 

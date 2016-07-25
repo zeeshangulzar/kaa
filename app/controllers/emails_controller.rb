@@ -1,5 +1,4 @@
 class EmailsController < ApplicationController
-  respond_to :json
   authorize :unsubscribe, :public
   authorize :all, :user
 

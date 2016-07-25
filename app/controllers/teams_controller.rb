@@ -76,9 +76,7 @@ class TeamsController < ApplicationController
   end
 
   def check_name
-    respond_to do |format|
-      format.json {render :json => is_team_name_valid(params[:team][:name])[:is_valid]}
-    end
+    render :json => is_team_name_valid(params[:team][:name])[:is_valid] and return
   end
   
   def search    

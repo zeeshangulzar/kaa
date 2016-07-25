@@ -180,9 +180,7 @@ class FitbitsController < ApplicationController
       end
     end
 
-    respond_to do |format|
-      format.json {render :json => complete_summary}
-    end
+    render :json => complete_summary and return
   end
 
   # Revert back to using Fitbit data instead of logging manually.
@@ -198,9 +196,7 @@ class FitbitsController < ApplicationController
 
     $redis.publish('fitbitEntrySaved', e.to_json)
 
-    respond_to do |format|
-      format.json {render :json => e}
-    end
+    render :json => e and return
   end
 
   def notify

@@ -1,6 +1,5 @@
 # Creates contact requests
 class ContactRequestsController < ApplicationController
-  respond_to :json
   authorize :create, :public
 
   # Creates a contact request for a user

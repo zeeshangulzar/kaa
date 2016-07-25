@@ -1,5 +1,4 @@
 class ResellersController < ApplicationController
-  respond_to :json
 
   authorize :all, :master
 

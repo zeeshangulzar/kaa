@@ -1,6 +1,5 @@
 # Controller for handling all rating requests
 class RatingsController < ApplicationController
-  respond_to :json
 
   # Get the user before each request
   before_filter :get_rateable

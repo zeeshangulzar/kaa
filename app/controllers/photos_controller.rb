@@ -1,5 +1,4 @@
 class PhotosController < ApplicationController
-	respond_to :json
 
 	before_filter :get_photoable, :only => [:index, :create]
 	authorize :index, :show, :update, :create, :destroy, :all_team_photos, :user

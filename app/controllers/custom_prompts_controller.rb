@@ -1,6 +1,5 @@
 # Controller for handling all custom_prompt requests
 class CustomPromptsController < ApplicationController
-  respond_to :json
 
   # Get the user before each request
   before_filter :get_custom_promptable, :only => [:index, :create]
