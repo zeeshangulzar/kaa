@@ -1,5 +1,5 @@
 class Map < ApplicationModel
-  attr_privacy :id, :name, :status, :settings, :public
+  attr_privacy :id, :name, :summary, :status, :settings, :public
   attr_privacy_no_path_to_user
   attr_accessible *column_names
 
@@ -22,16 +22,17 @@ class Map < ApplicationModel
 
   def settings
     return {
-      :image_dir       => self.image_dir,
-      :tile_size       => self.tile_size,
-      :min_zoom        => self.min_zoom,
-      :max_zoom        => self.max_zoom,
-      :adjusted_width  => self.adjusted_width,
-      :adjusted_height => self.adjusted_height,
-      :scale_zoom      => self.scale_zoom,
-      :scaled_min_zoom => self.scaled_min_zoom,
-      :image_width     => self.image_width,
-      :image_height    => self.image_height
+      :image_dir         => self.image_dir,
+      :tile_size         => self.tile_size,
+      :min_zoom          => self.min_zoom,
+      :max_zoom          => self.max_zoom,
+      :adjusted_width    => self.adjusted_width,
+      :adjusted_height   => self.adjusted_height,
+      :scale_zoom        => self.scale_zoom,
+      :scaled_min_zoom   => self.scaled_min_zoom,
+      :icon_visible_zoom => self.icon_visible_zoom,
+      :image_width       => self.image_width,
+      :image_height      => self.image_height
     }
   end
 
