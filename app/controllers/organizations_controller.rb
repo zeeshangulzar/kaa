@@ -1,6 +1,5 @@
 # Controller for handling all organization related requests
 class OrganizationsController < ApplicationController
-  respond_to :json
 
   authorize :all, :master
 
