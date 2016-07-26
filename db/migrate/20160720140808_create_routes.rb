@@ -5,7 +5,10 @@ class CreateRoutes < ActiveRecord::Migration
       t.string :name
       t.string :travel_type
       t.string :status, :default => Route::STATUS[:inactive]
+      t.integer :length
       t.text :points
+      t.text :ordered_destinations
+      t.string :overlay_image
       t.timestamps
     end
   end

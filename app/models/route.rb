@@ -1,9 +1,11 @@
 class Route < ApplicationModel
-  attr_privacy :id, :name, :travel_type, :status, :points, :public
+  attr_privacy :id, :name, :travel_type, :status, :length, :points, :ordered_destinations, :overlay_image, :public
   attr_privacy_no_path_to_user
   attr_accessible *column_names
 
   belongs_to :map
+
+  mount_uploader :overlay_image, RouteOverlayImageUploader
 
   # TODO: do these make sense?
   STATUS = {
@@ -26,7 +28,8 @@ class Route < ApplicationModel
 
   def as_json(options = {})
     json = super(options)
-    json['points'] = JSON.parse(self.points) # TODO: make this faster and more efficient
+    json['points'] = JSON.parse(self.points) rescue nil # TODO: make this faster and more efficient
+    json['ordered_destinations'] = JSON.parse(self.ordered_destinations) rescue nil # TODO: make this faster and more efficient
     json
   end
   
