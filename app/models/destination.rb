@@ -5,6 +5,9 @@ class Destination < ApplicationModel
 
   belongs_to :map
 
+  mount_uploader :icon1, DestinationIcon1Uploader
+  mount_uploader :icon2, DestinationIcon2Uploader
+
   # TODO: do these make sense?
   STATUS = {
     :active   => 'active',

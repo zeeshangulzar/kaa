@@ -20,7 +20,12 @@ class DestinationsController < ApplicationController
   def index
     # TODO: need a nice CONSISTENT way to handle statuses across models
     # using params, taking into account role, and don't forget caching!
-    return HESResponder(@SB.active)
+    if @current_user.master?
+      scope = @record_status && Destination::STATUS.stringify_keys.keys.include?(@record_status) ? Destination::STATUS[@record_status_sym] : 'all'
+    else
+      scope = 'active'
+    end
+    return HESResponder(@SB.send(scope))
   end
   def show
     @SB = Destination.active

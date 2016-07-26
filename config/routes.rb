@@ -245,8 +245,10 @@ Go::Application.routes.draw do
 
   resources :maps do
     resources :routes
+    resources :destinations
   end
   resources :routes
+  resources :destinations
 
   match "/promotions/:promotion_id/update_maps" => "maps#update_maps", :via => :post
  
