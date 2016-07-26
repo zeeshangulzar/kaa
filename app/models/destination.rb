@@ -1,5 +1,5 @@
-class Route < ApplicationModel
-  attr_privacy :id, :name, :travel_type, :status, :points, :public
+class Destination < ApplicationModel
+  attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
 
@@ -7,7 +7,6 @@ class Route < ApplicationModel
 
   # TODO: do these make sense?
   STATUS = {
-    :inactive => 'inactive',
     :active   => 'active',
     :deleted  => 'deleted'
   }
@@ -22,12 +21,6 @@ class Route < ApplicationModel
     # TODO: we want to do a soft delete, so figure out what this should do...
     self.status = STATUS[:deleted]
     self.save!
-  end
-
-  def as_json(options = {})
-    json = super(options)
-    json['points'] = JSON.parse(self.points) # TODO: make this faster and more efficient
-    json
   end
   
 end

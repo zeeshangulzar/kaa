@@ -13,7 +13,7 @@ class CreateMaps < ActiveRecord::Migration
       t.integer :icon_visible_zoom
       t.integer :image_width
       t.integer :image_height
-      t.integer :status, :default => Map::STATUS[:inactive]
+      t.string :status, :default => Map::STATUS[:inactive]
       t.timestamps
     end
   end

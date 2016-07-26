@@ -6,12 +6,13 @@ class Map < ApplicationModel
   many_to_many :with => :promotion, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
 
   has_many :routes
+  has_many :destinations
 
   # TODO: do these make sense?
   STATUS = {
-    :inactive => 0,
-    :active   => 1,
-    :deleted  => 2
+    :inactive => 'inactive',
+    :active   => 'active',
+    :deleted  => 'deleted'
   }
   STATUS.each_pair do |key, value|
     self.send(:scope, key, where(:status => value))
