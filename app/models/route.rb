@@ -28,9 +28,9 @@ class Route < ApplicationModel
 
   def as_json(options = {})
     json = super(options)
-    json['points'] = JSON.parse(self.points) rescue nil # TODO: make this faster and more efficient
     json['ordered_destinations'] = JSON.parse(self.ordered_destinations) rescue nil # TODO: make this faster and more efficient
-    json
+    json['points'] = JSON.parse(self.points) rescue nil # TODO: make this faster and more efficient 
+    return json
   end
   
 end
