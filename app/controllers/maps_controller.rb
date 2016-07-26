@@ -7,11 +7,23 @@ class MapsController < ApplicationController
   end
   private :set_sandbox
   def index
-    return HESResponder(@SB.all)
+    if @current_user.master?
+      scope = @record_status && Map::STATUS.stringify_keys.keys.include?(@record_status) ? Map::STATUS[@record_status_sym] : 'all'
+    else
+      scope = 'active'
+    end
+    return HESResponder(@SB.send(scope))
   end
   def show
+    @SB = Map.active
+    if @current_user.master?
+      @SB = Map
+    end
     map = @SB.find(params[:id]) rescue nil
     return HESResponder("Map", "NOT_FOUND") if map.nil?
+    return HESResponder("Route", "NOT_FOUND") if !@current_user.master? && !@promotion.maps.include?(map)
+    map.attach('routes', map.routes)
+    map.attach('destinations', map.destinations)
     return HESResponder(map)
   end
   def create

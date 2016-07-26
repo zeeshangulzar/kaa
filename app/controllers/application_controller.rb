@@ -1,6 +1,7 @@
 class ApplicationController < CustomBaseController
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
+  before_filter :set_record_status
 
   HTTP_CODES = {
     'OK'           => 200,
@@ -251,6 +252,12 @@ class ApplicationController < CustomBaseController
     return true if !params[:promotion_id].nil?
     return true unless @current_user && (@current_user.poster? || @current_user.master?) && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
     return false
+  end
+
+  # a helper method to have @status available in every controller when params[:status] exists
+  def set_record_status
+    @record_status = !params[:status].nil? && params[:status].is_a?(String) ? params[:status] : nil
+    @record_status_sym = @record_status.to_sym rescue nil
   end
 
 end

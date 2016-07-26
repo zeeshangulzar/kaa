@@ -4,7 +4,7 @@ class CreateRoutes < ActiveRecord::Migration
       t.references  :map
       t.string :name
       t.string :travel_type
-      t.integer :status, :default => Route::STATUS[:inactive]
+      t.string :status, :default => Route::STATUS[:inactive]
       t.text :points
       t.timestamps
     end
