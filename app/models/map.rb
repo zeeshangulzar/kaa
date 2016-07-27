@@ -6,7 +6,7 @@ class Map < ApplicationModel
   many_to_many :with => :promotion, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
 
   has_many :routes
-  has_many :destinations
+  has_many :destinations, :order => "sequence ASC"
 
   # TODO: do these make sense?
   STATUS = {

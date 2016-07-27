@@ -94,6 +94,7 @@ class ApplicationModel < ActiveRecord::Base
   # BEGIN NEW CACHING MAGIC
   def self.max_timestamp(*things)
     timestamps = []
+    things = [things] if !things.is_a?(Array)
     things.each do |thing|
       if thing.is_a?(Time)
         timestamps << thing
@@ -101,15 +102,15 @@ class ApplicationModel < ActiveRecord::Base
         timestamps << thing.to_time
       elsif thing.is_a?(Array)
         timestamps << thing.maximum(:updated_at).to_time
-      elsif thing.is_a?(ApplicationModel)
-        if thing.respond_to?(:updated_at)
-          ttimestamp << thing.maximum(:updated_at).to_time
-        elsif thing.respond_to?(:created_at)
+      elsif thing <= ApplicationModel
+        if thing.respond_to?(:updated_at) || (thing.respond_to?("column_names") && thing.column_names.include?('updated_at'))
+          timestamps << thing.maximum(:updated_at).to_time
+        elsif thing.respond_to?(:created_at) || (thing.respond_to?("column_names") && thing.column_names.include?('created_at'))
           timestamps << thing.maximum(:created_at).to_time
         end
       end
     end
-    return timestamps.max.to_time.to_s(:number)
+    return timestamps.max.to_time.to_s(:number) rescue nil
   end
 
   def cache_key(*things)
@@ -120,6 +121,14 @@ class ApplicationModel < ActiveRecord::Base
     else
       key = "#{self.class.model_name.cache_key}/#{id}"
     end
+    if !things.empty?
+      return "#{key}/#{ApplicationModel.max_timestamp(*things)}"
+    end
+    return key
+  end
+
+  def self.collection_cache_key(name, *things)
+    key = "#{self.model_name.cache_key}_#{name}"
     if !things.empty?
       return "#{key}/#{ApplicationModel.max_timestamp(*things)}"
     end

@@ -26,6 +26,7 @@ class RoutesController < ApplicationController
     end
     return HESResponder(@SB.send(scope))
   end
+
   def show
     @SB = Route.active
     if @current_user.master?
@@ -36,6 +37,7 @@ class RoutesController < ApplicationController
     return HESResponder("Route", "NOT_FOUND") if !@current_user.master? && !@promotion.maps.include?(route.map)
     return HESResponder(route)
   end
+
   def create
     route = nil
     points = nil
@@ -57,6 +59,7 @@ class RoutesController < ApplicationController
     end
     return HESResponder(route)
   end
+
   def update
     route = Route.find(params[:id]) rescue nil
     return HESResponder("Route", "NOT_FOUND") if route.nil?
@@ -78,6 +81,7 @@ class RoutesController < ApplicationController
     end
     return HESResponder(route)
   end
+
   def destroy
     route = Route.find(params[:id]) rescue nil
     return HESResponder("Route", "NOT_FOUND") if route.nil?
@@ -86,4 +90,5 @@ class RoutesController < ApplicationController
     end
     return HESResponder(route)
   end
+
 end

@@ -1,5 +1,5 @@
 class Destination < ApplicationModel
-  attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :any_user
+  attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :sequence, :any_user
   attr_privacy_no_path_to_user
   attr_accessible *column_names
 

@@ -37,3 +37,5 @@ end
 group :production do
   gem 'exception_notification', "3.0.1"
 end
+
+gem 'american_date'

@@ -11,6 +11,7 @@ class CreateDestinations < ActiveRecord::Migration
       t.text :answers
       t.string :correct_answer
       t.string :status, :default => Route::STATUS[:active]
+      t.integer :sequence
       t.timestamps
     end
   end

@@ -20,13 +20,12 @@ class DestinationsController < ApplicationController
   def index
     # TODO: need a nice CONSISTENT way to handle statuses across models
     # using params, taking into account role, and don't forget caching!
-    if @current_user.master?
-      scope = @record_status && Destination::STATUS.stringify_keys.keys.include?(@record_status) ? Destination::STATUS[@record_status_sym] : 'all'
-    else
-      scope = 'active'
+    scope = model_status_scope(Destination::STATUS[:active])
+    return HESCachedResponder(Destination.collection_cache_key(scope, @SB.send(*scope)), 'ignore_me', {:page_size => 0}) do
+      @SB.send(*scope)
     end
-    return HESResponder(@SB.send(scope))
   end
+
   def show
     @SB = Destination.active
     if @current_user.master?
@@ -37,6 +36,7 @@ class DestinationsController < ApplicationController
     return HESResponder("Destination", "NOT_FOUND") if !@current_user.master? && !@promotion.maps.include?(destination.map)
     return HESResponder(destination)
   end
+
   def create
     destination = nil
     Destination.transaction do
@@ -46,6 +46,7 @@ class DestinationsController < ApplicationController
     end
     return HESResponder(destination)
   end
+
   def update
     destination = Destination.find(params[:id]) rescue nil
     return HESResponder("Destination", "NOT_FOUND") if destination.nil?
@@ -54,6 +55,7 @@ class DestinationsController < ApplicationController
     end
     return HESResponder(destination)
   end
+
   def destroy
     destination = Destination.find(params[:id]) rescue nil
     return HESResponder("Destination", "NOT_FOUND") if destination.nil?
@@ -62,4 +64,5 @@ class DestinationsController < ApplicationController
     end
     return HESResponder(destination)
   end
+
 end

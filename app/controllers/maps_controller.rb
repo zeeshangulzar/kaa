@@ -1,11 +1,13 @@
 class MapsController < ApplicationController
   authorize :index, :show, :user
   authorize :create, :update, :destroy, :update_maps, :master
+
   before_filter :set_sandbox
   def set_sandbox
     @SB = use_sandbox? ? @promotion.maps : Map
   end
   private :set_sandbox
+
   def index
     if @current_user.master?
       scope = @record_status && Map::STATUS.stringify_keys.keys.include?(@record_status) ? Map::STATUS[@record_status_sym] : 'all'
@@ -14,6 +16,7 @@ class MapsController < ApplicationController
     end
     return HESResponder(@SB.send(scope))
   end
+
   def show
     @SB = Map.active
     if @current_user.master?
@@ -26,6 +29,7 @@ class MapsController < ApplicationController
     map.attach('destinations', map.destinations)
     return HESResponder(map)
   end
+
   def create
     map = nil
     Map.transaction do
@@ -38,6 +42,7 @@ class MapsController < ApplicationController
     end
     return HESResponder(map)
   end
+
   def update
     map = @SB.find(params[:id]) rescue nil
     return HESResponder("Map", "NOT_FOUND") if map.nil?
@@ -49,6 +54,7 @@ class MapsController < ApplicationController
     end
     return HESResponder(map)
   end
+
   def destroy
     map = @SB.find(params[:id]) rescue nil
     return HESResponder("Map", "NOT_FOUND") if map.nil?
@@ -57,6 +63,7 @@ class MapsController < ApplicationController
     end
     return HESResponder(map)
   end
+
   def update_maps
     if params[:map_ids].is_a?(Array)
       Map.transaction do
@@ -72,4 +79,5 @@ class MapsController < ApplicationController
       return HESResponder("Bad request.", "ERROR")
     end
   end
+
 end

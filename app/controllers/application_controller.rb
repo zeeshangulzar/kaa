@@ -128,7 +128,7 @@ class ApplicationController < CustomBaseController
 
     if status != 'OK'
       # we have an error of some sort..
-      payload = payload.to_s.strip + " doesn't exist" if status == 'NOT_FOUND'
+      payload = payload.to_s.strip + " doesn't exist." if status == 'NOT_FOUND'
       payload = [payload] if !payload.is_a?(Array)
       response = {:errors => payload}
     elsif payload.is_a?(String)
@@ -255,9 +255,19 @@ class ApplicationController < CustomBaseController
   end
 
   # a helper method to have @status available in every controller when params[:status] exists
-  def set_record_status
-    @record_status = !params[:status].nil? && params[:status].is_a?(String) ? params[:status] : nil
-    @record_status_sym = @record_status.to_sym rescue nil
+  def set_model_status
+    @model_status = !params[:status].nil? && params[:status].is_a?(String) ? params[:status] : nil
+  end
+
+  def model_status_scope(default_for_regular_users, default_for_master = 'all', klass = nil)
+    statuses = klass.nil? ? Object.const_get(self.controller_name.classify)::STATUS : klass::STATUS
+    if @current_user.master?
+      scope = @model_status && statuses.stringify_keys.keys.include?(@model_status) ? statuses[@model_status.to_sym] : default_for_master
+    else
+      scope = default_for_regular_users
+    end
+    scope = ['select','*'] if scope == 'all'
+    return scope
   end
 
 end
