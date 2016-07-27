@@ -8,6 +8,8 @@ class Destination < ApplicationModel
   mount_uploader :icon1, DestinationIcon1Uploader
   mount_uploader :icon2, DestinationIcon2Uploader
 
+  has_photos
+
   # TODO: do these make sense?
   STATUS = {
     :active   => 'active',
