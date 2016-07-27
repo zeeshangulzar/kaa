@@ -12,7 +12,12 @@ class DestinationsController < ApplicationController
         return HESResponder("Map required.", "ERROR")
       end
     else
-      @SB = Destination
+      if params[:map_id]
+        @SB = Map.find(params[:map_id]).destinations rescue nil
+        return HESResponder("Map", "NOT_FOUND") if @SB.nil?
+      else
+        @SB = Destination
+      end
     end
   end
   private :set_sandbox
@@ -21,7 +26,8 @@ class DestinationsController < ApplicationController
     # TODO: need a nice CONSISTENT way to handle statuses across models
     # using params, taking into account role, and don't forget caching!
     scope = model_status_scope(Destination::STATUS[:active])
-    return HESCachedResponder(Destination.collection_cache_key(scope, @SB.send(*scope)), 'ignore_me', {:page_size => 0}) do
+    parent_key = @SB.class == Array ? "maps-#{params[:map_id]}" : nil
+    return HESCachedResponder(Destination.collection_cache_key(parent_key, scope, @SB.send(*scope)), 'ignore_me', {:page_size => 0}) do
       @SB.send(*scope)
     end
   end

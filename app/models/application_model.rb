@@ -101,21 +101,20 @@ class ApplicationModel < ActiveRecord::Base
       elsif thing.is_a?(Date)
         timestamps << thing.to_time
       elsif thing.is_a?(Array)
-        timestamps << thing.maximum(:updated_at).to_time
-      elsif thing <= ApplicationModel
+        timestamps << thing.maximum(:updated_at).to_time rescue nil
+      elsif thing < ApplicationModel
         if thing.respond_to?(:updated_at) || (thing.respond_to?("column_names") && thing.column_names.include?('updated_at'))
-          timestamps << thing.maximum(:updated_at).to_time
+          timestamps << thing.maximum(:updated_at).to_time rescue nil
         elsif thing.respond_to?(:created_at) || (thing.respond_to?("column_names") && thing.column_names.include?('created_at'))
-          timestamps << thing.maximum(:created_at).to_time
+          timestamps << thing.maximum(:created_at).to_time rescue nil
         end
       end
     end
-    return timestamps.max.to_time.to_s(:number) rescue nil
+    return timestamps.compact.max.to_time.to_s(:number) rescue nil
   end
 
   def cache_key(*things)
-    case
-    when timestamp = self[:updated_at]
+    if timestamp = self[:updated_at]
       timestamp = timestamp.utc.to_s(:number)
       key = "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
     else
@@ -127,11 +126,10 @@ class ApplicationModel < ActiveRecord::Base
     return key
   end
 
-  def self.collection_cache_key(name, *things)
-    key = "#{self.model_name.cache_key}_#{name}"
-    if !things.empty?
-      return "#{key}/#{ApplicationModel.max_timestamp(*things)}"
-    end
+  def self.collection_cache_key(parent_key, name, *things)
+    name = 'all' if name.is_a?(Array) # hack to convert chained .all() scope (['select','*']) into 'all' for legible cache key
+    key = parent_key.nil? ? "#{self.model_name.cache_key}-#{name}" : "#{parent_key}/#{self.model_name.cache_key}-#{name}"
+    return "#{key}/#{ApplicationModel.max_timestamp(*things)}" if !things.empty?
     return key
   end
   # END NEW CACHING MAGIC

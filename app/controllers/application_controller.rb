@@ -248,6 +248,8 @@ class ApplicationController < CustomBaseController
     return meta
   end
 
+
+
   def use_sandbox?
     return true if !params[:promotion_id].nil?
     return true unless @current_user && (@current_user.poster? || @current_user.master?) && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
@@ -266,7 +268,7 @@ class ApplicationController < CustomBaseController
     else
       scope = default_for_regular_users
     end
-    scope = ['select','*'] if scope == 'all'
+    scope = ['select','*'] if scope == 'all' # hack to chain methods with .all() scope
     return scope
   end
 
