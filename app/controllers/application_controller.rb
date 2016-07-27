@@ -1,7 +1,7 @@
 class ApplicationController < CustomBaseController
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
-  before_filter :set_record_status
+  before_filter :set_model_status
 
   HTTP_CODES = {
     'OK'           => 200,
