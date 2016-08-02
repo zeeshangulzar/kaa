@@ -8,7 +8,7 @@ class Destination < ApplicationModel
   mount_uploader :icon1, DestinationIcon1Uploader
   mount_uploader :icon2, DestinationIcon2Uploader
 
-  has_photos
+  has_photos # TODO: temporary?
 
   # TODO: do these make sense?
   STATUS = {
