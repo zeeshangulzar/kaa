@@ -11,7 +11,7 @@ if defined?(Bundler)
   # Bundler.require(:default, :assets, Rails.env)
 end
 
-APPLICATION_NAME = 'KAA'
+APPLICATION_NAME = 'kaa'
 
 module Go
   class Application < Rails::Application
