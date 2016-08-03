@@ -45,7 +45,7 @@ class FilesController < ApplicationController
         end
         dirpath = PUBLIC_DIR_PATH
         filepath = File.join(PUBLIC_DIR_PATH, name)
-        uploaded_files << {:url => "/#{filepath}".split('public').last, :name => name}
+        uploaded_files << {:url => "/#{filepath}".split('public', 2).last, :name => name}
       end
 
       File.open(filepath, "wb") { |f| f.write(uploaded_file.read) }
@@ -67,7 +67,7 @@ class FilesController < ApplicationController
         tn_path = File.join(dirpath, "thumbnail-#{params[:_t]}-#{name}")
         tn_img.write(tn_path)
         
-        uploaded_files.last[:thumbnail_url] = "/#{tn_path}".split('public').last
+        uploaded_files.last[:thumbnail_url] = "/#{tn_path}".split('public', 2).last
 
         if params[:resize_to_fit]
           width, height = params[:resize_to_fit].split(',').collect{|x| x.to_i}
@@ -143,7 +143,7 @@ class FilesController < ApplicationController
     else 
       crop_to_circle(img_path, new_img_path, params[:crop][:x], params[:crop][:y], params[:crop][:w], params[:crop][:h], tn_path)
     end
-    render :json => {:url => "/#{new_img_path}".split('public').last, :thumbnail_url => "/#{tn_path}".split('public').last, :blur_url => "/#{blur_path}".split('public').last, :name => new_name}, :status => 202
+    render :json => {:url => "/#{new_img_path}".split('public', 2).last, :thumbnail_url => "/#{tn_path}".split('public', 2).last, :blur_url => "/#{blur_path}".split('public', 2).last, :name => new_name}, :status => 202
   end
 
   def crop_to_circle(filename, out_filename, x = 0, y = 0, w = 0, h = 0, thumb_filename = nil)
@@ -234,7 +234,7 @@ class FilesController < ApplicationController
       ext_type = img_path.split('.').last
       new_name = name.gsub(name.split('-').first, Time.now.to_i.to_s).gsub(ext_type, 'png')
       new_img_path = img_path.gsub(name, new_name);
-      new_filename = "/#{new_img_path}".split('public').last
+      new_filename = "/#{new_img_path}".split('public, 2').last
       job_key = "local_#{img_path}"
       job = Resque.enqueue(ImageRotate, job_key, {:image_type => 'local', :image_path => img_path, :new_image_path => new_img_path, :rotation => params[:rotation]})
       TIMEOUT.times do
