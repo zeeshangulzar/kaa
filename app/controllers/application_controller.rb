@@ -86,6 +86,8 @@ class ApplicationController < CustomBaseController
           can_change_promotion = true
         elsif @current_user.coordinator? && other_promotion.organization_id == @current_user.promotion.organization_id
           can_change_promotion = true
+        elsif @current_user.super_coordinator? && @current_user.super_coordinator_promotions.where(:promotion_id => other_promotion.id).length > 0
+          can_change_promotion = true
         end
         if can_change_promotion
           @promotion = other_promotion 
@@ -106,7 +108,7 @@ class ApplicationController < CustomBaseController
     end
   end
 
-  # page_size of 0 = all records
+# page_size of 0 = all records
   def HESResponder(payload = 'AOK', status = 'OK', page_size = nil, raised = false, total_records = nil, do_not_render = false, just_dump = false)
 
     if (payload.is_a?(Hash) && payload.has_key?(:data) && payload.has_key?(:meta)) || just_dump
@@ -117,7 +119,7 @@ class ApplicationController < CustomBaseController
       end
       render :json => payload, :status => HTTP_CODES['OK'] and return
     end
-
+    
     unless !page_size.nil?
       # only allow overriding of page_size if it isn't passed
       page_size = (!params[:page_size].nil? && params[:page_size].is_i?) ? params[:page_size].to_i : ApplicationController::PAGE_SIZE
@@ -128,7 +130,7 @@ class ApplicationController < CustomBaseController
 
     if status != 'OK'
       # we have an error of some sort..
-      payload = payload.to_s.strip + " doesn't exist." if status == 'NOT_FOUND'
+      payload = payload.to_s.strip + " doesn't exist" if status == 'NOT_FOUND'
       payload = [payload] if !payload.is_a?(Array)
       response = {:errors => payload}
     elsif payload.is_a?(String)
@@ -248,13 +250,19 @@ class ApplicationController < CustomBaseController
     return meta
   end
 
-
-
   def use_sandbox?
     return true if !params[:promotion_id].nil?
     return true unless @current_user && (@current_user.poster? || @current_user.master?) && @promotion.subdomain == Promotion::DASHBOARD_SUBDOMAIN
     return false
   end
+
+  def append_role(the_string)
+    return !@current_user.nil? ? "#{the_string}-#{@current_user.role}" : "#{the_string}-public"
+  end
+
+  alias_method :HR, :HESResponder
+  alias_method :HDR, :HESDumpResponder
+  alias_method :HCR, :HESCachedResponder
 
   # a helper method to have @status available in every controller when params[:status] exists
   def set_model_status

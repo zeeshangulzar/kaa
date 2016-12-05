@@ -4,15 +4,17 @@ host =
   else
     if !!defined?(IS_STAGING) && IS_STAGING
       # someday change to resque.staging.hesapps.com
-      'localhost'
+      'resque.staging2.hesapps.com'
     else
       'resque.hesapps.com'
     end
   end
-  
-$redis = Redis.new(:host => host, :port => 6379)
-Resque.redis = $redis
-Resque.redis.namespace = APPLICATION_NAME
+
+redis_connection = Redis.new(:host => host, :port => 6379)
+Resque.redis = redis_connection
+Resque.redis.namespace = "#{APPLICATION_NAME}:resque"
+$redis = Redis::Namespace.new("#{APPLICATION_NAME}:socketio", :redis => redis_connection)
+$redis_cache = Redis::Namespace.new("#{APPLICATION_NAME}:cache", :redis => redis_connection)
 
 # redefine the procline methods to include APPLICATION_NAME so that `ps aux` will indicate the app.
 # on servers with multiple apps, it can be difficult to identify which workers belong to which apps

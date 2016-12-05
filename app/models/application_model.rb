@@ -91,18 +91,59 @@ class ApplicationModel < ActiveRecord::Base
     @@tables ||= self.connection.tables
   end
 
-  # BEGIN NEW CACHING MAGIC
-  def self.max_timestamp(*things)
+  # BEGIN NEW NEW CACHING MAGIC!
+  def cache_key(*things)
+    begin
+      case
+      when timestamp = self[:updated_at]
+        timestamp = timestamp.utc.to_s(:number)
+        key = "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
+      else
+        key = "#{self.class.model_name.cache_key}/#{id}"
+      end
+      if self.class.const_defined?(:CACHE_KEY_INCLUDES)
+        things = things + self.class.const_get(:CACHE_KEY_INCLUDES)
+      end
+      if !things.empty?
+        @@object = self
+        return "#{key}/#{ApplicationModel.construct_timestamp_hash(*things)}"
+      end
+      return key
+    ensure
+      @@object = false
+    end
+  end
+
+  # accepts n arguments and attempts to detect each type and association to the parent @@object
+  # then produces a max(:updated_at/:created_at) for each collection and MD5's the whole thing so the key doesn't get too long
+  # the whole point here is to make a cache key that represents the latest updates for all collections,
+  # thus ensuring the cache will implicitly break whenever something updates.. MAGIC!
+  def self.construct_timestamp_hash(*things)
     timestamps = []
     things = [things] if !things.is_a?(Array)
     things.each do |thing|
       if thing.is_a?(Time)
         timestamps << thing
       elsif thing.is_a?(Date)
-        timestamps << thing.to_time
-      elsif thing.is_a?(Array)
-        timestamps << thing.maximum(:updated_at).to_time rescue nil
-      elsif thing < ApplicationModel
+        timestamps << thing.to_time rescue nil
+      elsif thing.is_a?(Symbol)
+        # a symbol should represent an AR association i.e. :users
+        # passing a symbol will provide far better performance than the actual object association
+        # Example:
+        # p = Promotion.first
+        # p.cache_key(p.users) <- does select * from users, then max(updated_at)
+        # p.cache_key(:users) <- only does select max(updated_at) from users
+        if !!@@object && @@object.respond_to?(thing)
+          if @@object.reflections[thing].klass.column_names.include?('updated_at')
+            timestamps << @@object.send(thing).maximum(:updated_at).to_time rescue nil
+          elsif @@object.reflections[thing].klass.column_names.include?('created_at')
+            timestamps << @@object.send(thing).maximum(:updated_at).to_time rescue nil
+          end
+        end
+      elsif thing.is_a?(Array) || thing.class.ancestors.include?(ApplicationModel) || thing.ancestors.include?(ApplicationModel)
+        # passing the actual object association
+        # as explained above, this is slower.. but may be necessary at some point?
+        # this was written first and it should probably stick around until we're sure we can drop it
         if thing.respond_to?(:updated_at) || (thing.respond_to?("column_names") && thing.column_names.include?('updated_at'))
           timestamps << thing.maximum(:updated_at).to_time rescue nil
         elsif thing.respond_to?(:created_at) || (thing.respond_to?("column_names") && thing.column_names.include?('created_at'))
@@ -110,28 +151,20 @@ class ApplicationModel < ActiveRecord::Base
         end
       end
     end
-    return timestamps.compact.max.to_time.to_s(:number) rescue nil
+    timestamps.compact!
+    return 'no-data' if timestamps.empty?
+    return Digest::MD5::hexdigest(timestamps.join('/'))
   end
+  # END NEW NEW CACHING MAGIC
 
-  def cache_key(*things)
-    if timestamp = self[:updated_at]
-      timestamp = timestamp.utc.to_s(:number)
-      key = "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
-    else
-      key = "#{self.class.model_name.cache_key}/#{id}"
+  def self.where_flags(flags)
+    # returns the ActiveRecord#where clause to query the flag_defs table
+    sql = []
+    flags.each do |key, value|
+      i,p,v = index_position_value(self.flag_def.detect{|fd|fd.flag_name==key.to_s}.position)
+      sql << "IF(#{self.table_name}.flags_#{i} & POW(2,#{p})=0,false,true) = #{value}"
     end
-    if !things.empty?
-      return "#{key}/#{ApplicationModel.max_timestamp(*things)}"
-    end
-    return key
+    where(sql.join(' AND '))
   end
-
-  def self.collection_cache_key(parent_key, name, *things)
-    name = 'all' if name.is_a?(Array) # hack to convert chained .all() scope (['select','*']) into 'all' for legible cache key
-    key = parent_key.nil? ? "#{self.model_name.cache_key}-#{name}" : "#{parent_key}/#{self.model_name.cache_key}-#{name}"
-    return "#{key}/#{ApplicationModel.max_timestamp(*things)}" if !things.empty?
-    return key
-  end
-  # END NEW CACHING MAGIC
 
 end

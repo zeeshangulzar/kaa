@@ -5,7 +5,7 @@ source 'http://rubygems.org/'
 gem 'rails', '3.2.22.2'
 gem 'rake', '10.3.2'
 gem 'test-unit', '~> 3.0'
-gem 'mysql2', '0.3.16'
+gem 'mysql2', '0.3.18'
 gem 'rmagick', '~> 2.13'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'json'
@@ -26,8 +26,9 @@ gem 'dalli'
 
 # HES Gems
 gem "hes-authorization"
-gem "hes-resque-multi-job-forks"
-gem "hes-fitbit","2.0.5"
+gem "hes-resque-multi-job-forks", "0.4.3.1"
+gem 'hes-resque-scheduler', '4.0.0'
+gem "hes-fitbit","2.1.6"
 gem "hes-jawbone","1.0.8"
 
 group :development do
@@ -39,3 +40,11 @@ group :production do
 end
 
 gem 'american_date'
+
+gem 'charlock_holmes'
+# installing charlock..
+# on linux:
+# sudo yum install libicu-devel
+# gem install charlock_holmes
+# on mac:
+# brew install icu4c
