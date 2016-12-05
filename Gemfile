@@ -2,8 +2,8 @@ source 'http://dev:dev@gems.staging.hesapps.com'
 source 'http://gems.github.com'
 source 'http://rubygems.org/'
 
-gem 'rails', '3.2.22.2'
 gem 'rake', '10.3.2'
+gem 'rails', '3.2.22.2'
 gem 'test-unit', '~> 3.0'
 gem 'mysql2', '0.3.18'
 gem 'rmagick', '~> 2.13'
@@ -23,6 +23,7 @@ gem 'fastercsv'
 gem 'newrelic_rpm'
 gem 'htmlentities', "4.3.0"
 gem 'dalli'
+gem 'hes-events'
 
 # HES Gems
 gem "hes-authorization"

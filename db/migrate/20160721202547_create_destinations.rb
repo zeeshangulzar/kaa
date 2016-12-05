@@ -10,7 +10,7 @@ class CreateDestinations < ActiveRecord::Migration
       t.text :question
       t.text :answers
       t.string :correct_answer
-      t.string :status, :default => Route::STATUS[:active]
+      t.string :status, :default => 'active'
       t.integer :sequence
       t.timestamps
     end
