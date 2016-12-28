@@ -505,4 +505,9 @@ class Promotion < ApplicationModel
        end
     end
 
+    def individual_logging_frozen? #logging is frozen if the current_date greater than to the freezing date, returns false if nil 
+      return false if self.logging_ends_on.nil? 
+      return Date.parse(self.current_date.strftime("%m/%d/%Y")) > self.logging_ends_on
+    end
+
   end

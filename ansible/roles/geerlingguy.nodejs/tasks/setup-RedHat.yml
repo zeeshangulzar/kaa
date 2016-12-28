@@ -1,0 +1,29 @@
+---
+- name: Set up the Nodesource RPM directory for Node.js <= 0.10.
+  set_fact:
+    nodejs_rhel_rpm_dir: "pub"
+  when: nodejs_version <= '0.10'
+
+- name: Set up the Nodesource RPM variable for Node.js <= 0.12.
+  set_fact:
+    nodejs_rhel_rpm_dir: "pub_0.12"
+  when: nodejs_version <= '0.12'
+
+- name: Set up the Nodesource RPM variable for Node.js <= 4.x
+  set_fact:
+    nodejs_rhel_rpm_dir: "pub_4.x"
+  when: nodejs_version <= '5'
+
+- name: Download Nodesource RPM key
+  shell: wget https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL -O /tmp/NODESOURCE-GPG-SIGNING-KEY-EL warn=off
+
+- name: Import RPM key
+  shell: gpg --quiet --with-fingerprint /tmp/NODESOURCE-GPG-SIGNING-KEY-EL warn=off
+
+- name: Add Nodesource repositories for Node.js.
+  shell: rpm -Uvh  "https://rpm.nodesource.com/{{ nodejs_rhel_rpm_dir }}/el/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/nodesource-release-el{{ ansible_distribution_major_version }}-1.noarch.rpm" warn=off
+  args:
+    creates: /etc/yum.repos.d/nodesource-el.repo
+
+- name: Ensure Node.js and npm are installed.
+  yum: "name=nodejs state=present enablerepo='nodesource'"

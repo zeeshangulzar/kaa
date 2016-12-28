@@ -1,0 +1,32 @@
+---
+
+- name: Install libselinux-python package
+  yum: name=libselinux-python state=installed
+  when: ansible_os_family == 'RedHat'
+
+- name: Install common packages
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ flugel_packages_install }}"
+  when: flugel_packages_install is defined
+
+- name: "Python 2.6 SNI support: install pip and required devel packages"
+  yum:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - python-pip
+    - python-devel
+    - libffi-devel
+    - openssl-devel
+
+- name: "Python 2.6 SNI support: install Python modules"
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - urllib3
+    - pyopenssl
+    - ndg-httpsclient
+    - pyasn1

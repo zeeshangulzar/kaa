@@ -1,0 +1,6 @@
+---
+
+rvm1_rubies: [ 'ruby-2.2.4' ]
+rvm1_gpg_key_server: 'hkp://pgp.mit.edu'
+rvm1_install_path: '/home/{{ app_user }}/.rvm'
+rvm1_install_bundler: true
