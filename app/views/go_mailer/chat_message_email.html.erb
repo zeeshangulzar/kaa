@@ -1,0 +1,20 @@
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="background-color:#fff;border-top:1px solid #f2f2f2" colspan="2">
+      <div style="margin:18px;color:#303030;font-size:12px;font-family:Open Sans, Helvetica, Arial;">
+        <p><%= @user.profile.full_name %>,</p>
+        <p>You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.in_time_zone("America/Chicago").strftime("%A, %B #{@chat_message.created_at.in_time_zone("America/Chicago").day.ordinalize}, %l:%M %p CST") %>:</p>
+        <p>
+          <strong>"<%= @chat_message.message %>"</strong>
+          <% if !@chat_message['photo'].nil? %>
+          <br/>
+          <br/>
+          <img src="<%= @chat_message.photo.url %>" alt="<%= @chat_message.message %>" style="max-width:600px;max-height:600px;" />
+          <% end %>
+        </p>
+        <p>Click <a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/messages" style="color:#006ba6">here</a> to respond.</p>
+        <p><a href="http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>" style="color:#006ba6">http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %></a></p>
+      </div>
+    </td>
+  </tr>
+</table>
