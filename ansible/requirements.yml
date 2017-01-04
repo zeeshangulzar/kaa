@@ -1,0 +1,25 @@
+---
+
+# epel role
+- src: geerlingguy.repo-epel
+  version: 1.2.0
+
+# memcached role
+- src: geerlingguy.memcached
+  version: 1.0.7
+
+# nodejs role
+- src: geerlingguy.nodejs
+  version: 3.3.0
+
+# rvm role
+- src: rvm_io.rvm1-ruby
+  version: v1.3.8
+
+# mysql role
+- src: geerlingguy.mysql
+  version: 2.4.0
+
+# redis role
+- src: geerlingguy.redis
+  version: 1.4.1

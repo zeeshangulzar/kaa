@@ -1,0 +1,7 @@
+---
+
+app_root_dir: /srv/kaa
+app_user: vagrant
+app_bundle_path: /usr/local/bin/bundle
+
+flugel_packages_install: ['vim', 'tmux', 'libxml2-devel', 'libxslt-devel', 'ImageMagick-devel' ]
