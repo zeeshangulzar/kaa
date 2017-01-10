@@ -1,4 +1,7 @@
 class Map < ApplicationModel
+
+  CACHE_KEY_INCLUDES = [:routes, :destinations]
+
   attr_privacy :id, :name, :summary, :status, :settings, :public
   attr_privacy_no_path_to_user
   attr_accessible *column_names
