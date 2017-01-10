@@ -174,4 +174,8 @@ class Entry < ApplicationModel
     # update user's aggregate point totals
     self.user.update_points()
   end
+
+  def star
+    
+  end
 end

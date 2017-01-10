@@ -1,5 +1,5 @@
 class ExerciseActivity < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :name, :summary, :created_at, :updated_at
   attr_privacy_no_path_to_user
   attr_privacy :name, :public
 

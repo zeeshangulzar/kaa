@@ -1,7 +1,7 @@
 class Sso < ApplicationModel
   self.table_name = 'ssos'
   belongs_to :promotion
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :token, :session_token, :identifier, :first_name, :last_name, :email, :data, :used_at, :created_at, :updated_at
 
   after_initialize :set_session_token
 

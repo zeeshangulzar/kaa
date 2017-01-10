@@ -4,7 +4,7 @@ class Map < ApplicationModel
 
   attr_privacy :id, :name, :summary, :status, :settings, :public
   attr_privacy_no_path_to_user
-  attr_accessible *column_names
+  attr_accessible :name, :summary, :tile_size, :min_zoom, :max_zoom, :adjusted_width, :adjusted_height, :scale_zoom, :scaled_min_zoom, :icon_visible_zoom, :image_width, :image_height, :status, :created_at, :updated_at
 
   many_to_many :with => :promotion, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
 

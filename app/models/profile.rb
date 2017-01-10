@@ -2,9 +2,11 @@ class Profile < ApplicationModel
   # attrs
   attr_privacy_path_to_user :user
   
-  attr_accessible *column_names
+  attr_accessible :user_id, :gender, :first_name, :last_name, :phone, :mobile_phone, :line1, :line2, :city, :state_province, :country, :postal_code, :time_zone, :started_on, :registered_on, :created_at, :updated_at, :image, :goal_steps, :goal_minutes, :default_logging_type, :goal, :goal_points
+
   attr_privacy :first_name,:last_name,:image,:public_comment
-  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :goal_points, :backlog_date, :default_logging_type, :shirt_size, :shirt_style, :line1, :line2, :city, :state_province, :postal_code, :entity, :backlog_date, :goal, :me
+
+  attr_privacy :first_name,:last_name,:phone,:mobile_phone,:user_id,:updated_at,:created_at, :started_on, :goal_steps, :goal_minutes, :goal_points, :backlog_date, :default_logging_type, :line1, :line2, :city, :state_province, :postal_code, :backlog_date, :goal, :me
 
   # validation
   validates_presence_of :first_name, :last_name

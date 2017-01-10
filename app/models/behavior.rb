@@ -1,5 +1,5 @@
 class Behavior < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :name, :content, :summary, :sequence, :created_at, :updated_at, :image
   attr_privacy_no_path_to_user
   attr_privacy :name, :content, :summary, :image, :sequence, :public
 

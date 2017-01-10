@@ -2,7 +2,7 @@
 # default custom content has promotion_id = null/nil
 class CustomContent < ApplicationModel
   self.table_name = "custom_content"
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :location_id, :category, :key, :title, :description, :summary, :content, :title_html, :description_html, :summary_html, :content_html, :image1, :caption, :caption_html, :sequence, :created_at, :updated_at, :group, :hidden, :image2
   attr_privacy_no_path_to_user
   attr_privacy :promotion_id, :location_id, :category, :key, :group, :title_html, :description_html, :summary_html, :content_html, :image1, :image2, :caption_html, :sequence, :public
   attr_privacy :title, :description, :summary, :content, :caption, :hidden, :master

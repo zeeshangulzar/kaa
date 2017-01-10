@@ -2,7 +2,7 @@ class Eligibility < ApplicationModel
 
   attr_privacy_no_path_to_user
   attr_privacy :promotion_id, :user_id, :identifier, :email, :first_name, :last_name, :public
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :user_id, :identifier, :email, :first_name, :last_name, :created_at, :updated_at
   
   belongs_to :promotion
   belongs_to :user

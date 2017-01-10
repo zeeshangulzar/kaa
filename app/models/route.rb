@@ -1,7 +1,7 @@
 class Route < ApplicationModel
   attr_privacy :id, :name, :travel_type, :status, :length, :points, :ordered_destinations, :overlay_image, :public
   attr_privacy_no_path_to_user
-  attr_accessible *column_names
+  attr_accessible :map_id, :name, :travel_type, :status, :length, :points, :ordered_destinations, :overlay_image, :created_at, :updated_at
 
   belongs_to :map
 

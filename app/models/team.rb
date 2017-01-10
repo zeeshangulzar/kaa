@@ -1,5 +1,5 @@
 class Team < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :competition_id, :name, :motto, :status, :image, :created_at, :updated_at, :promotion_id
   attr_privacy_no_path_to_user
   attr_privacy :id, :name, :motto, :image, :leader, :total_points, :avg_points, :member_count, :status, :competition_id, :rank, :any_user
 

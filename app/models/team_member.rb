@@ -1,8 +1,8 @@
 class TeamMember < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :team_id, :user_id, :competition_id, :is_leader, :total_points, :total_exercise_points, :total_behavior_points, :total_thrive_points, :created_at, :updated_at
   attr_privacy_path_to_user :user
   attr_privacy :id, :team_id, :user_id, :user, :any_user
-  attr_privacy :total_points, :total_exercise_points, :total_behavior_points, :connections
+  attr_privacy :total_points, :total_exercise_points, :total_behavior_points, :total_thrive_points, :connections
   
   # Associations
   belongs_to :user

@@ -1,5 +1,5 @@
 class ChatMessage < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :user_id, :friend_id, :message, :seen, :created_at, :updated_at, :photo
   attr_privacy :message, :user_id, :friend_id, :seen, :photo, :created_at, :updated_at, :friend, :user, :any_user
   attr_privacy_no_path_to_user
 

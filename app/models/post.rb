@@ -28,7 +28,7 @@ class Post < ApplicationModel
   # Validates post using custom validator locatated at lib/post_validater.rb
   validates_with HesPosts::PostValidator
 
-  attr_accessible *column_names
+  attr_accessible :parent_post_id, :root_post_id, :user_id, :depth, :content, :postable_id, :postable_type, :wallable_id, :wallable_type, :is_flagged, :is_deleted, :photo, :created_at, :updated_at, :flagged_by, :title, :views, :source_id
 
   # Set the root post id before validation
   before_validation :set_root_post_id

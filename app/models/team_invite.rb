@@ -1,6 +1,6 @@
 class TeamInvite < ApplicationModel
 
-  attr_accessible *column_names
+  attr_accessible :team_id, :user_id, :competition_id, :invite_type, :status, :email, :invited_by, :message, :created_at, :updated_at
   attr_privacy_no_path_to_user
   attr_privacy :id, :team_id, :user_id, :competition_id, :invite_type, :status, :email, :invited_by, :user, :team, :message, :any_user
 

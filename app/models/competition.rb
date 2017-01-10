@@ -1,6 +1,6 @@
 class Competition < ApplicationModel
 
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :name, :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :freeze_team_scores, :team_size_min, :team_size_max, :active, :created_at, :updated_at
   attr_privacy_no_path_to_user
   attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :team_size_min, :team_size_max, :promotion_id, :freeze_team_scores_on, :public
   attr_privacy :freeze_team_scores, :master

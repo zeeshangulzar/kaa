@@ -2,7 +2,7 @@ class EligibilityFile < ApplicationModel
 
   attr_privacy_no_path_to_user
   attr_privacy :promotion_id, :filename, :total_rows, :rows_processed, :status, :created_at, :any_user
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :filename, :total_rows, :rows_processed, :status, :created_at, :updated_at
   
   belongs_to :promotion
   
