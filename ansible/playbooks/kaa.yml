@@ -1,0 +1,16 @@
+---
+
+- name: kaa.yml
+  hosts: kaa
+  become: True
+
+  roles:
+    - { role: flugel.common,          tags: ["common"] }
+    - { role: geerlingguy.repo-epel,  tags: ["epel"] }
+    - { role: geerlingguy.nodejs,     tags: ["nodejs"] }
+    - { role: flugel.mariadb-repo,    tags: ["mariadb-repo"] }
+    - { role: geerlingguy.redis,      tags: ["redis"] }
+    - { role: rvm_io.rvm1-ruby,       tags: ["ruby"] }
+    - { role: geerlingguy.memcached,  tags: ["memcached"] }
+    - { role: geerlingguy.mysql,      tags: ["mysql"] }
+    - { role: flugel.app,             tags: ["app"] }

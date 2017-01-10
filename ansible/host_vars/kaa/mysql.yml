@@ -1,0 +1,14 @@
+---
+
+mysql_root_password: ''
+mysql_users:
+  - name: hesdev
+    host: "%"
+    password:
+    priv: "*.*:ALL"
+mysql_packages:
+  - MariaDB-server
+  - MariaDB-client
+  - MariaDB-devel
+mysql_daemon: mysql
+mysql_pid_file: /var/lib/mysql/mysqld.pid

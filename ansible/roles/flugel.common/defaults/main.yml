@@ -1,0 +1,4 @@
+---
+# defaults file for flugel.common
+
+flugel_packages_install: ['vim', 'tmux' ]

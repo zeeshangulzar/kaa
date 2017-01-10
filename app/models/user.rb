@@ -25,6 +25,7 @@ class User < ApplicationModel
     :user                       => "User",
     :location_coordinator       => "Location Coordinator",
     :regional_coordinator       => "Regional Coordinator",
+    :super_coordinator          => "Super Coordinator",
     :coordinator                => "Coordinator",
     :reseller                   => "Reseller",
     :poster                     => "Poster",
@@ -439,6 +440,10 @@ class User < ApplicationModel
 
   def friend_ids
     return self.class.where(:id => self.friendships.where(:status => Friendship::STATUS[:accepted]).collect(&:friendee_id))
+  end
+
+  def messages
+    ChatMessage.by_userid(self.id)
   end
 
   def request_friend(user_or_email)

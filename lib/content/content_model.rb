@@ -2,8 +2,8 @@ class ContentModel < ActiveRecord::Base
   self.abstract_class = true
   self.before_save :resync_markdown_columns
 
-  self.after_save :clear_hes_cache
-  self.after_destroy :clear_hes_cache
+  # self.after_save :clear_hes_cache
+  # self.after_destroy :clear_hes_cache
 
   def self.initialize_content_model(options={})
     @@config ||= {}

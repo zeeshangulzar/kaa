@@ -1,0 +1,15 @@
+<%= @user.profile.full_name %>,
+
+You've received a new message on <%= Constant::AppName %> from <%= @chat_message.user.profile.full_name %> @ <%= @chat_message.created_at.in_time_zone("America/Chicago").strftime("%A, %B #{@chat_message.created_at.in_time_zone("America/Chicago").day.ordinalize}, %l:%M %p CST") %>:
+
+"<%= @chat_message.message %>"
+<% if !@chat_message['photo'].nil? %>
+
+A photo was attached, available here: <%= @chat_message.photo.url %>
+
+<% end %>
+
+Go to http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>/#/messages to respond.
+
+------
+http://<%= @user.promotion.subdomain + '.' + DomainConfig::DomainNames.first %>

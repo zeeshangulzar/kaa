@@ -1,4 +1,5 @@
 var app;
+var namespace = 'kaa:socketio:';
 
 // Try to start with a secure server. If the SSL certificate can't be found, use a regular server.
 try{
@@ -23,21 +24,23 @@ var redis = require('redis').createClient();
 var users = {};
 
 // Subscribe to these specific Redis channels.
-redis.subscribe('entrySaved');
-redis.subscribe('fitbitEntrySaved');
-redis.subscribe('jawboneEntrySaved');
-redis.subscribe('newMessageCreated');
-redis.subscribe('newPostCreated');
-redis.subscribe('newTeamPostCreated');
-redis.subscribe('notificationPublished');
-redis.subscribe('newCoordinatorNotification');
-redis.subscribe('welcomeBackMessage');
-redis.subscribe('userUpdated');
-redis.subscribe('promotionUpdated');
-redis.subscribe('TeamInviteAccepted');
+redis.subscribe(namespace + 'entrySaved');
+redis.subscribe(namespace + 'fitbitEntrySaved');
+redis.subscribe(namespace + 'jawboneEntrySaved');
+redis.subscribe(namespace + 'newMessageCreated');
+redis.subscribe(namespace + 'newPostCreated');
+redis.subscribe(namespace + 'newTeamPostCreated');
+redis.subscribe(namespace + 'notificationPublished');
+redis.subscribe(namespace + 'newCoordinatorNotification');
+redis.subscribe(namespace + 'welcomeBackMessage');
+redis.subscribe(namespace + 'userUpdated');
+redis.subscribe(namespace + 'promotionUpdated');
+redis.subscribe(namespace + 'TeamInviteAccepted');
 
 // Fires whenever anything is published to any Redis channel.
 redis.on('message', function(channel, data) {
+	console.log(channel);
+	console.log(data);
 	var userId;
 	var friendId;
 
@@ -47,53 +50,54 @@ redis.on('message', function(channel, data) {
 		}
 
 		switch(channel) {
-			case 'entrySaved':
+			case namespace + 'entrySaved':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('entrySaved', data);
 				break;
-			case 'fitbitEntrySaved':
+			case namespace + 'fitbitEntrySaved':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('fitbitEntrySaved', data);
 				break;
-			case 'jawboneEntrySaved':
+			case namespace + 'jawboneEntrySaved':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('jawboneEntrySaved', data);
 				break;
-			case 'newMessageCreated':
+			case namespace + 'newMessageCreated':
+				console.log("Sending Message");
 				userId = data.user_id.toString();
 				friendId = data.friend_id.toString();
 				io.sockets.in('User' + userId).emit('newMessageCreated', data);
 				io.sockets.in('User' + friendId).emit('newMessageCreated', data);
 				break;
-			case 'newPostCreated':
+			case namespace + 'newPostCreated':
 				promotionId = data.user.promotion_id.toString();
 				io.sockets.in('Promotion' + promotionId).emit('newPostCreated', data);
 				break;
-			case 'newTeamPostCreated':
+			case namespace + 'newTeamPostCreated':
 				teamId = data.wallable_id.toString();
 				io.sockets.in('Team' + teamId).emit('newPostCreated', data);
 				break;
-			case 'notificationPublished':
+			case namespace + 'notificationPublished':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('notificationPublished', data);
 				break;
-			case 'newCoordinatorNotification':
+			case namespace + 'newCoordinatorNotification':
 				promotionId = data.promotion_id.toString();
 				io.sockets.in('Promotion' + promotionId).emit('newCoordinatorNotification', data);
 				break;
-			case 'welcomeBackMessage':
+			case namespace + 'welcomeBackMessage':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('welcomeBackPublished', data);
 				break;
-			case 'userUpdated':
+			case namespace + 'userUpdated':
 				userId = data.id.toString();
 				io.sockets.in('User' + userId).emit('userUpdated', data);
 				break;
-			case 'TeamInviteAccepted':
+			case namespace + 'TeamInviteAccepted':
 				userId = data.user_id.toString();
 				io.sockets.in('User' + userId).emit('TeamInviteAccepted', data);
 				break;
-			case 'promotionUpdated':
+			case namespace + 'promotionUpdated':
 				promotionId = data.id.toString();
 				io.sockets.in('Promotion' + promotionId).emit('promotionUpdated', data);
 				break;
@@ -105,10 +109,13 @@ redis.on('message', function(channel, data) {
 });
 
 io.sockets.on('connection', function(socket) {
+	// console.log(socket);
+	console.log("User connected");
 	
 	// Adds a user to their own room.
 	socket.on('addUser', function(data) {
 		socket.userId = data.userId;
+		console.log("User" + data.userId + " channel created");
 		socket.join('User' + data.userId);
 	});
 

@@ -214,6 +214,7 @@ Go::Application.routes.draw do
 
   resources :team_invites
   resources :team_members
+  resources :chat_messages
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
