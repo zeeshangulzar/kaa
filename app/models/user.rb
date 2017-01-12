@@ -73,7 +73,7 @@ class User < ApplicationModel
   attr_protected :role, :auth_key
   
   attr_privacy :email, :profile, :public
-  attr_privacy :location, :top_level_location_id, :promotion_id, :any_user
+  attr_privacy :location, :top_level_location_id, :promotion_id, :team_id, :team_name, :any_user
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :allows_daily_email, :allows_daily_email_monday_only, :me
   attr_privacy :nuid_verified, :sso_identifier, :master
 
@@ -193,7 +193,6 @@ class User < ApplicationModel
 
   def self.stats(user_ids)
     user_ids = [user_ids] unless user_ids.is_a?(Array)
-    user = self
     sql = "
       SELECT
       entries.user_id AS user_id,
@@ -230,6 +229,46 @@ class User < ApplicationModel
 
   def stats=(hash)
     @stats=hash
+  end
+  
+  def self.levels(user_ids)
+    user_ids = [user_ids] unless user_ids.is_a?(Array)
+    sql = "
+      SELECT
+      users.id AS user_id, levels.id AS level_id, levels.name, count(entries.entry_id) AS total_earned
+      FROM
+      users
+      LEFT JOIN levels ON levels.promotion_id = users.promotion_id
+      LEFT JOIN (
+        SELECT entries.user_id, entries.id entry_id, entries.exercise_points, users.promotion_id, MAX(levels.min) max_level_min
+        FROM entries
+        JOIN users ON entries.user_id = users.id
+        LEFT JOIN levels ON levels.min <= entries.exercise_points
+        WHERE entries.user_id IN (#{user_ids.join(',')})
+        GROUP BY entries.id
+      ) entries ON entries.max_level_min = levels.min AND entries.user_id = users.id
+      WHERE
+      users.id IN (#{user_ids.join(',')})
+      GROUP BY user_id, level_id, 1
+      ORDER BY user_id, levels.min ASC
+    "
+    user_levels = Hash[user_ids.collect{|id| [id, []]}]
+    self.connection.select_all(sql).each do |row|
+     user_levels[row['user_id'].to_i].append({:name => row['name'], :total_earned => row['total_earned']})
+    end
+    return user_levels
+  end
+
+  def levels()
+    unless @levels
+      arr =  self.class.levels([self.id])
+      @levels = arr[self.id]
+    end
+    @levels
+  end
+
+  def levels=(hash)
+    @levels=hash
   end
 
   def location_ids
@@ -289,8 +328,21 @@ class User < ApplicationModel
     return invites
   end
 
+  def team_id
+    return @team_id if !!defined?(@team_id)
+    return nil if self.current_team.nil?
+    return self.current_team.id
+  end
+
   def team_id=(team_id)
     @team_id = team_id
+  end
+
+  def team_name
+    return @team_name if !!defined?(@team_name)
+    return nil if self.current_team.nil?
+    @team_name = self.current_team.name
+    return @team_name
   end
 
   def update_team_member_points

@@ -25,11 +25,8 @@ class DestinationsController < ApplicationController
   def index
     # TODO: need a nice CONSISTENT way to handle statuses across models
     # using params, taking into account role, and don't forget caching!
-    scope = model_status_scope(Destination::STATUS[:active])
-    parent_key = @SB.class == Array ? "maps-#{params[:map_id]}" : nil
-    return HESCachedResponder(Destination.collection_cache_key(parent_key, scope, @SB.send(*scope)), 'ignore_me', {:page_size => 0}) do
-      @SB.send(*scope)
-    end
+    scope = record_status_scope(Destination::STATUS[:active])
+    return HESResponder(@SB.send(*scope))
   end
 
   def show

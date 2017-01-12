@@ -7,7 +7,7 @@ class EvaluationDefinition < ApplicationModel
 
   has_many :evaluations
 
-  many_to_many :with => :custom_prompt, :primary => :evaluation_definition
+  
 
   scope :active, where("start_date <= '#{Date.today}' AND end_date >= '#{Date.today}'").order("start_date ASC")
 
@@ -42,5 +42,7 @@ class EvaluationDefinition < ApplicationModel
     vqArray.delete_if {|question| question == name}
     self.visible_questions = vqArray.join(",")
   end
+
+  many_to_many :with => :custom_prompt, :primary => :evaluation_definition
 
 end

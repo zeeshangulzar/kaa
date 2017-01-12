@@ -21,10 +21,11 @@ class Promotion < ApplicationModel
     super
   end
 
+  has_many :levels
   has_many :users
   has_many :behaviors, :order => "sequence ASC"
   has_many :exercise_activities, :order => "name ASC"
-  has_many :point_thresholds, :as => :pointable, :order => 'min DESC'
+  has_many :point_thresholds
   has_many :email_reminders
   has_many :unsubscribe_list
   has_many :resources
@@ -121,15 +122,15 @@ class Promotion < ApplicationModel
   end
 
   def steps_point_thresholds
-    self.point_thresholds.find(:all, :conditions => {:rel => "STEPS"}, :order => 'min DESC')
+    self.point_thresholds.find(:all, :conditions => {:pointable_type => "Step"}, :order => 'min DESC')
   end
 
   def minutes_point_thresholds
-    self.point_thresholds.find(:all, :conditions => {:rel => "MINUTES"}, :order => 'min DESC')
+    self.point_thresholds.find(:all, :conditions => {:pointable_type => "Minute"}, :order => 'min DESC')
   end
 
   def behaviors_point_thresholds
-    self.point_thresholds.find(:all, :conditions => {:rel => "BEHAVIORS"}, :order => 'min DESC')
+    self.point_thresholds.find(:all, :conditions => {:pointable_type => "Behavior"}, :order => 'min DESC')
   end
 
   def copy_defaults
