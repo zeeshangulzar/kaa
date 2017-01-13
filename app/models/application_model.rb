@@ -76,6 +76,10 @@ class ApplicationModel < ActiveRecord::Base
       @attachments << attachment_name
     elsif attachment != 'no attachment'
       @attachments << [attachment_name.to_sym, attachment]
+    elsif attachment_name.is_a?(Hash)
+      attachment_name.each{|name, attachment|
+        @attachments << [name.to_sym, attachment]
+      }
     end
   end
 

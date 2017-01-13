@@ -1,10 +1,10 @@
 class Promotion < ApplicationModel
 
-  attr_accessible :flags, :organization_id, :map_id, :name, :program_name, :subdomain, :pilot_password, :theme, :logo, :max_participants, :program_length, :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on,  :is_active, :is_archived, :is_registration_frozen, :participation_x, :participation_y, :minimum_minutes_low, :minimum_minutes_medium, :minimum_minutes_high, :minimum_steps_low, :minimum_steps_medium, :minimum_steps_high, :default_goal, :time_zone, :multiplier, :single_day_minute_limit, :single_day_step_limit, :location_labels, :created_at, :updated_at, :backlog_days, :ends_on, :status, :version, :weekly_goal, :logging_ends_on, :disabled_on, :coordinators
+  attr_accessible :flags, :organization_id, :map_id, :name, :program_name, :subdomain, :pilot_password, :theme, :logo, :max_participants, :program_length, :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on,  :is_active, :is_archived, :is_registration_frozen, :participation_x, :participation_y, :minimum_minutes_low, :minimum_minutes_medium, :minimum_minutes_high, :minimum_steps_low, :minimum_steps_medium, :minimum_steps_high, :default_goal, :time_zone, :multiplier, :single_day_minute_limit, :single_day_step_limit, :location_labels, :created_at, :updated_at, :backlog_days, :ends_on, :status, :version, :weekly_goal, :logging_ends_on, :disabled_on, :coordinators, :route_id, :level_label
   attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :public
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :level_label, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :name, :status, :version, :program_name, :current_competition, :weekly_goal, :any_user
-  attr_privacy :pilot_password, :total_participants, :coordinators, :master
+  attr_privacy :pilot_password, :total_participants, :coordinators, :route_id, :master
 
   belongs_to :organization
 
@@ -32,6 +32,8 @@ class Promotion < ApplicationModel
   has_many :competitions
   has_many :notifications, :as => :notificationable, :order => 'created_at DESC'
   has_many :teams
+
+  belongs_to :route
 
   many_to_many :with => :map, :primary => :promotion, :order => "id ASC", :allow_duplicates => false
 
@@ -355,150 +357,150 @@ class Promotion < ApplicationModel
       :location_ids => [],
       :sort         => "total_points",
       :sort_dir     => "DESC"
-      }.nil_merge!(conditions)
+    }.nil_merge!(conditions)
 
-      users_sql = "
-      SELECT
-      "
-      if count
-        users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
-      else
-        users_sql = users_sql + "
-        users.id, profiles.first_name, profiles.last_name, profiles.image, users.location_id, users.top_level_location_id, users.total_points,
-        locations.id AS location_id, locations.name AS location_name
-        "
-      end
+    users_sql = "
+    SELECT
+    "
+    if count
+      users_sql = users_sql + " COUNT(DISTINCT(users.id)) AS user_count"
+    else
       users_sql = users_sql + "
-      FROM users
-      JOIN profiles ON profiles.user_id = users.id
-      LEFT JOIN locations ON locations.id = users.location_id
-      WHERE
-      users.promotion_id = #{self.id}
-      AND users.opted_in_individual_leaderboard = 1
-      #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
+      users.id, profiles.first_name, profiles.last_name, profiles.image, users.location_id, users.top_level_location_id, users.total_points,
+      locations.id AS location_id, locations.name AS location_name
       "
-      if !count
-        users_sql = users_sql + "
-        GROUP BY users.id
-        ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
-        #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
-        #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
-        "
-      end
-      result = self.connection.exec_query(users_sql)
-      if count
-        return result.first['user_count']
-      end
-      users = []
-      rank = 0
-      user_count = 0
-      previous_user = nil
-      result.each{|row|
-        user_count += 1
-        user = {}
-        user['profile']                 = {}
-        user['profile']['image']        = {}
-        user['location']                = {}
-        user['id']                      = row['id']
-        user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
-        user['profile']['first_name']   = row['first_name']
-        user['profile']['last_name']    = row['last_name']
-        user['location']['id']          = row['location_id']
-        user['location']['name']        = row['location_name']
-        user['total_points']            = row['total_points']
-        rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
-        user['rank']                    = rank
-        users << user
-        previous_user = user
-      }
-
-      return users
     end
-
-    def total_participants
-      return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+    users_sql = users_sql + "
+    FROM users
+    JOIN profiles ON profiles.user_id = users.id
+    LEFT JOIN locations ON locations.id = users.location_id
+    WHERE
+    users.promotion_id = #{self.id}
+    AND users.opted_in_individual_leaderboard = 1
+    #{"AND (users.location_id IN (#{conditions[:location_ids].join(',')}) OR users.top_level_location_id IN (#{conditions[:location_ids].join(',')}))" if !conditions[:location_ids].empty?}
+    "
+    if !count
+      users_sql = users_sql + "
+      GROUP BY users.id
+      ORDER BY #{conditions[:sort]} #{conditions[:sort_dir]}
+      #{"LIMIT " + conditions[:offset].to_s + ", " + conditions[:limit].to_s if !conditions[:offset].nil? && !conditions[:limit].nil?}
+      #{"LIMIT " + conditions[:limit].to_s if conditions[:offset].nil? && !conditions[:limit].nil?}
+      "
     end
-
-    def eligibility_fields
-      unless @eligibility_fields
-        fields = Eligibility::DEFAULT_FIELDS
-        if self.custom_eligibility_fields
-          custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
-          fields = fields + custom_fields
-        end
-        @eligibility_fields = fields
-      end
-      return @eligibility_fields
+    result = self.connection.exec_query(users_sql)
+    if count
+      return result.first['user_count']
     end
+    users = []
+    rank = 0
+    user_count = 0
+    previous_user = nil
+    result.each{|row|
+      user_count += 1
+      user = {}
+      user['profile']                 = {}
+      user['profile']['image']        = {}
+      user['location']                = {}
+      user['id']                      = row['id']
+      user['profile']['image']['url'] = row['image'].nil? ? ProfilePhotoUploader::default_url : ProfilePhotoUploader::asset_host_url + row['image'].to_s
+      user['profile']['first_name']   = row['first_name']
+      user['profile']['last_name']    = row['last_name']
+      user['location']['id']          = row['location_id']
+      user['location']['name']        = row['location_name']
+      user['total_points']            = row['total_points']
+      rank = user_count if (!previous_user || previous_user['total_points'] > user['total_points'])
+      user['rank']                    = rank
+      users << user
+      previous_user = user
+    }
 
-    def all_user_emails
-      sql = "
-      SELECT
-      users.email
-      FROM users
-      WHERE users.promotion_id = #{self.id}"
-      user_emails = []
-      self.connection.select_all(sql).each do |row|
-        user_emails.push row['email']
-      end
-      return user_emails
-    end
-
-    def all_team_leaders_current_competition_emails
-      sql = "SELECT
-      users.email
-      from users
-      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
-      inner join teams on team_members.team_id = teams.id and teams.status in (1,0)
-      where users.promotion_id = #{self.id} and users.id is not null"
-      user_emails = []
-      self.connection.select_all(sql).each do |row|
-        user_emails.push row['email']
-      end
-      return user_emails
-    end
-
-    def all_unofficial_current_competition_team_leaders_emails
-      sql = "
-      SELECT
-      users.email
-      from users
-      inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
-      inner join teams on team_members.team_id = teams.id and teams.status = 0
-      where users.promotion_id = #{self.id} and users.id is not null"
-      user_emails = []
-      self.connection.select_all(sql).each do |row|
-        user_emails.push row['email']
-      end
-      return user_emails
-    end
-
-    def update_coordinators
-      oldCoordinators = self.coordinators_was.nil? ? [] : self.coordinators_was.split(',')
-      newCoordinators = self.coordinators.nil? ? [] : self.coordinators.split(',')
-       #DEMOTE the ones that WERE in the old list, but NOT in the new list
-       demoteList = oldCoordinators - newCoordinators
-       #PROMOTE the ones that ARE in the new list, but WEREN't in the old list
-       promoteList = newCoordinators - oldCoordinators
-       demoteList.each do |demoteEmail|
-          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", demoteEmail, self.id])
-          unless user.nil?
-             user.role = User::Role[:user]
-             user.save
-          end
-       end
-       promoteList.each do |promoteEmail|
-          user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", promoteEmail, self.id])
-          unless user.nil?
-             user.role = User::Role[:coordinator]
-             user.save
-          end
-       end
-    end
-
-    def individual_logging_frozen? #logging is frozen if the current_date greater than to the freezing date, returns false if nil 
-      return false if self.logging_ends_on.nil? 
-      return Date.parse(self.current_date.strftime("%m/%d/%Y")) > self.logging_ends_on
-    end
-
+    return users
   end
+
+  def total_participants
+    return self.users.where("users.email NOT LIKE '%hesapps%' AND users.email NOT LIKE '%hesonline%'").count
+  end
+
+  def eligibility_fields
+    unless @eligibility_fields
+      fields = Eligibility::DEFAULT_FIELDS
+      if self.custom_eligibility_fields
+        custom_fields = self.custom_eligibility_fields.collect{ |cef| cef.name }
+        fields = fields + custom_fields
+      end
+      @eligibility_fields = fields
+    end
+    return @eligibility_fields
+  end
+
+  def all_user_emails
+    sql = "
+    SELECT
+    users.email
+    FROM users
+    WHERE users.promotion_id = #{self.id}"
+    user_emails = []
+    self.connection.select_all(sql).each do |row|
+      user_emails.push row['email']
+    end
+    return user_emails
+  end
+
+  def all_team_leaders_current_competition_emails
+    sql = "SELECT
+    users.email
+    from users
+    inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+    inner join teams on team_members.team_id = teams.id and teams.status in (1,0)
+    where users.promotion_id = #{self.id} and users.id is not null"
+    user_emails = []
+    self.connection.select_all(sql).each do |row|
+      user_emails.push row['email']
+    end
+    return user_emails
+  end
+
+  def all_unofficial_current_competition_team_leaders_emails
+    sql = "
+    SELECT
+    users.email
+    from users
+    inner join team_members on users.id = team_members.user_id and team_members.is_leader = 1 and competition_id = #{self.current_competition.id}
+    inner join teams on team_members.team_id = teams.id and teams.status = 0
+    where users.promotion_id = #{self.id} and users.id is not null"
+    user_emails = []
+    self.connection.select_all(sql).each do |row|
+      user_emails.push row['email']
+    end
+    return user_emails
+  end
+
+  def update_coordinators
+    oldCoordinators = self.coordinators_was.nil? ? [] : self.coordinators_was.split(',')
+    newCoordinators = self.coordinators.nil? ? [] : self.coordinators.split(',')
+     #DEMOTE the ones that WERE in the old list, but NOT in the new list
+     demoteList = oldCoordinators - newCoordinators
+     #PROMOTE the ones that ARE in the new list, but WEREN't in the old list
+     promoteList = newCoordinators - oldCoordinators
+     demoteList.each do |demoteEmail|
+        user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", demoteEmail, self.id])
+        unless user.nil?
+           user.role = User::Role[:user]
+           user.save
+        end
+     end
+     promoteList.each do |promoteEmail|
+        user = User.find(:first, :conditions => ["email = ? and promotion_id = ?", promoteEmail, self.id])
+        unless user.nil?
+           user.role = User::Role[:coordinator]
+           user.save
+        end
+     end
+  end
+
+  def individual_logging_frozen? #logging is frozen if the current_date greater than to the freezing date, returns false if nil
+    return false if self.logging_ends_on.nil?
+    return Date.parse(self.current_date.strftime("%m/%d/%Y")) > self.logging_ends_on
+  end
+
+end

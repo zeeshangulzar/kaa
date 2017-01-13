@@ -60,7 +60,14 @@ class PromotionsController < ApplicationController
 
   def current
     if @current_user && !@current_user.master?
-      return HESCachedResponder(@promotion.cache_key, @promotion, {:cache_options=>{:expires_in => ApplicationHelper::seconds_to_midnight(@promotion)}})
+      return HESCachedResponder(@promotion.cache_key, 'ignore-me', {:cache_options=>{:expires_in => ApplicationHelper::seconds_to_midnight(@promotion)}}) do
+        if @promotion.route
+          map = @promotion.route.map
+          map.attach("route", @promotion.route)
+          @promotion.attach("map", map)
+        end
+        @promotion
+      end
     end
     return HESResponder(@promotion)
   end
