@@ -254,5 +254,16 @@ Go::Application.routes.draw do
   match "/promotions/:promotion_id/update_maps" => "maps#update_maps", :via => :post
 
   match "/users/:user_id/destinations" => "destinations#user_destinations", :via => :get
+
+  # image galleries
+  match 'gallery_images/' => 'gallery_images#index', :via => :get
+  match 'gallery_images/:file' => 'gallery_images#index', :via => :get, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#index', :via => :get, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/:file' => 'gallery_images#update', :via => :put, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#update', :via => :put, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/:file' => 'gallery_images#destroy', :via => :delete, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#destroy', :via => :delete, :constraints => { :file => /[^\/]+/ }
+  match "gallery_images/" => 'gallery_images#create', :via => :post
+  match "gallery_images/*path/" => 'gallery_images#create', :via => :post
  
 end
