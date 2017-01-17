@@ -165,4 +165,12 @@ class Entry < ApplicationModel
     level = self.user.promotion.levels.where("`min` <= #{self.exercise_points}").last rescue nil
     return level.nil? ? nil : level.name
   end
+
+  after_commit :do_badges
+
+  def do_badges
+    Badge.do_days_logged(self)
+    Badge.do_weekends_logged(self)
+  end
+
 end

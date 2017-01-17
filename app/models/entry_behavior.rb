@@ -2,7 +2,7 @@
 class EntryBehavior < ApplicationModel
   belongs_to :entry
   belongs_to :behavior  
-  attr_accessible :id, :value, :entry_id, :behavior_id
+  attr_accessible :id, :value, :entry_id, :behavior_id, :points
   attr_privacy :id, :behavior_id, :value, :behavior, :me
   attr_privacy_path_to_user :entry, :user
 
