@@ -3,7 +3,7 @@ class Promotion < ApplicationModel
   attr_accessible :flags, :organization_id, :map_id, :name, :program_name, :subdomain, :pilot_password, :theme, :logo, :max_participants, :program_length, :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on,  :is_active, :is_archived, :is_registration_frozen, :participation_x, :participation_y, :minimum_minutes_low, :minimum_minutes_medium, :minimum_minutes_high, :minimum_steps_low, :minimum_steps_medium, :minimum_steps_high, :default_goal, :time_zone, :multiplier, :single_day_minute_limit, :single_day_step_limit, :location_labels, :created_at, :updated_at, :backlog_days, :ends_on, :status, :version, :weekly_goal, :logging_ends_on, :disabled_on, :coordinators, :route_id, :level_label
   attr_privacy_no_path_to_user
   attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :level_label, :public
-  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :name, :status, :version, :program_name, :current_competition, :weekly_goal, :any_user
+  attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :name, :status, :version, :program_name, :current_competition, :weekly_goal, :default_goal, :any_user
   attr_privacy :pilot_password, :total_participants, :coordinators, :route_id, :master
 
   belongs_to :organization
