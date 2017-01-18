@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   authorize :create, :validate, :track, :get_user_from_auth_key, :password_reset, :verify_password_reset, :forgot, :authenticate, :public
-  authorize :search, :show, :update, :leaderboard, :user
+  authorize :search, :show, :update, :leaderboard, :notification_count, :user
   authorize :index, :coordinator
   authorize :destroy, :impersonate, :master
 
@@ -396,6 +396,20 @@ class UsersController < ApplicationController
     users = @promotion.individual_leaderboard(conditions)
     count = @promotion.individual_leaderboard(conditions, true)
     return HESResponder(users, 'OK', nil, false, count)
+  end
+
+  def notification_count
+    if @current_user.id != params[:user_id].to_i && !@current_user.master?
+      return HESResponder("I can't let you do that, Dave.", "DENIED")
+    end
+    if params[:count] && (params[:count].is_a?(Integer) || params[:count].is_i?)
+      User.transaction do
+        @current_user.notification_count += params[:count].to_i
+        @current_user.notification_count = 0 if @current_user.notification_count < 0
+        @current_user.save!
+      end
+    end
+    return HESDumpResponder({:notification_count => @current_user.notification_count})
   end
 
 end
