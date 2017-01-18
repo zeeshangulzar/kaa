@@ -30,4 +30,6 @@ secure_uploads
 .vagrant
 
 # dont ignore galleries
+!public/galleries/
 !public/galleries/*
+!public/galleries/*/*
