@@ -37,7 +37,7 @@ module HesNotifier
         # @param [message] message that the notification contains
         # @param [options] options including user that the notification came from and key
         def notify(user, title, message, options={})
-          notifications.create(:title => title, :message => message, :user => user, :from_user => options[:from], :key => options[:key]) unless skip_notify
+          notifications.create(:title => title, :message => message, :user => user, :from_user => options[:from], :key => options[:key], :link => options[:link]) unless skip_notify
         end
       end
     end

@@ -86,7 +86,7 @@ class Friendship < ApplicationModel
     elsif !self.friendee.nil? && !self.friender.nil? && self.status == Friendship::STATUS[:accepted] && self.status_was != Friendship::STATUS[:accepted] && !is_inverse
       receiver = (self.sender_id == self.friender_id) ? self.friender : self.friendee
       remitter = (self.sender_id == self.friender_id) ? self.friendee : self.friender
-      notify(receiver, "#{Label} Accepted", "#{remitter.profile.full_name} has accepted your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a> request.", :from => remitter, :key => "friendship_#{id}")
+      notify(receiver, "#{Label} Accepted", "#{remitter.profile.full_name} has accepted your #{Friendship::Label} request.", :from => remitter, :key => "friendship_#{id}", :link => 'profile/friends')
       if receiver.flags[:notify_email_friend_requests]
         # TODO: resque email friend request notification
       end
@@ -255,7 +255,7 @@ class Friendship < ApplicationModel
   def do_notification
     ns = Notification.find(:all, :conditions => {:user_id => self.friendee_id, :key => "friendship_#{self.id}"})
     ns.each{|n|n.destroy}
-    notify(self.friendee, "#{Label} Request", "#{self.friender.profile.full_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.downcase}'>#{Friendship::Label}</a>.", :from => self.friender, :key => "friendship_#{self.id}")
+    notify(self.friendee, "#{Label} Request", "#{self.friender.profile.full_name} has requested to be your #{Friendship::Label}", :from => self.friender, :key => "friendship_#{self.id}", :link => "profile/friends?show=pending")
   end
 
 end

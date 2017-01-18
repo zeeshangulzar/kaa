@@ -161,7 +161,7 @@ class Post < ApplicationModel
       base_url = self.user.poster? ? "wall_expert" : "wall"
       url = !self.parent_post_id.nil? ? "#{base_url}/#{self.parent_post_id}?reply=#{self.id}" : "#{base_url}/#{self.id}"
     end
-    notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your <a href='/#/#{url}'>post</a>!", :from => like.user, :key => post_like_notification_key(like))
+    notify(self.user, "Your post was liked!", "#{like.user.profile.full_name} liked your post!", :from => like.user, :key => post_like_notification_key(like), :link => url)
   end
 
   # Creates a notification after a post is liked
@@ -190,7 +190,7 @@ class Post < ApplicationModel
     else
       url = "wall/#{self.id}"
     end
-    notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your <a href='/#/#{url}?reply=#{reply.id}'>post</a>!", :from => reply.user, :key => post_reply_notification_key(reply))
+    notify(self.user, "Your post was commented on!", "#{reply.user.profile.full_name} commented on your post!", :from => reply.user, :key => post_reply_notification_key(reply), :link => '#{url}?reply=#{reply.id}')
   end
 
   # Destroys the notification after a post reply is destroyed
@@ -212,7 +212,7 @@ class Post < ApplicationModel
 
   def notify_if_flagged
     if !self.is_flagged_was && self.is_flagged
-      notify(self.user, "Your post has been flagged.", "Your <a href='/#/wall/#{self.id}'>post</a> was flagged.", :from => self.user, :key => "post_" + self.id.to_s)
+      notify(self.user, "Your post has been flagged.", "Your post was flagged.", :from => self.user, :key => "post_" + self.id.to_s, :link => 'wall/#{self.id}')
     end
   end
 
