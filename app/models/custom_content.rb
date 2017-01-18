@@ -18,9 +18,6 @@ class CustomContent < ApplicationModel
 
   validates_presence_of :category, :key
 
-  mount_uploader :image1, CustomContentImage1Uploader
-  mount_uploader :image2, CustomContentImage2Uploader
-
   def fix_promotion_id
     if !self.promotion_id.nil? && self.promotion.is_default?
       self.promotion_id = nil
