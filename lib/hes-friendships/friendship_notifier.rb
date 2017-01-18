@@ -9,7 +9,7 @@ module HesFriendships
         base.send :acts_as_notifier
       base.send :after_create, :send_notification
       base.send :after_update, :send_assigned_friend_notification
-      base.send :after_update, :mark_friendship_notification_as_viewed
+      base.send :after_update, :mark_friendship_notification_as_seen_and_read
     end
 
     
@@ -29,8 +29,8 @@ module HesFriendships
     
     # Removes notification after friendships has been accepted or declined
     # @note Called after friendshps is updated
-    def mark_notification_as_viewed
-      notifications.each{|n| n.update_attributes(:viewed => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
+    def mark_notification_as_seen_and_read
+      notifications.each{|n| n.update_attributes(:seen => true, :read => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
     end
   end
 end

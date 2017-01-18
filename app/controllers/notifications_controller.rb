@@ -3,7 +3,7 @@ class NotificationsController < ApplicationController
   # Get the notificationable type and user before each request.
   before_filter :get_notificationable, :only => [:index, :keyed_notifications, :create, :destroy]
 
-  authorize :index, :show, :update, :user
+  authorize :index, :show, :update, :mark_as_seen, :mark_as_read, :user
   authorize :create, :get_past_notifications, :keyed_notifications, :coordinator
   authorize :destroy, :master
 
@@ -39,7 +39,8 @@ class NotificationsController < ApplicationController
       n = {
         :id           => notification.id,
         :total        => notification.total,
-        :total_viewed => notification.total_viewed,
+        :total_seen   => notification.total_seen,
+        :total_read   => notification.total_read,
         :key          => notification.key,
         :title        => notification.title,
         :message      => notification.message,
@@ -66,7 +67,8 @@ class NotificationsController < ApplicationController
     n = {
       :id           => notification.id,
       :total        => notification.total,
-      :total_viewed => notification.total_viewed,
+      :total_seen   => notification.total_seen,
+      :total_read   => notification.total_read,
       :key          => notification.key,
       :title        => notification.title,
       :message      => notification.message,
@@ -76,7 +78,7 @@ class NotificationsController < ApplicationController
   end
 
   def update
-    updateable_attrs = ['hidden', 'viewed']
+    updateable_attrs = ['hidden', 'seen', 'read']
     attrs = scrub(params[:notification], updateable_attrs)
     if params[:id]
       notification ||= @current_user.notifications.find(params[:id]) rescue nil
@@ -100,4 +102,45 @@ class NotificationsController < ApplicationController
     Notification.delete_group(notification.notificationable, notification.created_at)
     return HESResponder(notification)
   end
+
+  def mark_as_seen
+    mark(:seen, params[:ids])
+  end
+
+  def mark_as_read
+    mark(:read, params[:ids])
+  end
+
+  def mark(as, ids)
+    if ids == 'all'
+      Notification.transaction do
+        @current_user.notifications.update_all(as => true)
+      end
+    else
+      if ids.is_a?(Array)
+        nids = ids
+      elsif ids.is_a?(Integer) || (ids.is_a?(String) && ids.is_i?)
+        nids = [ids]
+      else
+        return HESResponder("Bad id format.", "ERROR")
+      end
+      user_id = Notification.where(:id => nids).pluck(:user_id).uniq.first rescue nil
+      if user_id.nil?
+        return HESResponder("Some invalid notifications.", "ERROR")
+      else
+        if user_id != @current_user.id && !@current_user.master?
+          return HESResponder("Not your notifications.", "DENIED")
+        else
+          Notification.transaction do
+            Notification.find(nids).each{|n|
+              n.update_attributes(:seen => true)
+            }
+          end
+        end
+      end
+    end
+    return HESResponder()
+  end
+  private :mark
+
 end

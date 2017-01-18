@@ -1,18 +1,20 @@
-# A model that handles notifications, including creating single notifications and groups of them, as well as deleting groups and marking them as viewed.
+# A model that handles notifications, including creating single notifications and groups of them, as well as deleting groups and marking them as seen and read.
 class Notification < ApplicationModel
   belongs_to :notificationable, :polymorphic => true 
   belongs_to :user, :foreign_key => "user_id"
   belongs_to :from_user, :class_name => 'User'
   
-  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user_id, :created_at, :user_id, :link, :notificationable_type, :notificationable_id, :created_at, :updated_at, :user, :from_user
-  attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :link, :any_user
+  attr_accessible :read, :seen, :hidden, :key, :title, :message, :from_user_id, :created_at, :user_id, :link, :notificationable_type, :notificationable_id, :created_at, :updated_at, :user, :from_user
+  attr_privacy :read, :seen, :hidden, :key, :title, :message, :from_user, :created_at, :link, :any_user
   attr_privacy_no_path_to_user
 
   #validates :title, :presence => true, :length => {:maximum => 100}
   validates :message, :presence => true
   
-  scope :not_viewed, where(:viewed => false)
-  scope :viewed, where(:viewed => true)
+  scope :not_seen, where(:seen => false)
+  scope :seen, where(:seen => true)
+  scope :not_read, where(:read => false)
+  scope :read, where(:read => true)
   scope :visible, where(:hidden => false)
   scope :hidden, where(:hidden => true)
 
@@ -36,25 +38,30 @@ class Notification < ApplicationModel
       sql += values_sql.chop + ";"
       ActiveRecord::Base.connection.execute sql
     }
-    Notification.last(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, id, title, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => "`key`")
+    Notification.last(:select => "COUNT(*) as total, SUM(seen) as total_seen, SUM(read) as total_read, `key`, id, title, message, created_at", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => "`key`")
   end
     
   # Finds all notifications matching a notificationable type and id.
   def self.find_all_by_key_group_by_created_at(notificationable)
-    all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at, hidden, viewed", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
+    all(:select => "COUNT(*) as total, SUM(seen) as total_seen, SUM(read) as total_read, `key`, title, id, message, created_at, hidden, seen, read", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => :created_at)
   end
 
   # Finds all notifications matching a notificationable type and id.
   def self.find_all_group_by_key(notificationable)
-    all(:select => "COUNT(*) as total, SUM(viewed) as total_viewed, `key`, title, id, message, created_at, hidden, viewed", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => '`key`', :order => 'created_at DESC')
+    all(:select => "COUNT(*) as total, SUM(seen) as total_seen, SUM(read) as total_read, `key`, title, id, message, created_at, hidden, seen, read", :conditions => {:notificationable_type => notificationable.class.to_s, :notificationable_id => notificationable.id}, :group => '`key`', :order => 'created_at DESC')
   end
 
-  # Marks the notification as having been viewed.
-  def mark_as_viewed
-    update_attributes(:viewed => true)
+  # Marks the notification as having been seen.
+  def mark_as_seen
+    update_attributes(:seen => true)
   end
 
-  # Marks the notification as having been viewed.
+  # Marks the notification as having been read.
+  def mark_as_read
+    update_attributes(:read => true)
+  end
+
+  # Marks the notification as having been hidden.
   def mark_as_hidden
     update_attributes(:hidden => true)
   end

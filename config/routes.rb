@@ -254,7 +254,9 @@ Go::Application.routes.draw do
   match "/promotions/:promotion_id/update_maps" => "maps#update_maps", :via => :post
 
   match "/users/:user_id/destinations" => "destinations#user_destinations", :via => :get
-  match "/users/:user_id/notification_count" => "users#notification_count", :via => [:get, :post]
+
+  match "/notifications/mark_as_seen" => "notifications#mark_as_seen", :via => :post
+  match "/notifications/mark_as_read" => "notifications#mark_as_read", :via => :post
 
   # image galleries
   match 'gallery_images/' => 'gallery_images#index', :via => :get

@@ -50,7 +50,7 @@ class Friendship < ApplicationModel
   acts_as_notifier
   after_create :send_requested_notification
   after_update :send_accepted_notification
-  after_update :mark_notification_as_viewed
+  after_update :mark_notification_as_seen_and_read
 
   before_create :set_sender
   # Creates an inverse relationship
@@ -94,10 +94,9 @@ class Friendship < ApplicationModel
   end
 
   # marks notification as read after friendships has been accepted or declined
-  def mark_notification_as_viewed
-    notifications.each{|n| n.update_attributes(:viewed => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
+  def mark_notification_as_seen_and_read
+    notifications.each{|n| n.update_attributes(:read => true, :seen => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
   end
-  
 
   # Makes sure there are only unique friendship relationships
   validates_uniqueness_of :friendee_id, :scope => [:friender_id], :if => Proc.new{|friendship| !friendship.friendee_id.nil? }
