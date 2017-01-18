@@ -4,7 +4,7 @@ class Notification < ApplicationModel
   belongs_to :user, :foreign_key => "user_id"
   belongs_to :from_user, :class_name => 'User'
   
-  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user_id, :created_at, :user_id, :url, :notificationable_type, :notificationable_id, :created_at, :updated_at, :user, :fron_user
+  attr_accessible :viewed, :hidden, :key, :title, :message, :from_user_id, :created_at, :user_id, :url, :notificationable_type, :notificationable_id, :created_at, :updated_at, :user, :from_user
   attr_privacy :viewed, :hidden, :key, :title, :message, :from_user, :created_at, :url, :any_user
   attr_privacy_no_path_to_user
 
