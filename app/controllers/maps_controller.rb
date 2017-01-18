@@ -29,9 +29,6 @@ class MapsController < ApplicationController
   def create
     map = nil
     Map.transaction do
-      if !params[:settings].nil?
-        params[:map] = scrub(params[:map].merge(params.delete(:settings)), Map)
-      end
       map = @SB.new(params[:map]) rescue nil
       return HESResponder(map.errors.full_messages, "ERROR") if !map.valid?
       map.save!
@@ -42,9 +39,6 @@ class MapsController < ApplicationController
   def update
     map = @SB.find(params[:id]) rescue nil
     return HESResponder("Map", "NOT_FOUND") if map.nil?
-    if !params[:settings].nil?
-      params[:map] = scrub(params[:map].merge(params.delete(:settings)), Map)
-    end
     Map.transaction do
       map.update_attributes(params[:map])
     end
