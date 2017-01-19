@@ -19,6 +19,7 @@ class Notification < ApplicationModel
   scope :hidden, where(:hidden => true)
 
   after_create :publish_to_redis
+  before_update :set_seen
 
   # Deletes a group of notifications.
   def self.delete_group(notificationable, time)
@@ -69,6 +70,10 @@ class Notification < ApplicationModel
   # send all notifications to redis to have broadcasted via socket.io
   def publish_to_redis
     $redis.publish('notificationPublished', {:notification => self, :user_id => self.user_id}.to_json)
+  end
+
+  def set_seen
+    self.seen = true if self.read
   end
 
 end
