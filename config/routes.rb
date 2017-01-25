@@ -216,6 +216,8 @@ Go::Application.routes.draw do
   resources :team_members
   resources :chat_messages
 
+  match '*chat_messages/hide_conversation' => 'chat_messages#hide_conversation', :via => :post
+
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
   match "/send_mail" => "emails#send_mail", :via => :post

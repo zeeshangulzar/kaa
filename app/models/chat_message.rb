@@ -9,7 +9,7 @@ class ChatMessage < ApplicationModel
   belongs_to :friend, :class_name => "User", :foreign_key => "friend_id"
 
   def self.by_userid(userid)
-    where("user_id = :userid OR friend_id = :userid", :userid => userid).order(:created_at)
+    where("(user_id = :userid AND user_deleted = false) OR (friend_id = :userid AND friend_deleted = false)", :userid => userid).order("created_at desc")
   end
 
   before_create :set_default_values
