@@ -64,6 +64,10 @@ class Entry < ApplicationModel
     true
   end
 
+  def total_points
+    self.behavior_points + self.exercise_points
+  end
+
   def calculate_exercise_points
     points = 0
     value = 0
