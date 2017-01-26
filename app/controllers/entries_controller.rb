@@ -38,6 +38,8 @@ class EntriesController < ApplicationController
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
         :entry_behaviors              => behaviors_array,
+        :total_points                 => entry.total_points,
+        :level_earned                 => entry.level_earned,
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,
