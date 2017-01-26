@@ -33,3 +33,4 @@ secure_uploads
 !public/galleries/
 !public/galleries/*
 !public/galleries/*/*
+config/database.yml

@@ -5,7 +5,7 @@ class Entry < ApplicationModel
   has_many :entry_behaviors, :dependent => :destroy
   accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities
   attr_accessible :entry_behaviors, :entry_exercise_activities
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :level_earned, :me
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
@@ -166,8 +166,7 @@ class Entry < ApplicationModel
   end
 
   def level_earned
-    level = self.user.promotion.levels.where("`min` <= #{self.exercise_points}").last rescue nil
-    return level.nil? ? nil : level.name
+    return Level.entry_level(self)
   end
 
   after_commit :do_badges
