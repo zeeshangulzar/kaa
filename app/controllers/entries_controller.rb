@@ -41,7 +41,8 @@ class EntriesController < ApplicationController
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,
-        :manually_recorded            => entry.manually_recorded
+        :manually_recorded            => entry.manually_recorded,
+        :level_earned                 => entry.level_earned
       }
       entries_array[index] = entry_hash
     }
