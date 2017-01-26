@@ -1,5 +1,6 @@
 class Route < ApplicationModel
   attr_privacy :id, :name, :travel_type, :status, :length, :points, :ordered_destinations, :overlay_image, :public
+  attr_privacy :map_id, :master
   attr_privacy_no_path_to_user
   attr_accessible :map_id, :name, :travel_type, :status, :length, :points, :ordered_destinations, :overlay_image, :created_at, :updated_at
 
@@ -46,10 +47,7 @@ class Route < ApplicationModel
       if h.nil?
         nil
       else
-        h.each{|d|
-          a << d['id']
-        }
-        a
+        h
       end
     end
     return order

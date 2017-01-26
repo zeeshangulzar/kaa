@@ -36,11 +36,12 @@ class Destination < ApplicationModel
     promotion = user.promotion
     destination_ids = Route.ordered_destination_ids(promotion.route)
     
-    days = promotion.current_date - promotion.starts_on
+    #include the current day
+    days = [(promotion.current_date - promotion.starts_on + 1), promotion.route.length].min
 
     return [] if days < 0
     
-    destination_ids = destination_ids.slice(0, days + 1)
+    destination_ids = destination_ids.slice(0, days)
 
     user_destinations = []
     destinations = Destination.find(destination_ids).index_by(&:id).to_h
