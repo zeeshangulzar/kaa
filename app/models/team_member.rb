@@ -7,6 +7,8 @@ class TeamMember < ApplicationModel
   # Associations
   belongs_to :user
   belongs_to :team
+  has_many :team_member_behaviors, :dependent => :destroy
+  
 
   after_create :delete_team_invites
   after_create :delete_old_team_members

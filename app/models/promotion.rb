@@ -23,7 +23,7 @@ class Promotion < ApplicationModel
 
   has_many :levels
   has_many :users
-  has_many :behaviors, :order => "sequence ASC"
+  has_many :behaviors, :as => :behaviorable, :order => "visible_start ASC, sequence ASC"
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds
   has_many :email_reminders
@@ -501,6 +501,10 @@ class Promotion < ApplicationModel
   def individual_logging_frozen? #logging is frozen if the current_date greater than to the freezing date, returns false if nil
     return false if self.logging_ends_on.nil?
     return Date.parse(self.current_date.strftime("%m/%d/%Y")) > self.logging_ends_on
+  end
+
+  def all_behaviors
+    return Behavior.where(:promotion_id => self.id)
   end
 
 end

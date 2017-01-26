@@ -171,4 +171,8 @@ class ApplicationModel < ActiveRecord::Base
     where(sql.join(' AND '))
   end
 
+  def self.yank(sql)
+    return self.connection.select_all(sql).first.first.second
+  end
+
 end
