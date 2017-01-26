@@ -1,7 +1,7 @@
 class Level < ApplicationModel
   belongs_to :promotion
   attr_privacy_no_path_to_user
-  attr_accessible :name, :promotion_id, :min, :image
+  attr_accessible :name, :promotion_id, :min, :image, :has_logged
   attr_privacy :name, :image, :public
   
   def self.entry_level(entry)

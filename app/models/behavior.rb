@@ -1,7 +1,7 @@
 class Behavior < ApplicationModel
   attr_accessible :promotion_id, :behaviorable_type, :behaviorable_id, :name, :content, :summary, :sequence, :image, :start, :end, :visible_start, :visible_end, :created_at, :updated_at
   attr_privacy_no_path_to_user
-  attr_privacy :name, :content, :summary, :image, :sequence, :public
+  attr_privacy :name, :content, :summary, :image, :sequence, :start, :end, :visible_start, :visible_end, :public
 
   belongs_to :promotion
   belongs_to :behaviorable
