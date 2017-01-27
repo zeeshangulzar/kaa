@@ -46,4 +46,11 @@ class LevelsController < ApplicationController
     return HESResponder(level)
   end
 
+  def summary
+    levels = @promotion.levels
+    levels.each{ |level|
+    }
+    return HR(levels)
+  end
+
 end
