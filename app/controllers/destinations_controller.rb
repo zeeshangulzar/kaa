@@ -1,5 +1,5 @@
 class DestinationsController < ApplicationController
-  authorize :index, :show, :user
+  authorize :index, :show, :user_destinations, :user
   authorize :create, :update, :destroy, :master
 
   before_filter :set_sandbox, :only => [:index, :create]
@@ -25,11 +25,8 @@ class DestinationsController < ApplicationController
   def index
     # TODO: need a nice CONSISTENT way to handle statuses across models
     # using params, taking into account role, and don't forget caching!
-    scope = model_status_scope(Destination::STATUS[:active])
-    parent_key = @SB.class == Array ? "maps-#{params[:map_id]}" : nil
-    return HESCachedResponder(Destination.collection_cache_key(parent_key, scope, @SB.send(*scope)), 'ignore_me', {:page_size => 0}) do
-      @SB.send(*scope)
-    end
+    scope = record_status_scope(Destination::STATUS[:active])
+    return HESResponder(@SB.send(*scope))
   end
 
   def show
@@ -69,6 +66,13 @@ class DestinationsController < ApplicationController
       destination.destroy
     end
     return HESResponder(destination)
+  end
+
+  def user_destinations
+    if !@current_user.master? && params[:user_id].to_i != @current_user.id
+      return HESResponder("You can't have this.", "UNAUTHORIZED")
+    end
+    return HESResponder(Destination.user_destinations(params[:user_id].to_i))
   end
 
 end

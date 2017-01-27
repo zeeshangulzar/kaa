@@ -1,0 +1,3 @@
+class Minute < ApplicationModel
+  
+end

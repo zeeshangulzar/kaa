@@ -9,15 +9,15 @@ module HesFriendships
         base.send :acts_as_notifier
       base.send :after_create, :send_notification
       base.send :after_update, :send_assigned_friend_notification
-      base.send :after_update, :mark_friendship_notification_as_viewed
+      base.send :after_update, :mark_friendship_notification_as_seen_and_read
     end
 
     
     # Sends notification to the user that friendship was requested of
     # @note Sent after friendships is created
     def send_notification
-      notify(friend, "#{Label} Request", "#{user.first_name} #{user.last_name} has requested to be your <a href='/#/#{Friendship::Label.pluralize.urlize}'>#{Friendship::Label}</a>.",
-             :from => user, :key => "friendship_#{id}") unless friend.nil? || status == Friendship::STATUS[:accepted]
+      notify(friend, "#{Label} Request", "#{user.first_name} #{user.last_name} has requested to be your #{Friendship::Label}.",
+             :from => user, :key => "friendship_#{id}", :link => "profile/friends?show=pending") unless friend.nil? || status == Friendship::STATUS[:accepted]
     end
     
     # Sends notification if friendships is updated with a friend id
@@ -29,8 +29,8 @@ module HesFriendships
     
     # Removes notification after friendships has been accepted or declined
     # @note Called after friendshps is updated
-    def mark_notification_as_viewed
-      notifications.each{|n| n.update_attributes(:viewed => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
+    def mark_notification_as_seen_and_read
+      notifications.each{|n| n.update_attributes(:seen => true, :read => true)} if (status == Friendship::STATUS[:accepted] || status == Friendship::STATUS[:declined]) && status_was == Friendship::STATUS[:pending]
     end
   end
 end

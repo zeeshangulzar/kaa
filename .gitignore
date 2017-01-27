@@ -23,7 +23,14 @@
 # ignore schema
 /db/schema.rb
 content
-public
 dump.rdb
+public/*
 eligibility
 secure_uploads
+.vagrant
+
+# dont ignore galleries
+!public/galleries/
+!public/galleries/*
+!public/galleries/*/*
+config/database.yml

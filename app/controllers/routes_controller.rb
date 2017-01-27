@@ -63,6 +63,9 @@ class RoutesController < ApplicationController
   def update
     route = Route.find(params[:id]) rescue nil
     return HESResponder("Route", "NOT_FOUND") if route.nil?
+    if route.locked? && (!params[:route].key?(:status) || params[:route][:status] == Route::STATUS[:locked])
+      return HESResponder("Route has been locked. You must unlock before making changes.", "ERROR")
+    end
     points = nil
     ordered_destinations = nil
     Route.transaction do

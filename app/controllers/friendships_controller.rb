@@ -45,9 +45,11 @@ class FriendshipsController < ApplicationController
     accepted = f.select{|friendship|friendship.accepted?}
     stats_ids = accepted.collect{|friendship|[friendship.friendee_id,friendship.friender_id]}.flatten.uniq
     stats = User.stats(stats_ids) unless stats_ids.empty?
+    levels = User.levels(stats_ids) unless stats_ids.empty?
     accepted.each do |accepted|
       # check loaded? to ensure it doesn't unnecessarily load friender or friendee
       accepted.friendee.attach('total_points', stats[accepted.friendee_id]['total_points']) if accepted.association(:friendee).loaded?
+      accepted.friendee.attach('levels', levels[accepted.friendee_id]) if accepted.association(:friendee).loaded?
     end
 
     return HESResponder(f)

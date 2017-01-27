@@ -76,6 +76,10 @@ class ApplicationModel < ActiveRecord::Base
       @attachments << attachment_name
     elsif attachment != 'no attachment'
       @attachments << [attachment_name.to_sym, attachment]
+    elsif attachment_name.is_a?(Hash)
+      attachment_name.each{|name, attachment|
+        @attachments << [name.to_sym, attachment]
+      }
     end
   end
 
@@ -165,6 +169,10 @@ class ApplicationModel < ActiveRecord::Base
       sql << "IF(#{self.table_name}.flags_#{i} & POW(2,#{p})=0,false,true) = #{value}"
     end
     where(sql.join(' AND '))
+  end
+
+  def self.yank(sql)
+    return self.connection.select_all(sql).first.first.second
   end
 
 end

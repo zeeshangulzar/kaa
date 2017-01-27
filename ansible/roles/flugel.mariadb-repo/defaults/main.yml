@@ -1,0 +1,5 @@
+---
+
+mariadb_repofile_path: '/etc/yum.repos.d/mariadb.repo'
+mariadb_repo_gpg_key_url: 'https://yum.mariadb.org/RPM-GPG-KEY-MariaDB'
+mariadb_version: 10.1

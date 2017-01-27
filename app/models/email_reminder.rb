@@ -5,7 +5,7 @@ class EmailReminder < ApplicationModel
  
   attr_privacy_no_path_to_user
   attr_privacy :promotion_id, :days, :subject, :body, :welcome_back_notification, :welcome_back_message, :user
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :days, :subject, :body, :welcome_back_notification, :welcome_back_message, :created_at, :updated_at
 
   scope :asc, :order => "days ASC"
   scope :desc, :order => "days DESC"

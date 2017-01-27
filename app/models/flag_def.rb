@@ -1,3 +1,3 @@
 class FlagDef <  ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :model, :position, :flag_name, :flag_type, :default
 end

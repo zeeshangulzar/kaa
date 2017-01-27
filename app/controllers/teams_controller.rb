@@ -32,7 +32,14 @@ class TeamsController < ApplicationController
   end
   
   def create
-    team = @promotion.current_competition.teams.build(params[:team])
+    if params[:competition_id]
+      competition = @promotion.competitions.find(params[:competition_id]) rescue nil
+    else
+      competition = @promotion.current_competition
+    end
+    return HESResponder("Invalid competition.", "ERROR") if competition.nil?
+
+    team = competition.teams.build(params[:team])
     if !team.valid?
       return HESResponder(team.errors.full_messages, "ERROR")
     end

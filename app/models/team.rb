@@ -1,5 +1,5 @@
 class Team < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :competition_id, :name, :motto, :status, :image, :created_at, :updated_at, :promotion_id
   attr_privacy_no_path_to_user
   attr_privacy :id, :name, :motto, :image, :leader, :total_points, :avg_points, :member_count, :status, :competition_id, :rank, :any_user
 
@@ -61,7 +61,7 @@ class Team < ApplicationModel
     Notification.find(:all, :conditions => ["`key` like ?", "team_#{self.id}%"]).each{|x| x.destroy}
     self.team_invites.each{ |invite|
       if invite.user
-        invite.user.notify(invite.user, "The team \"#{self.name}\" has been disbanded.", "The team \"#{self.name}\" has been disbanded.", :from => self.leader, :key => "team_#{self.id}_deleted")
+        invite.user.notify(invite.user, "The team \"#{self.name}\" has been disbanded.", "The team \"#{self.name}\" has been disbanded.", :from => self.leader, :key => "team_#{self.id}_deleted", :link => 'teams')
       end
       invite.destroy
     }
@@ -130,7 +130,7 @@ class Team < ApplicationModel
         if s == Team::STATUS[:official]
           # official notification
           self.members.each{ |member|
-            notify(member, "Your team is now official", "<a href='/#/team?team_id=#{self.id}'>#{self.name}</a> is now official!", :from => self.leader, :key => "team_#{self.id}_official")
+            notify(member, "Your team is now official", "#{self.name} is now official!", :from => self.leader, :key => "team_#{self.id}_official", :link => "/#/team?team_id=#{self.id}")
           }
         end
       end

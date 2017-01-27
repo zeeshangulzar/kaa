@@ -75,7 +75,10 @@ Go::Application.routes.draw do
     resources :report_joins
     resources :competitions
     resources :maps
+    resources :levels
   end
+
+  get "promotions/:promotion_id/level_summary", :to => "levels#summary"
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
 
@@ -214,6 +217,9 @@ Go::Application.routes.draw do
 
   resources :team_invites
   resources :team_members
+  resources :chat_messages
+
+  match '*chat_messages/hide_conversation' => 'chat_messages#hide_conversation', :via => :post
 
   match "/unsubscribe" => "emails#unsubscribe", :via => :post
 
@@ -251,5 +257,21 @@ Go::Application.routes.draw do
   resources :destinations
 
   match "/promotions/:promotion_id/update_maps" => "maps#update_maps", :via => :post
+
+  match "/users/:user_id/destinations" => "destinations#user_destinations", :via => :get
+
+  match "/notifications/mark_as_seen" => "notifications#mark_as_seen", :via => :post
+  match "/notifications/mark_as_read" => "notifications#mark_as_read", :via => :post
+
+  # image galleries
+  match 'gallery_images/' => 'gallery_images#index', :via => :get
+  match 'gallery_images/:file' => 'gallery_images#index', :via => :get, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#index', :via => :get, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/:file' => 'gallery_images#update', :via => :put, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#update', :via => :put, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/:file' => 'gallery_images#destroy', :via => :delete, :constraints => { :file => /[^\/]+/ }
+  match 'gallery_images/*path/:file' => 'gallery_images#destroy', :via => :delete, :constraints => { :file => /[^\/]+/ }
+  match "gallery_images/" => 'gallery_images#create', :via => :post
+  match "gallery_images/*path/" => 'gallery_images#create', :via => :post
  
 end

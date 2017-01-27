@@ -56,4 +56,9 @@ class Tip < ContentModel
     return range.select{|d|(1..5).include?(d.wday)}.size
   end
 
+  #Bob added... not sure if we are keeping this but I couldn't get seeds.rb to work
+  def clear_hes_cache
+    ApplicationController.hes_cache_clear self.class.name.underscore.pluralize
+  end
+
 end

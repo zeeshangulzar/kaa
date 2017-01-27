@@ -1,7 +1,7 @@
 class ApplicationController < CustomBaseController
   before_filter :set_user_and_promotion
   before_filter :set_default_format_json
-  before_filter :set_model_status
+  before_filter :set_record_status
 
   HTTP_CODES = {
     'OK'           => 200,
@@ -177,7 +177,9 @@ class ApplicationController < CustomBaseController
       :page_size => nil,
       :total_records => nil,
       :status => 'OK',
-      :cache_options => {}
+      :cache_options => {
+        :expires_in => ApplicationHelper::seconds_to_midnight
+      }
     }.nil_merge!(options)
     cache_status = 'hit'
     text = Rails.cache.fetch(cache_key, options[:cache_options]) do
@@ -265,14 +267,14 @@ class ApplicationController < CustomBaseController
   alias_method :HCR, :HESCachedResponder
 
   # a helper method to have @status available in every controller when params[:status] exists
-  def set_model_status
-    @model_status = !params[:status].nil? && params[:status].is_a?(String) ? params[:status] : nil
+  def set_record_status
+    @record_status = !params[:status].nil? && params[:status].is_a?(String) ? params[:status] : nil
   end
 
-  def model_status_scope(default_for_regular_users, default_for_master = 'all', klass = nil)
+  def record_status_scope(default_for_regular_users, default_for_master = 'all', klass = nil)
     statuses = klass.nil? ? Object.const_get(self.controller_name.classify)::STATUS : klass::STATUS
     if @current_user.master?
-      scope = @model_status && statuses.stringify_keys.keys.include?(@model_status) ? statuses[@model_status.to_sym] : default_for_master
+      scope = @record_status && statuses.stringify_keys.keys.include?(@record_status) ? statuses[@record_status.to_sym] : default_for_master
     else
       scope = default_for_regular_users
     end

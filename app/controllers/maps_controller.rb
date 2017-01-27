@@ -9,12 +9,7 @@ class MapsController < ApplicationController
   private :set_sandbox
 
   def index
-    if @current_user.master?
-      scope = @record_status && Map::STATUS.stringify_keys.keys.include?(@record_status) ? Map::STATUS[@record_status_sym] : 'all'
-    else
-      scope = 'active'
-    end
-    return HESResponder(@SB.send(scope))
+    return HESResponder(@SB.send(*record_status_scope('active')))
   end
 
   def show
@@ -23,20 +18,24 @@ class MapsController < ApplicationController
       @SB = Map
     end
     map = @SB.find(params[:id]) rescue nil
-    return HESResponder("Map", "NOT_FOUND") if map.nil?
-    return HESResponder("Route", "NOT_FOUND") if !@current_user.master? && !@promotion.maps.include?(map)
-    map.attach('routes', map.routes)
-    map.attach('destinations', map.destinations)
-    return HESResponder(map)
+    return HESResponder("Map", "NOT_FOUND") if map.nil? || (!@current_user.master? && !@promotion.maps.include?(map))
+    HESCachedResponder(map.cache_key, map) do
+      map.attach('routes', map.routes)
+      map.attach('destinations', map.destinations)
+      map
+    end
   end
 
   def create
     map = nil
+    settings = nil
+    if !params[:map][:settings].nil?
+      settings = params[:map].delete(:settings) rescue nil
+      settings = settings.to_json # serialized json
+    end
     Map.transaction do
-      if !params[:settings].nil?
-        params[:map] = scrub(params[:map].merge(params.delete(:settings)), Map)
-      end
       map = @SB.new(params[:map]) rescue nil
+      map.settings = settings unless settings.nil?
       return HESResponder(map.errors.full_messages, "ERROR") if !map.valid?
       map.save!
     end
@@ -45,11 +44,14 @@ class MapsController < ApplicationController
 
   def update
     map = @SB.find(params[:id]) rescue nil
-    return HESResponder("Map", "NOT_FOUND") if map.nil?
-    if !params[:settings].nil?
-      params[:map] = scrub(params[:map].merge(params.delete(:settings)), Map)
+    settings = nil
+    if !params[:map][:settings].nil?
+      settings = params[:map].delete(:settings) rescue nil
+      settings = settings.to_json # serialized json
     end
+    return HESResponder("Map", "NOT_FOUND") if map.nil?
     Map.transaction do
+      map.settings = settings unless settings.nil?
       map.update_attributes(params[:map])
     end
     return HESResponder(map)

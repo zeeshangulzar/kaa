@@ -1,0 +1,56 @@
+---
+
+- name: Install libicu-devel
+  yum: 
+    name: "libicu-devel"
+    state: installed
+
+- name: Rum bundle install in app directory
+  bundler:
+    state: present
+    chdir: "{{ app_root_dir }}"
+    executable: "{{ app_bundle_path }}"
+  become: false
+
+- name: Run npm install in app node directory
+  npm:
+    path: "{{ app_root_dir }}/realtime"
+  become: false
+
+- name: Run rake db:create in app directory
+  command: rake db:create
+  args:
+    chdir: "{{ app_root_dir }}"
+  become: false
+
+- name: Run rake db:seed_fbskeleton in app directory
+  command: rake db:seed_fbskeleton
+  args:
+    chdir: "{{ app_root_dir }}"
+  become: false
+
+- name: Create tmp directory in app directory
+  file:
+    path: "{{ app_root_dir }}/tmp"
+    state: directory
+    mode: 0755
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+
+- name: Run rake db:seed_recipes in app directory
+  command: rake db:seed_recipes
+  args:
+    chdir: "{{ app_root_dir }}"
+  become: false
+
+- name: Run rake db:migrate in app directory
+  command: rake db:migrate
+  args:
+    chdir: "{{ app_root_dir }}"
+  become: false
+
+- name: Run rake db:seed in app directory
+  command: rake db:seed
+  args:
+    chdir: "{{ app_root_dir }}"
+  become: false

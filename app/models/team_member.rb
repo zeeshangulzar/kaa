@@ -1,12 +1,14 @@
 class TeamMember < ApplicationModel
-  attr_accessible *column_names
+  attr_accessible :team_id, :user_id, :competition_id, :is_leader, :total_points, :total_exercise_points, :total_promotion_behavior_points, :total_competition_behavior_points, :created_at, :updated_at
   attr_privacy_path_to_user :user
   attr_privacy :id, :team_id, :user_id, :user, :any_user
-  attr_privacy :total_points, :total_exercise_points, :total_behavior_points, :connections
+  attr_privacy :total_points, :total_exercise_points, :total_promotion_behavior_points, :total_competition_behavior_points, :connections
   
   # Associations
   belongs_to :user
   belongs_to :team
+  has_many :team_member_behaviors, :dependent => :destroy
+  
 
   after_create :delete_team_invites
   after_create :delete_old_team_members
@@ -23,19 +25,24 @@ class TeamMember < ApplicationModel
       UPDATE team_members
       JOIN (
         SELECT
-          user_id,
-          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0)) AS total_points,
+          team_members.user_id,
+          SUM(COALESCE(entries.behavior_points, 0) + COALESCE(entries.exercise_points, 0) + COALESCE(team_member_behaviors.points), 0) AS total_points,
           SUM(entries.exercise_points) AS total_exercise_points,
-          SUM(entries.behavior_points) AS total_behavior_points
-        FROM entries
+          SUM(entries.behavior_points) AS total_promotion_behavior_points,
+          SUM(team_member_behaviors.points) AS total_competition_behavior_points
+        FROM team_members
+        LEFT JOIN entries ON entries.user_id = team_members.user_id
+        LEFT JOIN team_member_behaviors ON team_member_behaviors.team_member_id = team_members.id
         WHERE
-          user_id = #{self.user_id}
+          team_members.id = #{self.id}
           AND entries.recorded_on BETWEEN '#{self.team.competition.competition_starts_on}' AND '#{self.team.competition.competition_ends_on}'
+          AND team_member_behaviors.recorded_on BETWEEN '#{self.team.competition.competition_starts_on}' AND '#{self.team.competition.competition_ends_on}'
         ) stats on stats.user_id = team_members.user_id
       SET
         team_members.total_points = COALESCE(stats.total_points, 0),
         team_members.total_exercise_points = COALESCE(stats.total_exercise_points, 0),
-        team_members.total_behavior_points = COALESCE(stats.total_behavior_points, 0)
+        team_members.total_promotion_behavior_points = COALESCE(stats.total_promotion_behavior_points, 0),
+        team_members.total_competition_behavior_points = COALESCE(stats.total_competition_behavior_points, 0)
     "
     self.connection.execute(sql)
   end

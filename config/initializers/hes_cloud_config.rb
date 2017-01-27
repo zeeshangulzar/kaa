@@ -1,9 +1,9 @@
 HesCloudStorage.configuration = {
-  :app_key => "picturedmeantfunnysilence",
-  :app_folder => APPLICATION_NAME,
+  :app_key => Rails.env.development? ? "jakebreaksbakedcakes" : "picturedmeantfunnysilence",
+  :app_folder => Rails.env.development? ? "#{APPLICATION_NAME}_dev" : APPLICATION_NAME,
   :use_ssl => Rails.env.production?,
-  :domain => Rails.env.production? ? 'hesapps.com' : 'staging.hesapps.com'
+  :domain => 'hesapps.com'
 }
 CarrierWave.configure do |config|
       config.ensure_multipart_form = false
- end
+end

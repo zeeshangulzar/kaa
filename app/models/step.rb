@@ -1,0 +1,3 @@
+class Step < ApplicationModel
+  
+end

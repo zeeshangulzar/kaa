@@ -1,8 +1,8 @@
 class Competition < ApplicationModel
 
-  attr_accessible *column_names
+  attr_accessible :promotion_id, :name, :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :freeze_team_scores, :team_size_min, :team_size_max, :active, :created_at, :updated_at
   attr_privacy_no_path_to_user
-  attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :team_size_min, :team_size_max, :promotion_id, :freeze_team_scores_on, :public
+  attr_privacy :enrollment_starts_on, :enrollment_ends_on, :competition_starts_on, :competition_ends_on, :active, :name, :team_size_min, :team_size_max, :promotion_id, :freeze_team_scores_on, :behaviors, :public
   attr_privacy :freeze_team_scores, :master
   
   # Associations
@@ -12,6 +12,8 @@ class Competition < ApplicationModel
   has_many :official_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:official]}, :order => "name ASC"
   has_many :pending_teams, :class_name => "Team", :conditions => {:status => Team::STATUS[:pending]}, :order => "name ASC"
   has_many :members, :class_name => "TeamMember"
+
+  has_many :behaviors, :as => :behaviorable, :order => "visible_start ASC, sequence ASC"
 
   ASSOCIATED_CACHE_SYMBOLS = [:current_competition] # custom names used in other models' attr_privacy (e.g. Promotion) that represent an association and require clearing the parent model cache
   

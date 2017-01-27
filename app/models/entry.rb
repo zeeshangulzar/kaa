@@ -1,35 +1,19 @@
 class Entry < ApplicationModel
-=begin
-  @@CACHE_CONFIG['Entry'] = {
-    :self         => false,
-    :parents      => false,
-    :ancestors    => false,
-    :children     => false,
-    :descendants  => false
-  }
-=end
   attr_accessible :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :entry_exercise_activities, :entry_behaviors, :goal_steps, :goal_minutes, :manually_recorded, :user_id
-  # All entries are tied to a user
   belongs_to :user
-
   many_to_many :with => :exercise_activity, :primary => :entry, :fields => [[:value, :integer]], :order => "id ASC", :allow_duplicates => true
-
   has_many :entry_behaviors, :dependent => :destroy
   accepts_nested_attributes_for :entry_behaviors, :entry_exercise_activities
-
   attr_accessible :entry_behaviors, :entry_exercise_activities
-
-  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :me
+  attr_privacy :recorded_on, :exercise_minutes, :exercise_steps, :is_recorded, :notes, :exercise_points, :behavior_points, :updated_at, :entry_behaviors, :goal_steps, :goal_minutes, :user_id, :manually_recorded, :level_earned, :me
   
   # Must have the logged on date and user id
   validates_presence_of :recorded_on, :user_id
-
   # validate
   validate :custom_validation
   
   # Order entries from most recently updated to least recently
   scope :recently_updated, order("`entries`.`updated_at` DESC")
-  
   # Get only entries that are available for recording, can't record in the future so don't grab those entries
   scope :available, lambda{ |options|
     sql = "1=1"
@@ -80,6 +64,10 @@ class Entry < ApplicationModel
     true
   end
 
+  def total_points
+    self.behavior_points + self.exercise_points
+  end
+
   def calculate_exercise_points
     points = 0
     value = 0
@@ -100,24 +88,26 @@ class Entry < ApplicationModel
     end #do activity point threshold
 
     self.exercise_points = points
+    return points
   end
 
   def calculate_behavior_points
     points = 0
-    point_thresholds = self.user.promotion.behaviors_point_thresholds
-    behaviors_logged = 0
     self.entry_behaviors.each{ |entry_behavior|
+      eb_points = 0
       if entry_behavior.value && entry_behavior.value.to_i > 0
-        behaviors_logged += 1
-      end
-    }
-    point_thresholds.each{ |point_threshold|
-      if behaviors_logged >= point_threshold.min
-        points = point_threshold.value
-        break
+        # each behavior can have its own thresholds..
+        # (in gokp/h4h, behavior thresholds were just a count of logged behaviors per entry)
+        threshold = entry_behavior.behavior.point_thresholds.where("`min` <= #{entry_behavior.value.to_i}").last
+        if threshold
+          eb_points = threshold.value
+          points += threshold.value
+        end
+        entry_behavior.update_attributes(:points => eb_points)
       end
     }
     self.behavior_points = points
+    return points
   end
 
   def calculate_points
@@ -174,4 +164,16 @@ class Entry < ApplicationModel
     # update user's aggregate point totals
     self.user.update_points()
   end
+
+  def level_earned
+    return Level.entry_level(self)
+  end
+
+  after_commit :do_badges
+
+  def do_badges
+    Badge.do_days_logged(self)
+    Badge.do_weekends_logged(self)
+  end
+
 end

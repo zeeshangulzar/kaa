@@ -1,0 +1,15 @@
+---
+
+- name: Check if EPEL repo is already configured.
+  stat: path={{ mariadb_repofile_path }}
+  register: mariadb_repofile_result
+
+- name: Add repo file
+  template: src=mariadb.repo.j2 dest="{{ mariadb_repofile_path }}" owner=root group=root mode=0644
+  when: not mariadb_repofile_result.stat.exists
+
+- name: Import MariaDB GPG key.
+  rpm_key:
+    key: "{{ mariadb_repo_gpg_key_url }}"
+    state: present
+  when: not mariadb_repofile_result.stat.exists
