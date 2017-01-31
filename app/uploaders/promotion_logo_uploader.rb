@@ -11,7 +11,7 @@ class PromotionLogoUploader < ApplicationUploader
   end
 
   def default_url
-    "/images/default/promotions/" + [version_name, "default.png"].compact.join('_')
+    "/promotions/" + [version_name, "default.png"].compact.join('_')
   end
 
 end
