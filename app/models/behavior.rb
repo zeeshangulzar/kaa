@@ -10,7 +10,5 @@ class Behavior < ApplicationModel
   
   # Name, type of prompt and sequence are all required
   validates_presence_of :name, :summary
-
-  mount_uploader :image, BehaviorImageUploader
   
 end

@@ -27,6 +27,16 @@ class EntriesController < ApplicationController
         behaviors_array[eb_index] = behavior_hash
       }
 
+      activities_array = []
+      entry.entry_exercise_activities.each_with_index{|eea,eea_index|
+        activity_hash = {
+          :id => eea.id,
+          :exercise_activity_id => eea.exercise_activity_id,
+          :value                => eea.value
+        }
+        activities_array[eea_index] = activity_hash
+      }
+
       entry_hash = {
         :id                           => entry.id,
         :recorded_on                  => entry.recorded_on,
@@ -38,6 +48,7 @@ class EntriesController < ApplicationController
         :url                          => "/entries/" + entry.id.to_s,
         :notes                        => entry.notes,
         :entry_behaviors              => behaviors_array,
+        :entry_exercise_activities    => activities_array,
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,

@@ -21,7 +21,7 @@ class Promotion < ApplicationModel
     super
   end
 
-  has_many :levels, :order => 'min ASC'
+  has_many :levels, :order => 'min ASC, has_logged DESC'
   has_many :users
   has_many :behaviors, :order => "sequence ASC"
   has_many :exercise_activities, :order => "name ASC"
