@@ -1,8 +1,8 @@
 class Promotion < ApplicationModel
 
-  attr_accessible :flags, :organization_id, :map_id, :name, :program_name, :subdomain, :pilot_password, :theme, :logo, :max_participants, :program_length, :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on,  :is_active, :is_archived, :is_registration_frozen, :participation_x, :participation_y, :minimum_minutes_low, :minimum_minutes_medium, :minimum_minutes_high, :minimum_steps_low, :minimum_steps_medium, :minimum_steps_high, :default_goal, :time_zone, :multiplier, :single_day_minute_limit, :single_day_step_limit, :location_labels, :created_at, :updated_at, :backlog_days, :ends_on, :status, :version, :weekly_goal, :logging_ends_on, :disabled_on, :coordinators, :route_id, :level_label
+  attr_accessible :flags, :organization_id, :map_id, :name, :program_name, :subdomain, :pilot_password, :theme, :logo, :max_participants, :program_length, :launch_on, :starts_on, :registration_starts_on, :registration_ends_on, :late_registration_ends_on,  :is_active, :is_archived, :is_registration_frozen, :participation_x, :participation_y, :minimum_minutes_low, :minimum_minutes_medium, :minimum_minutes_high, :minimum_steps_low, :minimum_steps_medium, :minimum_steps_high, :default_goal, :time_zone, :multiplier, :single_day_minute_limit, :single_day_step_limit, :location_labels, :created_at, :updated_at, :backlog_days, :ends_on, :status, :version, :weekly_goal, :logging_ends_on, :disabled_on, :coordinators, :route_id, :level_label, :point_label
   attr_privacy_no_path_to_user
-  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :level_label, :levels, :public
+  attr_privacy :subdomain, :customized_files, :theme, :launch_on, :ends_on, :organization, :registration_starts_on, :registration_ends_on, :late_registration_ends_on, :logo, :is_active, :flags, :current_date, :max_participants, :logging_ends_on, :disabled_on, :location_labels, :organization, :level_label, :levels, :point_label, :public
   attr_privacy :starts_on, :ends_on, :steps_point_thresholds, :minutes_point_thresholds, :behaviors_point_thresholds, :program_length, :behaviors, :backlog_days, :name, :status, :version, :program_name, :current_competition, :weekly_goal, :default_goal, :exercise_activities, :any_user
   attr_privacy :pilot_password, :total_participants, :coordinators, :route_id, :route, :master
 
@@ -23,7 +23,7 @@ class Promotion < ApplicationModel
 
   has_many :levels, :order => 'min ASC, has_logged DESC'
   has_many :users
-  has_many :behaviors, :order => "sequence ASC"
+  has_many :behaviors, :as => :behaviorable, :order => "visible_start ASC, sequence ASC"
   has_many :exercise_activities, :order => "name ASC"
   has_many :point_thresholds
   has_many :email_reminders
@@ -338,7 +338,8 @@ class Promotion < ApplicationModel
       'LENGTH_IN_DAYS'  => self.program_length,
       'LENGTH_IN_WEEKS' => (self.program_length/7.0).ceil,
       'BASE_URL'        => "https://#{self.subdomain}.#{DomainConfig::DomainNames.first}",
-      'COMP_TEAM_SIZE'  => self.current_competition.nil? ? 0 : self.current_competition.team_size_message
+      'COMP_TEAM_SIZE'  => self.current_competition.nil? ? 0 : self.current_competition.team_size_message,
+      'DAILY_POINT_RANGE' => "3 to 5 #{self.point_label.pluralize}"
     }
   end
 
@@ -501,6 +502,10 @@ class Promotion < ApplicationModel
   def individual_logging_frozen? #logging is frozen if the current_date greater than to the freezing date, returns false if nil
     return false if self.logging_ends_on.nil?
     return Date.parse(self.current_date.strftime("%m/%d/%Y")) > self.logging_ends_on
+  end
+
+  def all_behaviors
+    return Behavior.where(:promotion_id => self.id)
   end
 
 end

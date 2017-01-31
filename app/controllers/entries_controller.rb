@@ -49,6 +49,7 @@ class EntriesController < ApplicationController
         :notes                        => entry.notes,
         :entry_behaviors              => behaviors_array,
         :entry_exercise_activities    => activities_array,
+        :total_points                 => entry.total_points,
         :goal_steps                   => entry.goal_steps,
         :goal_minutes                 => entry.goal_minutes,
         :updated_at                   => entry.updated_at,

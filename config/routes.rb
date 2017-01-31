@@ -75,7 +75,10 @@ Go::Application.routes.draw do
     resources :report_joins
     resources :competitions
     resources :maps
+    resources :levels
   end
+
+  get "promotions/:promotion_id/level_summary", :to => "levels#summary"
 
   match 'promotions/:promotion_id/reports/:id/run', :controller => :reports, :action => :run, :via => :post
 
