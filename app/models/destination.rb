@@ -1,12 +1,10 @@
 class Destination < ApplicationModel
-  attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :sequence, :map_id, :any_user
+  attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :sequence, :map_id, :quote_text, :quote_name, :quote_image, :quote_caption, :images, :any_user
+  attr_privacy :image1, :image1_caption, :image2, :image2_caption, :image3, :image3_caption, :image4, :image4_caption, :image5, :image5_caption, :master
   attr_privacy_no_path_to_user
-  attr_accessible :map_id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :correct_answer, :status, :sequence, :created_at, :updated_at
+  attr_accessible :map_id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :correct_answer, :status, :sequence, :created_at, :quote_text, :quote_name, :quote_image, :quote_caption, :image1, :image1_caption, :image2, :image2_caption, :image3, :image3_caption, :image4, :image4_caption, :image5, :image5_caption, :updated_at
 
   belongs_to :map
-
-  mount_uploader :icon1, DestinationIcon1Uploader
-  mount_uploader :icon2, DestinationIcon2Uploader
 
   has_photos # TODO: temporary?
 
@@ -26,6 +24,16 @@ class Destination < ApplicationModel
     # TODO: we want to do a soft delete, so figure out what this should do...
     self.status = STATUS[:deleted]
     self.save!
+  end
+
+  def images
+    images = Array.new
+    images.append({:image => self.image1, :caption => self.image1_caption})
+    images.append({:image => self.image2, :caption => self.image2_caption})
+    images.append({:image => self.image3, :caption => self.image3_caption})
+    images.append({:image => self.image4, :caption => self.image4_caption})
+    images.append({:image => self.image5, :caption => self.image5_caption})
+    return images
   end
 
   # TODO: this is presently returning JSON, needs to return objects
@@ -57,7 +65,8 @@ class Destination < ApplicationModel
         :day => day,
         :date => date,
         :entry_id => entries.key?(date) ? entries[date][:id] : nil,
-        :is_earned => entries.key?(date) ? entries[date][:is_recorded] : nil
+        :is_earned => entries.key?(date) ? entries[date][:is_recorded] : nil, 
+        :images => destination.images
       })
       user_destinations << destination
     }
