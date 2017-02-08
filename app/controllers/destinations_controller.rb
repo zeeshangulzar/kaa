@@ -1,5 +1,5 @@
 class DestinationsController < ApplicationController
-  authorize :index, :show, :user_destinations, :user
+  authorize :index, :show, :user_destinations, :answer, :user
   authorize :create, :update, :destroy, :master
 
   before_filter :set_sandbox, :only => [:index, :create]
@@ -73,6 +73,17 @@ class DestinationsController < ApplicationController
       return HESResponder("You can't have this.", "UNAUTHORIZED")
     end
     return HESResponder(Destination.user_destinations(params[:user_id].to_i))
+  end
+
+  def answer
+    destination = Destination.find(params[:destination_id])
+    answer = @current_user.user_answers.where(:destination_id => destination.id).first rescue nil
+    if answer.nil?
+      answer = @current_user.user_answers.create(:destination_id => destination.id, :answer => params[:answer], :is_correct => destination.check_answer(params[:answer]))
+    else
+      return HESResponder("You've already answered this quiz.", "ERROR")
+    end
+    return HESResponder(Destination.user_destinations(@current_user, destination.id))
   end
 
 end

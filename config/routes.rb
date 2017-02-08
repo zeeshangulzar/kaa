@@ -261,6 +261,8 @@ Go::Application.routes.draw do
 
   match "/users/:user_id/destinations" => "destinations#user_destinations", :via => :get
 
+  match "/destinations/:destination_id/answer" => "destinations#answer", :via => :post
+
   match "/notifications/mark_as_seen" => "notifications#mark_as_seen", :via => :post
   match "/notifications/mark_as_read" => "notifications#mark_as_read", :via => :post
 

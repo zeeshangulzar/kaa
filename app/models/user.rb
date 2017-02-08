@@ -90,6 +90,8 @@ class User < ApplicationModel
   has_many :evaluations, :dependent => :destroy
   has_many :orders, :dependent => :destroy
 
+  has_many :user_answers
+
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
   
