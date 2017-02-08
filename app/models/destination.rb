@@ -84,6 +84,7 @@ class Destination < ApplicationModel
   end
 
   def answers
+    return read_attribute(:answers) if master?
     return read_attribute(:answers).split(/\n+/).select(&:present?)
   end
 

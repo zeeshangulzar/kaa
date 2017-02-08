@@ -175,4 +175,9 @@ class ApplicationModel < ActiveRecord::Base
     return self.connection.select_all(sql).first.first.second
   end
 
+  def master?
+    return nil if HESSecurityMiddleware.current_user.nil?
+    return HESSecurityMiddleware.current_user.master?
+  end
+
 end
