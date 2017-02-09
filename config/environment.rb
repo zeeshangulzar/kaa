@@ -1,5 +1,8 @@
+IS_STAGING=false
+
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 
 # Initialize the rails application
 Go::Application.initialize!
+
