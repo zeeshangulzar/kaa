@@ -72,7 +72,11 @@ class DestinationsController < ApplicationController
     if !@current_user.master? && params[:user_id].to_i != @current_user.id
       return HESResponder("You can't have this.", "UNAUTHORIZED")
     end
-    return HESResponder(Destination.user_destinations(params[:user_id].to_i))
+    destination_id = nil
+    if params[:destination_id]
+      destination_id = params[:destination_id].to_i
+    end
+    return HESResponder(Destination.user_destinations(params[:user_id].to_i, destination_id))
   end
 
   def answer

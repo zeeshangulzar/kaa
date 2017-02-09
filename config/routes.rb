@@ -260,6 +260,7 @@ Go::Application.routes.draw do
   match "/maps/:map_id/upload" => "maps#upload", :via => :post
 
   match "/users/:user_id/destinations" => "destinations#user_destinations", :via => :get
+  match "/users/:user_id/destinations/:destination_id" => "destinations#user_destinations", :via => :get
 
   match "/destinations/:destination_id/answer" => "destinations#answer", :via => :post
 

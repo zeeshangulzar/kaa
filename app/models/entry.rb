@@ -60,7 +60,7 @@ class Entry < ApplicationModel
 
   #Not quite sure the point of this... used to be is_logged
   def set_is_recorded
-    write_attribute(:is_recorded, !exercise_minutes.to_i.zero? || !exercise_steps.to_i.zero?)
+    write_attribute(:is_recorded, !exercise_minutes.to_i.zero? || !exercise_steps.to_i.zero? || self.entry_behaviors.where("value > 0").length > 0)
     true
   end
 

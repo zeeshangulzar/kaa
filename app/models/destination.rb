@@ -1,6 +1,6 @@
 class Destination < ApplicationModel
   attr_privacy :id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :sequence, :map_id, :quote_text, :quote_name, :quote_image, :quote_caption, :images, :icon1_mobile, :icon2_mobile, :any_user
-  attr_privacy :image1, :image1_caption, :image2, :image2_caption, :image3, :image3_caption, :image4, :image4_caption, :image5, :image5_caption, :master
+  attr_privacy :image1, :image1_caption, :image2, :image2_caption, :image3, :image3_caption, :image4, :image4_caption, :image5, :image5_caption, :correct_answer, :master
   attr_privacy_no_path_to_user
   attr_accessible :map_id, :name, :icon1, :icon2, :content, :blurb, :question, :answers, :correct_answer, :status, :sequence, :created_at, :quote_text, :quote_name, :quote_image, :quote_caption, :image1, :image1_caption, :image2, :image2_caption, :image3, :image3_caption, :image4, :image4_caption, :image5, :image5_caption, :updated_at, :icon1_mobile, :icon2_mobile
 
@@ -84,6 +84,7 @@ class Destination < ApplicationModel
   end
 
   def answers
+    return [] if read_attribute(:answers).nil?
     return read_attribute(:answers) if master?
     return read_attribute(:answers).split(/\n+/).select(&:present?)
   end
