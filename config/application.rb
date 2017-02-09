@@ -13,6 +13,7 @@ end
 
 APPLICATION_NAME = 'kaa'
 APP_NAME_ENCODED = APPLICATION_NAME.underscore
+IS_STAGING=false
 
 module Go
   class Application < Rails::Application
