@@ -251,6 +251,8 @@ EOF
   `#{mysql_command} <<< "#{create_script}"`
 end
 
+Promotion.destroy_all
+User.destroy_all
 
 fix_recipes
 

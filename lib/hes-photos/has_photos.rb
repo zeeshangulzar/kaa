@@ -9,7 +9,7 @@ module HesPhotos
       # this deletes all the photoable's photos when the object is deleted
       self.send(:define_method, :destroy) do
         Photo.where(:photoable_type => self.class.to_s, :photoable_id => self.id).destroy_all
-        super
+        super()
       end
     end
   end
