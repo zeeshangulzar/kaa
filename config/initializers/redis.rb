@@ -44,6 +44,8 @@ module RedisExtensions
       super
     rescue Redis::CannotConnectError
       Rails.logger.warn("REDIS CONNECTION FAILURE: Cannot connect to Redis. Need a good way of notifying devs without emailing every single instance, cause that could get crazy, fast.")
+    rescue SocketError
+      Rails.logger.warn("getaddrinfo: nodename nor servname provided, or not known")
     rescue Exception => e
       raise e
     end

@@ -9,7 +9,7 @@ class Organization < ApplicationModel
   after_initialize :set_default_values, :if => 'new_record?'
 
   def set_default_values
-    self.wskey ||= SecureRandom.hex(32)
+    self.wskey ||= SecureRandom.hex(16)
   end
 
   def promotions_count
