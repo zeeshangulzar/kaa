@@ -120,11 +120,11 @@ class EntriesController < ApplicationController
         remove_activities = entry.entry_exercise_activities.reject{|x| entry_exercise_activity_ids.include?(x.id)}
         remove_activities.each do |activity|
           # Remove from array and delete from db
-           entry.entry_exercise_activities.delete(act).first.destroy
+           entry.entry_exercise_activities.delete(activity).first.destroy
         end
         entry_exercise_activities.each do |entry_exercise_activity|
           hash = scrub(entry_exercise_activity, EntryExerciseActivity)
-          if entry_exercise_activity[:exercise_activity_id] && entry_exercise_activity[:value] && entry_exercise_activity[:exercise_activity_id].to_s.is_i? && entry_exercise_activty[:value].to_s.is_i?
+          if entry_exercise_activity[:exercise_activity_id] && entry_exercise_activity[:value] && entry_exercise_activity[:exercise_activity_id].to_s.is_i? && entry_exercise_activity[:value].to_s.is_i?
             if entry_exercise_activity[:id]
               eea = entry.entry_exercise_activities.detect{|x|x.id == entry_exercise_activity[:id].to_i}
               eea.update_attributes(hash)
