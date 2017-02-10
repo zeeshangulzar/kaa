@@ -68,6 +68,10 @@ class Entry < ApplicationModel
     self.behavior_points + self.exercise_points
   end
 
+  def set_exercise_minutes
+    self.exercise_minutes = self.entry_exercise_activities.sum(:value) if !self.entry_exercise_activities.nil?
+  end
+
   def calculate_exercise_points
     points = 0
     value = 0
