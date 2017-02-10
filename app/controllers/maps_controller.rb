@@ -28,14 +28,8 @@ class MapsController < ApplicationController
 
   def create
     map = nil
-    settings = nil
-    if !params[:map][:settings].nil?
-      settings = params[:map].delete(:settings) rescue nil
-      settings = settings.to_json # serialized json
-    end
     Map.transaction do
       map = @SB.new(params[:map]) rescue nil
-      map.settings = settings unless settings.nil?
       return HESResponder(map.errors.full_messages, "ERROR") if !map.valid?
       map.save!
     end
@@ -44,14 +38,8 @@ class MapsController < ApplicationController
 
   def update
     map = @SB.find(params[:id]) rescue nil
-    settings = nil
-    if !params[:map][:settings].nil?
-      settings = params[:map].delete(:settings) rescue nil
-      settings = settings.to_json # serialized json
-    end
     return HESResponder("Map", "NOT_FOUND") if map.nil?
     Map.transaction do
-      map.settings = settings unless settings.nil?
       map.update_attributes(params[:map])
     end
     return HESResponder(map)
