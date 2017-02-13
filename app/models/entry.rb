@@ -27,6 +27,7 @@ class Entry < ApplicationModel
     where(sql).order("`entries`.`recorded_on` DESC").includes(:entry_behaviors, :entry_exercise_activities)
   }
 
+  before_save :set_exercise_minutes
   before_save :nullify_exercise_and_set_is_recorded_and_goals
   before_save :calculate_points
 
@@ -69,7 +70,7 @@ class Entry < ApplicationModel
   end
 
   def set_exercise_minutes
-    self.exercise_minutes = self.entry_exercise_activities.sum(:value) if !self.entry_exercise_activities.nil?
+    self.exercise_minutes = self.entry_exercise_activities.sum(:value)
   end
 
   def calculate_exercise_points

@@ -133,7 +133,6 @@ class EntriesController < ApplicationController
             end
           end
         end
-        entry.set_exercise_minutes
       end
 
       if !entry_behaviors.nil?
