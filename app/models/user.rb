@@ -92,6 +92,8 @@ class User < ApplicationModel
 
   has_many :user_answers
   has_many :conversations, foreign_key: :creator_id
+  has_many :conversation_users
+  has_many :conversations
 
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
