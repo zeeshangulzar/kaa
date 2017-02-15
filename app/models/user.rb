@@ -20,7 +20,7 @@ class User < ApplicationModel
   attr_privacy_no_path_to_user
 
   acts_as_notifier
-  
+
   Role = {
     :user                       => "User",
     :location_coordinator       => "Location Coordinator",
@@ -71,7 +71,7 @@ class User < ApplicationModel
 
   # attrs
   attr_protected :role, :auth_key
-  
+
   attr_privacy :email, :profile, :public
   attr_privacy :location, :top_level_location_id, :promotion_id, :team_id, :team_name, :any_user
   attr_privacy :username, :flags, :role, :active_device, :altid, :last_accessed, :allows_email, :location_id, :top_level_location_id, :backdoor, :opted_in_individual_leaderboard, :allows_daily_email, :allows_daily_email_monday_only, :me
@@ -91,10 +91,11 @@ class User < ApplicationModel
   has_many :orders, :dependent => :destroy
 
   has_many :user_answers
+  has_many :conversations, foreign_key: :creator_id
 
   accepts_nested_attributes_for :profile, :evaluations
   attr_accessor :include_evaluation_definitions
-  
+
   # hooks
   after_initialize :set_default_values, :if => 'new_record?'
   before_validation :set_parents, :on => :create
@@ -123,7 +124,7 @@ class User < ApplicationModel
       self.top_level_location_id = Location.find(self.location_id).top_location.id
     end
   end
-  
+
   def auth_basic_header
     b64 = Base64.encode64("#{self.id}:#{self.auth_key}").gsub("\n","")
     "Basic #{b64}"
@@ -232,7 +233,7 @@ class User < ApplicationModel
   def stats=(hash)
     @stats=hash
   end
-  
+
   def self.levels(user_ids)
     user_ids = [user_ids] unless user_ids.is_a?(Array)
     sql = "
@@ -438,7 +439,7 @@ class User < ApplicationModel
     result.each{ |row|
       ids << row['id']
     }
-    if id_only  
+    if id_only
       return ids
     end
     return ExerciseActivity.find(ids)
@@ -472,7 +473,7 @@ class User < ApplicationModel
 
   def set_sso_password
     if self.promotion.organization.is_sso_enabled && (self.password.nil? || self.password.empty?)
-      self.password = SecureRandom.hex(16) 
+      self.password = SecureRandom.hex(16)
     end
   end
 
@@ -524,7 +525,7 @@ class User < ApplicationModel
       associate_requested_friendships
     end
   end
-  
+
   def check_for_coordinator
     unless self.promotion.coordinators.nil?
       if self.promotion.coordinators.downcase.include?(self.email.downcase)
