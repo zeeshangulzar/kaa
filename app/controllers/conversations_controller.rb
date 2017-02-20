@@ -4,6 +4,7 @@ class ConversationsController < ApplicationController
   before_filter :validate_conversation_type, only: [:create]
   before_filter :validate_conversation, only: [:messages]
   before_filter :validate_conversation_user, only: [:messages]
+  before_filter :validate_get_request, only: [:messages]
 
   def create
     conversation = Conversation.create_conversation(params)
@@ -35,8 +36,16 @@ class ConversationsController < ApplicationController
     end
 
     def validate_conversation_user
-      user = ConversationUser.where(user_id: @target_user.id, conversation_id: @conversation.id)
-      return HESResponder("invalid conversation_user", "ERROR") if user.blank?
+      @user = ConversationUser.where(user_id: @target_user.id, conversation_id: @conversation.id).last
+      return HESResponder("invalid conversation_user", "ERROR") if @user.blank?
+    end
+
+    def validate_get_request
+      return if request.post?
+      @user.last_read_at = Time.now
+      flag = @user.save
+      return HESResponder("last_read_at not updated successfully", "ERROR") if flag.blank?
+      return HESResponder("last_read_at updated successfully")
     end
 
 end
