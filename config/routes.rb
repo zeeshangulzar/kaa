@@ -279,5 +279,7 @@ Go::Application.routes.draw do
   match "gallery_images/*path/" => 'gallery_images#create', :via => :post
 
   match "conversations/" => 'conversations#create', :via => :post
+  match "conversations/:conversation_id/messages" => 'conversations#messages', :via => :post
+
 
 end

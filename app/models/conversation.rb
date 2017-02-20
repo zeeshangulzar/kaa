@@ -12,7 +12,7 @@ class Conversation < ActiveRecord::Base
       ActiveRecord::Base.transaction do
         conversation = save_conversation(params)
         conversation.save_conversation_users(params)
-        Message.save_message(params)
+        Message.save_message(params[:creator_id], params[:message][:content])
       end
       return true
     rescue
