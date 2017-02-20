@@ -7,6 +7,8 @@ class Conversation < ActiveRecord::Base
   belongs_to :user, foreign_key: :creator_id
   has_many :conversation_users
 
+  scope :unmuted_conversations, ->(creator_id) {includes(:conversation_users).where("conversation_users.muted_at IS NOT NULL AND conversations.creator_id = ?", creator_id)}
+
   def self.create_conversation(params)
     begin
       ActiveRecord::Base.transaction do

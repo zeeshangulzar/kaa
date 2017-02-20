@@ -280,6 +280,7 @@ Go::Application.routes.draw do
 
   match "conversations/" => 'conversations#create', :via => :post
   match "conversations/:conversation_id/messages" => 'conversations#messages', :via => :post
+  match "/users/:user_id/conversation_summary" => 'users#conversation_summary', :via => :get
 
 
 end

@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     json = impersonate_user.as_json
     json[:auth_key] = impersonate_user.auth_key
     render :json => json and return
-    
+
     return HESResponder(impersonate_user)
   end
 
@@ -19,7 +19,7 @@ class UsersController < ApplicationController
 
     json = impersonated_user.as_json
     json[:auth_basic_header] = impersonated_user.auth_basic_header
-    
+
     render :json => json and return
   end
 
@@ -48,7 +48,7 @@ class UsersController < ApplicationController
       user = user && user.password == params[:password] ? user : nil
     elsif @promotion.nil? && info[:subdomain] == 'api' && !params[:email].nil? && !params[:email].empty?
       users = User.find(:all,
-                :conditions => 
+                :conditions =>
                   [
                     "altid = ? or email = ?",
                     params[:email], params[:email]
@@ -133,7 +133,7 @@ class UsersController < ApplicationController
                WHERE u.id = #{@target_user.id};"
 
         jawbone_notifications = User.connection.select_all(notification_sql)
-        
+
         @target_user.attach('jawbone_user', @target_user.jawbone_user)
         @target_user.attach('jawbone_user_notifications', jawbone_notifications)
         @target_user.attach('jawbone_weeks', @target_user.get_fitbit_weeks)
@@ -174,7 +174,7 @@ class UsersController < ApplicationController
         return HESResponder("Must provide SSO session token for SSO enabled organizations.", "ERROR")
       else
         sso = Sso.find_by_session_token(cookies['sso_session_token']) rescue nil
-        if !sso 
+        if !sso
           return HESResponder("SSO not found.", "ERROR")
         elsif !@promotion.users.where(:sso_identifier => sso.identifier).empty?
           return HESResponder("SSO identifier already in use.", "ERROR")
@@ -221,7 +221,7 @@ class UsersController < ApplicationController
     user.attach('auth_basic_header', user.auth_basic_header)
     return HESResponder(user)
   end
-  
+
   def update
     if @target_user.id != @current_user.id && !@current_user.master?
       return HESResponder("You may not edit this user.", "DENIED")
@@ -250,7 +250,7 @@ class UsersController < ApplicationController
       end
     end
   end
-  
+
   def destroy
     if @current_user.master? && @current_user.id != @target_user.id
       User.transaction do
@@ -410,6 +410,11 @@ class UsersController < ApplicationController
       end
     end
     return HESDumpResponder({:notification_count => @current_user.notification_count})
+  end
+
+  def conversation_summary
+    conversations = Conversation.unmuted_conversations(params[:user_id]).count
+    return HESResponder("count: #{conversations}")
   end
 
 end
