@@ -40,4 +40,21 @@ class Conversation < ActiveRecord::Base
       end
     end
 
+    def syncronize_conversation_users
+      #Under the assumption, conversatuion has polymorphic assocation with team
+      user_ids = []
+      users = self.conversation_users
+      members = self.team.members
+      members.each do |member|
+        user = users.where(user_id: member.user_id).last
+        if user.blank?
+          new_user = self.conversation_user.new
+          new_user.user_id = member.user_id
+          new_user.save
+          user_ids << member.user_id
+        end
+      end
+      rejected_users = users.where("user_id NOT IN (?)", user_ids).delete_all
+    end
+
 end

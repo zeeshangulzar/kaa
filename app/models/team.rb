@@ -30,6 +30,7 @@ class Team < ApplicationModel
   before_save :handle_status
   before_destroy :disband
   before_destroy :delete_team_members
+  after_save :syncronize_conversation_users
 
   STATUS.each_pair do |key, value|
     self.send(:scope, key, where(:status => value))
@@ -161,9 +162,9 @@ class Team < ApplicationModel
         JOIN teams ON teams.id = team_members.team_id AND teams.status = #{Team::STATUS[:official]} and teams.competition_id = #{team.competition_id}
         GROUP BY team_id
         HAVING team_rank > (
-          SELECT 
-          AVG(total_points) 
-          FROM team_members 
+          SELECT
+          AVG(total_points)
+          FROM team_members
           WHERE
           team_id = #{team.id}
         )
@@ -186,4 +187,13 @@ class Team < ApplicationModel
     return !self.competition.team_size_max.nil? && self.member_count >= self.competition.team_size_max
   end
 
+  private
+    def syncronize_conversation_users
+      #Under the assumption, conversation has polymorphic assocation with team
+      conversations = self.conversations
+      conversations.each do |conversation|
+        conversation.syncronize_conversation_users
+      end
+
+    end
 end
