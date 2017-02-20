@@ -1,7 +1,7 @@
 require 'resque/server'
 
 Go::Application.routes.draw do
-  
+
   root :to => "promotions#current"
   match '/promotions/current' => "promotions#current", :via => :get
 
@@ -13,7 +13,7 @@ Go::Application.routes.draw do
   match "/track" => "users#track", :via => :post
   match "/users/validate" => "users#validate", :via => :post
   match "/users/:user_id/profile" => "profiles#show", :via => :get
-  match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get 
+  match "/promotions/:promotion_id/users/search/:search_string" => "users#search", :via => :get
   match '/users/:user_id/entries' => 'entries#index', :via => :get
 
   match "/files/upload" => "files#upload", :via => :post
@@ -92,7 +92,7 @@ Go::Application.routes.draw do
   resources :articles
   resources :facts
   resources :custom_content, :controller => "custom_content"
-  
+
   match 'promotions/:promotion_id/custom_content/reorder' => 'custom_content#reorder', :via => :post
   match 'custom_content/copy' => 'custom_content#copy', :via => :post
 
@@ -126,7 +126,7 @@ Go::Application.routes.draw do
   match '*notificationable_type/*notificationable_id/notifications' => 'notifications#create', :via => :post
   match '*notificationable_type/*notificationable_id/notifications/:id' => 'notifications#destroy', :via => :delete
 
-  
+
   match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_show', :via => :get
   match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_create', :via => [:post, :put]
   match '*likeable_type/*likeable_id/user_like' => 'likes#user_like_destroy', :via => :delete
@@ -152,7 +152,7 @@ Go::Application.routes.draw do
   resources :ratings
   match '*rateable_type/*rateable_id/ratings' => 'ratings#index', :via => :get
   match '*rateable_type/*rateable_id/ratings' => 'ratings#create', :via => :post
-  
+
   match '/flagged_posts' => 'posts#flagged_posts', :via => :get
 
   match '*wallable_type/*wallable_id/popular_posts' => 'posts#popular_posts', :via => :get
@@ -163,7 +163,7 @@ Go::Application.routes.draw do
   match '*wallable_type/*wallable_id/posts' => 'posts#index', :via => :get
 	match '*wallable_type/*wallable_id/posts' => 'posts#create', :via => :post
 	resources :wall_expert_posts
-  
+
   # hes-recipes
   match "/recipes/favorites" => "recipes#user_favorites", :via => :get
   match "/recipes/daily" => "recipes#show", :daily => true
@@ -277,5 +277,7 @@ Go::Application.routes.draw do
   match 'gallery_images/*path/:file' => 'gallery_images#destroy', :via => :delete, :constraints => { :file => /[^\/]+/ }
   match "gallery_images/" => 'gallery_images#create', :via => :post
   match "gallery_images/*path/" => 'gallery_images#create', :via => :post
- 
+
+  match "conversations/" => 'conversations#create', :via => :post
+
 end
