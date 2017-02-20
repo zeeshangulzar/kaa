@@ -4,6 +4,8 @@ class Message < ActiveRecord::Base
 
   belongs_to :user
 
+  mount_uploader :image, MessagePhotoUploader
+
   def self.save_message(creator_id, content)
     message = Message.new
     message.user_id = creator_id
