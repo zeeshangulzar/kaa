@@ -5,6 +5,7 @@ class ConversationsController < ApplicationController
   before_filter :validate_conversation, only: [:messages]
   before_filter :validate_conversation_user, only: [:messages]
   before_filter :validate_get_request, only: [:messages]
+  before_filter :validate_message_content, only: [:messages]
 
   def create
     conversation = Conversation.create_conversation(params)
@@ -46,6 +47,10 @@ class ConversationsController < ApplicationController
       flag = @user.save
       return HESResponder("last_read_at not updated successfully", "ERROR") if flag.blank?
       return HESResponder("last_read_at updated successfully")
+    end
+
+    def validate_message_content
+      return HESResponder("message content not found", "ERROR") if params[:message][:content].blank?
     end
 
 end
