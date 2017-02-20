@@ -4,6 +4,8 @@ class UsersController < ApplicationController
   authorize :index, :coordinator
   authorize :destroy, :impersonate, :master
 
+  after_filter :update_conversation_user_last_seen
+
   def impersonate
     impersonate_user = User.find(params[:impersonate_id])
 
@@ -416,5 +418,11 @@ class UsersController < ApplicationController
     conversations = Conversation.unmuted_conversations(params[:user_id]).count
     return HESResponder("count: #{conversations}")
   end
+
+  private
+
+    def update_conversation_user_last_seen
+      ConversationUser.update_last_seen(params[:user_id])
+    end
 
 end
