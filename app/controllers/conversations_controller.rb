@@ -50,7 +50,7 @@ class ConversationsController < ApplicationController
     end
 
     def validate_message_content
-      return HESResponder("message content not found", "ERROR") if params[:message][:content].blank?
+      return HESResponder("message content not found", "ERROR") if params[:content].blank?
     end
 
 end
